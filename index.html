@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Desktop Engine V0.6 - Ultimate Showcase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <div id="menubar"></div>
+        <div id="desktop">
+            <div id="windows"></div>
+        </div>
+        <div id="taskbar">
+            <button class="taskStart" id="showDesktop">Desktop</button>
+            <div class="taskWindows" id="taskWindows"></div>
+            <div class="clock" id="clock"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Framework } from './core.js';
+        import { Desktop } from './desktop.js';
+        import {
+            MenuBar, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
+            Form, Input, Select, Checkbox, Toggle, Button,
+            Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement
+        } from './ui.js';
+
+        // Inicializa o desktop na posição escolhida
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "bottom", // Pode ser 'top', 'bottom', 'left', 'right'
+            showDesktopButton: true
+        });
+
+        function updateClock() {
+            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+
+        // --- MENU BAR (TOPO) ---
+        MenuBar({
+            containerId: "menubar",
+            menus: [
+                {
+                    label: "Módulos",
+                    items: [
+                        { label: "Painel de Controle", action: () => openScreen(DashboardScreen, "dashboard") },
+                        { label: "Listagem Avançada (DataGrid)", action: () => openScreen(DataGridScreen, "datagrid") },
+                        { label: "Navegador Web", action: () => openScreen(BrowserScreen, "browser") },
+                        { label: "Formulários e Cadastros", action: () => openScreen(FormsScreen, "forms") },
+                        { label: "Gerenciador de Tarefas", action: () => openScreen(TaskScreen, "tasks") }
+                    ]
+                },
+                {
+                    label: "Exibir",
+                    items: [
+                        { label: "Organizar Janelas em Grade", action: () => Desktop.arrangeWindows() },
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                    ]
+                },
+                {
+                    label: "Sistema",
+                    items: [
+                        {
+                            label: "Preferências",
+                            items: [
+                                { label: "Modo Escuro", action: () => Desktop.notify("Modo escuro não implementado", "warning") },
+                                { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
+                            ]
+                        },
+                        "separator",
+                        { label: "Sobre", action: () => openScreen(SobreScreen, "sobre") }
+                    ]
+                }
+            ]
+        });
+
+        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            ContextMenu({
+                x: e.clientX, y: e.clientY,
+                items: [
+                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+                    "separator",
+                    { label: "Abrir Painel", action: () => openScreen(DashboardScreen, "dashboard") },
+                    { label: "Abrir DataGrid", action: () => openScreen(DataGridScreen, "datagrid") }
+                ]
+            });
+        });
+
+        // --- TELAS DO SHOWCASE ---
+
+        // 1. Tela Multi-instância (Post-it / Anotação)
+        let anotacaoCount = 1;
+        function abrirAnotacao() {
+            const AnotacaoScreen = {
+                title: `Anotação #${anotacaoCount++}`,
+                icon: "📝",
+                width: 300,
+                height: 250,
+                singleInstance: false, // Pode abrir infinitas!
+                state: { texto: "" },
+                view() {
+                    const t = createElement("textarea", "filter-input", []);
+                    t.style.flex = "1";
+                    t.style.resize = "none";
+                    t.value = this.state.texto;
+                    t.oninput = e => this.state.texto = e.target.value;
+                    return createElement("div", "flex-col", [t]);
+                }
+            };
+            // Passamos um ID único baseado no Date.now para garantir instâncias separadas
+            Desktop.open(Framework.createWindow(AnotacaoScreen, `anotacao_${Date.now()}`, Desktop));
+        }
+
+        // 2. Tela de DataGrid Avançado
+        const DataGridScreen = {
+            title: "Listagem de Clientes",
+            icon: "🗃️",
+            width: 750,
+            height: 500,
+            singleInstance: true,
+            state: {
+                clientes: [
+                    { id: 1, nome: "Acme Corp", setor: "Tecnologia", status: "Ativo", faturamento: 15000 },
+                    { id: 2, nome: "Global Industries", setor: "Manufatura", status: "Inativo", faturamento: 8500 },
+                    { id: 3, nome: "Stark Enterprises", setor: "Defesa", status: "Ativo", faturamento: 95000 },
+                    { id: 4, nome: "Wayne Enterprises", setor: "Investimentos", status: "Pendente", faturamento: 45000 },
+                    { id: 5, nome: "Cyberdyne Systems", setor: "IA", status: "Ativo", faturamento: 300000 }
+                ]
+            },
+            view() {
+                const gridEl = DataGrid({
+                    bindData: "clientes",
+                    instance: this,
+                    columns: [
+                        { key: "id", label: "ID", sortable: true },
+                        { key: "nome", label: "Razão Social", sortable: true, filterable: true },
+                        { key: "setor", label: "Setor", sortable: true, filterable: true },
+                        { key: "faturamento", label: "Faturamento", sortable: true, render: (val) => `R$ ${val.toLocaleString('pt-BR')}` },
+                        {
+                            key: "status", label: "Status", sortable: true, filterable: true, render: (val) => {
+                                let variant = "primary";
+                                if (val === "Ativo") variant = "success";
+                                if (val === "Inativo") variant = "danger";
+                                if (val === "Pendente") variant = "warning";
+                                return Badge({ text: val, variant });
+                            }
+                        }
+                    ]
+                });
+
+                bindContextMenu(gridEl, [
+                    { label: "Exportar Tabela para CSV", action: () => Desktop.notify("Tabela exportada com sucesso!", "success") },
+                    { label: "Atualizar Dados", action: () => Desktop.notify("Dados atualizados.", "info") },
+                    "separator",
+                    { label: "Imprimir Relatório", action: () => printElement(gridEl, { title: "Relatório de Clientes" }) }
+                ]);
+
+                return createElement("div", "", [
+                    Card({
+                        title: "Base de Dados (Clique com botão direito!)", children: [
+                            gridEl
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        const SobreScreen = {
+            title: "Sobre o Sistema",
+            icon: "ℹ️",
+            width: 400,
+            height: 250,
+            resizable: false, // Bloqueia o redimensionamento da janela (padrão é true)
+            minimizable: false, // Esconde o botão de minimizar e remove do menu (padrão é true)
+            maximizable: false, // Esconde o botão de maximizar e remove do menu (padrão é true)
+            singleInstance: true,
+            state: {},
+            view() {
+                return createElement("div", "", [
+                    createElement("h2", "", ["Desktop Engine v0.4"]),
+                    createElement("p", "", ["Tente abrir esta tela novamente e veja a janela original piscar (Efeito Blink)."]),
+                    createElement("p", "", ["Abra várias instâncias de 'Nova Anotação' pelo menu 'Acessórios'."])
+                ]);
+            }
+        };
+
+        const DashboardScreen = {
+            title: "Painel de Controle",
+            icon: "📊",
+            width: 700,
+            height: 500,
+            singleInstance: true,
+            status: "Atualizado agora mesmo",
+            state: {},
+            view() {
+                const tableData = [
+                    { id: 1, cliente: "Apple", valor: "R$ 45.000,00", status: "Pago" },
+                    { id: 2, cliente: "Microsoft", valor: "R$ 32.500,00", status: "Pendente" },
+                    { id: 3, cliente: "Google", valor: "R$ 89.000,00", status: "Atrasado" }
+                ];
+
+                return createElement("div", "", [
+                    Grid({
+                        columns: 3,
+                        children: [
+                            Card({ title: "Vendas do Mês", children: [createElement("h2", "", ["R$ 166.500,00"])] }),
+                            Card({ title: "Novos Clientes", children: [createElement("h2", "", ["143"])] }),
+                            Card({ title: "Status do Servidor", children: [Badge({ text: "Online e Estável", variant: "success" })] })
+                        ]
+                    }),
+                    createElement("h3", "", ["Metas Trimestrais"]),
+                    Row({
+                        children: [
+                            Col({
+                                children: [
+                                    createElement("label", "", ["Faturamento"]),
+                                    ProgressBar({ value: 85, max: 100 })
+                                ]
+                            }),
+                            Col({
+                                children: [
+                                    createElement("label", "", ["Redução de Custos"]),
+                                    ProgressBar({ value: 40, max: 100 })
+                                ]
+                            })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "Últimas Faturas", children: [
+                            Table({
+                                columns: [
+                                    { key: "id", label: "ID" },
+                                    { key: "cliente", label: "Cliente" },
+                                    { key: "valor", label: "Valor" },
+                                    {
+                                        key: "status", label: "Situação", render: (val) => {
+                                            let variant = "primary";
+                                            if (val === "Pago") variant = "success";
+                                            else if (val === "Atrasado") variant = "danger";
+                                            else if (val === "Pendente") variant = "warning";
+                                            return Badge({ text: val, variant });
+                                        }
+                                    }
+                                ],
+                                data: tableData
+                            })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        const BrowserScreen = {
+            title: "Navegador Corporativo",
+            icon: "🌐",
+            width: 800,
+            height: 600,
+            singleInstance: true,
+            state: { urlInput: "https://en.wikipedia.org/wiki/Main_Page", currentUrl: "https://en.wikipedia.org/wiki/Main_Page" },
+            actions: {
+                ir: [async (ctx) => {
+                    let target = ctx.state.urlInput;
+                    if (!target.startsWith("http")) target = "https://" + target;
+                    ctx.state.currentUrl = target;
+                    ctx.instance.setStatus("Carregando " + target + "...");
+                }]
+            },
+            view() {
+                return createElement("div", "flex-col", [
+                    Row({
+                        style: "margin-bottom: 8px;", children: [
+                            Col({
+                                style: "flex: 1;", children: [
+                                    Input({ bind: "urlInput", instance: this, placeholder: "Digite a URL..." })
+                                ]
+                            }),
+                            Button({ text: "Ir", onClick: "ir", instance: this })
+                        ]
+                    }),
+                    WebView({ bindUrl: "currentUrl", instance: this, height: "calc(100% - 40px)" })
+                ]);
+            }
+        };
+
+        const TaskScreen = {
+            title: "Gerenciador de Tarefas",
+            icon: "✅",
+            width: 450,
+            height: 500,
+            singleInstance: true,
+            state: {
+                tarefas: [
+                    "Finalizar relatório mensal",
+                    "Reunião de alinhamento com a diretoria",
+                    "Aprovar pagamentos do setor de TI",
+                    "Revisar arquitetura do sistema v0.3",
+                    "Planejar confraternização da equipe"
+                ]
+            },
+            actions: {
+                reorder: [async (ctx, next, newItems) => {
+                    ctx.instance.setStatus("Ordem salva: " + new Date().toLocaleTimeString());
+                }]
+            },
+            view() {
+                return createElement("div", "", [
+                    Card({
+                        title: "Priorize arrastando (Drag & Drop)", children: [
+                            DraggableList({ bindItems: "tarefas", onReorder: "reorder", instance: this })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        const FormsScreen = {
+            title: "Cadastro Avançado",
+            icon: "📝",
+            width: 600,
+            height: 550,
+            singleInstance: true,
+            status: "Aguardando preenchimento",
+            state: {
+                nome: "", dataNasc: "", salario: "", senioridade: "pleno", ativo: true
+            },
+            actions: {
+                salvar: [async (ctx) => {
+                    Modal({
+                        title: "Confirmar Inclusão",
+                        instance: ctx.instance,
+                        children: [
+                            createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
+                            Button({
+                                text: "Sim, salvar", onClick: () => {
+                                    Desktop.notify("Salvo com sucesso!", "success");
+                                    ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
+                                    document.querySelector('.ui-modal-overlay').remove();
+                                }, variant: "success"
+                            })
+                        ]
+                    });
+                }]
+            },
+            view() {
+                return createElement("div", "", [
+                    Card({
+                        title: "Dados Pessoais", children: [
+                            Grid({
+                                columns: 2, children: [
+                                    Input({ label: "Nome Completo", bind: "nome", instance: this }),
+                                    Input({ label: "Data de Nascimento", bind: "dataNasc", instance: this, type: "date" })
+                                ]
+                            }),
+                            Grid({
+                                columns: 2, children: [
+                                    Input({ label: "Pretensão Salarial", bind: "salario", instance: this, type: "number" }),
+                                    Select({
+                                        label: "Senioridade", bind: "senioridade", instance: this, options: [
+                                            { label: "Júnior", value: "junior" },
+                                            { label: "Pleno", value: "pleno" },
+                                            { label: "Sênior", value: "senior" }
+                                        ]
+                                    })
+                                ]
+                            }),
+                            Row({
+                                children: [
+                                    Toggle({ label: "Funcionário Ativo", bind: "ativo", instance: this })
+                                ]
+                            })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Button({ text: "Salvar Cadastro", onClick: "salvar", instance: this, variant: "primary" })
+                ]);
+            }
+        };
+
+        // Auxiliar para abrir telas garantindo unique ID ou usando singleInstance
+        function openScreen(config, idPrefix) {
+            Desktop.open(Framework.createWindow(config, idPrefix, Desktop));
+        }
+
+        // Abre algumas telas por padrão para o usuário já ver o poder
+        setTimeout(() => {
+            openScreen(DashboardScreen, "dashboard");
+            setTimeout(() => openScreen(DataGridScreen, "datagrid"), 200);
+        }, 100);
+
+    </script>
+    <!-- Adicionando um pequeno fix CSS para a tela do Browser ficar 100% de altura -->
+    <style>
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    </style>
+</body>
+
+</html>

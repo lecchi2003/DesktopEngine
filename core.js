@@ -1,0 +1,171 @@
+// core.js
+
+// --- Event Bus (Pub/Sub com suporte a LocalStorage) ---
+export const EventBus = {
+    listeners: {},
+    
+    // Inicializa a escuta de eventos inter-abas via LocalStorage
+    init() {
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'desktop_event_bus' && e.newValue) {
+                try {
+                    const { event, payload } = JSON.parse(e.newValue);
+                    this.emitLocal(event, payload);
+                } catch (err) {
+                    console.error("Erro ao processar evento do EventBus:", err);
+                }
+            }
+        });
+    },
+
+    on(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+    },
+
+    off(event, callback) {
+        if (!this.listeners[event]) return;
+        this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+    },
+
+    // Emite o evento apenas na aba atual
+    emitLocal(event, payload) {
+        if (this.listeners[event]) {
+            this.listeners[event].forEach(callback => callback(payload));
+        }
+    },
+
+    // Emite o evento localmente e para outras abas
+    emit(event, payload) {
+        this.emitLocal(event, payload);
+        
+        // Persistência no LocalStorage para sincronizar entre abas
+        localStorage.setItem('desktop_event_bus', JSON.stringify({
+            event,
+            payload,
+            timestamp: Date.now()
+        }));
+    }
+};
+
+// Inicializa o EventBus
+EventBus.init();
+
+// --- Core Engine ---
+export const Framework = {
+    createWindow(config, instanceId, desktopManager) {
+        // Objeto de estado reativo via Proxy
+        let state = new Proxy({ ...config.state }, {
+            set(target, prop, value) {
+                target[prop] = value;
+                if (instance.update) {
+                    instance.update();
+                }
+                return true;
+            }
+        });
+
+        const instance = {
+            id: instanceId,
+            state,
+            config,
+            el: null, // Elemento raiz (conteúdo da janela)
+            windowEl: null, // Elemento físico da janela (container)
+            
+            async runAction(actionName, eventPayload = null) {
+                const actionChain = config.actions?.[actionName];
+                if (!actionChain) return;
+                
+                const steps = Array.isArray(actionChain) ? actionChain : [actionChain];
+                let index = 0;
+                
+                const context = { 
+                    state: this.state, 
+                    instance: this,
+                    event: eventPayload,
+                    response: null
+                };
+                
+                const next = async () => {
+                    if (index < steps.length) {
+                        await steps[index++](context, next);
+                    }
+                };
+                
+                try {
+                    await next();
+                } catch (err) {
+                    console.error(`Erro na action '${actionName}':`, err);
+                    if (desktopManager && desktopManager.notify) {
+                        desktopManager.notify(err.message, "error");
+                    } else {
+                        alert(err.message);
+                    }
+                }
+            },
+
+            render() {
+                if (typeof config.view === 'function') {
+                    const node = config.view.call(this);
+                    this.el = node;
+                    return node;
+                }
+                // Fallback para conteúdo estático
+                const div = document.createElement('div');
+                div.innerHTML = config.view || '';
+                this.el = div;
+                return div;
+            },
+
+            update() {
+                if (this.el && this.el.parentNode) {
+                    // Salvar o foco atual se for um input
+                    const activeElement = document.activeElement;
+                    let focusedBind = null;
+                    if (activeElement && activeElement.dataset.bind) {
+                        focusedBind = activeElement.dataset.bind;
+                    }
+                    
+                    const oldEl = this.el;
+                    const newEl = this.render();
+                    oldEl.parentNode.replaceChild(newEl, oldEl);
+                    this.el = newEl;
+                    
+                    // Restaurar foco
+                    if (focusedBind) {
+                        const inputToFocus = newEl.querySelector(`[data-bind="${focusedBind}"]`);
+                        if (inputToFocus) {
+                            inputToFocus.focus();
+                            // Colocar cursor no final do texto
+                            if (typeof inputToFocus.selectionStart === "number") {
+                                inputToFocus.selectionStart = inputToFocus.selectionEnd = inputToFocus.value.length;
+                            }
+                        }
+                    }
+                }
+            },
+            
+            setStatus(msg) {
+                if (this.windowEl) {
+                    const sb = this.windowEl.querySelector('.statusbar');
+                    if (sb) sb.textContent = msg;
+                }
+            },
+            
+            // Ciclo de vida
+            onMount() {
+                if (config.onMount) {
+                    config.onMount.call(this);
+                }
+            },
+            
+            onDestroy() {
+                if (config.onDestroy) {
+                    config.onDestroy.call(this);
+                }
+            }
+        };
+
+        return instance;
+    }
+};
