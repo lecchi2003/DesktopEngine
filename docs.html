@@ -172,6 +172,7 @@
             <div class="nav-header">Componentes (ui.js)</div>
             <a href="#primitivas">Primitivas de Layout</a>
             <a href="#inputs">Inputs e Controles</a>
+            <a href="#visualizacao">Outros Componentes de Visualização</a>
             <a href="#datagrid">DataGrid e Paginação</a>
             
             <div class="nav-header">Sistema Global</div>
@@ -294,7 +295,19 @@ actions: {
             <ul>
                 <li><code>Input({ label, bind, instance, type })</code>: Tipos nativos (date, text, number).</li>
                 <li><code>Select({ label, bind, instance, options })</code></li>
+                <li><code>Checkbox({ label, bind, instance })</code>: Caixa de seleção padrão.</li>
                 <li><code>Toggle({ label, bind, instance })</code>: Switch moderno estilo iOS.</li>
+                <li><code>Button({ text, onClick, instance, variant })</code>: Botão de ação executável.</li>
+            </ul>
+
+            <h3 id="visualizacao">Outros Componentes de Visualização</h3>
+            <ul>
+                <li><code>Table({ columns, data })</code>: Tabela simples e formatada, sem recursos complexos.</li>
+                <li><code>Badge({ text, variant })</code>: Tags visuais (ex: primary, success, warning, danger).</li>
+                <li><code>ProgressBar({ value, max })</code>: Barra de progresso para dashboards.</li>
+                <li><code>TreeView({ data, onSelect, instance })</code>: Árvore de navegação expansível.</li>
+                <li><code>DraggableList({ bindItems, onReorder, instance })</code>: Lista interativa com Drag and Drop nativo.</li>
+                <li><code>WebView({ bindUrl, instance, height })</code>: Iframe perfeitamente embutido vinculado ao state.</li>
             </ul>
 
             <h3 id="datagrid">Visualização Dinâmica & DataGrid</h3>
@@ -370,7 +383,7 @@ actions: {
                 <li><strong>MenuBar (Estilo macOS):</strong> Fixado no topo, com menus dropdown em <em>hover</em>.</li>
             </ul>
 
-            <h3 id="context-menu">Menu de Contexto</h3>
+            <h3 id="context-menu">Menu de Contexto e Modals</h3>
             <p>Invoque localmente no seu elemento para garantir escopo, utilizando <code>bindContextMenu</code>:</p>
             <div class="code-box">
 <pre><code>import { bindContextMenu } from './ui.js';
@@ -379,6 +392,17 @@ bindContextMenu(meuElemento, [
     { label: "Editar", action: () => alert("Editando...") },
     { label: "Deletar", action: () => meuElemento.remove() }
 ]);</code></pre>
+            </div>
+
+            <p>Para alertas corporativos bloqueantes, utilize o componente <strong>Modal</strong>:</p>
+            <div class="code-box">
+<pre><code>import { Modal, createElement } from './ui.js';
+
+Modal({
+    title: "Confirmação",
+    instance: this,
+    children: [ createElement("p", "", ["Deseja realmente continuar?"]) ]
+});</code></pre>
             </div>
 
             <h3 id="print">Impressão e Exportação</h3>
