@@ -157,12 +157,13 @@ Esses componentes suportam o recurso `bind` e `instance`, que cria um **Two-Way 
 - `ProgressBar({ value, max })`: Barra de progresso visual (útil para dashboards).
 - `TreeView({ data, onSelect, instance })`: Árvore de navegação expansível.
   *Exemplo de data:* `[{ label: "Pai", children: [{ label: "Filho" }] }]`
-- `DataGrid({ bindData, columns, instance })`: Uma tabela **avançada** com inteligência de ordenação e filtros por coluna. Totalmente reativa ao state.
+- `DataGrid({ bindData, columns, instance, itemsPerPage })`: Uma tabela **avançada** com inteligência de ordenação, filtros por coluna e **Paginação**. Totalmente reativa ao state.
   *Exemplo de uso:*
   ```javascript
   DataGrid({
       bindData: "clientes", // Nome do array no instance.state
       instance: this,
+      itemsPerPage: 5, // Ativa a paginação
       columns: [
           { key: "id", label: "Código", sortable: true },
           { key: "nome", label: "Cliente", sortable: true, filterable: true },
@@ -170,6 +171,10 @@ Esses componentes suportam o recurso `bind` e `instance`, que cria um **Two-Way 
       ]
   })
   ```
+  > [!TIP]
+  > **Paginação Client-Side vs Server-Side:**
+  > - **Client-Side (Padrão):** O `DataGrid` espera que a variável atrelada ao `bindData` no `state` contenha *todos* os registros da tabela. O próprio componente fatia (usando `.slice()`) e exibe apenas a quantidade configurada em `itemsPerPage`. É ideal para tabelas com poucas centenas de dados.
+  > - **Server-Side:** Se você lida com bases gigantes, o servidor deve paginar. Para adaptar o `DataGrid`, basta ativar a opção `serverSide: true`, passando o `bindTotalPages` e definindo uma action em `onPageChange` para buscar a próxima página da API.
 - `DraggableList({ bindItems, onReorder, instance })`: Uma lista nativa baseada na API HTML5 de **Drag and Drop**. O usuário clica e arrasta para reordenar a lista, e o Array atrelado no state é alterado de forma invisível acionando a função `onReorder`.
 - `WebView({ bindUrl, instance, height })`: Envelopa um elemento `<iframe>` perfeitamente embutido na janela para abrir painéis e páginas web externas baseado em um parâmetro do `state`.
 

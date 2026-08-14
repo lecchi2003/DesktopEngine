@@ -663,10 +663,10 @@ export function DraggableList({ bindItems, onReorder, instance }) {
     return wrap;
 }
 
-export function DataGrid({ columns = [], bindData, instance }) {
+export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, serverSide = false, bindTotalPages = null, onPageChange = null }) {
     if (!instance.state._gridState) instance.state._gridState = {};
     if (!instance.state._gridState[bindData]) {
-        instance.state._gridState[bindData] = { sortKey: null, sortDesc: false, filters: {} };
+        instance.state._gridState[bindData] = { sortKey: null, sortDesc: false, filters: {}, currentPage: 1 };
     }
     const gridState = instance.state._gridState[bindData];
     const rawData = instance.state[bindData] || [];
@@ -750,8 +750,28 @@ export function DataGrid({ columns = [], bindData, instance }) {
         thead.appendChild(trFilter);
     }
 
+    // Paginação
+    let totalPages = 1;
+    let pagedData = processedData;
+
+    if (serverSide) {
+        if (bindTotalPages && instance.state[bindTotalPages]) {
+            totalPages = instance.state[bindTotalPages];
+        }
+        pagedData = processedData;
+    } else {
+        const totalItems = processedData.length;
+        totalPages = Math.ceil(totalItems / itemsPerPage);
+        if (totalPages === 0) totalPages = 1;
+        if (gridState.currentPage > totalPages) {
+            gridState.currentPage = totalPages;
+        }
+        const startIndex = (gridState.currentPage - 1) * itemsPerPage;
+        pagedData = processedData.slice(startIndex, startIndex + itemsPerPage);
+    }
+
     const tbody = document.createElement("tbody");
-    processedData.forEach(row => {
+    pagedData.forEach(row => {
         const tr = document.createElement("tr");
         columns.forEach(c => {
             const val = typeof c === 'string' ? row[c] : row[c.key];
@@ -769,5 +789,62 @@ export function DataGrid({ columns = [], bindData, instance }) {
     });
 
     const table = createElement("table", "ui-datagrid", [thead, tbody]);
-    return createElement("div", "ui-table-wrapper", [table]);
+    
+    // UI de Paginação
+    const paginationWrapper = createElement("div", "ui-pagination", []);
+    paginationWrapper.style.display = "flex";
+    paginationWrapper.style.justifyContent = "space-between";
+    paginationWrapper.style.alignItems = "center";
+    paginationWrapper.style.padding = "8px";
+    paginationWrapper.style.background = "var(--bg-light, #f9f9f9)";
+    paginationWrapper.style.borderTop = "1px solid var(--border, #ccc)";
+
+    const info = createElement("div", "ui-pagination-info", [`Página ${gridState.currentPage} de ${totalPages}`]);
+    info.style.fontSize = "0.85rem";
+    info.style.color = "var(--text-muted, #666)";
+    
+    const btnGroup = createElement("div", "ui-pagination-buttons", []);
+    btnGroup.style.display = "flex";
+    btnGroup.style.gap = "4px";
+
+    const createBtn = (label, disabled, onClick) => {
+        const btn = document.createElement("button");
+        btn.innerHTML = label;
+        btn.className = "ui-btn ui-btn-sm"; // reaproveitando classe de botão se houver
+        btn.style.padding = "2px 8px";
+        btn.style.cursor = disabled ? "not-allowed" : "pointer";
+        btn.style.opacity = disabled ? "0.5" : "1";
+        btn.disabled = disabled;
+        btn.onclick = onClick;
+        return btn;
+    };
+
+    const triggerPageChange = (newPage) => {
+        gridState.currentPage = newPage;
+        if (onPageChange) {
+            if (typeof onPageChange === 'string') instance.runAction(onPageChange, newPage);
+            else onPageChange(newPage);
+        } else {
+            instance.update();
+        }
+    };
+
+    // Ícones: Primeira (&#171;), Anterior (&#8249;), Próxima (&#8250;), Última (&#187;)
+    btnGroup.appendChild(createBtn("&#171;", gridState.currentPage === 1, () => {
+        triggerPageChange(1);
+    }));
+    btnGroup.appendChild(createBtn("&#8249;", gridState.currentPage === 1, () => {
+        triggerPageChange(gridState.currentPage - 1);
+    }));
+    btnGroup.appendChild(createBtn("&#8250;", gridState.currentPage === totalPages, () => {
+        triggerPageChange(gridState.currentPage + 1);
+    }));
+    btnGroup.appendChild(createBtn("&#187;", gridState.currentPage === totalPages, () => {
+        triggerPageChange(totalPages);
+    }));
+
+    paginationWrapper.appendChild(info);
+    paginationWrapper.appendChild(btnGroup);
+
+    return createElement("div", "ui-table-wrapper", [table, paginationWrapper]);
 }

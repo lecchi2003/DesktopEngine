@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documentação - DataGrid (DesktopEngine)</title>
+    <!-- Usando uma fonte moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --surface: #ffffff;
+            --background: #f8f9fa;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --code-bg: #f8f9fa;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .doc-section {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        h1 { font-size: 2.5rem; margin-top: 0; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.75rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.25rem; margin-top: 1.5rem; }
+        p { margin-bottom: 1rem; color: var(--text-main); }
+        
+        .lead {
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Estilo do bloco de exemplo (parecido com Bootstrap) */
+        .example-box {
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-top-left-radius: var(--radius);
+            border-top-right-radius: var(--radius);
+            background-color: var(--surface);
+        }
+
+        /* Estilo do bloco de código */
+        .code-box {
+            background-color: var(--code-bg);
+            padding: 1rem 1.5rem;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-bottom-left-radius: var(--radius);
+            border-bottom-right-radius: var(--radius);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #d63384;
+        }
+        
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--radius);
+            border-left: 5px solid;
+        }
+        
+        .alert-info {
+            background-color: #cff4fc;
+            color: #055160;
+            border-color: #0dcaf0;
+        }
+
+        /* Classes mockadas para o DataGrid renderizar bonitinho aqui fora do DesktopEngine */
+        .ui-table-wrapper { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .ui-datagrid { width: 100%; border-collapse: collapse; }
+        .ui-datagrid th, .ui-datagrid td { padding: 0.75rem; border-bottom: 1px solid var(--border); text-align: left; }
+        .ui-datagrid th { background-color: #f1f3f5; font-weight: 600; }
+        .ui-pagination { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8f9fa; border-top: 1px solid var(--border); }
+        .ui-pagination-buttons button { padding: 0.25rem 0.75rem; margin-left: 0.25rem; border: 1px solid var(--border); background: white; cursor: pointer; border-radius: 4px; }
+        .ui-pagination-buttons button:hover:not(:disabled) { background: #e9ecef; }
+        .ui-badge-success { background: #198754; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        DesktopEngine Docs
+    </div>
+
+    <div class="container">
+        <h1>DataGrid</h1>
+        <p class="lead">Tabelas de dados avançadas com suporte nativo a filtros, ordenação e paginação. Tudo reativo ao <code>instance.state</code>.</p>
+        
+        <div class="doc-section">
+            <h2>Paginação Client-Side (Padrão)</h2>
+            <p>
+                A paginação no <code>DataGrid</code> é incrivelmente simples. Basta fornecer a propriedade <code>itemsPerPage</code> com o número desejado de linhas por página. 
+                Neste modo, o framework espera que o array referenciado em <code>bindData</code> contenha <strong>todos os registros</strong>. A tabela se encarrega de fatiar os dados (slice) e desenhar a barra de navegação no rodapé.
+            </p>
+            
+            <h3>Exemplo Interativo</h3>
+            
+            <!-- Renderização Visual do Componente -->
+            <div class="example-box" id="grid-container">
+                <!-- O Grid será montado via JS aqui para demonstração -->
+            </div>
+            
+            <!-- Código Fonte -->
+            <div class="code-box">
+<pre><code>import { DataGrid, Badge } from './ui.js';
+
+const gridEl = DataGrid({
+    bindData: "clientes", // Nome do array no instance.state
+    instance: this,       // Referência da Tela
+    itemsPerPage: 3,      // <--- Ativa a paginação a cada 3 itens
+    columns: [
+        { key: "id", label: "Código", sortable: true },
+        { key: "nome", label: "Cliente", filterable: true },
+        { 
+            key: "status", 
+            label: "Situação", 
+            render: (val) => Badge({ text: val, variant: "success" }) 
+        }
+    ]
+});</code></pre>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <h2>Paginação Server-Side</h2>
+            <p>
+                Quando você está lidando com uma base de dados enorme (ex: milhares de clientes), baixar todo o Array para fazer a paginação client-side vai travar o navegador. Nesses casos, utilizamos a <strong>Paginação Server-Side</strong>.
+            </p>
+            
+            <div class="alert alert-info">
+                <strong>Atenção:</strong> No padrão Server-Side, o servidor já devolve os dados fatiados, a página atual e o total de itens. O <code>DataGrid</code> serve apenas como casca visual.
+            </div>
+
+            <p>Como implementar a arquitetura Server-Side no DesktopEngine:</p>
+            
+            <h3>1. Adapte o estado (State)</h3>
+            <p>Ao invés de guardar um grande Array, seu estado guardará a página atual e os total de itens apenas daquela página:</p>
+            <div class="code-box">
+<pre><code>state: {
+    clientes: [], // Só conterá os clientes da página atual
+    paginaAtual: 1,
+    totalPaginas: 10
+}</code></pre>
+            </div>
+
+            <h3>2. Configure o Componente DataGrid</h3>
+            <p>Ative a opção <code>serverSide</code>, defina qual variável contém o total de páginas com <code>bindTotalPages</code>, e defina uma <code>onPageChange</code> action para buscar a nova página.</p>
+            <div class="code-box">
+<pre><code>DataGrid({ 
+    bindData: "clientes", 
+    instance: ctx.instance,
+    serverSide: true, // Desativa a paginação client-side
+    bindTotalPages: "totalPaginas", // Variável de estado com o total de páginas
+    onPageChange: "buscarPagina" // Dispara essa action ao trocar de página
+});</code></pre>
+            </div>
+
+            <h3>3. Crie a Action que vai na API</h3>
+            <p>Na configuração da sua Tela, você programa a ação para disparar o Fetch e atualizar o grid:</p>
+            <div class="code-box">
+<pre><code>actions: {
+    buscarPagina: [async (ctx, novaPagina) => {
+        ctx.instance.setStatus("Carregando página " + novaPagina);
+        
+        // Vai no banco de dados buscar a nova página
+        const response = await fetch(`/api/clientes?page=\${novaPagina}`);
+        const data = await response.json();
+        
+        // Atualiza a tabela na tela
+        ctx.state.clientes = data.items;
+        ctx.state.totalPaginas = data.totalPages;
+        ctx.instance.update();
+    }]
+}</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script para renderizar um MOCK do DataGrid apenas para o Exemplo Interativo desta doc -->
+    <script>
+        // MOCK de renderização para a documentação ficar rica sem precisar rodar o framework inteiro
+        const container = document.getElementById("grid-container");
+        container.innerHTML = `
+            <div class="ui-table-wrapper">
+                <table class="ui-datagrid">
+                    <thead>
+                        <tr><th>Código <span>▼</span></th><th>Cliente</th><th>Situação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Acme Corp</td><td><span class="ui-badge-success">Ativo</span></td></tr>
+                        <tr><td>2</td><td>Global Industries</td><td><span class="ui-badge-success">Ativo</span></td></tr>
+                        <tr><td>3</td><td>Stark Enterprises</td><td><span class="ui-badge-success">Ativo</span></td></tr>
+                    </tbody>
+                </table>
+                <div class="ui-pagination">
+                    <div class="ui-pagination-info" style="font-size: 0.85rem; color: #666;">Página 1 de 2</div>
+                    <div class="ui-pagination-buttons">
+                        <button disabled style="opacity: 0.5;">&#171;</button>
+                        <button disabled style="opacity: 0.5;">&#8249;</button>
+                        <button>&#8250;</button>
+                        <button>&#187;</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    </script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documentação - DesktopEngine V0.6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --surface: #ffffff;
+            --background: #f8f9fa;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --code-bg: #f4f5f7;
+            --radius: 8px;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--surface);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar Navegação */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--background);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: var(--radius);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .sidebar a:hover {
+            background-color: #e9ecef;
+            color: var(--primary);
+        }
+
+        .sidebar .nav-header {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.5rem 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Conteúdo Principal */
+        .content {
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 900px;
+            overflow-y: auto;
+        }
+
+        h1 { font-size: 2.5rem; margin-top: 0; margin-bottom: 1rem; color: #111827; }
+        h2 { font-size: 1.75rem; margin-top: 3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: #111827; }
+        h3 { font-size: 1.25rem; margin-top: 2rem; color: #374151; }
+        p { margin-bottom: 1rem; color: #4B5563; }
+        
+        .lead {
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Código */
+        .code-box {
+            background-color: var(--code-bg);
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        
+        pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #d63384;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #f1f3f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #d63384;
+        }
+        
+        .code-box code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: var(--radius);
+            border-left: 4px solid;
+            background-color: #f8f9fa;
+        }
+        
+        .alert-info { background-color: #eff6ff; color: #1e40af; border-color: #3b82f6; }
+        .alert-tip { background-color: #ecfdf5; color: #065f46; border-color: #10b981; }
+
+        ul { margin-bottom: 1.5rem; color: #4B5563; padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        DesktopEngine V0.6
+    </div>
+
+    <div class="layout">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="nav-header">Visão Geral</div>
+            <a href="#intro">Introdução</a>
+            <a href="#executando">Executando o Projeto</a>
+            <a href="#init">Inicialização do Desktop</a>
+            
+            <div class="nav-header">Janelas & Estado</div>
+            <a href="#telas">Criando Telas (Windows)</a>
+            <a href="#middlewares">Middlewares (Actions)</a>
+            
+            <div class="nav-header">Componentes (ui.js)</div>
+            <a href="#primitivas">Primitivas de Layout</a>
+            <a href="#inputs">Inputs e Controles</a>
+            <a href="#datagrid">DataGrid e Paginação</a>
+            
+            <div class="nav-header">Sistema Global</div>
+            <a href="#menus">Menus (Start/MenuBar)</a>
+            <a href="#context-menu">Menu de Contexto</a>
+            <a href="#print">Impressão / Exportação</a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <h1 id="intro">Desktop Engine V0.6 - Documentação Oficial</h1>
+            <p class="lead">Um micro-framework focado em sistemas corporativos de Janela Única/Múltipla (Desktop in Browser) utilizando apenas Vanilla JS e ES Modules, sem passos de build.</p>
+
+            <hr>
+
+            <h2 id="executando">Executando o Projeto (Módulos ES)</h2>
+            <p>Como o projeto utiliza <code>import</code>/<code>export</code> nativo do navegador, ele não rodará corretamente se você abrir o <code>index.html</code> via protocolo <code>file:///</code> no Windows/Chrome.</p>
+            <div class="alert alert-info">
+                <strong>Dica Rápida:</strong> Basta clicar duas vezes em <strong><code>server.bat</code></strong> na pasta do projeto. Ele iniciará um servidor Python na porta 8000. Depois, acesse <code>http://localhost:8000</code> no seu navegador.
+            </div>
+
+            <h2 id="init">Inicialização do Desktop</h2>
+            <p>O desktop agora suporta configurações de inicialização para posicionar o "Taskbar" em qualquer canto da tela e ligar/desligar botões de utilidade.</p>
+            <div class="code-box">
+<pre><code>import { Desktop } from './desktop.js';
+
+Desktop.init({
+    windowsContainerId: "windows",
+    taskbarContainerId: "taskWindows",
+    taskbarPosition: "bottom", // Aceita: "top", "bottom", "left", "right"
+    showDesktopButton: true    // Mostra/oculta o botão de minimizar tudo
+});</code></pre>
+            </div>
+            <ul>
+                <li><code>Desktop.showDesktop()</code>: Minimiza todas as janelas ativas ou as restaura.</li>
+                <li><code>Desktop.arrangeWindows()</code>: Organiza todas as janelas abertas numa "Grade" simétrica na tela.</li>
+            </ul>
+
+            <hr>
+
+            <h2 id="telas">Criando Telas (Windows)</h2>
+            <p>O motor é baseado na criação declarativa de telas através de objetos JavaScript simples, com estado reativo gerenciado por Proxies.</p>
+            <div class="code-box">
+<pre><code>import { Framework } from './core.js';
+import { Desktop } from './desktop.js';
+import { Form, Input, Button, createElement } from './ui.js';
+
+const MinhaTela = {
+    title: "Minha Primeira Tela",
+    icon: "🚀",
+    width: 400,
+    height: 300,
+    singleInstance: true,
+    
+    // Estado inicial (O motor torna-o reativo)
+    state: { nome: "" },
+    
+    // Actions (Middlewares assíncronos)
+    actions: {
+        salvar: [async (ctx, next) => {
+            alert(\`Salvando \${ctx.state.nome}\`);
+            ctx.instance.setStatus("Salvo com sucesso!");
+        }]
+    },
+    
+    // View (Retorna elementos DOM)
+    view() {
+        return createElement("div", "", [
+            Input({ label: "Nome", bind: "nome", instance: this }),
+            Button({ text: "Salvar", onClick: "salvar", instance: this })
+        ]);
+    }
+};
+
+// Abrindo a tela no Desktop
+Desktop.open(Framework.createWindow(MinhaTela, "ID_UNICO", Desktop));</code></pre>
+            </div>
+
+            <h3 id="middlewares">Usando Middlewares nas Actions</h3>
+            <p>A grande vantagem do <code>actions</code> é o suporte a uma esteira de middlewares no estilo <em>Koa/Express</em>. Isso é perfeito para validações e controle de acesso.</p>
+            
+            <div class="code-box">
+<pre><code>// Middleware Desacoplado
+export const ValidateForm = (fields) => async (ctx, next) => {
+    for (let field of fields) {
+        if (!ctx.state[field]) {
+            Desktop.notify(\`O campo \${field} é obrigatório!\`, "warning");
+            return; // Interrompe a esteira
+        }
+    }
+    await next(); // Passa no teste
+};
+
+// Uso na tela:
+actions: {
+    salvar: [
+        ValidateForm(['nome', 'email']), // 1. Valida
+        async (ctx) => {
+            // 2. Só executa se a validação passar
+            api.post('/users', ctx.state);
+        }
+    ]
+}</code></pre>
+            </div>
+
+            <hr>
+
+            <h2 id="primitivas">Catálogo de Componentes (ui.js)</h2>
+            
+            <h3>Primitivas de Layout</h3>
+            <ul>
+                <li><code>Row({ children, style })</code>: Cria uma linha flexível (display: flex).</li>
+                <li><code>Col({ children, style })</code>: Cria uma coluna expansível (flex: 1).</li>
+                <li><code>Grid({ children, columns = 2 })</code>: Um grid CSS poderoso.</li>
+                <li><code>Card({ title, children })</code>: Caixa com sombra para agrupar informações.</li>
+                <li><code>Tabs({ tabs, activeTabBind, instance })</code>: Sistema de abas conectado ao state.</li>
+            </ul>
+
+            <h3 id="inputs">Inputs e Controles (Two-Way Binding)</h3>
+            <ul>
+                <li><code>Input({ label, bind, instance, type })</code>: Tipos nativos (date, text, number).</li>
+                <li><code>Select({ label, bind, instance, options })</code></li>
+                <li><code>Toggle({ label, bind, instance })</code>: Switch moderno estilo iOS.</li>
+            </ul>
+
+            <h3 id="datagrid">Visualização Dinâmica & DataGrid</h3>
+            <p>O <code>DataGrid</code> é a ferramenta definitiva para tabelas. Ele suporta ordenação, filtros por coluna e <strong>Paginação</strong> nativa.</p>
+            
+            <div class="code-box">
+<pre><code>DataGrid({
+    bindData: "clientes", // Nome do array no instance.state
+    instance: this,
+    itemsPerPage: 5,      // Ativa a paginação
+    columns: [
+        { key: "id", label: "Código", sortable: true },
+        { key: "nome", label: "Cliente", sortable: true, filterable: true },
+        { key: "status", render: (val) => Badge({ text: val }) }
+    ]
+})</code></pre>
+            </div>
+
+            <div class="alert alert-tip">
+                <strong>Paginação Client-Side vs Server-Side:</strong><br><br>
+                <strong>Client-Side (Padrão):</strong> O <code>DataGrid</code> espera que a variável atrelada ao <code>bindData</code> no <code>state</code> contenha todos os registros. O componente faz um <code>.slice()</code> e cuida da navegação sozinho.<br><br>
+                <strong>Server-Side:</strong> Quando você lida com bases de dados enormes, o padrão Client-Side trava o navegador. Nesses casos, siga os passos abaixo para configurar a Paginação Server-Side.
+            </div>
+
+            <div style="margin-left: 20px; margin-bottom: 30px;">
+                <h4>1. Adapte o estado (State)</h4>
+                <p>Ao invés de guardar um grande Array, seu estado guardará apenas os itens da página atual:</p>
+                <div class="code-box">
+<pre><code>state: {
+    clientes: [], // Só os clientes da página atual
+    paginaAtual: 1,
+    totalPaginas: 10
+}</code></pre>
+                </div>
+
+                <h4>2. Configure o Componente DataGrid</h4>
+                <p>Ative a opção <code>serverSide</code> e defina <code>onPageChange</code>:</p>
+                <div class="code-box">
+<pre><code>DataGrid({ 
+    bindData: "clientes", 
+    instance: ctx.instance,
+    serverSide: true, 
+    bindTotalPages: "totalPaginas", 
+    onPageChange: "buscarPagina" 
+});</code></pre>
+                </div>
+
+                <h4>3. Crie a Action que vai na API</h4>
+                <div class="code-box">
+<pre><code>actions: {
+    buscarPagina: [async (ctx, novaPagina) => {
+        ctx.instance.setStatus("Carregando página " + novaPagina);
+        
+        const response = await fetch(`/api/clientes?page=\${novaPagina}`);
+        const data = await response.json();
+        
+        ctx.state.clientes = data.items;
+        ctx.state.totalPaginas = data.totalPages;
+        ctx.instance.update();
+    }]
+}</code></pre>
+                </div>
+            </div>
+
+            <hr>
+
+            <h2 id="menus">Componentes Flutuantes Globais</h2>
+            
+            <h3>MenuBar vs StartMenu</h3>
+            <p>O DesktopEngine suporta dois estilos globais. Escolha configurando seu <code>index.html</code> e invocando a UI correspondente:</p>
+            <ul>
+                <li><strong>StartMenu (Estilo Windows):</strong> Ancorado na taskbar inferior.</li>
+                <li><strong>MenuBar (Estilo macOS):</strong> Fixado no topo, com menus dropdown em <em>hover</em>.</li>
+            </ul>
+
+            <h3 id="context-menu">Menu de Contexto</h3>
+            <p>Invoque localmente no seu elemento para garantir escopo, utilizando <code>bindContextMenu</code>:</p>
+            <div class="code-box">
+<pre><code>import { bindContextMenu } from './ui.js';
+
+bindContextMenu(meuElemento, [
+    { label: "Editar", action: () => alert("Editando...") },
+    { label: "Deletar", action: () => meuElemento.remove() }
+]);</code></pre>
+            </div>
+
+            <h3 id="print">Impressão e Exportação</h3>
+            <p>O framework fornece uma API nativa para imprimir componentes isoladamente, sem mostrar as bordas do navegador.</p>
+            <div class="code-box">
+<pre><code>import { printElement } from './ui.js';
+
+// Imprimindo apenas a tabela gerada pelo DataGrid
+printElement(gridEl, { title: "Relatório Financeiro" });</code></pre>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
