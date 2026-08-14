@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V0.6 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
@@ -22,13 +22,13 @@
     </div>
 
     <script type="module">
-        import { Framework } from './core.js';
-        import { Desktop } from './desktop.js';
+        import { Framework } from '../core.js';
+        import { Desktop } from '../desktop.js';
         import {
             MenuBar, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
             Form, Input, Select, Checkbox, Toggle, Button,
             Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement
-        } from './ui.js';
+        } from '../ui.js';
 
         // Inicializa o desktop na posição escolhida
         Desktop.init({
