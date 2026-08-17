@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Desktop Engine V0.6 - Padrão 3: Factory Functions & Geradores de Telas</title>
+    <link rel="stylesheet" href="./style.css?v=11">
+</head>
+
+<body>
+    <div id="app">
+        <div id="menubar"></div>
+        <div id="desktop">
+            <div id="windows"></div>
+        </div>
+        <div id="taskbar">
+            <button class="taskStart" id="showDesktop">Desktop</button>
+            <div class="taskWindows" id="taskWindows"></div>
+            <div class="clock" id="clock"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Framework } from './core.js';
+        import { Desktop } from './desktop.js';
+        import {
+            MenuBar, ContextMenu, bindContextMenu, Modal, WebView, DraggableList, DataGrid,
+            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
+            Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
+            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
+        } from './ui.js';
+
+        // 1. Inicialização do Desktop
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "bottom",
+            showDesktopButton: true
+        });
+
+        function updateClock() {
+            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+
+        // =========================================================================
+        // FORMA 3: FACTORY FUNCTIONS / GERADORES DINÂMICOS DE TELAS
+        // =========================================================================
+
+        /**
+         * 🏭 FACTORY 1: Gerador de Telas CRUD Completas
+         * Cria telas de cadastro padronizadas com listagem, busca, formulário reativo e ações em 1 chamada.
+         */
+        function createCrudScreen({
+            entityName,
+            title,
+            icon = "📁",
+            width = 760,
+            height = 540,
+            columns = [],
+            fields = [],
+            initialData = []
+        }) {
+            // Cria um estado inicial dinâmico com campos do formulário vazios
+            const initialFormState = {};
+            fields.forEach(f => {
+                initialFormState[f.bind] = f.defaultValue !== undefined ? f.defaultValue : "";
+            });
+
+            return {
+                title: title || `Gestão de ${entityName}`,
+                icon: icon,
+                width: width,
+                height: height,
+                singleInstance: true,
+                status: `Módulo de ${entityName} pronto`,
+                state: {
+                    records: [...initialData],
+                    ...initialFormState,
+                    isEditing: null
+                },
+                actions: {
+                    salvar: [async (ctx) => {
+                        const state = ctx.state;
+                        // Validação básica do primeiro campo
+                        const firstField = fields[0];
+                        if (firstField && !state[firstField.bind]) {
+                            Desktop.notify(`Preencha o campo "${firstField.label}"!`, "warning");
+                            return;
+                        }
+
+                        if (state.isEditing !== null) {
+                            // Atualizar registro existente
+                            const index = state.records.findIndex(r => r.id === state.isEditing);
+                            if (index !== -1) {
+                                const updated = { id: state.isEditing };
+                                fields.forEach(f => updated[f.bind] = state[f.bind]);
+                                state.records[index] = updated;
+                                state.records = [...state.records]; // Dispara re-render no Proxy
+                                Desktop.notify(`${entityName} atualizado com sucesso!`, "success");
+                            }
+                            state.isEditing = null;
+                        } else {
+                            // Inserir novo registro
+                            const newRecord = { id: Date.now() % 10000 };
+                            fields.forEach(f => newRecord[f.bind] = state[f.bind]);
+                            state.records = [...state.records, newRecord];
+                            Desktop.notify(`${entityName} cadastrado com sucesso!`, "success");
+                        }
+
+                        // Limpar formulário
+                        fields.forEach(f => state[f.bind] = f.defaultValue !== undefined ? f.defaultValue : "");
+                        ctx.instance.setStatus(`Registro salvo às ${new Date().toLocaleTimeString()}`);
+                    }],
+                    cancelar: [async (ctx) => {
+                        fields.forEach(f => ctx.state[f.bind] = f.defaultValue !== undefined ? f.defaultValue : "");
+                        ctx.state.isEditing = null;
+                        ctx.instance.setStatus("Edição cancelada");
+                    }]
+                },
+                view() {
+                    // Renderiza os campos de formulário configurados dinamicamente
+                    const formInputs = fields.map(f => {
+                        if (f.type === 'select') {
+                            return Select({ label: f.label, bind: f.bind, instance: this, options: f.options });
+                        }
+                        if (f.type === 'toggle' || f.type === 'checkbox') {
+                            return Toggle({ label: f.label, bind: f.bind, instance: this });
+                        }
+                        return Input({ label: f.label, bind: f.bind, instance: this, type: f.type || "text", placeholder: f.placeholder || "" });
+                    });
+
+                    // Tabela de registros gerada automaticamente
+                    const tableCols = [
+                        { key: "id", label: "ID" },
+                        ...columns,
+                        {
+                            key: "acoes",
+                            label: "Ações",
+                            render: (val, row) => {
+                                const rowActions = createElement("div", "", [
+                                    Button({
+                                        text: "Editar",
+                                        onClick: () => {
+                                            fields.forEach(f => this.state[f.bind] = row[f.bind]);
+                                            this.state.isEditing = row.id;
+                                            this.setStatus(`Editando registro #${row.id}`);
+                                        },
+                                        variant: "secondary"
+                                    }),
+                                    Button({
+                                        text: "Excluir",
+                                        onClick: () => {
+                                            this.state.records = this.state.records.filter(r => r.id !== row.id);
+                                            Desktop.notify("Registro removido.", "info");
+                                        },
+                                        variant: "danger"
+                                    })
+                                ]);
+                                rowActions.style.gap = "4px";
+                                rowActions.style.display = "flex";
+                                return rowActions;
+                            }
+                        }
+                    ];
+
+                    return createElement("div", "", [
+                        Card({
+                            title: this.state.isEditing ? `Editar ${entityName} (#${this.state.isEditing})` : `Novo ${entityName}`,
+                            children: [
+                                Grid({
+                                    columns: Math.min(formInputs.length, 2),
+                                    children: formInputs
+                                }),
+                                createElement("br", "", []),
+                                Row({
+                                    style: "gap: 8px;",
+                                    children: [
+                                        Button({ text: this.state.isEditing ? "Atualizar" : "Cadastrar", onClick: "salvar", instance: this, variant: "primary" }),
+                                        this.state.isEditing ? Button({ text: "Cancelar Edição", onClick: "cancelar", instance: this }) : null
+                                    ].filter(Boolean)
+                                })
+                            ]
+                        }),
+                        createElement("br", "", []),
+                        Card({
+                            title: `Listagem de ${entityName}s (${this.state.records.length} registros)`,
+                            children: [
+                                Table({
+                                    columns: tableCols,
+                                    data: this.state.records
+                                })
+                            ]
+                        })
+                    ]);
+                }
+            };
+        }
+
+        /**
+         * 🏭 FACTORY 2: Gerador de Telas de Relatórios Executivos / Indicadores BI
+         */
+        function createKpiReportScreen({ title, icon = "📈", kpis = [], details = [] }) {
+            return {
+                title: title,
+                icon: icon,
+                width: 700,
+                height: 500,
+                singleInstance: true,
+                state: { kpis, details },
+                view() {
+                    const kpiCards = this.state.kpis.map(k => {
+                        return Card({
+                            title: k.label,
+                            children: [
+                                createElement("h2", "", [k.value]),
+                                k.badge ? Badge({ text: k.badge, variant: k.variant || "success" }) : null
+                            ].filter(Boolean)
+                        });
+                    });
+
+                    return createElement("div", "", [
+                        Grid({
+                            columns: Math.min(kpis.length, 3),
+                            children: kpiCards
+                        }),
+                        createElement("br", "", []),
+                        Card({
+                            title: "Métricas Analíticas",
+                            children: [
+                                Table({
+                                    columns: [
+                                        { key: "item", label: "Indicador / Região" },
+                                        { key: "meta", label: "Meta Prevista" },
+                                        { key: "realizado", label: "Realizado" },
+                                        {
+                                            key: "atingimento",
+                                            label: "Desempenho",
+                                            render: (val) => ProgressBar({ value: parseInt(val), max: 100 })
+                                        }
+                                    ],
+                                    data: this.state.details
+                                })
+                            ]
+                        })
+                    ]);
+                }
+            };
+        }
+
+        // =========================================================================
+        // INSTANCIAÇÃO DAS TELAS UTILIZANDO AS FACTORIES
+        // =========================================================================
+
+        // 1. Tela de Clientes gerada via Factory
+        const ClientesScreen = createCrudScreen({
+            entityName: "Cliente",
+            title: "CRUD de Clientes (Gerado por Factory)",
+            icon: "👥",
+            columns: [
+                { key: "nome", label: "Razão Social / Nome" },
+                { key: "email", label: "E-mail Corporativo" },
+                { key: "tipo", label: "Categoria" }
+            ],
+            fields: [
+                { label: "Nome do Cliente", bind: "nome", placeholder: "Ex: Inova Soluções LTDA" },
+                { label: "E-mail", bind: "email", type: "email", placeholder: "contato@inova.com" },
+                {
+                    label: "Categoria", bind: "tipo", type: "select", options: [
+                        { label: "Corporativo (B2B)", value: "B2B" },
+                        { label: "Consumidor Final (B2C)", value: "B2C" },
+                        { label: "Governamental", value: "GOV" }
+                    ]
+                }
+            ],
+            initialData: [
+                { id: 101, nome: "TechNova Corp", email: "contato@technova.com", tipo: "B2B" },
+                { id: 102, nome: "Super Lojas ABC", email: "financeiro@abc.com", tipo: "B2B" },
+                { id: 103, nome: "Prefeitura Municipal", email: "compras@pref.gov.br", tipo: "GOV" }
+            ]
+        });
+
+        // 2. Tela de Produtos gerada via Factory
+        const ProdutosScreen = createCrudScreen({
+            entityName: "Produto",
+            title: "CRUD de Produtos & Estoque (Factory)",
+            icon: "📦",
+            columns: [
+                { key: "codigo", label: "Código SKU" },
+                { key: "descricao", label: "Descrição do Produto" },
+                { key: "preco", label: "Preço Unitário", render: v => `R$ ${parseFloat(v || 0).toFixed(2)}` }
+            ],
+            fields: [
+                { label: "Código SKU", bind: "codigo", placeholder: "SKU-9901" },
+                { label: "Descrição", bind: "descricao", placeholder: "Notebook Dell Inspiron" },
+                { label: "Preço de Venda (R$)", bind: "preco", type: "number", placeholder: "3500.00" }
+            ],
+            initialData: [
+                { id: 201, codigo: "NOTE-DELL-15", descricao: "Notebook Dell Core i7 16GB", preco: "4500.00" },
+                { id: 202, codigo: "MON-SAMS-27", descricao: "Monitor Samsung 27 4K", preco: "1850.00" },
+                { id: 203, codigo: "MOU-LOGI-MX", descricao: "Mouse Logitech MX Master 3", preco: "599.00" }
+            ]
+        });
+
+        // 3. Tela de BI Financeiro gerada via Factory
+        const RelatorioFinanceiroScreen = createKpiReportScreen({
+            title: "Relatório de Desempenho Financeiro (Factory)",
+            icon: "💰",
+            kpis: [
+                { label: "Faturamento Anual", value: "R$ 2.450.000", badge: "+18.4% vs 2025", variant: "success" },
+                { label: "Margem EBITDA", value: "32.8%", badge: "Saudável", variant: "primary" },
+                { label: "Inadimplência", value: "1.2%", badge: "Baixa", variant: "info" }
+            ],
+            details: [
+                { item: "Região Sudeste", meta: "R$ 1.200.000", realizado: "R$ 1.350.000", atingimento: "95" },
+                { item: "Região Sul", meta: "R$ 600.000", realizado: "R$ 620.000", atingimento: "88" },
+                { item: "Região Nordeste", meta: "R$ 400.000", realizado: "R$ 380.000", atingimento: "75" },
+                { item: "Centro-Oeste", meta: "R$ 250.000", realizado: "R$ 270.000", atingimento: "92" }
+            ]
+        });
+
+        // Tela Explicativa do Padrão Factory
+        const GuiaFactoryScreen = {
+            title: "Padrão 3: Factory Functions & Geradores de Telas",
+            icon: "🏭",
+            width: 740,
+            height: 520,
+            singleInstance: true,
+            status: "Arquitetura por Factory & Geração Dinâmica",
+            view() {
+                return createElement("div", "", [
+                    Alert({
+                        text: "O padrão Factory permite gerar telas de CRUD, relatórios analíticos e visualizadores dinamicamente através de esquemas simples de configuração, reduzindo mais de 80% do boilerplate.",
+                        variant: "info"
+                    }),
+                    Card({
+                        title: "💡 Vantagens das Factory Functions",
+                        children: [
+                            createElement("ul", "", [
+                                createElement("li", "", ["Produtividade extrema: Crie CRUDs inteiros com 15 linhas de configuração"]),
+                                createElement("li", "", ["Consistência visual e de UX garantida em todo o sistema"]),
+                                createElement("li", "", ["Manutenção centralizada: alterações na Factory refletem em todas as telas geradas"]),
+                                createElement("li", "", ["Flexibilidade: cada tela gerada mantém o estado reativo independente do DesktopEngine"])
+                            ])
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "🛠️ Telas Geradas Disponíveis para Teste",
+                        children: [
+                            Row({
+                                style: "gap: 8px; flex-wrap: wrap;",
+                                children: [
+                                    Button({ text: "Abrir CRUD de Clientes (Gerado)", onClick: () => Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop)), variant: "primary" }),
+                                    Button({ text: "Abrir CRUD de Produtos (Gerado)", onClick: () => Desktop.open(Framework.createWindow(ProdutosScreen, "crud_produtos", Desktop)), variant: "success" }),
+                                    Button({ text: "Abrir Relatório Executivo BI (Gerado)", onClick: () => Desktop.open(Framework.createWindow(RelatorioFinanceiroScreen, "bi_financeiro", Desktop)) })
+                                ]
+                            })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        // --- MENU BAR (TOPO) ---
+        MenuBar({
+            containerId: "menubar",
+            menus: [
+                {
+                    label: "📐 Formas de Criação",
+                    items: [
+                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
+                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
+                        { label: "🏭 3. Factory / Geradores [Atual]", action: () => Desktop.open(Framework.createWindow(GuiaFactoryScreen, "guia_factory", Desktop)) },
+                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
+                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
+                        "separator",
+                        { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
+                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
+                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                    ]
+                },
+                {
+                    label: "Telas Geradas (Factory)",
+                    items: [
+                        { label: "Guia da Arquitetura Factory", action: () => Desktop.open(Framework.createWindow(GuiaFactoryScreen, "guia_factory", Desktop)) },
+                        "separator",
+                        { label: "CRUD de Clientes (Gerado)", action: () => Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop)) },
+                        { label: "CRUD de Produtos (Gerado)", action: () => Desktop.open(Framework.createWindow(ProdutosScreen, "crud_produtos", Desktop)) },
+                        { label: "Relatório Financeiro BI (Gerado)", action: () => Desktop.open(Framework.createWindow(RelatorioFinanceiroScreen, "bi_financeiro", Desktop)) }
+                    ]
+                },
+                {
+                    label: "Exibir",
+                    items: [
+                        { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                    ]
+                },
+                {
+                    label: "Sistema",
+                    items: [
+                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                    ]
+                }
+            ]
+        });
+
+        // Context Menu do Desktop
+        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            ContextMenu({
+                x: e.clientX, y: e.clientY,
+                items: [
+                    { label: "Abrir CRUD Clientes (Factory)", action: () => Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop)) },
+                    { label: "Abrir CRUD Produtos (Factory)", action: () => Desktop.open(Framework.createWindow(ProdutosScreen, "crud_produtos", Desktop)) },
+                    { label: "Abrir Relatório BI (Factory)", action: () => Desktop.open(Framework.createWindow(RelatorioFinanceiroScreen, "bi_financeiro", Desktop)) },
+                    "separator",
+                    { label: "Guia Desta Abordagem", action: () => Desktop.open(Framework.createWindow(GuiaFactoryScreen, "guia_factory", Desktop)) }
+                ]
+            });
+        });
+
+        // Abertura inicial
+        setTimeout(() => {
+            Desktop.open(Framework.createWindow(GuiaFactoryScreen, "guia_factory", Desktop));
+            setTimeout(() => Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop)), 150);
+        }, 100);
+    </script>
+</body>
+
+</html>

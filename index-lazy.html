@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Desktop Engine V0.6 - Padrão 2: Screen Registry & Lazy Loading</title>
+    <link rel="stylesheet" href="./style.css?v=11">
+</head>
+
+<body>
+    <div id="app">
+        <div id="menubar"></div>
+        <div id="desktop">
+            <div id="windows"></div>
+        </div>
+        <div id="taskbar">
+            <button class="taskStart" id="showDesktop">Desktop</button>
+            <div class="taskWindows" id="taskWindows"></div>
+            <div class="clock" id="clock"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Framework } from './core.js';
+        import { Desktop } from './desktop.js';
+        import {
+            MenuBar, ContextMenu, bindContextMenu, Modal, WebView, DraggableList,
+            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
+            Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
+            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
+        } from './ui.js';
+
+        // 1. Inicialização do Desktop
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "bottom",
+            showDesktopButton: true
+        });
+
+        function updateClock() {
+            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+
+        // --- FORMA 2: REGISTRO CENTRALIZADO DE TELAS COM LAZY LOADING ---
+        // As telas ficam em arquivos separados na pasta /screens/ e são baixadas somente no momento de abrir.
+
+        Desktop.registerScreens({
+            // 1. Módulos sob demanda (Lazy Loading via ES Dynamic Import):
+            "dashboard": () => import('./screens/DashboardScreen.js'),
+            "datagrid":  () => import('./screens/DataGridScreen.js'),
+            "forms":     () => import('./screens/FormsScreen.js'),
+            "tasks":     () => import('./screens/TaskScreen.js'),
+            "browser":   () => import('./screens/BrowserScreen.js'),
+            "showcase":  () => import('./screens/ComponentShowcaseScreen.js'),
+            "sobre":     () => import('./screens/SobreScreen.js'),
+
+            // 2. Tela Informativa da Arquitetura
+            "guia_lazy": () => ({
+                title: "Padrão 2: Screen Registry & Lazy Loading",
+                icon: "📦",
+                width: 740,
+                height: 540,
+                singleInstance: true,
+                status: "Arquitetura Modular ES Modules",
+                state: {},
+                view() {
+                    return createElement("div", "", [
+                        Alert({
+                            text: "Esta página demonstra o padrão de arquitetura modular corporativa. Cada tela vive em seu próprio arquivo na pasta '/screens/' e é importada sob demanda usando dynamic import().",
+                            variant: "info"
+                        }),
+                        Card({
+                            title: "✨ Vantagens do Screen Registry & Lazy Loading",
+                            children: [
+                                createElement("ul", "", [
+                                    createElement("li", "", ["Separação total de responsabilidades (1 arquivo por tela)"]),
+                                    createElement("li", "", ["Carregamento ultra-rápido: arquivos JS só são transferidos pela rede quando a janela é aberta"]),
+                                    createElement("li", "", ["Integração declarativa com Menus e Context Menus via propriedade { screen: 'nome' }"]),
+                                    createElement("li", "", ["Suporte a injeção de parâmetros iniciais via Desktop.openScreen('id', { props })"])
+                                ])
+                            ]
+                        }),
+                        createElement("br", "", []),
+                        Card({
+                            title: "🚀 Teste de Abertura Sob Demanda",
+                            children: [
+                                Row({
+                                    style: "gap: 8px; flex-wrap: wrap;",
+                                    children: [
+                                        Button({ text: "Carregar Dashboard (/screens/DashboardScreen.js)", onClick: () => Desktop.openScreen("dashboard"), variant: "primary" }),
+                                        Button({ text: "Carregar DataGrid (/screens/DataGridScreen.js)", onClick: () => Desktop.openScreen("datagrid") }),
+                                        Button({ text: "Carregar Forms com Props", onClick: () => Desktop.openScreen("forms", { nome: "Carlos Eduardo", salario: 12500 }), variant: "success" }),
+                                        Button({ text: "Carregar Gerenciador de Tarefas", onClick: () => Desktop.openScreen("tasks") }),
+                                        Button({ text: "Carregar Showcase de Componentes", onClick: () => Desktop.openScreen("showcase") })
+                                    ]
+                                })
+                            ]
+                        })
+                    ]);
+                }
+            })
+        });
+
+        // --- MENU BAR (TOPO) ---
+        MenuBar({
+            containerId: "menubar",
+            menus: [
+                {
+                    label: "📐 Formas de Criação",
+                    items: [
+                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
+                        { label: "📦 2. Lazy Loading Modular [Atual]", action: () => Desktop.openScreen("guia_lazy") },
+                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
+                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
+                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
+                        "separator",
+                        { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
+                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
+                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                    ]
+                },
+                {
+                    label: "Telas Registradas (Lazy)",
+                    items: [
+                        { label: "Guia da Arquitetura Lazy", screen: "guia_lazy" },
+                        "separator",
+                        { label: "Painel de Controle", screen: "dashboard" },
+                        { label: "Listagem Avançada (DataGrid)", screen: "datagrid" },
+                        { label: "Formulários e Cadastros", screen: "forms" },
+                        { label: "Gerenciador de Tarefas", screen: "tasks" },
+                        { label: "Navegador Web", screen: "browser" },
+                        { label: "Showcase de Componentes UI", screen: "showcase" },
+                        "separator",
+                        { label: "Sobre o Sistema", screen: "sobre" }
+                    ]
+                },
+                {
+                    label: "Exibir",
+                    items: [
+                        { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                    ]
+                },
+                {
+                    label: "Sistema",
+                    items: [
+                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                    ]
+                }
+            ]
+        });
+
+        // Context Menu do Desktop
+        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            ContextMenu({
+                x: e.clientX, y: e.clientY,
+                items: [
+                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
+                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
+                    { label: "Abrir Formulários (Lazy)", screen: "forms" },
+                    "separator",
+                    { label: "Guia Desta Abordagem", screen: "guia_lazy" }
+                ]
+            });
+        });
+
+        // Abre as telas iniciais sob demanda
+        setTimeout(() => {
+            Desktop.openScreen("guia_lazy");
+            setTimeout(() => Desktop.openScreen("dashboard"), 150);
+        }, 100);
+    </script>
+
+    <style>
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    </style>
+</body>
+
+</html>

@@ -248,6 +248,7 @@
             <a href="#executando">Executando o Projeto</a>
             <a href="#init">Inicialização do Desktop</a>
             <a href="#telas">Criando Telas (Windows)</a>
+            <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
             <a href="#estado-reativo">Reatividade com Proxies</a>
             <a href="#middlewares">Middlewares &amp; Actions</a>
 
@@ -309,6 +310,11 @@
             <ul>
                 <li><strong>Opção 1 (Windows):</strong> Dê um duplo clique no arquivo <code>server.bat</code> na pasta raiz. Ele abrirá um servidor local na porta <code>8000</code>.</li>
                 <li><strong>Opção 2 (Terminal):</strong> Execute <code>npx serve .</code> ou <code>python -m http.server 8000</code> e acesse <code>http://localhost:8000</code>.</li>
+            </ul>
+            <p>Páginas de demonstração incluídas:</p>
+            <ul>
+                <li><code>index.html</code>: Layout moderno com <strong>MenuBar superior</strong> (estilo macOS) e taskbar de janelas.</li>
+                <li><code>index2.html</code>: Layout clássico com <strong>Menu Iniciar na Taskbar</strong> (estilo Windows).</li>
             </ul>
 
             <!-- SEÇÃO 2: INIT -->
@@ -375,12 +381,9 @@ const MinhaJanela = {
 
     actions: {
         salvar: [async (ctx) => {
-            if (!ctx.state.usuario) {
-                Desktop.notify("Preencha o nome do usuário!", "danger");
-                return;
-            }
             ctx.instance.setStatus("Salvando...");
-            Desktop.notify(`Usuário ${ctx.state.usuario} salvo com sucesso!`, "success");
+            await new Promise(r => setTimeout(r, 600));
+            ctx.instance.setTitle(`Usuário: ${ctx.state.usuario}`);
             ctx.instance.setStatus("Pronto");
         }]
     },
@@ -396,6 +399,189 @@ const MinhaJanela = {
 
 // Abre a janela no Desktop
 Desktop.open(Framework.createWindow(MinhaJanela, "JANELA_USUARIO", Desktop));</code></pre>
+            </div>
+
+            <!-- SEÇÃO NOVO: ARQUITETURA MODULAR & SCREEN REGISTRY -->
+            <h2 id="arquitetura-telas">Padrões e Formas de Criação de Telas</h2>
+            <p>O DesktopEngine foi arquitetado para se adaptar a diferentes estilos e tamanhos de projetos. Abaixo estão as <strong>5 formas completas de se criar telas</strong>, cada uma com uma página HTML de demonstração ao vivo:</p>
+
+            <div class="alert alert-info">
+                <span class="alert-icon">🌐</span>
+                <div>
+                    <strong>Páginas de Demonstração Interativas:</strong>
+                    <ul style="margin: 6px 0 0 0; padding-left: 20px;">
+                        <li><a href="index-direct.html"><code>index-direct.html</code></a> — Padrão 1: Criação Direta (Inline Objects &amp; Multi-Instâncias)</li>
+                        <li><a href="index-lazy.html"><code>index-lazy.html</code></a> — Padrão 2: Screen Registry &amp; Lazy Loading Modular</li>
+                        <li><a href="index-factory.html"><code>index-factory.html</code></a> — Padrão 3: Factory Functions &amp; Geradores de Telas</li>
+                        <li><a href="index-class.html"><code>index-class.html</code></a> — Padrão 4: Orientação a Objetos com Classes ES6</li>
+                        <li><a href="index-template.html"><code>index-template.html</code></a> — Padrão 5: Templates HTML Estáticos &amp; Strings</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 id="padrao-1">1. Padrão Direto / Inline Objects (<code>index-direct.html</code>)</h3>
+            <p>A forma mais simples e rápida: objetos declarados diretamente no código da página e abertos via <code>Desktop.open(Framework.createWindow(config, id, Desktop))</code>. Suporta telas Single-Instance e Multi-Instance (múltiplas janelas abertas simultaneamente, como post-its ou anotações rápidas com IDs temporais <code>nota_${Date.now()}</code>):</p>
+
+            <div class="code-box">
+<pre><code>import { Framework } from './core.js';
+import { Desktop } from './desktop.js';
+import { Input, Button, createElement } from './ui.js';
+
+// Definição inline
+const PostItScreen = {
+    title: "Nota Rápida",
+    icon: "📝",
+    width: 320,
+    height: 240,
+    singleInstance: false, // Permite abrir múltiplas cópias!
+    state: { texto: "" },
+    view() {
+        return createElement("div", "p-2", [
+            Input({ bind: "texto", instance: this, placeholder: "Digite sua nota..." })
+        ]);
+    }
+};
+
+// Abertura com ID dinâmico
+Desktop.open(Framework.createWindow(PostItScreen, `nota_${Date.now()}`, Desktop));</code></pre>
+            </div>
+
+            <h3 id="padrao-2">2. Padrão Modular com Lazy Loading (<code>index-lazy.html</code>)</h3>
+            <p>Para sistemas corporativos de grande porte. Cada tela reside em seu próprio arquivo na pasta <code>/screens/</code> e é carregada sob demanda via Dynamic Imports nativos do ES Modules:</p>
+
+            <div class="code-box">
+<pre><code>// screens/UsuariosScreen.js
+import { Input, Button, Card } from '../ui.js';
+
+export default {
+    title: "Gestão de Usuários",
+    icon: "👥",
+    width: 600,
+    height: 400,
+    singleInstance: true,
+    state: { nome: "", email: "" },
+    view() {
+        return Card({
+            title: "Novo Usuário",
+            children: [
+                Input({ label: "Nome", bind: "nome", instance: this }),
+                Button({ text: "Salvar", onClick: "salvar", instance: this, variant: "primary" })
+            ]
+        });
+    }
+};
+
+// No index.html (Registro centralizado):
+Desktop.registerScreens({
+    "usuarios": () => import('./screens/UsuariosScreen.js'),
+    "financeiro": () => import('./screens/FinanceiroScreen.js')
+});
+
+// Abertura sob demanda com passagem de parâmetros iniciais:
+Desktop.openScreen("usuarios", { nome: "João Silva" });</code></pre>
+            </div>
+
+            <h3 id="padrao-3">3. Padrão Factory Functions / Geradores de Telas (<code>index-factory.html</code>)</h3>
+            <p>Funções geradoras parametrizadas que criam telas padronizadas de CRUD, relatórios analíticos de BI ou visualizadores em poucas linhas de código, eliminando mais de 80% do boilerplate:</p>
+
+            <div class="code-box">
+<pre><code>// Factory para geração de telas CRUD completas
+function createCrudScreen({ entityName, title, columns, fields, initialData = [] }) {
+    return {
+        title: title || `Gestão de ${entityName}`,
+        icon: "📁",
+        width: 750,
+        height: 520,
+        singleInstance: true,
+        state: { records: [...initialData], ...initialFields(fields) },
+        actions: { /* Lógica de salvar, editar e excluir padronizada */ },
+        view() { /* Renderiza formulário e tabela gerados a partir do schema */ }
+    };
+}
+
+// Criando uma tela CRUD com apenas um schema declarativo:
+const ClientesScreen = createCrudScreen({
+    entityName: "Cliente",
+    columns: [{ key: "nome", label: "Razão Social" }, { key: "email", label: "E-mail" }],
+    fields: [{ label: "Nome", bind: "nome" }, { label: "E-mail", bind: "email", type: "email" }]
+});
+
+Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop));</code></pre>
+            </div>
+
+            <h3 id="padrao-4">4. Padrão Orientado a Objetos com Classes ES6 (<code>index-class.html</code>)</h3>
+            <p>Encapsulamento clássico com uma classe base <code>BaseScreen</code>. Métodos com prefixo <code>action_</code> viram automaticamente ações da tela e os hooks <code>onMount()</code> e <code>onDestroy()</code> gerenciam timers e recursos de ciclo de vida:</p>
+
+            <div class="code-box">
+<pre><code>class SystemMonitorScreen extends BaseScreen {
+    constructor() {
+        super({
+            title: "Monitor do Servidor",
+            icon: "📈",
+            width: 600,
+            height: 400,
+            state: { cpu: 20, ram: 50 }
+        });
+    }
+
+    onMount() {
+        this.timer = setInterval(() => {
+            this.state.cpu = Math.floor(Math.random() * 80);
+            this.setStatus(`Atualizado às ${new Date().toLocaleTimeString()}`);
+        }, 1000);
+    }
+
+    onDestroy() {
+        clearInterval(this.timer);
+    }
+
+    async action_limpar(ctx) {
+        this.notify("Dados limpos!", "info");
+    }
+
+    render() {
+        return Card({
+            title: "Recursos em Uso",
+            children: [
+                ProgressBar({ value: this.state.cpu, max: 100 }),
+                Button({ text: "Limpar", onClick: "limpar", instance: this.instance })
+            ]
+        });
+    }
+}
+
+// Abertura limpa orientada a instâncias de classe:
+new SystemMonitorScreen().open("monitor_sys");</code></pre>
+            </div>
+
+            <h3 id="padrao-5">5. Padrão Templates HTML Estáticos &amp; Strings (<code>index-template.html</code>)</h3>
+            <p>Ideal para quem prefere escrever marcação HTML tradicional, Template Literals ou clonar tags nativas <code>&lt;template id="..."&gt;</code> do documento, preservando o estado reativo via Proxy do Framework:</p>
+
+            <div class="code-box">
+<pre><code>const CalculadoraScreen = {
+    title: "Calculadora de Empréstimo",
+    icon: "🧮",
+    width: 500,
+    height: 400,
+    state: { valor: 1000, taxa: 2 },
+    view() {
+        const div = document.createElement("div");
+        div.className = "p-3";
+        div.innerHTML = `
+            <div class="ui-card">
+                <label>Valor Principal (R$):</label>
+                <input type="number" class="ui-input inp-val" value="${this.state.valor}" />
+                <h3>Total Calculado: R$ ${(this.state.valor * (1 + this.state.taxa/100)).toFixed(2)}</h3>
+            </div>
+        `;
+        div.querySelector(".inp-val").oninput = (e) => {
+            this.state.valor = parseFloat(e.target.value) || 0;
+        };
+        return div;
+    }
+};
+
+Desktop.open(Framework.createWindow(CalculadoraScreen, "calc_win", Desktop));</code></pre>
             </div>
 
             <!-- SEÇÃO 4: ESTADO REATIVO -->
@@ -540,6 +726,22 @@ Tabs({
 
             <div class="code-box">
 <pre><code>Input({ label: "E-mail Corporativo", bind: "email", type: "email", placeholder: "usuario@empresa.com", instance: this })</code></pre>
+            </div>
+
+            <h3>Textarea</h3>
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>label</code></td><td><code>String</code></td><td><code>""</code></td><td>Rótulo descritivo do campo.</td></tr>
+                    <tr><td><code>bind</code></td><td><code>String</code></td><td><code>-</code></td><td>Chave correspondente no <code>instance.state</code>.</td></tr>
+                    <tr><td><code>rows</code></td><td><code>Number</code></td><td><code>4</code></td><td>Quantidade inicial de linhas visíveis.</td></tr>
+                    <tr><td><code>placeholder</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto de dica.</td></tr>
+                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>A referência <code>this</code> da tela atual.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+<pre><code>Textarea({ label: "Observações", bind: "obs", rows: 4, instance: this })</code></pre>
             </div>
 
             <h3>Select</h3>
@@ -969,8 +1171,12 @@ const meusMenus = [
     }
 ];
 
-// Invocando no MenuBar:
-MenuBar({ containerId: "menuBarTop", menus: meusMenus });
+// Invocando no MenuBar com posição customizável ("top", "bottom", "left", "right"):
+MenuBar({
+    containerId: "menubar",
+    position: "top", // Posição do MenuBar. Se Taskbar também estiver no topo, a Taskbar fica acima e o MenuBar logo abaixo!
+    menus: meusMenus
+});
 
 // Ou no StartMenu:
 StartMenu({ buttonId: "btnStart", menus: meusMenus });</code></pre>

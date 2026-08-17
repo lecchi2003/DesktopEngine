@@ -1,4 +1,5 @@
 // ui.js
+import { Desktop } from './desktop.js';
 
 export function createElement(tag, className, children = []) {
     const el = document.createElement(tag);
@@ -144,6 +145,28 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
     return wrap;
 }
 
+export function Textarea({ label, bind, instance, placeholder = "", rows = 4, width = "100%", style = "" }) {
+    const wrap = createElement("div", "ui-field");
+    if (width !== "100%") wrap.style.width = width;
+    if (style) wrap.style.cssText += style;
+    
+    if (label) wrap.appendChild(createElement("label", "", [label]));
+    
+    const txt = document.createElement("textarea");
+    txt.className = "filter-input";
+    txt.rows = rows;
+    txt.placeholder = placeholder;
+    if (bind && instance) {
+        txt.dataset.bind = bind;
+        txt.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
+        txt.addEventListener("input", (e) => {
+            instance.state[bind] = e.target.value;
+        });
+    }
+    wrap.appendChild(txt);
+    return wrap;
+}
+
 export function Button({ text, onClick, instance, variant = "primary" }) {
     const btn = createElement("button", `ui-btn ui-btn-${variant}`, [text]);
     if (onClick && instance) {
@@ -266,7 +289,14 @@ export function ContextMenu({ x, y, items = [] }) {
         } else {
             const opt = createElement("div", "menuOption", [item.label]);
             opt.onclick = () => {
-                if (item.action) item.action();
+                if (item.screen) {
+                    const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                    if (d && typeof d.openScreen === 'function') {
+                        d.openScreen(item.screen, item.props);
+                    }
+                } else if (item.action) {
+                    item.action();
+                }
                 menu.remove();
             };
             menu.appendChild(opt);
@@ -312,15 +342,21 @@ export function bindContextMenu(element, items = []) {
     });
 }
 
-export function MenuBar({ containerId, menus = [] }) {
+export function MenuBar({ containerId, position = "top", menus = [] }) {
     const bar = document.getElementById(containerId);
     if (!bar) return;
     
     bar.innerHTML = "";
     bar.className = "ui-menubar";
+    bar.dataset.position = position;
+
+    const app = document.getElementById("app");
+    if (app) {
+        app.dataset.menubar = position;
+    }
 
     function buildMenu(items, isSub = false) {
-        const containerClass = isSub ? "dropdown sub-dropdown" : "ui-start-menu";
+        const containerClass = isSub ? "dropdown sub-dropdown" : "dropdown menubar-dropdown";
         const container = createElement("div", containerClass, []);
         container.style.flexDirection = "column";
 
@@ -340,7 +376,14 @@ export function MenuBar({ containerId, menus = [] }) {
                 } else {
                     opt.onclick = (e) => { 
                         e.stopPropagation(); 
-                        if (subItem.action) subItem.action(); 
+                        if (subItem.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(subItem.screen, subItem.props);
+                            }
+                        } else if (subItem.action) {
+                            subItem.action();
+                        }
                         document.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
                     };
                 }
@@ -421,7 +464,14 @@ export function StartMenu({ buttonId, menus = [] }) {
                 } else {
                     opt.onclick = (e) => { 
                         e.stopPropagation();
-                        if (subItem.action) subItem.action(); 
+                        if (subItem.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(subItem.screen, subItem.props);
+                            }
+                        } else if (subItem.action) {
+                            subItem.action();
+                        }
                         menuEl.classList.remove("show");
                     };
                 }
@@ -807,28 +857,13 @@ export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, s
     
     // UI de Paginação
     const paginationWrapper = createElement("div", "ui-pagination", []);
-    paginationWrapper.style.display = "flex";
-    paginationWrapper.style.justifyContent = "space-between";
-    paginationWrapper.style.alignItems = "center";
-    paginationWrapper.style.padding = "8px";
-    paginationWrapper.style.background = "var(--bg-light, #f9f9f9)";
-    paginationWrapper.style.borderTop = "1px solid var(--border, #ccc)";
-
     const info = createElement("div", "ui-pagination-info", [`Página ${gridState.currentPage} de ${totalPages}`]);
-    info.style.fontSize = "0.85rem";
-    info.style.color = "var(--text-muted, #666)";
-    
     const btnGroup = createElement("div", "ui-pagination-buttons", []);
-    btnGroup.style.display = "flex";
-    btnGroup.style.gap = "4px";
 
     const createBtn = (label, disabled, onClick) => {
         const btn = document.createElement("button");
         btn.innerHTML = label;
-        btn.className = "ui-btn ui-btn-sm"; // reaproveitando classe de botão se houver
-        btn.style.padding = "2px 8px";
-        btn.style.cursor = disabled ? "not-allowed" : "pointer";
-        btn.style.opacity = disabled ? "0.5" : "1";
+        btn.className = "ui-pagination-btn";
         btn.disabled = disabled;
         btn.onclick = onClick;
         return btn;

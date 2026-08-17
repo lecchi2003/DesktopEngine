@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V0.6 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="./style.css?v=11">
+    <link rel="stylesheet" href="./style.css?v=4">
 </head>
 
 <body>
@@ -22,15 +22,15 @@
     </div>
 
     <script type="module">
-        import { Framework } from './core.js';
-        import { Desktop } from './desktop.js';
+        import { Framework } from './core.js?v=2';
+        import { Desktop } from './desktop.js?v=2';
         import {
             MenuBar, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
-            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Form, Input, Select, Checkbox, Toggle, Button,
             Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
             Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
             Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
-        } from './ui.js';
+        } from './ui.js?v=2';
 
         // Inicializa o desktop na posição escolhida
         Desktop.init({
@@ -53,32 +53,14 @@
             containerId: "menubar",
             menus: [
                 {
-                    label: "📐 Exemplos de Telas",
-                    items: [
-                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
-                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
-                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
-                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
-                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
-                        "separator",
-                        { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                        "separator",
-                        { label: "🖥️ Layout macOS (index.html) [Atual]", action: () => Desktop.openScreen("hub_arquiteturas") },
-                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
-                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
-                    ]
-                },
-                {
                     label: "Módulos",
                     items: [
-                        { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
-                        "separator",
-                        { label: "Painel de Controle (Lazy)", screen: "dashboard" },
-                        { label: "Listagem Avançada (DataGrid) (Lazy)", screen: "datagrid" },
-                        { label: "Navegador Web", screen: "browser" },
-                        { label: "Formulários e Cadastros", screen: "forms" },
-                        { label: "Gerenciador de Tarefas", screen: "tasks" },
-                        { label: "Showcase de Componentes", screen: "showcase" }
+                        { label: "Painel de Controle", action: () => openScreen(DashboardScreen, "dashboard") },
+                        { label: "Listagem Avançada (DataGrid)", action: () => openScreen(DataGridScreen, "datagrid") },
+                        { label: "Navegador Web", action: () => openScreen(BrowserScreen, "browser") },
+                        { label: "Formulários e Cadastros", action: () => openScreen(FormsScreen, "forms") },
+                        { label: "Gerenciador de Tarefas", action: () => openScreen(TaskScreen, "tasks") },
+                        { label: "Showcase de Componentes", action: () => openScreen(ComponentShowcaseScreen, "showcase") }
                     ]
                 },
                 {
@@ -110,7 +92,7 @@
                             ]
                         },
                         "separator",
-                        { label: "Sobre (Lazy Load)", screen: "sobre" }
+                        { label: "Sobre", action: () => openScreen(SobreScreen, "sobre") }
                     ]
                 }
             ]
@@ -121,12 +103,10 @@
             ContextMenu({
                 x: e.clientX, y: e.clientY,
                 items: [
-                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                    "separator",
                     { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
                     "separator",
-                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
-                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" }
+                    { label: "Abrir Painel", action: () => openScreen(DashboardScreen, "dashboard") },
+                    { label: "Abrir DataGrid", action: () => openScreen(DataGridScreen, "datagrid") }
                 ]
             });
         });
@@ -139,31 +119,162 @@
             const AnotacaoScreen = {
                 title: `Anotação #${anotacaoCount++}`,
                 icon: "📝",
-                width: 320,
-                height: 260,
+                width: 300,
+                height: 250,
                 singleInstance: false, // Pode abrir infinitas!
                 state: { texto: "" },
                 view() {
-                    const field = Textarea({
-                        bind: "texto",
-                        instance: this,
-                        placeholder: "Digite sua anotação...",
-                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
-                    });
-                    const txtEl = field.querySelector('textarea');
-                    if (txtEl) {
-                        txtEl.style.flex = "1";
-                        txtEl.style.resize = "none";
-                        txtEl.style.height = "100%";
-                    }
-                    return createElement("div", "flex-col", [field]);
+                    const t = createElement("textarea", "filter-input", []);
+                    t.style.flex = "1";
+                    t.style.resize = "none";
+                    t.value = this.state.texto;
+                    t.oninput = e => this.state.texto = e.target.value;
+                    return createElement("div", "flex-col", [t]);
                 }
             };
+            // Passamos um ID único baseado no Date.now para garantir instâncias separadas
             Desktop.open(Framework.createWindow(AnotacaoScreen, `anotacao_${Date.now()}`, Desktop));
         }
 
-        // 2. Telas Modulares são carregadas sob demanda da pasta ./screens/
-        // (DashboardScreen, DataGridScreen e SobreScreen estão em /screens)
+        // 2. Tela de DataGrid Avançado
+        const DataGridScreen = {
+            title: "Listagem de Clientes",
+            icon: "🗃️",
+            width: 750,
+            height: 500,
+            singleInstance: true,
+            state: {
+                clientes: [
+                    { id: 1, nome: "Acme Corp", setor: "Tecnologia", status: "Ativo", faturamento: 15000 },
+                    { id: 2, nome: "Global Industries", setor: "Manufatura", status: "Inativo", faturamento: 8500 },
+                    { id: 3, nome: "Stark Enterprises", setor: "Defesa", status: "Ativo", faturamento: 95000 },
+                    { id: 4, nome: "Wayne Enterprises", setor: "Investimentos", status: "Pendente", faturamento: 45000 },
+                    { id: 5, nome: "Cyberdyne Systems", setor: "IA", status: "Ativo", faturamento: 300000 }
+                ]
+            },
+            view() {
+                const gridEl = DataGrid({
+                    bindData: "clientes",
+                    instance: this,
+                    columns: [
+                        { key: "id", label: "ID", sortable: true },
+                        { key: "nome", label: "Razão Social", sortable: true, filterable: true },
+                        { key: "setor", label: "Setor", sortable: true, filterable: true },
+                        { key: "faturamento", label: "Faturamento", sortable: true, render: (val) => `R$ ${val.toLocaleString('pt-BR')}` },
+                        {
+                            key: "status", label: "Status", sortable: true, filterable: true, render: (val) => {
+                                let variant = "primary";
+                                if (val === "Ativo") variant = "success";
+                                if (val === "Inativo") variant = "danger";
+                                if (val === "Pendente") variant = "warning";
+                                return Badge({ text: val, variant });
+                            }
+                        }
+                    ]
+                });
+
+                bindContextMenu(gridEl, [
+                    { label: "Exportar Tabela para CSV", action: () => Desktop.notify("Tabela exportada com sucesso!", "success") },
+                    { label: "Atualizar Dados", action: () => Desktop.notify("Dados atualizados.", "info") },
+                    "separator",
+                    { label: "Imprimir Relatório", action: () => printElement(gridEl, { title: "Relatório de Clientes" }) }
+                ]);
+
+                return createElement("div", "", [
+                    Card({
+                        title: "Base de Dados (Clique com botão direito!)", children: [
+                            gridEl
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        const SobreScreen = {
+            title: "Sobre o Sistema",
+            icon: "ℹ️",
+            width: 400,
+            height: 250,
+            resizable: false, // Bloqueia o redimensionamento da janela (padrão é true)
+            minimizable: false, // Esconde o botão de minimizar e remove do menu (padrão é true)
+            maximizable: false, // Esconde o botão de maximizar e remove do menu (padrão é true)
+            singleInstance: true,
+            state: {},
+            view() {
+                return createElement("div", "", [
+                    createElement("h2", "", ["Desktop Engine v0.4"]),
+                    createElement("p", "", ["Tente abrir esta tela novamente e veja a janela original piscar (Efeito Blink)."]),
+                    createElement("p", "", ["Abra várias instâncias de 'Nova Anotação' pelo menu 'Acessórios'."])
+                ]);
+            }
+        };
+
+        const DashboardScreen = {
+            title: "Painel de Controle",
+            icon: "📊",
+            width: 700,
+            height: 500,
+            singleInstance: true,
+            status: "Atualizado agora mesmo",
+            state: {},
+            view() {
+                const tableData = [
+                    { id: 1, cliente: "Apple", valor: "R$ 45.000,00", status: "Pago" },
+                    { id: 2, cliente: "Microsoft", valor: "R$ 32.500,00", status: "Pendente" },
+                    { id: 3, cliente: "Google", valor: "R$ 89.000,00", status: "Atrasado" }
+                ];
+
+                return createElement("div", "", [
+                    Grid({
+                        columns: 3,
+                        children: [
+                            Card({ title: "Vendas do Mês", children: [createElement("h2", "", ["R$ 166.500,00"])] }),
+                            Card({ title: "Novos Clientes", children: [createElement("h2", "", ["143"])] }),
+                            Card({ title: "Status do Servidor", children: [Badge({ text: "Online e Estável", variant: "success" })] })
+                        ]
+                    }),
+                    createElement("h3", "", ["Metas Trimestrais"]),
+                    Row({
+                        children: [
+                            Col({
+                                children: [
+                                    createElement("label", "", ["Faturamento"]),
+                                    ProgressBar({ value: 85, max: 100 })
+                                ]
+                            }),
+                            Col({
+                                children: [
+                                    createElement("label", "", ["Redução de Custos"]),
+                                    ProgressBar({ value: 40, max: 100 })
+                                ]
+                            })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "Últimas Faturas", children: [
+                            Table({
+                                columns: [
+                                    { key: "id", label: "ID" },
+                                    { key: "cliente", label: "Cliente" },
+                                    { key: "valor", label: "Valor" },
+                                    {
+                                        key: "status", label: "Situação", render: (val) => {
+                                            let variant = "primary";
+                                            if (val === "Pago") variant = "success";
+                                            else if (val === "Atrasado") variant = "danger";
+                                            else if (val === "Pendente") variant = "warning";
+                                            return Badge({ text: val, variant });
+                                        }
+                                    }
+                                ],
+                                data: tableData
+                            })
+                        ]
+                    })
+                ]);
+            }
+        };
 
         const BrowserScreen = {
             title: "Navegador Corporativo",
@@ -324,11 +435,9 @@
                         instance: ctx.instance,
                         children: [
                             createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => {
+                                document.querySelector('.ui-modal-overlay.show').remove();
+                            }})
                         ]
                     });
                 }],
@@ -339,11 +448,9 @@
                         targetContainer: document.getElementById("app"),
                         children: [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => {
+                                document.querySelector('.ui-modal-overlay.show').remove();
+                            }})
                         ]
                     });
                 }]
@@ -378,13 +485,11 @@
                                     createElement("h2", "", ["Painel de Elementos Visuais"]),
                                 ]
                             }),
-                            Row({
-                                style: "gap: 8px;", children: [
-                                    Button({ text: "Modal Local", onClick: "abrirModalLocal", instance: this }),
-                                    Button({ text: "Modal Global", onClick: "abrirModalGlobal", instance: this, variant: "danger" }),
-                                    Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer", instance: this })
-                                ]
-                            })
+                            Row({ style: "gap: 8px;", children: [
+                                Button({ text: "Modal Local", onClick: "abrirModalLocal", instance: this }),
+                                Button({ text: "Modal Global", onClick: "abrirModalGlobal", instance: this, variant: "danger" }),
+                                Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer", instance: this })
+                            ]})
                         ]
                     }),
 
@@ -506,104 +611,15 @@
             }
         };
 
-        // 0. Central / Hub de Arquiteturas de Telas
-        const HubArquiteturasScreen = {
-            title: "Hub de Arquiteturas & Formas de Criação de Telas",
-            icon: "📐",
-            width: 820,
-            height: 560,
-            singleInstance: true,
-            status: "5 Padrões Arquiteturais Disponíveis",
-            state: {},
-            view() {
-                return createElement("div", "", [
-                    Alert({
-                        text: "O DesktopEngine suporta múltiplos paradigmas de desenvolvimento para criação de telas. Clique nos cards abaixo para abrir a página dedicada de cada arquitetura!",
-                        variant: "info"
-                    }),
-                    Grid({
-                        columns: 2,
-                        children: [
-                            Card({
-                                title: "⚡ 1. Criação Direta (Inline)",
-                                children: [
-                                    createElement("p", "text-secondary", ["Objetos literais declarados no próprio script. Ideal para post-its, multi-instâncias e utilitários rápidos."]),
-                                    Button({ text: "Abrir index-direct.html ↗", onClick: () => window.location.href = 'index-direct.html', variant: "primary" })
-                                ]
-                            }),
-                            Card({
-                                title: "📦 2. Lazy Loading Modular",
-                                children: [
-                                    createElement("p", "text-secondary", ["Arquivos .js isolados na pasta /screens/ carregados sob demanda via ES Modules dynamic import()."]),
-                                    Button({ text: "Abrir index-lazy.html ↗", onClick: () => window.location.href = 'index-lazy.html', variant: "primary" })
-                                ]
-                            }),
-                            Card({
-                                title: "🏭 3. Factory / Geradores",
-                                children: [
-                                    createElement("p", "text-secondary", ["Funções geradoras parametrizadas (createCrudScreen, createReportScreen) reduzindo 80% do boilerplate."]),
-                                    Button({ text: "Abrir index-factory.html ↗", onClick: () => window.location.href = 'index-factory.html', variant: "primary" })
-                                ]
-                            }),
-                            Card({
-                                title: "🏛️ 4. Classes ES6 (OOP)",
-                                children: [
-                                    createElement("p", "text-secondary", ["Herança com BaseScreen, ciclo de vida (onMount/onDestroy) e methods como actions encapsuladas."]),
-                                    Button({ text: "Abrir index-class.html ↗", onClick: () => window.location.href = 'index-class.html', variant: "primary" })
-                                ]
-                            })
-                        ]
-                    }),
-                    createElement("br", "", []),
-                    Grid({
-                        columns: 2,
-                        children: [
-                            Card({
-                                title: "📄 5. Templates HTML Puro",
-                                children: [
-                                    createElement("p", "text-secondary", ["Telas desenhadas diretamente com marcação HTML, Template Strings ou tags <template> nativas."]),
-                                    Button({ text: "Abrir index-template.html ↗", onClick: () => window.location.href = 'index-template.html', variant: "primary" })
-                                ]
-                            }),
-                            Card({
-                                title: "🪟 Layouts Alternativos & Docs",
-                                children: [
-                                    Row({
-                                        style: "gap: 8px; flex-wrap: wrap;",
-                                        children: [
-                                            Button({ text: "Layout Windows (index2.html)", onClick: () => window.location.href = 'index2.html', variant: "secondary" }),
-                                            Button({ text: "Documentação Oficial", onClick: () => window.location.href = 'docs.html', variant: "secondary" })
-                                        ]
-                                    })
-                                ]
-                            })
-                        ]
-                    })
-                ]);
-            }
-        };
+        // Auxiliar para abrir telas garantindo unique ID ou usando singleInstance
+        function openScreen(config, idPrefix) {
+            Desktop.open(Framework.createWindow(config, idPrefix, Desktop));
+        }
 
-        // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
-        Desktop.registerScreens({
-            // Hub de Arquiteturas
-            "hub_arquiteturas": () => HubArquiteturasScreen,
-
-            // 1. Telas com Lazy Loading nativo (Arquivos isolados em /screens)
-            "dashboard": () => import('./screens/DashboardScreen.js'),
-            "datagrid": () => import('./screens/DataGridScreen.js'),
-            "sobre": () => import('./screens/SobreScreen.js'),
-
-            // 2. Telas Registradas Diretamente (Objetos ou inline)
-            "browser": () => BrowserScreen,
-            "tasks": () => TaskScreen,
-            "forms": () => FormsScreen,
-            "showcase": () => ComponentShowcaseScreen
-        });
-
-        // Abre telas iniciais demonstrativas via Screen Registry
+        // Abre algumas telas por padrão para o usuário já ver o poder
         setTimeout(() => {
-            Desktop.openScreen("hub_arquiteturas");
-            setTimeout(() => Desktop.openScreen("dashboard"), 150);
+            openScreen(DashboardScreen, "dashboard");
+            setTimeout(() => openScreen(ComponentShowcaseScreen, "showcase"), 200);
         }, 100);
 
     </script>

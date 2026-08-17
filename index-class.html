@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Desktop Engine V0.6 - Padrão 4: Orientada a Objetos / Classes ES6</title>
+    <link rel="stylesheet" href="./style.css?v=11">
+</head>
+
+<body>
+    <div id="app">
+        <div id="menubar"></div>
+        <div id="desktop">
+            <div id="windows"></div>
+        </div>
+        <div id="taskbar">
+            <button class="taskStart" id="showDesktop">Desktop</button>
+            <div class="taskWindows" id="taskWindows"></div>
+            <div class="clock" id="clock"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Framework } from './core.js';
+        import { Desktop } from './desktop.js';
+        import {
+            MenuBar, ContextMenu, bindContextMenu, Modal, WebView, DraggableList,
+            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
+            Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
+            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
+        } from './ui.js';
+
+        // 1. Inicialização do Desktop
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "bottom",
+            showDesktopButton: true
+        });
+
+        function updateClock() {
+            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+
+        // =========================================================================
+        // FORMA 4: ORIENTAÇÃO A OBJETOS COM CLASSES ES6 (OOP PATTERN)
+        // =========================================================================
+
+        /**
+         * 🏛️ Classe Base Abstrata para Telas no DesktopEngine
+         * Encapsula estado, lifecycle hooks, métodos de ação e integração com o framework.
+         */
+        class BaseScreen {
+            constructor(config = {}) {
+                this.title = config.title || "Janela";
+                this.icon = config.icon || "🗔";
+                this.width = config.width || 600;
+                this.height = config.height || 450;
+                this.singleInstance = config.singleInstance !== false;
+                this.status = config.status || "Pronto";
+                this.state = config.state || {};
+                this.instance = null;
+            }
+
+            // Lifecycle Hooks
+            onMount() {}
+            onDestroy() {}
+
+            // Helper methods
+            setStatus(text) {
+                if (this.instance) this.instance.setStatus(text);
+            }
+            setTitle(text) {
+                if (this.instance) this.instance.setTitle(text);
+            }
+            notify(msg, type = "info") {
+                Desktop.notify(msg, type);
+            }
+
+            // Método abstrato de renderização
+            render() {
+                return createElement("div", "", ["Tela Base"]);
+            }
+
+            // Converte a classe para o formato de configuração aceito pelo Framework
+            toConfig() {
+                const self = this;
+                const config = {
+                    title: this.title,
+                    icon: this.icon,
+                    width: this.width,
+                    height: this.height,
+                    singleInstance: this.singleInstance,
+                    status: this.status,
+                    state: { ...this.state },
+                    actions: {},
+                    onMount: function () {
+                        self.instance = this;
+                        self.onMount();
+                    },
+                    onDestroy: function () {
+                        self.onDestroy();
+                    },
+                    view: function () {
+                        self.instance = this;
+                        self.state = this.state;
+                        return self.render();
+                    }
+                };
+
+                // Mapeia automaticamente qualquer método 'action_nomeDaAction' para as actions da janela
+                let proto = Object.getPrototypeOf(this);
+                while (proto && proto !== Object.prototype) {
+                    Object.getOwnPropertyNames(proto).forEach(name => {
+                        if (name.startsWith('action_') && typeof this[name] === 'function') {
+                            const actionKey = name.replace('action_', '');
+                            config.actions[actionKey] = [async (ctx) => {
+                                self.instance = ctx.instance;
+                                self.state = ctx.state;
+                                await self[name](ctx);
+                            }];
+                        }
+                    });
+                    proto = Object.getPrototypeOf(proto);
+                }
+
+                return config;
+            }
+
+            // Método fluente de abertura no desktop
+            open(id = null, desktop = Desktop) {
+                const winId = id || `win_${this.constructor.name}`;
+                return desktop.open(Framework.createWindow(this.toConfig(), winId, desktop));
+            }
+        }
+
+        // --- SUBCLASSES DE TELAS IMPLEMENTADAS EM OOP ---
+
+        // 1. Tela de Monitoramento do Sistema (OOP)
+        class SystemMonitorScreen extends BaseScreen {
+            constructor() {
+                super({
+                    title: "Monitor do Sistema (Classe ES6)",
+                    icon: "📈",
+                    width: 650,
+                    height: 480,
+                    singleInstance: true,
+                    status: "Monitoramento Ativo",
+                    state: {
+                        cpu: 28,
+                        memoria: 62,
+                        logs: ["Serviço de mensageria iniciado", "Conexão com banco OK", "42 usuários ativos"]
+                    }
+                });
+                this.interval = null;
+            }
+
+            onMount() {
+                this.interval = setInterval(() => {
+                    if (this.state) {
+                        this.state.cpu = Math.floor(Math.random() * 50) + 15;
+                        this.state.memoria = Math.min(95, Math.max(40, this.state.memoria + (Math.random() * 6 - 3)));
+                        this.setStatus(`Atualizado em tempo real: ${new Date().toLocaleTimeString()}`);
+                    }
+                }, 2000);
+            }
+
+            onDestroy() {
+                if (this.interval) clearInterval(this.interval);
+            }
+
+            async action_limparLogs(ctx) {
+                this.state.logs = [];
+                this.notify("Logs do sistema limpos com sucesso!", "info");
+            }
+
+            async action_gerarAlerta(ctx) {
+                this.state.logs = [`Alerta gerado às ${new Date().toLocaleTimeString()}`, ...this.state.logs];
+                this.notify("Novo alerta emitido!", "warning");
+            }
+
+            render() {
+                return createElement("div", "", [
+                    Grid({
+                        columns: 2,
+                        children: [
+                            Card({
+                                title: "Uso de CPU",
+                                children: [
+                                    createElement("h2", "", [`${this.state.cpu}%`]),
+                                    ProgressBar({ value: this.state.cpu, max: 100 })
+                                ]
+                            }),
+                            Card({
+                                title: "Uso de Memória RAM",
+                                children: [
+                                    createElement("h2", "", [`${Math.round(this.state.memoria)}%`]),
+                                    ProgressBar({ value: Math.round(this.state.memoria), max: 100 })
+                                ]
+                            })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "Log de Atividades do Servidor",
+                        children: [
+                            createElement("ul", "", this.state.logs.map(log => createElement("li", "", [log]))),
+                            createElement("br", "", []),
+                            Row({
+                                style: "gap: 8px;",
+                                children: [
+                                    Button({ text: "Limpar Histórico", onClick: "limparLogs", instance: this.instance, variant: "secondary" }),
+                                    Button({ text: "Simular Alerta", onClick: "gerarAlerta", instance: this.instance, variant: "danger" })
+                                ]
+                            })
+                        ]
+                    })
+                ]);
+            }
+        }
+
+        // 2. Tela de Editor de Usuário (OOP com Herança)
+        class UserProfileScreen extends BaseScreen {
+            constructor(usuario = { nome: "Fernanda Lima", cargo: "Tech Lead", email: "fernanda@tech.com" }) {
+                super({
+                    title: `Perfil: ${usuario.nome}`,
+                    icon: "👩‍💼",
+                    width: 580,
+                    height: 440,
+                    singleInstance: true,
+                    state: { ...usuario }
+                });
+            }
+
+            async action_salvarPerfil(ctx) {
+                this.notify(`Perfil de ${this.state.nome} atualizado com sucesso!`, "success");
+                this.setTitle(`Perfil: ${this.state.nome}`);
+                this.setStatus(`Salvo às ${new Date().toLocaleTimeString()}`);
+            }
+
+            render() {
+                return createElement("div", "", [
+                    Card({
+                        title: "Informações Cadastrais",
+                        children: [
+                            Row({
+                                style: "align-items: center; gap: 16px; margin-bottom: 16px;",
+                                children: [
+                                    Avatar({ initials: "FL", size: 52, status: "online" }),
+                                    Col({
+                                        children: [
+                                            createElement("strong", "", [this.state.nome]),
+                                            createElement("span", "text-secondary", [this.state.cargo])
+                                        ]
+                                    })
+                                ]
+                            }),
+                            Grid({
+                                columns: 2,
+                                children: [
+                                    Input({ label: "Nome Completo", bind: "nome", instance: this.instance }),
+                                    Input({ label: "Cargo / Função", bind: "cargo", instance: this.instance })
+                                ]
+                            }),
+                            Input({ label: "E-mail Corporativo", bind: "email", instance: this.instance, type: "email" })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Button({ text: "Salvar Alterações", onClick: "salvarPerfil", instance: this.instance, variant: "primary" })
+                ]);
+            }
+        }
+
+        // 3. Tela Explicativa da Arquitetura Orientada a Classes
+        class GuiaClassScreen extends BaseScreen {
+            constructor() {
+                super({
+                    title: "Padrão 4: Orientação a Objetos (Classes ES6)",
+                    icon: "🏛️",
+                    width: 740,
+                    height: 520,
+                    singleInstance: true,
+                    status: "Arquitetura OOP com BaseScreen"
+                });
+            }
+
+            render() {
+                return createElement("div", "", [
+                    Alert({
+                        text: "A abordagem por Classes ES6 permite utilizar conceitos avançados de Orientação a Objetos (Herança, Polimorfismo, Encapsulamento de Métodos e Ciclo de Vida) de forma limpa e elegante no DesktopEngine.",
+                        variant: "info"
+                    }),
+                    Card({
+                        title: "💡 Benefícios da Abordagem em Classes",
+                        children: [
+                            createElement("ul", "", [
+                                createElement("li", "", ["Estrutura familiar para desenvolvedores vindos de TypeScript, Java, C#, Flutter ou Angular"]),
+                                createElement("li", "", ["Ciclo de vida nativo (onMount e onDestroy) para gerenciar timers, subscrições de eventos e WebSockets"]),
+                                createElement("li", "", ["Métodos da classe convertem-se automaticamente em Actions do framework"]),
+                                createElement("li", "", ["Herança de classes base para compartilhar layouts, verificações de permissões e comportamentos"])
+                            ])
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "🚀 Teste de Instâncias Criadas por Classes",
+                        children: [
+                            Row({
+                                style: "gap: 8px; flex-wrap: wrap;",
+                                children: [
+                                    Button({ text: "Abrir Monitor do Sistema (Classe)", onClick: () => new SystemMonitorScreen().open("monitor_sys"), variant: "primary" }),
+                                    Button({ text: "Abrir Perfil de Usuário (Classe)", onClick: () => new UserProfileScreen().open("perfil_user"), variant: "success" })
+                                ]
+                            })
+                        ]
+                    })
+                ]);
+            }
+        }
+
+        // Instancia as telas iniciais
+        const guiaScreen = new GuiaClassScreen();
+        const monitorScreen = new SystemMonitorScreen();
+        const perfilScreen = new UserProfileScreen();
+
+        // --- MENU BAR (TOPO) ---
+        MenuBar({
+            containerId: "menubar",
+            menus: [
+                {
+                    label: "📐 Formas de Criação",
+                    items: [
+                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
+                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
+                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
+                        { label: "🏛️ 4. Classes ES6 (OOP) [Atual]", action: () => guiaScreen.open("guia_class") },
+                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
+                        "separator",
+                        { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
+                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
+                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                    ]
+                },
+                {
+                    label: "Telas OOP (Classes)",
+                    items: [
+                        { label: "Guia da Arquitetura em Classes", action: () => guiaScreen.open("guia_class") },
+                        "separator",
+                        { label: "Monitor do Sistema (SystemMonitorScreen)", action: () => monitorScreen.open("monitor_sys") },
+                        { label: "Perfil de Usuário (UserProfileScreen)", action: () => perfilScreen.open("perfil_user") }
+                    ]
+                },
+                {
+                    label: "Exibir",
+                    items: [
+                        { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                    ]
+                },
+                {
+                    label: "Sistema",
+                    items: [
+                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                    ]
+                }
+            ]
+        });
+
+        // Context Menu do Desktop
+        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            ContextMenu({
+                x: e.clientX, y: e.clientY,
+                items: [
+                    { label: "Abrir Monitor do Sistema (Classe)", action: () => monitorScreen.open("monitor_sys") },
+                    { label: "Abrir Perfil de Usuário (Classe)", action: () => perfilScreen.open("perfil_user") },
+                    "separator",
+                    { label: "Guia Desta Abordagem", action: () => guiaScreen.open("guia_class") }
+                ]
+            });
+        });
+
+        // Abertura inicial
+        setTimeout(() => {
+            guiaScreen.open("guia_class");
+            setTimeout(() => monitorScreen.open("monitor_sys"), 150);
+        }, 100);
+    </script>
+</body>
+
+</html>

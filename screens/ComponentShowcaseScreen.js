@@ -1,0 +1,217 @@
+// screens/ComponentShowcaseScreen.js
+import { Desktop } from '../desktop.js';
+import {
+    createElement, Row, Col, Card, Grid, Button, Modal, Drawer,
+    Breadcrumbs, Stepper, Slider, RadioGroup, Autocomplete, Alert, Spinner,
+    Toast, Tooltip, Avatar, Carousel, Skeleton, Accordion
+} from '../ui.js';
+
+export default {
+    title: "Showcase de Componentes UI",
+    icon: "✨",
+    width: 850,
+    height: 600,
+    singleInstance: true,
+    state: {
+        step: 0,
+        volume: 50,
+        tema: Desktop.getTheme ? Desktop.getTheme() : "light",
+        pais: ["Brasil"],
+        menuLateral: false
+    },
+    actions: {
+        nextStep: [async (ctx) => {
+            if (ctx.state.step < 3) ctx.state.step++;
+            Toast({ message: "Avançou para o passo " + (ctx.state.step + 1), type: "info" });
+        }],
+        prevStep: [async (ctx) => {
+            if (ctx.state.step > 0) ctx.state.step--;
+        }],
+        toggleDrawer: [async (ctx) => {
+            ctx.state.menuLateral = !ctx.state.menuLateral;
+        }],
+        salvarTudo: [async (ctx) => {
+            Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
+        }],
+        abrirModalLocal: [async (ctx) => {
+            Modal({
+                title: "Modal Local",
+                instance: ctx.instance,
+                children: [
+                    createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                    Button({
+                        text: "Fechar", onClick: () => {
+                            const m = document.querySelector('.ui-modal-overlay.show');
+                            if (m) m.remove();
+                        }
+                    })
+                ]
+            });
+        }],
+        abrirModalGlobal: [async (ctx) => {
+            Modal({
+                title: "Modal Global",
+                instance: ctx.instance,
+                targetContainer: document.getElementById("app"),
+                children: [
+                    createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
+                    Button({
+                        text: "Fechar", onClick: () => {
+                            const m = document.querySelector('.ui-modal-overlay.show');
+                            if (m) m.remove();
+                        }
+                    })
+                ]
+            });
+        }]
+    },
+    view() {
+        if (Desktop && typeof Desktop.setTheme === 'function') {
+            Desktop.setTheme(this.state.tema);
+        } else {
+            document.documentElement.setAttribute('data-theme', this.state.tema);
+        }
+
+        return createElement("div", "", [
+            Drawer({
+                bind: "menuLateral", side: "left", instance: this, content: [
+                    createElement("h3", "", ["Menu do Showcase"]),
+                    createElement("p", "", ["Este é um painel off-canvas integrado ao state."])
+                ]
+            }),
+            Breadcrumbs({
+                items: [
+                    { label: "Módulos", action: () => Toast({ message: "Você clicou no breadcrumb", type: "info" }) },
+                    { label: "Showcase UI" }
+                ]
+            }),
+
+            Row({
+                children: [
+                    Col({
+                        style: "flex: 1;", children: [
+                            createElement("h2", "", ["Painel de Elementos Visuais"]),
+                        ]
+                    }),
+                    Row({
+                        style: "gap: 8px;", children: [
+                            Button({ text: "Modal Local", onClick: "abrirModalLocal", instance: this }),
+                            Button({ text: "Modal Global", onClick: "abrirModalGlobal", instance: this, variant: "danger" }),
+                            Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer", instance: this })
+                        ]
+                    })
+                ]
+            }),
+
+            Stepper({ steps: ["Configuração", "Preferências", "Visual", "Confirmação"], currentStep: this.state.step }),
+
+            Row({
+                children: [
+                    // Coluna Esquerda
+                    Col({
+                        style: "flex: 1; margin-right: 16px;", children: [
+                            Card({
+                                title: "Formulários Avançados", children: [
+                                    Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
+                                    RadioGroup({
+                                        label: "Paleta de Cores do Sistema", bind: "tema", options: [
+                                            { label: "Light (Azul)", value: "light" },
+                                            { label: "Dark (Slate)", value: "dark" },
+                                            { label: "Midnight", value: "midnight" },
+                                            { label: "Emerald", value: "emerald" },
+                                            { label: "Nord", value: "nord" },
+                                            { label: "Alto Contraste", value: "contrast" }
+                                        ], layout: "horizontal", instance: this
+                                    }),
+                                    Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
+                                ]
+                            }),
+
+                            createElement("br", "", []),
+
+                            Card({
+                                title: "Feedback e Notificações", children: [
+                                    Alert({ text: "Esta é uma demonstração de todos os novos componentes reunidos.", variant: "success" }),
+                                    Row({
+                                        style: "align-items: center; gap: 12px;", children: [
+                                            Spinner({ size: "20px", color: "var(--btn-primary)" }),
+                                            createElement("span", "", ["Carregando recursos em segundo plano..."])
+                                        ]
+                                    })
+                                ]
+                            })
+                        ]
+                    }),
+
+                    // Coluna Direita
+                    Col({
+                        style: "flex: 1;", children: [
+                            Card({
+                                title: "Componentes Visuais", children: [
+                                    Row({
+                                        style: "align-items: center; gap: 16px; margin-bottom: 16px;", children: [
+                                            Tooltip({
+                                                position: "top", content: "Administrador Online", children:
+                                                    Avatar({ initials: "AD", status: "online", size: 48 })
+                                            }),
+                                            Col({
+                                                children: [
+                                                    createElement("strong", "", ["Admin System"]),
+                                                    createElement("span", "text-secondary", ["Nível: Acesso Total"])
+                                                ]
+                                            })
+                                        ]
+                                    }),
+
+                                    createElement("label", "", ["Destaques Recentes (Carousel)"]),
+                                    Carousel({
+                                        height: "120px",
+                                        controlsPosition: "bottom-center",
+                                        prevControl: Button({ text: "◀" }),
+                                        nextControl: Button({ text: "▶" }),
+                                        items: [
+                                            createElement("div", "p-3 text-center", ["Destaque 1"]),
+                                            createElement("div", "p-3 text-center", ["Destaque 2"]),
+                                            createElement("div", "p-3 text-center", ["Destaque 3"]),
+                                            createElement("div", "p-3 text-center", ["Destaque 4"])
+                                        ]
+                                    }),
+
+                                    createElement("br", "", []),
+                                    createElement("label", "", ["Carregamento Simulado (Skeleton)"]),
+                                    Skeleton({ width: "100%", height: "40px", shape: "rect" })
+                                ]
+                            }),
+
+                            createElement("br", "", []),
+
+                            Card({
+                                title: "Seções Dinâmicas", children: [
+                                    Accordion({
+                                        instance: this, items: [
+                                            { title: "Mais Opções", content: "Aqui poderiam existir sub-configurações." },
+                                            { title: "Ajuda do Sistema", content: "Entre em contato com o suporte para mais informações." }
+                                        ]
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+
+            createElement("br", "", []),
+            Row({
+                style: "justify-content: space-between;", children: [
+                    Button({ text: "Passo Anterior", onClick: "prevStep", instance: this }),
+                    Row({
+                        style: "gap: 8px;", children: [
+                            Button({ text: "Avançar Passo", onClick: "nextStep", instance: this }),
+                            Button({ text: "Concluir Setup", onClick: "salvarTudo", instance: this, variant: "primary" })
+                        ]
+                    })
+                ]
+            })
+        ]);
+    }
+};

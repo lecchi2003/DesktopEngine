@@ -1,5 +1,5 @@
 // desktop.js
-import { EventBus } from './core.js';
+import { EventBus, Framework } from './core.js';
 import { bindContextMenu } from './ui.js';
 
 export const Desktop = {
@@ -8,6 +8,7 @@ export const Desktop = {
     nextId: 1,
     zCounter: 20,
     windows: {}, // Referências das instâncias ativas
+    screens: {}, // Registro de telas (lazy loaders ou objetos)
     currentTheme: "light",
     
     init(options = {}) {
@@ -236,8 +237,11 @@ export const Desktop = {
         const task = document.createElement("button");
         task.className = "taskButton";
         task.dataset.window = instance.id;
-        task.textContent = (config.icon || "") + " " + (config.title || "Window");
+        const windowTitle = (config.icon ? config.icon + " " : "") + (config.title || "Window");
+        task.textContent = windowTitle;
+        task.title = windowTitle; // Hint / tooltip com o título completo ao parar o mouse
         this.tasksEl.appendChild(task);
+        instance.taskEl = task;
         
         bindContextMenu(titlebarEl, buildMenu());
 
@@ -440,5 +444,77 @@ export const Desktop = {
         }
         cssRules += `}\n`;
         styleEl.appendChild(document.createTextNode(cssRules));
+    },
+
+    // --- Sistema de Roteamento e Registro de Telas (Screen Registry) ---
+    registerScreen(id, loaderOrConfig) {
+        this.screens[id] = loaderOrConfig;
+    },
+
+    registerScreens(screensMap = {}) {
+        Object.assign(this.screens, screensMap);
+    },
+
+    async openScreen(idOrConfig, initialProps = {}) {
+        let config = null;
+        let screenId = null;
+
+        if (typeof idOrConfig === 'string') {
+            screenId = idOrConfig;
+            const registered = this.screens[screenId];
+            if (!registered) {
+                this.notify(`Tela "${screenId}" não foi registrada no Desktop.`, "danger");
+                console.error(`Desktop.openScreen: Tela "${screenId}" não encontrada no registro.`);
+                return null;
+            }
+
+            if (typeof registered === 'function') {
+                try {
+                    const res = await registered(initialProps);
+                    config = res.default || res;
+                } catch (err) {
+                    this.notify(`Erro ao carregar módulo da tela "${screenId}".`, "danger");
+                    console.error(`Erro no carregamento dinâmico da tela "${screenId}":`, err);
+                    return null;
+                }
+            } else {
+                config = registered;
+            }
+        } else if (typeof idOrConfig === 'object') {
+            config = idOrConfig;
+            screenId = config.id || `win_${Date.now()}`;
+        }
+
+        if (!config) return null;
+
+        // Se singleInstance = true e a janela já existe aberta:
+        if (config.singleInstance && this.windows[screenId]) {
+            const existingInstance = this.windows[screenId];
+            if (existingInstance.windowEl) {
+                this.focusWindow(existingInstance.windowEl);
+                if (existingInstance.windowEl.classList.contains("minimized")) {
+                    this.restoreWindow(existingInstance.windowEl);
+                }
+                if (initialProps && Object.keys(initialProps).length > 0) {
+                    Object.assign(existingInstance.state, initialProps);
+                    if (existingInstance.update) existingInstance.update();
+                }
+                return existingInstance;
+            }
+        }
+
+        // Clona a configuração e mescla initialProps no state
+        const instanceConfig = {
+            ...config,
+            state: { ...(config.state || {}), ...(initialProps || {}) }
+        };
+
+        const windowInstance = Framework.createWindow(instanceConfig, screenId, this);
+        this.open(windowInstance);
+        return windowInstance;
     }
 };
+
+if (typeof window !== 'undefined') {
+    window.Desktop = Desktop;
+}

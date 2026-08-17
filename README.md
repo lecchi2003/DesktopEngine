@@ -18,6 +18,16 @@ Para rodar localmente:
 - **No Windows:** Dê dois cliques em **`server.bat`** na pasta raiz. Ele abrirá um servidor local na porta `8000`. Acesse `http://localhost:8000`.
 - **Via Terminal:** Execute `npx serve .` ou `python -m http.server 8000`.
 
+**Páginas de Demonstração Incluídas:**
+- **`index.html`:** Layout moderno com **MenuBar superior** (estilo macOS) e taskbar de janelas.
+- **`index2.html`:** Layout clássico com **Menu Iniciar na Taskbar** (estilo Windows).
+- **`index-direct.html`:** **Padrão 1** — Criação Direta (Inline Objects & Multi-Instâncias / Post-its).
+- **`index-lazy.html`:** **Padrão 2** — Screen Registry & Lazy Loading Modular (`/screens/*.js`).
+- **`index-factory.html`:** **Padrão 3** — Factory Functions & Geradores de Telas Parametrizadas (CRUD Generator, BI KPIs).
+- **`index-class.html`:** **Padrão 4** — Orientação a Objetos com Classes ES6 (`class Screen extends BaseScreen`).
+- **`index-template.html`:** **Padrão 5** — Templates HTML Estáticos & Strings (Template Literals e tags `<template>`).
+- **`docs.html`:** Documentação Completa e Interativa de Referência de Componentes e APIs.
+
 ---
 
 ## 🖥️ Inicialização do Desktop
@@ -77,6 +87,7 @@ const MinhaJanela = {
                 return;
             }
             ctx.instance.setStatus("Salvando...");
+            ctx.instance.setTitle(`Usuário: ${ctx.state.nome}`);
             Desktop.notify(`Usuário ${ctx.state.nome} cadastrado!`, "success");
             ctx.instance.setStatus("Pronto");
         }]
@@ -94,6 +105,172 @@ const MinhaJanela = {
 
 // Abrindo no Desktop:
 Desktop.open(Framework.createWindow(MinhaJanela, "ID_UNICO_JANELA", Desktop));
+```
+
+---
+
+## 🗂️ Padrões e Formas de Criação de Telas
+
+O DesktopEngine suporta múltiplos paradigmas de desenvolvimento. Existem **5 formas principais de se criar telas**:
+
+### 1. Padrão Direto / Inline Objects (`index-direct.html`)
+Objetos literais declarados no próprio script e instanciados via `Desktop.open(Framework.createWindow(config, id, Desktop))`. Suporta janelas *Single-Instance* e *Multi-Instance* (múltiplos post-its ou anotações com IDs dinâmicos `nota_${Date.now()}`):
+
+```javascript
+import { Framework } from './core.js';
+import { Desktop } from './desktop.js';
+import { Input, createElement } from './ui.js';
+
+const PostItScreen = {
+    title: "Nota Rápida",
+    icon: "📝",
+    width: 320,
+    height: 240,
+    singleInstance: false, // Permite abrir múltiplas cópias simultâneas!
+    state: { texto: "" },
+    view() {
+        return createElement("div", "p-2", [
+            Input({ bind: "texto", instance: this, placeholder: "Digite sua nota..." })
+        ]);
+    }
+};
+
+Desktop.open(Framework.createWindow(PostItScreen, `nota_${Date.now()}`, Desktop));
+```
+
+### 2. Padrão Modular com Lazy Loading (`index-lazy.html`)
+Para sistemas corporativos de grande porte. Cada tela reside em seu arquivo em `/screens/` e é importada sob demanda via Dynamic Imports nativos:
+
+```javascript
+// screens/UsuariosScreen.js
+import { Input, Button, Card } from '../ui.js';
+
+export default {
+    title: "Gestão de Usuários",
+    icon: "👥",
+    width: 600,
+    height: 400,
+    singleInstance: true,
+    state: { nome: "" },
+    view() {
+        return Card({
+            title: "Usuário",
+            children: [
+                Input({ label: "Nome", bind: "nome", instance: this }),
+                Button({ text: "Salvar", onClick: "salvar", instance: this, variant: "primary" })
+            ]
+        });
+    }
+};
+
+// No index.html:
+Desktop.registerScreens({
+    "usuarios": () => import('./screens/UsuariosScreen.js'),
+    "financeiro": () => import('./screens/FinanceiroScreen.js')
+});
+
+// Abertura programática com injeção de parâmetros iniciais:
+Desktop.openScreen("usuarios", { nome: "Maria Silva" });
+```
+
+### 3. Padrão Factory Functions / Geradores de Telas (`index-factory.html`)
+Funções geradoras parametrizadas que produzem telas de CRUD completas, relatórios analíticos de BI ou visualizadores em poucas linhas de código:
+
+```javascript
+function createCrudScreen({ entityName, title, columns, fields, initialData = [] }) {
+    return {
+        title: title || `Gestão de ${entityName}`,
+        icon: "📁",
+        width: 750,
+        height: 520,
+        singleInstance: true,
+        state: { records: [...initialData], ...initialFields(fields) },
+        actions: { /* Salvar, editar, excluir padronizados */ },
+        view() { /* Renderiza formulário e tabela a partir do schema */ }
+    };
+}
+
+const ClientesScreen = createCrudScreen({
+    entityName: "Cliente",
+    columns: [{ key: "nome", label: "Razão Social" }, { key: "email", label: "E-mail" }],
+    fields: [{ label: "Nome", bind: "nome" }, { label: "E-mail", bind: "email", type: "email" }]
+});
+
+Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop));
+```
+
+### 4. Padrão Orientado a Objetos com Classes ES6 (`index-class.html`)
+Encapsulamento com herança de `BaseScreen`. Métodos `action_nome` viram ações da tela e hooks `onMount()` e `onDestroy()` controlam o ciclo de vida:
+
+```javascript
+class SystemMonitorScreen extends BaseScreen {
+    constructor() {
+        super({
+            title: "Monitor do Servidor",
+            icon: "📈",
+            width: 600,
+            height: 400,
+            state: { cpu: 20, ram: 50 }
+        });
+    }
+
+    onMount() {
+        this.timer = setInterval(() => {
+            this.state.cpu = Math.floor(Math.random() * 80);
+            this.setStatus(`Atualizado às ${new Date().toLocaleTimeString()}`);
+        }, 1000);
+    }
+
+    onDestroy() {
+        clearInterval(this.timer);
+    }
+
+    async action_limpar(ctx) {
+        this.notify("Dados limpos!", "info");
+    }
+
+    render() {
+        return Card({
+            title: "Recursos em Uso",
+            children: [
+                ProgressBar({ value: this.state.cpu, max: 100 }),
+                Button({ text: "Limpar", onClick: "limpar", instance: this.instance })
+            ]
+        });
+    }
+}
+
+new SystemMonitorScreen().open("monitor_sys");
+```
+
+### 5. Padrão Templates HTML Estáticos & Strings (`index-template.html`)
+Desenvolvimento com marcação HTML pura, Template Strings ou tags `<template id="...">` nativas no DOM com bindings reativos:
+
+```javascript
+const CalculadoraScreen = {
+    title: "Calculadora de Empréstimo",
+    icon: "🧮",
+    width: 500,
+    height: 400,
+    state: { valor: 1000, taxa: 2 },
+    view() {
+        const div = document.createElement("div");
+        div.className = "p-3";
+        div.innerHTML = `
+            <div class="ui-card">
+                <label>Valor Principal (R$):</label>
+                <input type="number" class="ui-input inp-val" value="${this.state.valor}" />
+                <h3>Total Calculado: R$ ${(this.state.valor * (1 + this.state.taxa/100)).toFixed(2)}</h3>
+            </div>
+        `;
+        div.querySelector(".inp-val").oninput = (e) => {
+            this.state.valor = parseFloat(e.target.value) || 0;
+        };
+        return div;
+    }
+};
+
+Desktop.open(Framework.createWindow(CalculadoraScreen, "calc_win", Desktop));
 ```
 
 ---
@@ -156,9 +333,10 @@ Tabs({
 
 ### 2. Formulários & Inputs (Two-Way Data Binding)
 
-#### `Input`
+#### `Input` e `Textarea`
 ```javascript
-Input({ label: "E-mail", bind: "email", type: "email", placeholder: "user@corp.com", instance: this })
+Input({ label: "Nome", bind: "nome", placeholder: "Ex: João", instance: this })
+Textarea({ label: "Observações", bind: "obs", rows: 4, instance: this })
 ```
 
 #### `Select`
@@ -377,10 +555,14 @@ const estruturaMenus = [
     }
 ];
 
-// Estilo macOS (Barra Superior):
-MenuBar({ containerId: "menuBarTop", menus: estruturaMenus });
+// Estilo macOS / Linux / Personalizado ("top", "bottom", "left", "right"):
+MenuBar({
+    containerId: "menubar",
+    position: "top", // Se a Taskbar também estiver no topo, a Taskbar fica acima e o MenuBar logo abaixo!
+    menus: estruturaMenus
+});
 
-// Estilo Windows (Menu Iniciar):
+// Estilo Windows (Menu Iniciar na Barra de Tarefas):
 StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
 ```
 

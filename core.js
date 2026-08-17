@@ -119,11 +119,18 @@ export const Framework = {
 
             update() {
                 if (this.el && this.el.parentNode) {
-                    // Salvar o foco atual se for um input
+                    // Salvar o foco atual e posições de seleção/cursor
                     const activeElement = document.activeElement;
                     let focusedBind = null;
-                    if (activeElement && activeElement.dataset.bind) {
+                    let selStart = null;
+                    let selEnd = null;
+
+                    if (activeElement && activeElement.dataset && activeElement.dataset.bind) {
                         focusedBind = activeElement.dataset.bind;
+                        if (typeof activeElement.selectionStart === "number") {
+                            selStart = activeElement.selectionStart;
+                            selEnd = activeElement.selectionEnd;
+                        }
                     }
                     
                     const oldEl = this.el;
@@ -131,14 +138,13 @@ export const Framework = {
                     oldEl.parentNode.replaceChild(newEl, oldEl);
                     this.el = newEl;
                     
-                    // Restaurar foco
+                    // Restaurar foco e cursor sem perder a posição de digitação
                     if (focusedBind) {
-                        const inputToFocus = newEl.querySelector(`[data-bind="${focusedBind}"]`);
-                        if (inputToFocus) {
-                            inputToFocus.focus();
-                            // Colocar cursor no final do texto
-                            if (typeof inputToFocus.selectionStart === "number") {
-                                inputToFocus.selectionStart = inputToFocus.selectionEnd = inputToFocus.value.length;
+                        const elToFocus = newEl.querySelector(`[data-bind="${focusedBind}"]`);
+                        if (elToFocus) {
+                            elToFocus.focus();
+                            if (selStart !== null && typeof elToFocus.setSelectionRange === "function") {
+                                elToFocus.setSelectionRange(selStart, selEnd);
                             }
                         }
                     }
@@ -149,6 +155,18 @@ export const Framework = {
                 if (this.windowEl) {
                     const sb = this.windowEl.querySelector('.statusbar');
                     if (sb) sb.textContent = msg;
+                }
+            },
+
+            setTitle(newTitle) {
+                if (this.windowEl) {
+                    const tt = this.windowEl.querySelector('.titleText');
+                    if (tt) tt.textContent = newTitle;
+                }
+                if (this.taskEl) {
+                    const icon = config.icon ? config.icon + " " : "";
+                    this.taskEl.textContent = icon + newTitle;
+                    this.taskEl.title = icon + newTitle;
                 }
             },
             

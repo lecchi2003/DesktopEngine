@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Desktop Engine V0.6 - Padrão 5: Templates HTML Estáticos & Strings</title>
+    <link rel="stylesheet" href="./style.css?v=11">
+</head>
+
+<body>
+    <div id="app">
+        <div id="menubar"></div>
+        <div id="desktop">
+            <div id="windows"></div>
+        </div>
+        <div id="taskbar">
+            <button class="taskStart" id="showDesktop">Desktop</button>
+            <div class="taskWindows" id="taskWindows"></div>
+            <div class="clock" id="clock"></div>
+        </div>
+    </div>
+
+    <!-- TEMPLATE HTML NATIVO NO DOM PARA DEMONSTRAÇÃO -->
+    <template id="pedido-template">
+        <div class="p-3">
+            <div class="ui-card">
+                <div class="card-header"><strong>Novo Pedido de Venda</strong></div>
+                <div class="card-body">
+                    <p class="text-secondary">Layout originado de uma tag nativa &lt;template&gt; do HTML!</p>
+                    <div class="ui-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="ui-label">Nome do Cliente:</label>
+                            <input type="text" class="ui-input tpl-cliente" placeholder="Ex: Mercado Central" />
+                        </div>
+                        <div>
+                            <label class="ui-label">Valor Total (R$):</label>
+                            <input type="number" class="ui-input tpl-valor" placeholder="0.00" />
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="ui-btn ui-btn-primary tpl-btn-salvar">Confirmar Pedido</button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 16px;" class="ui-card">
+                <div class="card-header"><strong>Histórico de Pedidos Emitidos</strong></div>
+                <div class="card-body tpl-historico">
+                    <span class="text-secondary">Nenhum pedido emitido nesta sessão.</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script type="module">
+        import { Framework } from './core.js';
+        import { Desktop } from './desktop.js';
+        import {
+            MenuBar, ContextMenu, bindContextMenu, Modal, WebView, DraggableList,
+            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
+            Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
+            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
+        } from './ui.js';
+
+        // 1. Inicialização do Desktop
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "bottom",
+            showDesktopButton: true
+        });
+
+        function updateClock() {
+            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+
+        // =========================================================================
+        // FORMA 5: TELAS COM TEMPLATES HTML E STRING MARKUP
+        // =========================================================================
+
+        // 1. Tela utilizando String Template Literals reativas
+        const HtmlStringScreen = {
+            title: "Calculadora de Financiamento (HTML Template)",
+            icon: "🧮",
+            width: 620,
+            height: 490,
+            singleInstance: true,
+            status: "Renderizada via Template String",
+            state: {
+                valor: 50000,
+                meses: 24,
+                taxa: 1.5
+            },
+            view() {
+                const totalJuros = (this.state.valor * (this.state.taxa / 100) * this.state.meses);
+                const valorFinal = this.state.valor + totalJuros;
+                const parcela = valorFinal / (this.state.meses || 1);
+
+                const container = document.createElement("div");
+                container.className = "p-3";
+                container.innerHTML = `
+                    <div class="ui-card">
+                        <div class="card-header"><strong>Simulação de Empréstimo / Financiamento</strong></div>
+                        <div class="card-body">
+                            <div class="ui-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label class="ui-label">Valor Solicitado (R$):</label>
+                                    <input type="number" class="ui-input inp-valor" value="${this.state.valor}" />
+                                </div>
+                                <div>
+                                    <label class="ui-label">Prazo (Meses):</label>
+                                    <input type="number" class="ui-input inp-meses" value="${this.state.meses}" />
+                                </div>
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <label class="ui-label">Taxa de Juros Mensal (%):</label>
+                                <input type="number" step="0.1" class="ui-input inp-taxa" value="${this.state.taxa}" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;" class="ui-card">
+                        <div class="card-header"><strong>Resultado do Cálculo</strong></div>
+                        <div class="card-body">
+                            <div class="ui-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center;">
+                                <div class="ui-card" style="padding: 10px;">
+                                    <span class="text-secondary" style="font-size: 0.8rem;">Parcela Mensal</span>
+                                    <h3 style="margin: 4px 0; color: var(--primary);">R$ ${parcela.toFixed(2)}</h3>
+                                </div>
+                                <div class="ui-card" style="padding: 10px;">
+                                    <span class="text-secondary" style="font-size: 0.8rem;">Total em Juros</span>
+                                    <h3 style="margin: 4px 0; color: #e11d48;">R$ ${totalJuros.toFixed(2)}</h3>
+                                </div>
+                                <div class="ui-card" style="padding: 10px;">
+                                    <span class="text-secondary" style="font-size: 0.8rem;">Custo Total</span>
+                                    <h3 style="margin: 4px 0; color: #16a34a;">R$ ${valorFinal.toFixed(2)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Conecta inputs ao state reativo
+                const inpValor = container.querySelector(".inp-valor");
+                const inpMeses = container.querySelector(".inp-meses");
+                const inpTaxa = container.querySelector(".inp-taxa");
+
+                inpValor.oninput = (e) => { this.state.valor = parseFloat(e.target.value) || 0; };
+                inpMeses.oninput = (e) => { this.state.meses = parseInt(e.target.value) || 0; };
+                inpTaxa.oninput = (e) => { this.state.taxa = parseFloat(e.target.value) || 0; };
+
+                return container;
+            }
+        };
+
+        // 2. Tela utilizando a tag <template> nativa do documento
+        const DomTemplateScreen = {
+            title: "Emissão de Pedidos (HTML <template>)",
+            icon: "🧾",
+            width: 650,
+            height: 520,
+            singleInstance: true,
+            status: "Clonado da tag <template id='pedido-template'>",
+            state: {
+                pedidos: []
+            },
+            view() {
+                const tpl = document.getElementById("pedido-template");
+                const clone = tpl.content.cloneNode(true);
+                const wrapper = document.createElement("div");
+                wrapper.appendChild(clone);
+
+                const inpCliente = wrapper.querySelector(".tpl-cliente");
+                const inpValor = wrapper.querySelector(".tpl-valor");
+                const btnSalvar = wrapper.querySelector(".tpl-btn-salvar");
+                const historicoDiv = wrapper.querySelector(".tpl-historico");
+
+                if (this.state.pedidos.length > 0) {
+                    historicoDiv.innerHTML = `
+                        <table class="ui-table" style="width: 100%;">
+                            <thead>
+                                <tr><th>Cliente</th><th>Valor</th><th>Horário</th></tr>
+                            </thead>
+                            <tbody>
+                                ${this.state.pedidos.map(p => `<tr><td>${p.cliente}</td><td>R$ ${p.valor.toFixed(2)}</td><td>${p.hora}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                btnSalvar.onclick = () => {
+                    const cli = inpCliente.value.trim();
+                    const val = parseFloat(inpValor.value);
+                    if (!cli || isNaN(val)) {
+                        Desktop.notify("Preencha o cliente e o valor corretamente!", "warning");
+                        return;
+                    }
+
+                    this.state.pedidos = [...this.state.pedidos, { cliente: cli, valor: val, hora: new Date().toLocaleTimeString() }];
+                    Desktop.notify(`Pedido para "${cli}" registrado com sucesso!`, "success");
+                    this.setStatus(`Último pedido às ${new Date().toLocaleTimeString()}`);
+                };
+
+                return wrapper;
+            }
+        };
+
+        // 3. Tela Explicativa da Arquitetura por Templates HTML
+        const GuiaTemplateScreen = {
+            title: "Padrão 5: Templates HTML Estáticos & Strings",
+            icon: "📄",
+            width: 740,
+            height: 520,
+            singleInstance: true,
+            status: "Arquitetura por HTML Markup e <template>",
+            view() {
+                return createElement("div", "", [
+                    Alert({
+                        text: "O DesktopEngine permite que você construa janelas escrevendo marcação HTML pura, template strings ou clonando tags <template> nativas do HTML sem obrigar o uso de funções utilitárias de UI.",
+                        variant: "info"
+                    }),
+                    Card({
+                        title: "💡 Quando utilizar Templates HTML?",
+                        children: [
+                            createElement("ul", "", [
+                                createElement("li", "", ["Migração de telas legadas ou HTML existente para janelas do Desktop"]),
+                                createElement("li", "", ["Desenvolvedores com preferência por sintaxe HTML pura e CSS classes"]),
+                                createElement("li", "", ["Integração com bibliotecas externas de gráficos (Chart.js, ApexCharts, Leaflet, etc.)"]),
+                                createElement("li", "", ["Reatividade total mantida com o Proxy do state do Framework"])
+                            ])
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "🛠️ Telas Disponíveis para Teste",
+                        children: [
+                            Row({
+                                style: "gap: 8px; flex-wrap: wrap;",
+                                children: [
+                                    Button({ text: "Abrir Calculadora (Template String)", onClick: () => Desktop.open(Framework.createWindow(HtmlStringScreen, "calc_template", Desktop)), variant: "primary" }),
+                                    Button({ text: "Abrir Pedidos (Tag <template>)", onClick: () => Desktop.open(Framework.createWindow(DomTemplateScreen, "pedidos_dom_template", Desktop)), variant: "success" })
+                                ]
+                            })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        // --- MENU BAR (TOPO) ---
+        MenuBar({
+            containerId: "menubar",
+            menus: [
+                {
+                    label: "📐 Formas de Criação",
+                    items: [
+                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
+                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
+                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
+                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
+                        { label: "📄 5. Templates HTML Puro [Atual]", action: () => Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop)) },
+                        "separator",
+                        { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
+                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
+                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                    ]
+                },
+                {
+                    label: "Telas com HTML",
+                    items: [
+                        { label: "Guia da Arquitetura com HTML", action: () => Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop)) },
+                        "separator",
+                        { label: "Calculadora (Template String)", action: () => Desktop.open(Framework.createWindow(HtmlStringScreen, "calc_template", Desktop)) },
+                        { label: "Emissão de Pedidos (Tag <template>)", action: () => Desktop.open(Framework.createWindow(DomTemplateScreen, "pedidos_dom_template", Desktop)) }
+                    ]
+                },
+                {
+                    label: "Exibir",
+                    items: [
+                        { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                    ]
+                },
+                {
+                    label: "Sistema",
+                    items: [
+                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                    ]
+                }
+            ]
+        });
+
+        // Context Menu do Desktop
+        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            ContextMenu({
+                x: e.clientX, y: e.clientY,
+                items: [
+                    { label: "Abrir Calculadora (Template)", action: () => Desktop.open(Framework.createWindow(HtmlStringScreen, "calc_template", Desktop)) },
+                    { label: "Abrir Pedidos (Tag <template>)", action: () => Desktop.open(Framework.createWindow(DomTemplateScreen, "pedidos_dom_template", Desktop)) },
+                    "separator",
+                    { label: "Guia Desta Abordagem", action: () => Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop)) }
+                ]
+            });
+        });
+
+        // Abertura inicial
+        setTimeout(() => {
+            Desktop.open(Framework.createWindow(GuiaTemplateScreen, "guia_template", Desktop));
+            setTimeout(() => Desktop.open(Framework.createWindow(HtmlStringScreen, "calc_template", Desktop)), 150);
+        }, 100);
+    </script>
+</body>
+
+</html>

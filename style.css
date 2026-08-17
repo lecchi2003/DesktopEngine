@@ -147,7 +147,7 @@
     --btn-hover: #4c566a;
     --btn-primary: #88c0d0;
     --btn-primary-hover: #81a1c1;
-    --btn-primary-text: #2e3440;
+    --btn-primary-text: #c4c7cc;
 }
 
 /* --- Tema Clássico Alto Contraste (Windows High Contrast) --- */
@@ -178,7 +178,7 @@
     --btn-hover: #00ffff;
     --btn-primary: #00ffff;
     --btn-primary-hover: #ffffff;
-    --btn-primary-text: #000000;
+    --btn-primary-text: #e9e4e4;
 }
 
 [data-theme="contrast"] .window,
@@ -269,6 +269,40 @@
     border-radius: 0px !important;
 }
 
+[data-theme="contrast"] #taskbar,
+[data-theme="high-contrast"] #taskbar {
+    background: #000000 !important;
+    border-top: 2px solid #00ffff !important;
+    color: #ffffff !important;
+}
+
+[data-theme="contrast"] .taskStart,
+[data-theme="high-contrast"] .taskStart,
+[data-theme="contrast"] .taskButton,
+[data-theme="high-contrast"] .taskButton {
+    background: #000000 !important;
+    border: 1px solid #00ffff !important;
+    color: #ffffff !important;
+    border-radius: 0px !important;
+}
+
+[data-theme="contrast"] .taskButton.active,
+[data-theme="high-contrast"] .taskButton.active {
+    background: #1a3a4a !important;
+    border: 1px solid #00ffff !important;
+    box-shadow: inset 0 -2px #00ffff !important;
+}
+
+[data-theme="contrast"] textarea,
+[data-theme="high-contrast"] textarea,
+[data-theme="contrast"] .filter-input,
+[data-theme="high-contrast"] .filter-input {
+    background: #000000 !important;
+    border: 1px solid #00ffff !important;
+    color: #ffffff !important;
+    border-radius: 0px !important;
+}
+
 html,
 body {
     margin: 0;
@@ -287,56 +321,212 @@ select {
 }
 
 #app {
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-}
-
-/* --- Menu Bar --- */
-#menuBar {
-    height: 35px;
-    flex: 0 0 35px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid #ccc;
-    display: flex;
-    align-items: stretch;
-    padding-left: 4px;
-    z-index: 100000;
-}
-
-.menuItem {
+    overflow: hidden;
     position: relative;
-    padding: 0 14px;
+}
+
+#app[data-taskbar="left"],
+#app[data-taskbar="right"],
+#app[data-menubar="left"],
+#app[data-menubar="right"] {
+    flex-direction: row;
+}
+
+/* --- Menu Bar (Layouts: Top, Bottom, Left, Right) --- */
+#menubar,
+.ui-menubar {
+    order: 10;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    backdrop-filter: var(--win-blur);
+    -webkit-backdrop-filter: var(--win-blur);
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    z-index: 500000;
+    user-select: none;
+    position: relative;
+    box-sizing: border-box;
+    height: 32px;
+    flex: 0 0 32px;
+    width: 100%;
+    border-bottom: 1px solid var(--win-border);
+}
+
+/* MenuBar no Topo: order 10 (abaixo da taskbar se taskbar for order 5) */
+#app[data-menubar="top"] .ui-menubar,
+.ui-menubar[data-position="top"] {
+    order: 10;
+    border-bottom: 1px solid var(--win-border);
+    border-top: none;
+    height: 32px;
+    flex: 0 0 32px;
+    width: 100%;
+    flex-direction: row;
+}
+
+/* MenuBar no Rodapé: order 80 (acima da taskbar se taskbar for order 90) */
+#app[data-menubar="bottom"] .ui-menubar,
+.ui-menubar[data-position="bottom"] {
+    order: 80;
+    border-top: 1px solid var(--win-border);
+    border-bottom: none;
+    height: 32px;
+    flex: 0 0 32px;
+    width: 100%;
+    flex-direction: row;
+}
+
+/* MenuBar na Esquerda: order 10 */
+#app[data-menubar="left"] .ui-menubar,
+.ui-menubar[data-position="left"] {
+    order: 10;
+    border-right: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
+    flex-direction: column;
+    width: 170px;
+    height: 100%;
+    padding: 4px 2px;
+    align-items: stretch;
+}
+
+/* MenuBar na Direita: order 80 */
+#app[data-menubar="right"] .ui-menubar,
+.ui-menubar[data-position="right"] {
+    order: 80;
+    border-left: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
+    flex-direction: column;
+    width: 170px;
+    height: 100%;
+    padding: 4px 2px;
+    align-items: stretch;
+}
+
+.menubar-item {
+    position: relative;
+    padding: 0 12px;
+    height: 100%;
     display: flex;
     align-items: center;
     font-size: 13px;
     cursor: pointer;
+    border-radius: 3px;
+    color: var(--text-primary);
+    transition: background 0.1s ease;
+    white-space: nowrap;
 }
 
-.menuItem:hover,
-.menuItem.open {
+.ui-menubar[data-position="left"] .menubar-item,
+.ui-menubar[data-position="right"] .menubar-item {
+    height: 32px;
+    width: 100%;
+}
+
+.menubar-item:hover,
+.menubar-item.active {
     background: var(--menu-hover);
 }
 
 .dropdown {
     position: absolute;
     display: none;
-    left: 0;
-    top: 34px;
     min-width: 205px;
     background: var(--menu-bg);
     color: var(--menu-text);
     border: 1px solid var(--menu-border);
     box-shadow: var(--win-shadow);
     padding: 4px 0;
-    border-radius: 0 0 6px 6px;
-    z-index: 200000;
+    z-index: 500001;
     backdrop-filter: var(--win-blur);
     -webkit-backdrop-filter: var(--win-blur);
 }
 
-.menuItem.open .dropdown {
-    display: block;
+/* Dropdown para MenuBar no TOPO: abre para BAIXO */
+.ui-menubar:not([data-position="bottom"]):not([data-position="left"]):not([data-position="right"]) .menubar-item.active>.menubar-dropdown,
+.ui-menubar[data-position="top"] .menubar-item.active>.menubar-dropdown {
+    display: flex !important;
+    top: 100% !important;
+    bottom: auto !important;
+    left: 0 !important;
+    border-radius: 0 0 6px 6px;
+}
+
+.ui-menubar:not([data-position="bottom"]):not([data-position="left"]):not([data-position="right"]) .dropdown.sub-dropdown,
+.ui-menubar[data-position="top"] .dropdown.sub-dropdown {
+    position: absolute;
+    top: 0 !important;
+    bottom: auto !important;
+    left: 100% !important;
+    margin-top: -4px;
+    display: none;
+    border-radius: 6px;
+    z-index: 500002;
+}
+
+/* Dropdown para MenuBar no RODAPÉ: abre para CIMA */
+.ui-menubar[data-position="bottom"] .menubar-item.active>.menubar-dropdown {
+    display: flex !important;
+    bottom: 100% !important;
+    top: auto !important;
+    left: 0 !important;
+    border-radius: 6px 6px 0 0;
+}
+
+.ui-menubar[data-position="bottom"] .dropdown.sub-dropdown {
+    position: absolute;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 100% !important;
+    display: none;
+    border-radius: 6px;
+    z-index: 500002;
+}
+
+/* Dropdown para MenuBar na ESQUERDA: abre para a DIREITA */
+.ui-menubar[data-position="left"] .menubar-item.active>.menubar-dropdown {
+    display: flex !important;
+    top: 0 !important;
+    bottom: auto !important;
+    left: 100% !important;
+    border-radius: 0 6px 6px 0;
+}
+
+.ui-menubar[data-position="left"] .dropdown.sub-dropdown {
+    position: absolute;
+    top: 0 !important;
+    bottom: auto !important;
+    left: 100% !important;
+    display: none;
+    border-radius: 6px;
+    z-index: 500002;
+}
+
+/* Dropdown para MenuBar na DIREITA: abre para a ESQUERDA */
+.ui-menubar[data-position="right"] .menubar-item.active>.menubar-dropdown {
+    display: flex !important;
+    top: 0 !important;
+    bottom: auto !important;
+    right: 100% !important;
+    left: auto !important;
+    border-radius: 6px 0 0 6px;
+}
+
+.ui-menubar[data-position="right"] .dropdown.sub-dropdown {
+    position: absolute;
+    top: 0 !important;
+    bottom: auto !important;
+    right: 100% !important;
+    left: auto !important;
+    display: none;
+    border-radius: 6px;
+    z-index: 500002;
 }
 
 .menuOption {
@@ -365,21 +555,13 @@ select {
     opacity: 0.6;
 }
 
-.dropdown.sub-dropdown {
-    top: 0;
-    left: 100%;
-    margin-top: -4px;
-    display: none;
-    border-radius: 6px;
-}
-
 .menuSep {
     height: 1px;
     background: var(--menu-border);
     margin: 4px 0;
 }
 
-/* --- Start Menu --- */
+/* --- Start Menu (Bottom/Top/Left/Right Taskbar Layouts) --- */
 .ui-start-menu {
     position: absolute;
     background: var(--menu-bg);
@@ -400,24 +582,80 @@ select {
     display: flex;
 }
 
-#app[data-taskbar="bottom"] .ui-start-menu {
-    bottom: 40px;
-    left: 5px;
+/* Sub-dropdown padrão para o StartMenu */
+.ui-start-menu .dropdown.sub-dropdown {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-top: -4px;
+    display: none;
+    border-radius: 6px;
+    z-index: 400002;
+    min-width: 210px;
+    background: var(--menu-bg);
+    color: var(--menu-text);
+    border: 1px solid var(--menu-border);
+    box-shadow: var(--win-shadow);
+    padding: 4px 0;
+    backdrop-filter: var(--win-blur);
+    -webkit-backdrop-filter: var(--win-blur);
 }
 
-#app[data-taskbar="top"] .ui-start-menu {
-    top: 40px;
-    left: 5px;
+/* StartMenu no Rodapé (Taskbar: Bottom): o menu principal sobe e os submenus alinham pela base */
+#app[data-taskbar="bottom"]>.ui-start-menu {
+    bottom: 40px !important;
+    top: auto !important;
+    left: 5px !important;
 }
 
-#app[data-taskbar="left"] .ui-start-menu {
-    top: 5px;
-    left: 65px;
+#app[data-taskbar="bottom"]>.ui-start-menu .dropdown.sub-dropdown {
+    bottom: 0 !important;
+    top: auto !important;
+    left: 100% !important;
+    margin-top: 0 !important;
 }
 
-#app[data-taskbar="right"] .ui-start-menu {
-    top: 5px;
-    right: 65px;
+/* StartMenu no Topo (Taskbar: Top): o menu principal desce e os submenus alinham pelo topo */
+#app[data-taskbar="top"]>.ui-start-menu {
+    top: 40px !important;
+    bottom: auto !important;
+    left: 5px !important;
+}
+
+#app[data-taskbar="top"]>.ui-start-menu .dropdown.sub-dropdown {
+    top: 0 !important;
+    bottom: auto !important;
+    left: 100% !important;
+    margin-top: -4px !important;
+}
+
+/* StartMenu na Esquerda (Taskbar: Left) */
+#app[data-taskbar="left"]>.ui-start-menu {
+    top: 5px !important;
+    left: 65px !important;
+    bottom: auto !important;
+}
+
+#app[data-taskbar="left"]>.ui-start-menu .dropdown.sub-dropdown {
+    top: 0 !important;
+    bottom: auto !important;
+    left: 100% !important;
+    margin-top: -4px !important;
+}
+
+/* StartMenu na Direita (Taskbar: Right) */
+#app[data-taskbar="right"]>.ui-start-menu {
+    top: 5px !important;
+    right: 65px !important;
+    bottom: auto !important;
+}
+
+#app[data-taskbar="right"]>.ui-start-menu .dropdown.sub-dropdown {
+    top: 0 !important;
+    bottom: auto !important;
+    right: 100% !important;
+    left: auto !important;
+    margin-top: -4px !important;
 }
 
 /* --- Context Menu --- */
@@ -652,11 +890,15 @@ select {
 .statusbar {
     height: 24px;
     flex: 0 0 24px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    background: rgba(241, 241, 241, 0.7);
-    color: var(--text-secondary);
+    border-top: 1px solid var(--win-border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     font-size: 11px;
-    padding: 4px 8px;
+    font-weight: 500;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .window.maximized {
@@ -678,101 +920,77 @@ select {
     pointer-events: none;
 }
 
-/* --- MenuBar (Top Bar) --- */
-.ui-menubar {
-    display: flex;
-    align-items: center;
-    background: var(--win-bg);
+/* --- Desktop Area --- */
+#desktop {
+    order: 50;
+    flex: 1 1 auto;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at 30% 20%, #ffffff55, transparent 35%),
+        linear-gradient(135deg, #dce7f2, #f5f7fa);
+}
+
+#windows {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* --- Taskbar (Posicionamento por order) --- */
+#taskbar {
+    order: 90;
+    height: 34px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     backdrop-filter: var(--win-blur);
     -webkit-backdrop-filter: var(--win-blur);
-    border-bottom: 1px solid var(--win-border);
-    height: 32px;
-    padding: 0 10px;
-    z-index: 500000;
-    /* Sempre no topo */
-    user-select: none;
-}
-
-.menubar-item {
-    padding: 0 12px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    cursor: default;
-    font-size: 13px;
-    font-weight: 500;
-    position: relative;
-    border-radius: 4px;
-    transition: background 0.1s;
-}
-
-.menubar-item:hover,
-.menubar-item.active {
-    background: rgba(0, 120, 215, 0.2);
-}
-
-/* O dropdown do menubar herda o layout do StartMenu, mas precisa sobrepor as regras de taskbar */
-#app .ui-menubar .ui-start-menu {
-    top: 100% !important;
-    left: 0 !important;
-    bottom: auto !important;
-    margin-top: 2px !important;
-    border-radius: 0 0 6px 6px !important;
-    display: none;
-}
-
-#app .menubar-item.active .ui-start-menu {
-    display: flex !important;
-}
-
-/* --- Taskbar (Bottom/Top) --- */
-#taskbar {
-    height: 34px;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     padding: 2px 5px;
     gap: 4px;
     z-index: 100000;
-}
-
-#app[data-taskbar="bottom"] {
-    flex-direction: column;
-}
-
-#app[data-taskbar="bottom"] #taskbar {
-    border-top: 1px solid #ccc;
+    box-sizing: border-box;
+    border-top: 1px solid var(--win-border);
     flex: 0 0 34px;
+    width: 100%;
 }
 
-#app[data-taskbar="top"] {
-    flex-direction: column-reverse;
-}
-
+/* Taskbar no Topo: order 5 (fica acima do menubar order 10) */
 #app[data-taskbar="top"] #taskbar {
-    border-bottom: 1px solid #ccc;
+    order: 5;
+    border-bottom: 1px solid var(--win-border);
+    border-top: none;
     flex: 0 0 34px;
+    width: 100%;
 }
 
-#app[data-taskbar="left"] {
-    flex-direction: row-reverse;
+/* Taskbar no Rodapé: order 90 (fica abaixo do menubar order 80) */
+#app[data-taskbar="bottom"] #taskbar {
+    order: 90;
+    border-top: 1px solid var(--win-border);
+    border-bottom: none;
+    flex: 0 0 34px;
+    width: 100%;
 }
 
 #app[data-taskbar="left"] #taskbar {
-    border-right: 1px solid #ccc;
+    order: 5;
+    border-right: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
     flex-direction: column;
     width: 60px;
     height: 100%;
     padding: 5px 2px;
 }
 
-#app[data-taskbar="right"] {
-    flex-direction: row;
-}
-
 #app[data-taskbar="right"] #taskbar {
-    border-left: 1px solid #ccc;
+    order: 90;
+    border-left: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
     flex-direction: column;
     width: 60px;
     height: 100%;
@@ -782,13 +1000,15 @@ select {
 .taskStart {
     height: 28px;
     padding: 0 12px;
-    border: 1px solid #aaa;
+    border: 1px solid var(--win-border);
     border-radius: 3px;
-    background: #f0f0f0;
+    background: var(--btn-bg);
+    color: var(--text-primary);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
+    transition: background 0.15s ease;
 }
 
 #app[data-taskbar="left"] .taskStart,
@@ -798,7 +1018,7 @@ select {
 }
 
 .taskStart:hover {
-    background: #e4e4e4;
+    background: var(--btn-hover);
 }
 
 .taskWindows {
@@ -832,8 +1052,9 @@ select {
 .taskButton {
     height: 28px;
     padding: 0 12px;
-    background: #f0f0f0;
-    border: 1px solid #aaa;
+    background: var(--btn-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--win-border);
     border-radius: 3px;
     cursor: pointer;
     font-size: 13px;
@@ -849,12 +1070,12 @@ select {
 }
 
 .taskButton:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--btn-hover);
 }
 
 .taskButton.active {
-    background: rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: var(--btn-hover);
+    border: 1px solid var(--btn-primary);
     box-shadow: inset 0 -2px var(--btn-primary);
 }
 
@@ -864,6 +1085,7 @@ select {
     padding: 0 10px;
     white-space: nowrap;
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 /* --- UI Primitives (ui.js styles) --- */
@@ -914,18 +1136,27 @@ select {
 }
 
 .ui-field input,
-.ui-field select {
+.ui-field select,
+.ui-field textarea,
+textarea,
+.filter-input {
     width: 100%;
     padding: 8px 10px;
     border: 1px solid var(--input-border);
     border-radius: 4px;
     background: var(--input-bg);
+    color: var(--text-primary);
     transition: border-color 0.2s, box-shadow 0.2s;
     outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
 }
 
 .ui-field input:focus,
-.ui-field select:focus {
+.ui-field select:focus,
+.ui-field textarea:focus,
+textarea:focus,
+.filter-input:focus {
     border-color: var(--btn-primary);
     box-shadow: 0 0 0 2px rgba(23, 108, 173, 0.2);
 }
@@ -975,26 +1206,145 @@ select {
     font-size: 13px;
 }
 
+.ui-table-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid var(--win-border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--win-bg);
+}
+
+.ui-table,
+.ui-datagrid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: transparent;
+    color: var(--text-primary);
+}
+
 .ui-table th,
-.ui-table td {
+.ui-datagrid th {
+    border-bottom: 1px solid var(--win-border);
+    padding: 10px 12px;
+    text-align: left;
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.ui-datagrid th.sortable {
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.ui-datagrid th.sortable:hover {
+    background: var(--menu-hover);
+}
+
+.ui-datagrid .sort-icon {
+    font-size: 10px;
+    margin-left: 6px;
+    opacity: 0.6;
+}
+
+.ui-datagrid .sort-icon.active {
+    opacity: 1;
+    color: var(--btn-primary);
+}
+
+.ui-datagrid .filter-row th {
+    padding: 4px 8px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--win-border);
+}
+
+.ui-datagrid .filter-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.ui-datagrid .filter-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.ui-table td,
+.ui-datagrid td {
     border-bottom: 1px solid var(--win-border);
     padding: 10px 12px;
     text-align: left;
     color: var(--text-primary);
 }
 
-.ui-table th {
-    background: rgba(128, 128, 128, 0.1);
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.ui-table tr:hover {
-    background: rgba(128, 128, 128, 0.05);
+.ui-table tr:hover,
+.ui-datagrid tbody tr:hover {
+    background: rgba(128, 128, 128, 0.08);
 }
 
 .ui-table tr:last-child td {
     border-bottom: none;
+}
+
+/* --- DataGrid Pagination --- */
+.ui-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--win-border);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+.ui-pagination-info {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.ui-pagination-buttons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.ui-pagination-btn {
+    min-width: 28px;
+    height: 26px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--win-border);
+    border-radius: 4px;
+    background: var(--btn-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ui-pagination-btn:hover:not(:disabled) {
+    background: var(--btn-hover);
+    border-color: var(--btn-primary);
+    color: var(--btn-primary);
+}
+
+.ui-pagination-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
 }
 
 /* --- Novos Componentes Corporativos --- */

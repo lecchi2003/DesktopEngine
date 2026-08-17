@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Desktop Engine V0.6 - Padrão 1: Criação Direta (Inline Objects)</title>
+    <link rel="stylesheet" href="./style.css?v=11">
+</head>
+
+<body>
+    <div id="app">
+        <div id="menubar"></div>
+        <div id="desktop">
+            <div id="windows"></div>
+        </div>
+        <div id="taskbar">
+            <button class="taskStart" id="showDesktop">Desktop</button>
+            <div class="taskWindows" id="taskWindows"></div>
+            <div class="clock" id="clock"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Framework } from './core.js';
+        import { Desktop } from './desktop.js';
+        import {
+            MenuBar, ContextMenu, bindContextMenu, Modal, WebView, DraggableList,
+            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
+            Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
+            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
+        } from './ui.js';
+
+        // 1. Inicialização do Desktop
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "bottom",
+            showDesktopButton: true
+        });
+
+        function updateClock() {
+            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+
+        // --- FORMA 1: DEFINIÇÃO DE TELAS COMO OBJETOS INLINE ---
+
+        // Tela Explicativa da Arquitetura Direta
+        const GuiaDiretoScreen = {
+            title: "Padrão 1: Objetos Diretos (Inline)",
+            icon: "⚡",
+            width: 720,
+            height: 520,
+            singleInstance: true,
+            status: "Arquitetura Direta & Multi-Instâncias",
+            state: {},
+            view() {
+                return createElement("div", "", [
+                    Alert({
+                        text: "Esta página demonstra a criação de telas declaradas diretamente como objetos JavaScript e abertas via Desktop.open(Framework.createWindow(config, id, Desktop)).",
+                        variant: "info"
+                    }),
+                    Card({
+                        title: "💡 Características da Criação Direta",
+                        children: [
+                            createElement("ul", "", [
+                                createElement("li", "", ["Ideal para janelas rápidas, utilitários, widgets e post-its"]),
+                                createElement("li", "", ["Suporta janelas Single Instance e Multi-Instance (múltiplas abertas ao mesmo tempo)"]),
+                                createElement("li", "", ["Sem requisições HTTP adicionais ou etapas de build"]),
+                                createElement("li", "", ["Acesso direto ao escopo do script principal"])
+                            ])
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Card({
+                        title: "🛠️ Ações Rápidas de Teste",
+                        children: [
+                            Row({
+                                style: "gap: 8px; flex-wrap: wrap;",
+                                children: [
+                                    Button({ text: "Abrir Dashboard Direto", onClick: () => abrirDashboard(), variant: "primary" }),
+                                    Button({ text: "Criar Nova Nota (Multi-Instância)", onClick: () => abrirNotaRapida(), variant: "success" }),
+                                    Button({ text: "Abrir Form Direto", onClick: () => abrirFormCadastro() }),
+                                    Button({ text: "Abrir Navegador Web", onClick: () => abrirNavegador() })
+                                ]
+                            })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        // Tela 1: Dashboard Direto
+        const DashboardInlineScreen = {
+            title: "Painel Financeiro (Inline)",
+            icon: "📊",
+            width: 680,
+            height: 480,
+            singleInstance: true,
+            status: "Criado via Objeto Direto",
+            state: {
+                faturamento: 145000,
+                pedidos: 89
+            },
+            actions: {
+                atualizar: [async (ctx) => {
+                    ctx.state.faturamento += Math.floor(Math.random() * 5000);
+                    ctx.state.pedidos += 1;
+                    Desktop.notify("Dashboard atualizado!", "success");
+                    ctx.instance.setStatus(`Atualizado às ${new Date().toLocaleTimeString()}`);
+                }]
+            },
+            view() {
+                return createElement("div", "", [
+                    Grid({
+                        columns: 2,
+                        children: [
+                            Card({ title: "Faturamento Acumulado", children: [createElement("h2", "", [`R$ ${this.state.faturamento.toLocaleString('pt-BR')}`])] }),
+                            Card({ title: "Total de Pedidos", children: [createElement("h2", "", [`${this.state.pedidos}`])] })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Row({
+                        style: "justify-content: flex-end;",
+                        children: [
+                            Button({ text: "Simular Nova Venda", onClick: "atualizar", instance: this, variant: "primary" })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        // Tela 2: Multi-instância (Post-it / Bloco de Notas)
+        let notaCounter = 1;
+        function abrirNotaRapida() {
+            const id = `nota_${Date.now()}`;
+            const num = notaCounter++;
+            const NotaScreen = {
+                title: `Nota Rápida #${num}`,
+                icon: "📝",
+                width: 320,
+                height: 260,
+                singleInstance: false, // Permite abrir ilimitadas instâncias!
+                state: { conteudo: "" },
+                view() {
+                    const field = Textarea({
+                        bind: "conteudo",
+                        instance: this,
+                        placeholder: "Digite um lembrete...",
+                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
+                    });
+                    const txt = field.querySelector('textarea');
+                    if (txt) {
+                        txt.style.flex = "1";
+                        txt.style.resize = "none";
+                        txt.style.height = "100%";
+                    }
+                    return createElement("div", "flex-col", [field]);
+                }
+            };
+            Desktop.open(Framework.createWindow(NotaScreen, id, Desktop));
+        }
+
+        // Tela 3: Formulário de Cadastro Direto
+        const FormInlineScreen = {
+            title: "Cadastro de Cliente (Inline)",
+            icon: "👤",
+            width: 550,
+            height: 400,
+            singleInstance: true,
+            state: { nome: "", email: "", setor: "TI" },
+            actions: {
+                salvar: [async (ctx) => {
+                    if (!ctx.state.nome) {
+                        Desktop.notify("Informe o nome do cliente!", "warning");
+                        return;
+                    }
+                    Desktop.notify(`Cliente ${ctx.state.nome} salvo com sucesso!`, "success");
+                    ctx.instance.setStatus(`Salvo às ${new Date().toLocaleTimeString()}`);
+                }]
+            },
+            view() {
+                return createElement("div", "", [
+                    Card({
+                        title: "Dados do Cliente",
+                        children: [
+                            Input({ label: "Nome", bind: "nome", instance: this, placeholder: "Ex: Ana Souza" }),
+                            Input({ label: "E-mail", bind: "email", instance: this, type: "email", placeholder: "ana@empresa.com" }),
+                            Select({
+                                label: "Setor", bind: "setor", instance: this, options: [
+                                    { label: "Tecnologia", value: "TI" },
+                                    { label: "Financeiro", value: "FIN" },
+                                    { label: "Comercial", value: "COM" }
+                                ]
+                            })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Button({ text: "Salvar Registro", onClick: "salvar", instance: this, variant: "primary" })
+                ]);
+            }
+        };
+
+        // Tela 4: Navegador
+        const BrowserInlineScreen = {
+            title: "Navegador Web (Inline)",
+            icon: "🌐",
+            width: 750,
+            height: 500,
+            singleInstance: true,
+            state: { url: "https://en.wikipedia.org/wiki/Main_Page" },
+            view() {
+                return createElement("div", "flex-col", [
+                    WebView({ bindUrl: "url", instance: this, height: "100%" })
+                ]);
+            }
+        };
+
+        // Funções de abertura direta
+        function abrirGuia() {
+            Desktop.open(Framework.createWindow(GuiaDiretoScreen, "guia_direto", Desktop));
+        }
+        function abrirDashboard() {
+            Desktop.open(Framework.createWindow(DashboardInlineScreen, "dashboard_inline", Desktop));
+        }
+        function abrirFormCadastro() {
+            Desktop.open(Framework.createWindow(FormInlineScreen, "form_inline", Desktop));
+        }
+        function abrirNavegador() {
+            Desktop.open(Framework.createWindow(BrowserInlineScreen, "browser_inline", Desktop));
+        }
+
+        // --- MENU BAR (TOPO) COM LINKS PARA TODAS AS ABORDAGENS ---
+        MenuBar({
+            containerId: "menubar",
+            menus: [
+                {
+                    label: "📐 Formas de Criação",
+                    items: [
+                        { label: "⚡ 1. Criação Direta (Inline) [Atual]", action: () => abrirGuia() },
+                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
+                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
+                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
+                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
+                        "separator",
+                        { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
+                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
+                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                    ]
+                },
+                {
+                    label: "Janelas Inline",
+                    items: [
+                        { label: "Guia da Arquitetura Direta", action: () => abrirGuia() },
+                        { label: "Painel Financeiro", action: () => abrirDashboard() },
+                        { label: "Nova Nota Rápida (Multi-Instância)", action: () => abrirNotaRapida() },
+                        { label: "Cadastro de Cliente", action: () => abrirFormCadastro() },
+                        { label: "Navegador Web", action: () => abrirNavegador() }
+                    ]
+                },
+                {
+                    label: "Exibir",
+                    items: [
+                        { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                    ]
+                },
+                {
+                    label: "Sistema",
+                    items: [
+                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                    ]
+                }
+            ]
+        });
+
+        // Context Menu do Desktop
+        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            ContextMenu({
+                x: e.clientX, y: e.clientY,
+                items: [
+                    { label: "Nova Nota Rápida", action: () => abrirNotaRapida() },
+                    { label: "Abrir Dashboard Direto", action: () => abrirDashboard() },
+                    "separator",
+                    { label: "Guia Desta Abordagem", action: () => abrirGuia() }
+                ]
+            });
+        });
+
+        // Abre as janelas demonstrativas ao iniciar
+        setTimeout(() => {
+            abrirGuia();
+            setTimeout(() => abrirDashboard(), 150);
+        }, 100);
+    </script>
+
+    <style>
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    </style>
+</body>
+
+</html>
