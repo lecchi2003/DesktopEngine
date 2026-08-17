@@ -1,288 +1,443 @@
 # Desktop Engine V0.6 - Documentação Oficial
 
-O Desktop Engine é um micro-framework focado em sistemas corporativos de Janela Única/Múltipla (Desktop in Browser) utilizando apenas Vanilla JS e ES Modules, sem passos de build.
+O **Desktop Engine** é um micro-framework focado no desenvolvimento ágil de sistemas corporativos baseados no conceito de **Desktop in Browser** (Janelas flutuantes, arrastáveis e redimensionáveis). Construído exclusivamente com Vanilla JavaScript puro e ES Modules nativos, **sem nenhuma dependência externa ou passos de compilação/build** (sem Webpack, sem Vite, sem Node em runtime).
 
-## Executando o Projeto (Módulos ES)
-Como o projeto utiliza `import`/`export` nativo do navegador, ele não rodará corretamente se você abrir o `index.html` via protocolo `file:///` no Windows/Chrome.
-Para testar, criamos um atalho simples para você:
-Basta clicar duas vezes em **`server.bat`** na pasta do projeto. Ele iniciará um servidor Python na porta 8000. Depois, acesse `http://localhost:8000` no seu navegador.
+---
 
-## Inicialização do Desktop
-O desktop agora suporta configurações de inicialização para posicionar o "Taskbar" em qualquer canto da tela e ligar/desligar botões de utilidade.
+## 💡 Filosofia do Motor
+1. **Zero Build & Zero Config:** Código puro executado direto no navegador através de módulos nativos.
+2. **Reatividade Nativa por Proxies:** O estado (`state`) de cada janela é empacotado em um Proxy (`core.js`). Ao alterar qualquer propriedade, a interface reage e re-renderiza preservando o foco dos campos de entrada.
+3. **Componentização Funcional Pura:** Componentes em `ui.js` são funções puras que retornam elementos DOM com estilizações corporativas consistentes.
+
+---
+
+## 🚀 Executando o Projeto
+
+Por utilizar ES Modules nativos (`import`/`export`), os navegadores bloqueiam requisições via protocolo `file:///`.
+Para rodar localmente:
+- **No Windows:** Dê dois cliques em **`server.bat`** na pasta raiz. Ele abrirá um servidor local na porta `8000`. Acesse `http://localhost:8000`.
+- **Via Terminal:** Execute `npx serve .` ou `python -m http.server 8000`.
+
+---
+
+## 🖥️ Inicialização do Desktop
+
+No arquivo principal (`index.html`), o ambiente desktop é inicializado com as configurações de taskbar e containers:
 
 ```javascript
 import { Desktop } from './desktop.js';
 
 Desktop.init({
-    windowsContainerId: "windows",
-    taskbarContainerId: "taskWindows",
-    taskbarPosition: "bottom", // Aceita: "top", "bottom", "left", "right"
-    showDesktopButton: true    // Mostra/oculta o botão de minimizar tudo
+    windowsContainerId: "windows",       // Container onde as janelas são criadas
+    taskbarContainerId: "taskWindows",   // Container da barra de tarefas
+    taskbarPosition: "bottom",           // "bottom", "top", "left" ou "right"
+    showDesktopButton: true              // Botão para minimizar/restaurar tudo
 });
-```
 
-A API também conta com métodos globais úteis:
-- `Desktop.showDesktop()`: Minimiza todas as janelas ativas ou as restaura.
-- `Desktop.arrangeWindows()`: Organiza todas as janelas abertas numa "Grade" simétrica na tela.
+// Métodos Globais Úteis:
+Desktop.showDesktop();                   // Minimiza todas ou restaura as janelas
+Desktop.arrangeWindows();                // Organiza janelas abertas em grade simétrica
+Desktop.notify("Operação concluída!", "success"); // Notificação global ("success", "danger", "info")
+```
 
 ---
 
-## Criando Telas (Windows)
-O motor é baseado na criação declarativa de telas através de objetos JavaScript simples, com estado reativo gerenciado por Proxies.
+## 🪟 Anatomia de uma Tela (Windows)
+
+Uma tela no DesktopEngine é criada declarativamente através de um objeto com configurações de janela, estado reativo, ações e view:
 
 ```javascript
 import { Framework } from './core.js';
 import { Desktop } from './desktop.js';
-import { Form, Input, Button, createElement } from './ui.js';
+import { Input, Button, createElement } from './ui.js';
 
-const MinhaTela = {
-    title: "Minha Primeira Tela",
-    icon: "🚀",
-    width: 400,
-    height: 300,
-    singleInstance: true, // Se true, o framework não criará clones (reaproveitará a janela)
-    resizable: false, // Bloqueia o redimensionamento da janela (padrão é true)
-    minimizable: false, // Esconde o botão de minimizar e remove do menu (padrão é true)
-    maximizable: false, // Esconde o botão de maximizar e remove do menu (padrão é true)
-    status: "Carregando...", // Inicializa o rodapé de status (opcional)
+const MinhaJanela = {
+    title: "Cadastro de Usuário",
+    icon: "👤",
+    width: 450,
+    height: 320,
+    minWidth: 300,
+    minHeight: 200,
+    singleInstance: true,  // Se true, foca na janela já aberta ao invés de clonar
+    resizable: true,       // Permite puxar pelas bordas para redimensionar
+    minimizable: true,     // Exibe botão de minimizar
+    maximizable: true,     // Exibe botão de maximizar
+    status: "Pronto",      // Texto inicial da barra de status inferior
     
-    // Estado inicial (O motor torna-o reativo)
-    state: { nome: "" },
+    // 1. Estado Reativo Inicial
+    state: {
+        nome: ""
+    },
     
-    // Actions (Middlewares assíncronos para regras de negócio)
+    // 2. Actions (Middlewares Assíncronos)
     actions: {
-        salvar: [async (ctx, next) => {
-            alert(`Salvando ${ctx.state.nome}`);
-            // Você pode atualizar o rodapé dinamicamente na sua action!
-            ctx.instance.setStatus("Salvo com sucesso!");
+        salvar: [async (ctx) => {
+            if (!ctx.state.nome) {
+                Desktop.notify("Preencha o nome!", "danger");
+                return;
+            }
+            ctx.instance.setStatus("Salvando...");
+            Desktop.notify(`Usuário ${ctx.state.nome} cadastrado!`, "success");
+            ctx.instance.setStatus("Pronto");
         }]
     },
     
-    // View (Obrigatório, retorna elementos DOM)
+    // 3. View (Retorna os nós DOM)
     view() {
-        return createElement("div", "", [
-            Input({ label: "Nome", bind: "nome", instance: this }),
-            Button({ text: "Salvar", onClick: "salvar", instance: this })
+        return createElement("div", "p-3", [
+            Input({ label: "Nome do Usuário", bind: "nome", placeholder: "Ex: Maria Silva", instance: this }),
+            createElement("br", "", []),
+            Button({ text: "Salvar Dados", onClick: "salvar", instance: this, variant: "primary" })
         ]);
     }
 };
 
-// Abrindo a tela no Desktop
-Desktop.open(Framework.createWindow(MinhaTela, "ID_UNICO_DA_TELA", Desktop));
+// Abrindo no Desktop:
+Desktop.open(Framework.createWindow(MinhaJanela, "ID_UNICO_JANELA", Desktop));
 ```
 
-### 2.2 Usando Middlewares nas Actions (Validação e Regras)
-A grande vantagem do `actions` no framework é o suporte a uma esteira de middlewares no estilo *Koa/Express*. A requisição flui por um array de funções, e você só invoca `next()` se quiser que o próximo passo seja executado. Isso é perfeito para criar barreiras de segurança e validação!
+---
 
-Você pode escrever o middleware diretamente na action (**Inline**) ou exportá-lo como uma função genérica e reutilizável (**Desacoplado**).
+## ⚙️ Middlewares nas Actions (Padrão Koa / Express)
 
-#### Exemplo 1: Validação Inline
-```javascript
-    actions: {
-        salvar: [
-            async (ctx, next) => {
-                // Middleware 1: Validação Inline
-                if (!ctx.state.nome || ctx.state.nome.length < 3) {
-                    Desktop.notify("Erro: Nome muito curto!", "danger");
-                    return; // Interrompe a esteira (não chama next)
-                }
-                await next(); // Passa no teste, chama o próximo passo
-            },
-            async (ctx) => {
-                // Middleware 2: Execução final
-                Desktop.notify(`Enviando ${ctx.state.nome} para a API...`, "success");
-            }
-        ]
-    }
-```
-
-#### Exemplo 2: Middleware Desacoplado (Reutilizável)
-Para projetos grandes, você pode criar validadores modulares e reaproveitá-los em várias telas diferentes:
+As `actions` aceitam uma esteira de funções assíncronas no formato `(ctx, next)`. Chamar `await next()` avança a execução; não chamar interrompe a esteira.
 
 ```javascript
-// Validadores genéricos em um arquivo utils.js
-export const RequireAuth = async (ctx, next) => {
-    if (!Auth.isLoggedIn) {
-        Desktop.notify("Sessão expirada!", "danger");
-        return;
-    }
-    await next();
-};
-
-export const ValidateForm = (fields) => async (ctx, next) => {
-    for (let field of fields) {
-        if (!ctx.state[field]) {
-            Desktop.notify(`O campo ${field} é obrigatório!`, "warning");
-            return;
+// Middleware Reutilizável de Validação
+export const ValidarCampos = (campos) => async (ctx, next) => {
+    for (let campo of campos) {
+        if (!ctx.state[campo]) {
+            Desktop.notify(`O campo "${campo}" é obrigatório!`, "danger");
+            return; // Interrompe a esteira
         }
     }
-    await next();
+    await next(); // Passou no teste, avança para a próxima função
 };
 
-// ... no arquivo da sua tela:
-    actions: {
-        salvar: [
-            RequireAuth, // Protege a ação
-            ValidateForm(['nome', 'email', 'telefone']), // Valida os campos do state
-            async (ctx) => {
-                // Só executa se passar pelo RequireAuth e pelo ValidateForm!
-                api.post('/users', ctx.state);
-            }
-        ]
-    }
+// Uso na Janela:
+actions: {
+    enviarFormulario: [
+        ValidarCampos(["nome", "email"]), // 1. Valida antes
+        async (ctx) => {                  // 2. Executa se validado
+            Desktop.notify("Enviado com sucesso!", "success");
+        }
+    ]
+}
 ```
 
 ---
 
-## Catálogo de Componentes (ui.js)
+## 📚 Catálogo Completo de Componentes (`ui.js`)
 
-### Primitivas de Layout
-- `Row({ children, style })`: Cria uma linha flexível (`display: flex`).
-- `Col({ children, style })`: Cria uma coluna expansível (`flex: 1`).
-- `Grid({ children, columns = 2 })`: Um grid CSS poderoso.
-- `Card({ title, children })`: Uma caixa branca com sombra para agrupar informações.
-- `Tabs({ tabs, activeTabBind, instance })`: Cria um sistema de abas conectado ao state da janela.
+Todos os componentes aceitam composição direta e utilizam classes CSS corporativas nativas.
 
-### Inputs e Controles
-Esses componentes suportam o recurso `bind` e `instance`, que cria um **Two-Way Binding** real com a variável desejada em `instance.state`.
-- `Input({ label, bind, instance, type = "text", placeholder })`: O atributo `type` pode receber padrões como `"date"`, `"number"`, `"password"`, `"color"`, permitindo aproveitar os inputs HTML5 nativos.
-- `Select({ label, bind, instance, options })`
-- `Checkbox({ label, bind, instance })`
-- `Toggle({ label, bind, instance })`: Um switch moderno com animação (estilo iOS/Android).
-- `Button({ text, onClick, instance, variant })`: `variant` pode ser "primary" ou indefinido.
+### 1. Primitivas de Layout & Utilitários
+- `createElement(tag, className, children)`: Fábrica base de nós DOM.
+- `printElement(element, options)`: Clona um elemento para um iframe isolado e dispara a impressão nativa.
+- `Row({ children, style })`: Linha flexível (`display: flex`).
+- `Col({ children, style })`: Coluna flexível expansível (`flex: 1`).
+- `Grid({ children, columns })`: Grade CSS com colunas configuráveis (padrão: 2).
+- `Card({ title, children })`: Painel com sombra e borda arredondada.
+- `Form({ fields, actions })`: Agrupador de campos e botões de ação.
+- `Tabs({ tabs, instance, activeTabBind })`: Sistema de abas conectado ao `state`.
 
-### Componentes de Visualização Dinâmica
-- `Table({ columns, data })`: Cria uma tabela formatada. Suporta renderização condicional por coluna (`render: (val) => HTML`).
-- `Badge({ text, variant })`: Tags coloridas (`primary`, `success`, `danger`, `warning`).
-- `ProgressBar({ value, max })`: Barra de progresso visual (útil para dashboards).
-- `TreeView({ data, onSelect, instance })`: Árvore de navegação expansível.
-  *Exemplo de data:* `[{ label: "Pai", children: [{ label: "Filho" }] }]`
-- `DataGrid({ bindData, columns, instance, itemsPerPage })`: Uma tabela **avançada** com inteligência de ordenação, filtros por coluna e **Paginação**. Totalmente reativa ao state.
-  *Exemplo de uso:*
-  ```javascript
-  DataGrid({
-      bindData: "clientes", // Nome do array no instance.state
-      instance: this,
-      itemsPerPage: 5, // Ativa a paginação
-      columns: [
-          { key: "id", label: "Código", sortable: true },
-          { key: "nome", label: "Cliente", sortable: true, filterable: true },
-          { key: "status", label: "Situação", render: (val) => Badge({ text: val }) }
-      ]
-  })
-  ```
-  > [!TIP]
-  > **Paginação Client-Side vs Server-Side:**
-  > - **Client-Side (Padrão):** O `DataGrid` espera que a variável atrelada ao `bindData` no `state` contenha *todos* os registros da tabela. O próprio componente fatia (usando `.slice()`) e exibe apenas a quantidade configurada em `itemsPerPage`. É ideal para tabelas com poucas centenas de dados.
-  > - **Server-Side:** Se você lida com bases gigantes, o servidor deve paginar. Para adaptar o `DataGrid`, basta ativar a opção `serverSide: true`, passando o `bindTotalPages` e definindo uma action em `onPageChange` para buscar a próxima página da API.
-- `DraggableList({ bindItems, onReorder, instance })`: Uma lista nativa baseada na API HTML5 de **Drag and Drop**. O usuário clica e arrasta para reordenar a lista, e o Array atrelado no state é alterado de forma invisível acionando a função `onReorder`.
-- `WebView({ bindUrl, instance, height })`: Envelopa um elemento `<iframe>` perfeitamente embutido na janela para abrir painéis e páginas web externas baseado em um parâmetro do `state`.
-
----
-
-## 4. Componentes Flutuantes Globais
-
-### 4.1 Menus Globais (MenuBar e StartMenu)
-O framework oferece suporte nativo a dois grandes padrões de interface do mercado. Você pode escolher qual usar simplesmente alterando a estrutura do seu arquivo `index.html`.
-
-#### Modo 1: StartMenu (Estilo Windows Clássico)
-O menu fica ancorado em um botão dentro da sua Taskbar.
-
-**No seu `index.html`:**
-Adicione um botão dentro da div `#taskbar`:
-```html
-<div id="taskbar">
-    <button class="taskStart" id="meu_botao_iniciar">Menu Iniciar</button>
-    <!-- ... -->
-</div>
-```
-
-**No seu JavaScript:**
 ```javascript
-import { StartMenu } from './ui.js';
+Tabs({
+    activeTabBind: "abaAtiva",
+    instance: this,
+    tabs: [
+        { id: "geral", label: "Geral", view: () => createElement("div", "p-3", ["Conteúdo Geral"]) },
+        { id: "seguranca", label: "Segurança", view: () => createElement("div", "p-3", ["Configurações de Segurança"]) }
+    ]
+})
+```
 
-StartMenu({
-    buttonId: "meu_botao_iniciar",
-    menus: [
-        { label: "Opção 1", action: () => alert("1") },
-        { label: "Opção 2", items: [ { label: "Sub-opção", action: () => {} } ] }
+---
+
+### 2. Formulários & Inputs (Two-Way Data Binding)
+
+#### `Input`
+```javascript
+Input({ label: "E-mail", bind: "email", type: "email", placeholder: "user@corp.com", instance: this })
+```
+
+#### `Select`
+```javascript
+Select({
+    label: "Perfil",
+    bind: "perfil",
+    instance: this,
+    options: [
+        { label: "Administrador", value: "admin" },
+        { label: "Usuário", value: "user" }
+    ]
+})
+```
+
+#### `Button`
+```javascript
+Button({ text: "Excluir", onClick: "excluirItem", variant: "danger", instance: this })
+// Variants: "primary", "secondary", "danger", "success"
+```
+
+#### `Checkbox` e `Toggle`
+```javascript
+Checkbox({ label: "Manter conectado", bind: "lembrar", instance: this })
+Toggle({ label: "Modo Escuro", bind: "darkTheme", instance: this })
+```
+
+#### `Slider` (Range Contínuo)
+```javascript
+Slider({ label: "Volume", bind: "vol", min: 0, max: 100, step: 1, instance: this })
+```
+
+#### `RadioGroup`
+```javascript
+RadioGroup({
+    label: "Gênero",
+    bind: "genero",
+    layout: "horizontal", // "horizontal" ou "vertical"
+    instance: this,
+    options: [
+        { label: "Masculino", value: "M" },
+        { label: "Feminino", value: "F" }
+    ]
+})
+```
+
+#### `Autocomplete` (Com Chips Múltiplos)
+```javascript
+Autocomplete({
+    label: "Tecnologias",
+    bind: "techs",
+    multiple: true, // Gera tags/chips removíveis e gerencia um Array no state
+    options: ["JavaScript", "Python", "Rust", "Go", "TypeScript"],
+    instance: this
+})
+```
+
+---
+
+### 3. Visualização de Dados
+
+#### `Table` (Simples com Custom Render)
+```javascript
+Table({
+    columns: [
+        { key: "id", label: "#" },
+        { key: "nome", label: "Produto" },
+        { key: "status", label: "Status", render: (val) => Badge({ text: val, variant: val === "OK" ? "success" : "danger" }) }
+    ],
+    data: [ { id: 1, nome: "Servidor Cloud", status: "OK" } ]
+})
+```
+
+#### `DataGrid` (Ordenação, Filtros e Paginação)
+O componente definitivo para coleções de dados. Suporta ordenação ao clicar no cabeçalho, caixas de filtro com retenção de foco e paginação Client-Side ou Server-Side.
+
+```javascript
+DataGrid({
+    bindData: "usuarios", // Array de objetos no instance.state
+    itemsPerPage: 5,      // Quantidade de registros por página
+    instance: this,
+    columns: [
+        { key: "id", label: "ID", sortable: true },
+        { key: "nome", label: "Nome", sortable: true, filterable: true },
+        { key: "email", label: "E-mail", filterable: true },
+        { key: "status", label: "Situação", render: (val) => Badge({ text: val }) }
+    ]
+})
+```
+
+#### `TreeView` (Árvores Hierárquicas)
+```javascript
+TreeView({
+    data: [
+        { label: "Arquivos", children: [{ label: "Doc1.pdf" }, { label: "Planilha.xlsx" }] }
+    ],
+    onSelect: (node) => console.log("Selecionado:", node.label)
+})
+```
+
+#### `DraggableList` (Drag and Drop Nativo)
+```javascript
+DraggableList({
+    bindItems: "tarefas",
+    instance: this,
+    onReorder: (novaLista) => console.log("Ordem alterada:", novaLista)
+})
+```
+
+#### `WebView` (Iframe Reativo)
+```javascript
+WebView({ bindUrl: "urlAtual", instance: this, height: "400px" })
+```
+
+---
+
+### 4. Feedback & Status
+- `Alert({ text, variant })`: Avisos nas variantes `info`, `success`, `warning`, `error`.
+- `Spinner({ size, color })`: Ícone de carregamento giratório contínuo.
+- `Toast({ message, type, duration })`: Notificações flutuantes (`success`, `info`, `error`).
+- `Badge({ text, variant })`: Tags visuais coloridas.
+- `ProgressBar({ value, max })`: Barra de preenchimento percentual.
+- `Skeleton({ width, height, shape })`: Indicador de placeholder durante carregamentos.
+
+---
+
+### 5. Navegação & Overlays
+
+#### `Accordion` (Painéis Sanfona)
+```javascript
+Accordion({
+    instance: this,
+    items: [
+        { title: "Seção 1", content: "Texto explicativo..." },
+        { title: "Seção 2", content: () => createElement("button", "", ["Clique Aqui"]) }
+    ]
+})
+```
+
+#### `Drawer` (Menu de Contexto Flutuante)
+Por padrão, **isola o menu e a sombra dentro dos limites da janela**:
+```javascript
+Drawer({
+    bind: "menuAberto",
+    side: "left", // "left" ou "right"
+    instance: this,
+    // targetContainer: document.getElementById("app"), // Opcional: define escopo global
+    content: [ createElement("h3", "", ["Opções Rápidas"]) ]
+})
+```
+
+#### `Modal` (Diálogos Isolados ou Globais)
+```javascript
+// 1. Modal Local (Cobre apenas a janela atual):
+Modal({
+    title: "Confirmação",
+    instance: this,
+    children: [
+        createElement("p", "", ["Deseja salvar as alterações?"]),
+        Button({ text: "Sim", onClick: "salvarTudo", instance: this })
     ]
 });
-```
 
-#### Modo 2: MenuBar (Estilo macOS / Linux)
-O menu fica fixado no topo da tela em uma barra horizontal contínua. Os dropdowns abrem ao clicar em uma categoria e navegam fluidamente no *hover*.
-
-**No seu `index.html`:**
-Crie uma div vazia **antes** da div `#desktop`:
-```html
-<div id="app">
-    <div id="menubar"></div> <!-- A mágica acontece aqui -->
-    <div id="desktop">...</div>
-    <div id="taskbar">...</div> <!-- Opcionalmente, você pode deixar a taskbar sem o botão iniciar -->
-</div>
-```
-
-**No seu JavaScript:**
-```javascript
-import { MenuBar } from './ui.js';
-
-MenuBar({
-    containerId: "menubar",
-    menus: [ ... ] // A estrutura do array "menus" é exatamente a mesma do StartMenu!
+// 2. Modal Global (Cobre todo o DesktopEngine):
+Modal({
+    title: "Alerta Crítico",
+    instance: this,
+    targetContainer: document.getElementById("app"),
+    children: [ createElement("p", "", ["Manutenção do servidor agendada."]) ]
 });
 ```
 
-- **Menu de Contexto (Right Click)**: Pode ser invocado de duas formas.
-  1. Globalmente, chamando a função base com `x` e `y`:
-  ```javascript
-  import { ContextMenu } from './ui.js';
-  
-  document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      ContextMenu({
-          x: e.clientX, y: e.clientY,
-          items: [
-              { label: "Atualizar", action: () => location.reload() },
-              "separator",
-              { label: "Propriedades", action: () => alert("Propriedades...") }
-          ]
-      });
-  });
-  ```
-  2. Localmente e prioritário usando `bindContextMenu`. Isso garante que o menu só abra no elemento especificado (e impede que o menu global vaze por cima):
-  ```javascript
-  import { bindContextMenu } from './ui.js';
-  
-  const myBtn = document.createElement("button");
-  myBtn.textContent = "Clique com botão direito em mim!";
-  
-  bindContextMenu(myBtn, [
-      { label: "Editar Botão", action: () => alert("Editando...") },
-      { label: "Deletar", action: () => myBtn.remove() }
-  ]);
-  ```
-
-> [!NOTE]
-> Todas as janelas nativas do framework já vêm de fábrica com um Menu de Contexto embutido em suas barras de título (`.titlebar`) com atalhos para Maximizar, Minimizar e Fechar a janela.
-
-- **Modals (Alertas Corporativos)**:
-  ```javascript
-  Modal({
-      title: "Confirmação",
-      instance: this, // Permite que a modal execute actions do contexto atual
-      children: [ createElement("p", "", ["Deseja realmente continuar?"]) ]
-  });
-  ```
-
-### 4.4 Utilitários de Exportação / Impressão
-O framework fornece uma API nativa para imprimir componentes ou DOM específicos isoladamente, ignorando a interface inteira do navegador.
-
-- `printElement(element, options)`: Recebe um DOM Node (ou ID) e um objeto de opções. Clona o HTML e os estilos da página atual para um `<iframe>` oculto e dispara a impressão nativa apenas do fragmento.
-
+#### `Breadcrumbs` & `Stepper`
 ```javascript
-import { printElement } from './ui.js';
-
-// Imprimindo apenas a tabela gerada pelo DataGrid
-printElement(gridEl, { title: "Relatório Financeiro" });
+Breadcrumbs({ items: [{ label: "Home", action: () => {} }, { label: "Módulos" }] })
+Stepper({ steps: ["Passo 1", "Passo 2", "Finalizar"], currentStep: 0 })
 ```
+
+#### `Carousel` (Esteira Magnética com Posições Customizadas)
+```javascript
+Carousel({
+    height: "150px",
+    controlsPosition: "bottom-center", // "side", "top-left/center/right", "bottom-left/center/right"
+    prevControl: Button({ text: "◀ Anterior" }),
+    nextControl: Button({ text: "Próximo ▶" }),
+    items: [
+        createElement("div", "p-3", ["Slide A"]),
+        createElement("div", "p-3", ["Slide B"])
+    ]
+})
+```
+
+#### `Avatar` & `Tooltip`
+```javascript
+Tooltip({
+    position: "top",
+    content: "Administrador Online",
+    children: Avatar({ initials: "AD", status: "online", size: 40 })
+})
+```
+
+---
+
+### 6. Menus Globais e ContextMenu
+
+#### `MenuBar` & `StartMenu`
+```javascript
+const estruturaMenus = [
+    {
+        label: "Arquivo",
+        items: [
+            { label: "Nova Janela", action: () => Desktop.open(MinhaJanela) },
+            "separator",
+            { label: "Fechar Tudo", action: () => Desktop.showDesktop() }
+        ]
+    }
+];
+
+// Estilo macOS (Barra Superior):
+MenuBar({ containerId: "menuBarTop", menus: estruturaMenus });
+
+// Estilo Windows (Menu Iniciar):
+StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
+```
+
+#### `ContextMenu` & `bindContextMenu`
+```javascript
+bindContextMenu(meuElemento, [
+    { label: "Copiar", action: () => console.log("Copiado") },
+    { label: "Excluir", action: () => meuElemento.remove() }
+]);
+```
+
+---
+
+## 🎨 Sistema de Temas e Schema de Paletas de Cores
+
+O DesktopEngine possui um motor completo de alternância de paletas com persistência automática no `localStorage`.
+
+### API de Temas no `Desktop`
+```javascript
+import { Desktop } from './desktop.js';
+
+// 1. Alterar tema
+Desktop.setTheme("dark"); // "light", "dark", "midnight", "emerald", "nord"
+
+// 2. Alternar entre Light e Dark rapidamente
+Desktop.toggleTheme();
+
+// 3. Obter o tema ativo
+console.log(Desktop.getTheme());
+
+// 4. Registrar uma Paleta Customizada
+Desktop.registerPalette("synthwave", {
+    "--bg-primary": "#241734",
+    "--bg-secondary": "#2e1f47",
+    "--text-primary": "#f92aad",
+    "--text-secondary": "#00f0ff",
+    "--win-bg": "rgba(36, 23, 52, 0.9)",
+    "--win-border": "rgba(0, 240, 255, 0.3)",
+    "--title-bg-start": "#f92aad",
+    "--title-bg-end": "#7b2cbf",
+    "--btn-primary": "#00f0ff",
+    "--btn-primary-hover": "#00c4d1",
+    "--btn-primary-text": "#241734"
+});
+```
+
+### Paletas Nativas Disponíveis
+- **`light` (Azul Corporativo):** Padrão institucional de alto contraste.
+- **`dark` (Slate Dark):** Fundo grafite moderno com realces em índigo.
+- **`midnight` (Cyber Navy):** Tons de azul escuro profundo com roxo.
+- **`emerald` (Fintech):** Tons verdes esmeralda para dashboards e finanças.
+- **`nord` (Frost):** Paleta fria e minimalista inspirada no design ártico.
+- **`contrast` (Alto Contraste):** O visual clássico retrô Windows de acessibilidade (fundo preto absoluto, bordas ciano/amarelo e barra magenta).
+
+---
+
+## 📖 Visualizando a Documentação Interativa
+
+Para navegar pelo manual visual com menu lateral expansível e tabelas de consulta rápida:
+👉 Abra o arquivo **`docs.html`** no seu navegador.

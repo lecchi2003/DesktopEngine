@@ -524,7 +524,7 @@ export function ProgressBar({ value = 0, max = 100 }) {
     return wrap;
 }
 
-export function Modal({ title, children = [], onClose, instance }) {
+export function Modal({ title, children = [], onClose, instance, targetContainer }) {
     const overlay = createElement("div", "ui-modal-overlay", []);
     const content = [];
     
@@ -558,7 +558,22 @@ export function Modal({ title, children = [], onClose, instance }) {
     };
     document.addEventListener('keydown', escListener);
     
-    document.body.appendChild(overlay);
+    // Resolve Container
+    let container = targetContainer;
+    if (!container) {
+        if (instance && instance.windowEl) {
+            container = instance.windowEl;
+        } else {
+            container = document.getElementById("app") || document.body;
+        }
+    }
+    
+    // Se o container não tem posição definida, forçar relativa
+    if (getComputedStyle(container).position === "static") {
+        container.style.position = "relative";
+    }
+
+    container.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("show"));
     
     return overlay;
@@ -847,4 +862,461 @@ export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, s
     paginationWrapper.appendChild(btnGroup);
 
     return createElement("div", "ui-table-wrapper", [table, paginationWrapper]);
+}
+
+// --- COMPONENTES DE FEEDBACK E NOTIFICAÇÕES (GRUPO 1) ---
+
+export function Alert({ text, variant = "info" }) {
+    // variants: info, success, warning, error
+    const alertEl = createElement("div", `ui-alert ui-alert-${variant}`, [text]);
+    return alertEl;
+}
+
+export function Spinner({ size = "24px", color = "currentColor" }) {
+    const spinner = createElement("div", "ui-spinner", []);
+    spinner.style.width = size;
+    spinner.style.height = size;
+    spinner.style.borderColor = `${color} transparent transparent transparent`;
+    return spinner;
+}
+
+export function Toast({ message, type = "info", duration = 3000 }) {
+    // Certifica-se de que o container de toasts existe
+    let container = document.getElementById("ui-toast-container");
+    if (!container) {
+        container = createElement("div", "", []);
+        container.id = "ui-toast-container";
+        document.body.appendChild(container);
+    }
+
+    const toast = createElement("div", `ui-toast ui-toast-${type}`, [message]);
+    container.appendChild(toast);
+
+    // Força um reflow para garantir a animação de entrada
+    requestAnimationFrame(() => {
+        toast.classList.add("show");
+    });
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        toast.addEventListener('transitionend', () => {
+            toast.remove();
+        });
+    }, duration);
+}
+
+// --- NAVEGAÇÃO E LAYOUT (GRUPO 2) ---
+
+export function Accordion({ items = [], instance }) {
+    const container = createElement("div", "ui-accordion");
+    
+    items.forEach((item, index) => {
+        const itemEl = createElement("div", "ui-accordion-item");
+        
+        const header = createElement("div", "ui-accordion-header", [
+            createElement("span", "ui-accordion-title", [item.title]),
+            createElement("span", "ui-accordion-icon", ["▼"])
+        ]);
+        
+        const content = createElement("div", "ui-accordion-content");
+        if (typeof item.content === 'string') {
+            content.innerHTML = item.content;
+        } else if (item.content instanceof Node) {
+            content.appendChild(item.content);
+        } else if (typeof item.content === 'function' && instance) {
+            const res = item.content.call(instance);
+            if (typeof res === 'string') content.innerHTML = res;
+            else if (res instanceof Node) content.appendChild(res);
+        }
+        
+        header.onclick = () => {
+            const isOpen = itemEl.classList.contains("open");
+            // Fecha todos (opcional: comente as próximas 2 linhas para permitir múltiplos abertos)
+            container.querySelectorAll('.ui-accordion-item').forEach(el => el.classList.remove("open"));
+            if (!isOpen) itemEl.classList.add("open");
+        };
+        
+        itemEl.appendChild(header);
+        itemEl.appendChild(content);
+        container.appendChild(itemEl);
+    });
+    
+    return container;
+}
+
+export function Drawer({ bind, side = "right", content, instance, targetContainer }) {
+    const overlay = createElement("div", "ui-drawer-overlay");
+    const drawer = createElement("div", `ui-drawer ui-drawer-${side}`);
+    
+    // Close function
+    const closeDrawer = () => {
+        if (bind && instance) {
+            instance.state[bind] = false;
+        } else {
+            overlay.classList.remove("show");
+            setTimeout(() => overlay.remove(), 300);
+        }
+    };
+    
+    overlay.onclick = (e) => {
+        if (e.target === overlay) closeDrawer();
+    };
+
+    if (typeof content === 'string') drawer.innerHTML = content;
+    else if (content instanceof Node) drawer.appendChild(content);
+    else if (Array.isArray(content)) content.forEach(c => drawer.appendChild(c));
+
+    overlay.appendChild(drawer);
+
+    // Resolve Container
+    let container = targetContainer;
+    if (!container) {
+        if (instance && instance.windowEl) {
+            container = instance.windowEl;
+        } else {
+            container = document.getElementById("app") || document.body;
+        }
+    }
+    
+    if (getComputedStyle(container).position === "static") {
+        container.style.position = "relative";
+    }
+
+    // Controle pelo state
+    if (bind && instance) {
+        const placeholder = createElement("div", "ui-drawer-placeholder", []);
+        placeholder.style.display = "none";
+        
+        const old = document.getElementById(`drawer_${bind}`);
+        
+        if (instance.state[bind]) {
+            if (old) old.remove();
+            
+            overlay.id = `drawer_${bind}`;
+            container.appendChild(overlay);
+            
+            requestAnimationFrame(() => overlay.classList.add("show"));
+        } else if (old) {
+            old.classList.remove("show");
+            setTimeout(() => old.remove(), 300);
+        }
+        
+        return placeholder;
+    } else {
+        container.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add("show"));
+        return overlay;
+    }
+}
+
+export function Breadcrumbs({ items = [], separator = "/" }) {
+    const nav = createElement("nav", "ui-breadcrumbs", []);
+    
+    items.forEach((item, index) => {
+        const isLast = index === items.length - 1;
+        
+        if (isLast || !item.action) {
+            const span = createElement("span", isLast ? "ui-breadcrumb-active" : "ui-breadcrumb-text", [item.label]);
+            nav.appendChild(span);
+        } else {
+            const link = createElement("a", "ui-breadcrumb-link", [item.label]);
+            link.href = "javascript:void(0)";
+            link.onclick = item.action;
+            nav.appendChild(link);
+        }
+        
+        if (!isLast) {
+            const sep = createElement("span", "ui-breadcrumb-separator", [separator]);
+            nav.appendChild(sep);
+        }
+    });
+    
+    return nav;
+}
+
+export function Stepper({ steps = [], currentStep = 0 }) {
+    const container = createElement("div", "ui-stepper");
+    
+    steps.forEach((step, index) => {
+        const isCompleted = index < currentStep;
+        const isActive = index === currentStep;
+        
+        const stepEl = createElement("div", `ui-step ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`);
+        
+        const circle = createElement("div", "ui-step-circle", [String(index + 1)]);
+        const label = createElement("div", "ui-step-label", [step]);
+        
+        stepEl.appendChild(circle);
+        stepEl.appendChild(label);
+        container.appendChild(stepEl);
+        
+        if (index < steps.length - 1) {
+            const line = createElement("div", `ui-step-line ${isCompleted ? 'completed' : ''}`);
+            container.appendChild(line);
+        }
+    });
+    
+    return container;
+}
+
+// --- FORMULÁRIOS AVANÇADOS (GRUPO 3) ---
+
+export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) {
+    const wrap = createElement("div", "ui-field ui-slider-wrap");
+    
+    const topRow = createElement("div", "ui-slider-header", []);
+    if (label) topRow.appendChild(createElement("label", "", [label]));
+    
+    const valueDisplay = createElement("span", "ui-slider-value", []);
+    topRow.appendChild(valueDisplay);
+    wrap.appendChild(topRow);
+    
+    const inp = document.createElement("input");
+    inp.type = "range";
+    inp.className = "ui-slider-input";
+    inp.min = min;
+    inp.max = max;
+    inp.step = step;
+    
+    const updateDisplay = (val) => {
+        valueDisplay.textContent = val;
+        // Calcula a porcentagem para preencher o background do track
+        const percent = ((val - min) / (max - min)) * 100;
+        inp.style.backgroundSize = `${percent}% 100%`;
+    };
+
+    if (bind && instance) {
+        inp.dataset.bind = bind;
+        let currentVal = instance.state[bind] !== undefined ? instance.state[bind] : min;
+        inp.value = currentVal;
+        updateDisplay(currentVal);
+        inp.addEventListener("input", (e) => {
+            updateDisplay(Number(e.target.value));
+        });
+        
+        inp.addEventListener("change", (e) => {
+            instance.state[bind] = Number(e.target.value);
+        });
+    } else {
+        inp.value = min;
+        updateDisplay(min);
+        inp.addEventListener("input", (e) => updateDisplay(e.target.value));
+    }
+    
+    wrap.appendChild(inp);
+    return wrap;
+}
+
+export function RadioGroup({ label, name, bind, options = [], instance, layout = "vertical" }) {
+    const wrap = createElement("div", "ui-field ui-radiogroup-wrap");
+    if (label) wrap.appendChild(createElement("label", "ui-radiogroup-label", [label]));
+    
+    const container = createElement("div", `ui-radiogroup ui-radiogroup-${layout}`);
+    const groupName = name || `radio_${bind || Math.random().toString(36).substr(2, 5)}`;
+    
+    options.forEach(opt => {
+        const lbl = document.createElement("label");
+        lbl.className = "ui-radio-label";
+        
+        const inp = document.createElement("input");
+        inp.type = "radio";
+        inp.name = groupName;
+        inp.value = opt.value;
+        
+        if (bind && instance) {
+            inp.dataset.bind = bind;
+            if (instance.state[bind] === opt.value) inp.checked = true;
+            
+            inp.addEventListener("change", (e) => {
+                if (e.target.checked) {
+                    instance.state[bind] = opt.value;
+                }
+            });
+        }
+        
+        lbl.appendChild(inp);
+        lbl.appendChild(document.createTextNode(" " + opt.label));
+        container.appendChild(lbl);
+    });
+    
+    wrap.appendChild(container);
+    return wrap;
+}
+
+export function Autocomplete({ label, bind, options = [], instance, placeholder = "Digite para buscar...", multiple = false }) {
+    const wrap = createElement("div", "ui-field ui-autocomplete-wrap");
+    if (label) wrap.appendChild(createElement("label", "", [label]));
+    
+    const listId = `dl_${bind || Math.random().toString(36).substr(2, 5)}`;
+    
+    // Área onde os chips (tags) vão aparecer, se multiple = true
+    const chipsContainer = createElement("div", "ui-autocomplete-chips");
+    
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.className = "ui-autocomplete-input";
+    inp.placeholder = placeholder;
+    inp.setAttribute("list", listId);
+    
+    const datalist = document.createElement("datalist");
+    datalist.id = listId;
+    
+    options.forEach(opt => {
+        const optionEl = document.createElement("option");
+        optionEl.value = opt.value || opt;
+        if (opt.label) optionEl.textContent = opt.label;
+        datalist.appendChild(optionEl);
+    });
+    
+    if (bind && instance) {
+        inp.dataset.bind = bind;
+        
+        if (multiple) {
+            const currentArr = Array.isArray(instance.state[bind]) ? instance.state[bind] : [];
+            // Renderiza os chips iniciais
+            currentArr.forEach(val => {
+                const chip = createElement("span", "ui-chip", [val]);
+                const closeBtn = createElement("span", "ui-chip-close", ["×"]);
+                closeBtn.onclick = () => {
+                    instance.state[bind] = instance.state[bind].filter(item => item !== val);
+                };
+                chip.appendChild(closeBtn);
+                chipsContainer.appendChild(chip);
+            });
+            
+            // Quando seleciona do datalist
+            inp.addEventListener("change", (e) => {
+                const val = e.target.value.trim();
+                if (val && (!instance.state[bind] || !instance.state[bind].includes(val))) {
+                    const newArr = Array.isArray(instance.state[bind]) ? [...instance.state[bind]] : [];
+                    newArr.push(val);
+                    instance.state[bind] = newArr;
+                }
+                e.target.value = ""; // limpa o input após selecionar
+            });
+        } else {
+            inp.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
+            inp.addEventListener("input", (e) => {
+                instance.state[bind] = e.target.value;
+            });
+        }
+    }
+    
+    if (multiple) wrap.appendChild(chipsContainer);
+    wrap.appendChild(inp);
+    wrap.appendChild(datalist);
+    return wrap;
+}
+
+// --- COMPONENTES VISUAIS (GRUPO 4) ---
+
+export function Tooltip({ content, position = "top", children }) {
+    // children: elemento que vai acionar o tooltip no hover
+    const wrap = createElement("div", "ui-tooltip-wrap");
+    
+    const tooltipText = createElement("span", `ui-tooltip-text ui-tooltip-${position}`, [content]);
+    
+    if (typeof children === 'string') {
+        wrap.appendChild(document.createTextNode(children));
+    } else if (children instanceof Node) {
+        wrap.appendChild(children);
+    }
+    
+    wrap.appendChild(tooltipText);
+    return wrap;
+}
+
+export function Avatar({ src, initials, size = 40, status }) {
+    const wrap = createElement("div", "ui-avatar-wrap");
+    wrap.style.width = `${size}px`;
+    wrap.style.height = `${size}px`;
+    wrap.style.fontSize = `${size / 2.5}px`;
+
+    const img = document.createElement("img");
+    img.className = "ui-avatar-img";
+    
+    if (src) {
+        img.src = src;
+        img.onerror = () => {
+            img.style.display = "none";
+            if (initials) {
+                const initEl = createElement("div", "ui-avatar-initials", [initials]);
+                wrap.appendChild(initEl);
+            }
+        };
+        wrap.appendChild(img);
+    } else if (initials) {
+        const initEl = createElement("div", "ui-avatar-initials", [initials]);
+        wrap.appendChild(initEl);
+    }
+    
+    if (status) {
+        const statusBadge = createElement("span", `ui-avatar-status ui-status-${status}`, []);
+        wrap.appendChild(statusBadge);
+    }
+    
+    return wrap;
+}
+
+export function Carousel({ items = [], height = "200px", prevControl, nextControl, controlsPosition = "side" }) {
+    const wrap = createElement("div", `ui-carousel-wrap pos-${controlsPosition}`);
+    
+    const track = createElement("div", "ui-carousel");
+    track.style.height = height;
+    
+    items.forEach(item => {
+        const slide = createElement("div", "ui-carousel-slide");
+        if (typeof item === 'string') {
+            slide.innerHTML = item;
+        } else if (item instanceof Node) {
+            slide.appendChild(item);
+        }
+        track.appendChild(slide);
+    });
+    
+    if (prevControl && nextControl) {
+        const btnPrev = createElement("div", "ui-carousel-control prev");
+        if (typeof prevControl === 'string') btnPrev.innerHTML = prevControl;
+        else if (prevControl instanceof Node) btnPrev.appendChild(prevControl);
+        
+        const btnNext = createElement("div", "ui-carousel-control next");
+        if (typeof nextControl === 'string') btnNext.innerHTML = nextControl;
+        else if (nextControl instanceof Node) btnNext.appendChild(nextControl);
+        
+        btnPrev.onclick = () => {
+            track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+        };
+        btnNext.onclick = () => {
+            track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+        };
+        
+        if (controlsPosition === "side") {
+            wrap.appendChild(btnPrev);
+            wrap.appendChild(track);
+            wrap.appendChild(btnNext);
+        } else {
+            const controlsRow = createElement("div", `ui-carousel-controls-row pos-${controlsPosition}`);
+            controlsRow.appendChild(btnPrev);
+            controlsRow.appendChild(btnNext);
+            
+            if (controlsPosition.startsWith("top")) {
+                wrap.appendChild(controlsRow);
+                wrap.appendChild(track);
+            } else if (controlsPosition.startsWith("bottom")) {
+                wrap.appendChild(track);
+                wrap.appendChild(controlsRow);
+            }
+        }
+    } else {
+        wrap.appendChild(track);
+    }
+    
+    return wrap;
+}
+
+export function Skeleton({ width = "100%", height = "20px", shape = "rect" }) {
+    const el = createElement("div", `ui-skeleton ui-skeleton-${shape}`);
+    el.style.width = typeof width === 'number' ? `${width}px` : width;
+    el.style.height = typeof height === 'number' ? `${height}px` : height;
+    return el;
 }

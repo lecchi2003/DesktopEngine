@@ -3,19 +3,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Documentação - DesktopEngine V0.6</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Documentação Completa - DesktopEngine V0.6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #4F46E5;
+            --primary-dark: #3730a3;
+            --primary-light: #e0e7ff;
             --surface: #ffffff;
-            --background: #f8f9fa;
-            --text-main: #212529;
-            --text-muted: #6c757d;
-            --border: #dee2e6;
-            --code-bg: #f4f5f7;
+            --background: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #0f172a;
+            --code-color: #f1f5f9;
+            --code-keyword: #818cf8;
+            --code-string: #34d399;
+            --code-comment: #94a3b8;
             --radius: 8px;
-            --sidebar-width: 280px;
+            --sidebar-width: 290px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -30,15 +40,26 @@
         }
 
         .navbar {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             padding: 1rem 2rem;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1.25rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
         .layout {
@@ -46,12 +67,11 @@
             flex: 1;
         }
 
-        /* Sidebar Navegação */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--background);
             border-right: 1px solid var(--border);
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem 3rem;
             position: sticky;
             top: 60px;
             height: calc(100vh - 60px);
@@ -60,360 +80,981 @@
 
         .sidebar a {
             display: block;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem;
             color: var(--text-main);
             text-decoration: none;
             border-radius: var(--radius);
-            margin-bottom: 0.25rem;
-            font-size: 0.95rem;
+            margin-bottom: 0.15rem;
+            font-size: 0.88rem;
+            transition: all 0.15s ease;
         }
 
         .sidebar a:hover {
-            background-color: #e9ecef;
+            background-color: var(--primary-light);
             color: var(--primary);
+            font-weight: 500;
         }
 
         .sidebar .nav-header {
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
-            margin: 1.5rem 0 0.5rem 1rem;
+            margin: 1.25rem 0 0.4rem 0.8rem;
             letter-spacing: 0.05em;
         }
 
-        /* Conteúdo Principal */
         .content {
             flex: 1;
-            padding: 3rem 4rem;
-            max-width: 900px;
+            padding: 2.5rem 3.5rem 5rem;
+            max-width: 1050px;
             overflow-y: auto;
         }
 
-        h1 { font-size: 2.5rem; margin-top: 0; margin-bottom: 1rem; color: #111827; }
-        h2 { font-size: 1.75rem; margin-top: 3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: #111827; }
-        h3 { font-size: 1.25rem; margin-top: 2rem; color: #374151; }
-        p { margin-bottom: 1rem; color: #4B5563; }
+        h1 { font-size: 2.4rem; margin-top: 0; margin-bottom: 0.8rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+        h2 { font-size: 1.6rem; margin-top: 2.8rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-weight: 700; color: #1e293b; }
+        h3 { font-size: 1.2rem; margin-top: 2rem; color: var(--primary); font-weight: 600; }
+        h4 { font-size: 1.05rem; margin-top: 1.4rem; color: #334155; font-weight: 600; }
+        p { margin-bottom: 1rem; color: #334155; }
         
         .lead {
-            font-size: 1.25rem;
-            font-weight: 300;
+            font-size: 1.15rem;
+            font-weight: 400;
             color: var(--text-muted);
             margin-bottom: 2rem;
+            line-height: 1.6;
         }
 
-        /* Código */
         .code-box {
             background-color: var(--code-bg);
-            padding: 1.25rem;
             border-radius: var(--radius);
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-            border: 1px solid var(--border);
+            margin: 1rem 0 1.5rem 0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #1e293b;
+            overflow: hidden;
         }
-        
-        pre {
+
+        .code-box pre {
             margin: 0;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9rem;
-            color: #d63384;
+            padding: 1.25rem;
+            overflow-x: auto;
+            white-space: pre;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            color: var(--code-color);
         }
 
-        code {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: #f1f3f5;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.85em;
-            color: #d63384;
-        }
-        
         .code-box code {
-            background-color: transparent;
+            font-family: inherit;
+            background: transparent;
             padding: 0;
+            color: inherit;
         }
 
-        /* Alertas */
+        code:not(pre code) {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            background-color: #f1f5f9;
+            color: #dc2626;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.88em;
+            border: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.65rem 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--background);
+            font-weight: 600;
+            color: #475569;
+            border-top: 1px solid var(--border);
+        }
+
         .alert {
             padding: 1rem 1.25rem;
-            margin: 1.5rem 0;
             border-radius: var(--radius);
-            border-left: 4px solid;
-            background-color: #f8f9fa;
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
         }
         
-        .alert-info { background-color: #eff6ff; color: #1e40af; border-color: #3b82f6; }
-        .alert-tip { background-color: #ecfdf5; color: #065f46; border-color: #10b981; }
+        .alert-info {
+            background-color: #eff6ff;
+            border-left: 4px solid var(--primary);
+            color: #1e40af;
+        }
 
-        ul { margin-bottom: 1.5rem; color: #4B5563; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; }
+        .alert-tip {
+            background-color: #ecfdf5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
 
-        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+        .alert-warn {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+        
+        .alert-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .showcase-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #334155; }
+        li { margin-bottom: 0.4rem; }
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0 2rem; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
-        DesktopEngine V0.6
+        <div>DesktopEngine V0.6</div>
+        <div class="badge">Documentação de Referência Completa</div>
     </div>
 
     <div class="layout">
-        <!-- Sidebar -->
+        <!-- Sidebar Navigation -->
         <nav class="sidebar">
             <div class="nav-header">Visão Geral</div>
-            <a href="#intro">Introdução</a>
+            <a href="#intro">Filosofia do Motor</a>
             <a href="#executando">Executando o Projeto</a>
             <a href="#init">Inicialização do Desktop</a>
-            
-            <div class="nav-header">Janelas & Estado</div>
             <a href="#telas">Criando Telas (Windows)</a>
-            <a href="#middlewares">Middlewares (Actions)</a>
-            
-            <div class="nav-header">Componentes (ui.js)</div>
-            <a href="#primitivas">Primitivas de Layout</a>
-            <a href="#inputs">Inputs e Controles</a>
-            <a href="#visualizacao">Outros Componentes de Visualização</a>
-            <a href="#datagrid">DataGrid e Paginação</a>
-            
+            <a href="#estado-reativo">Reatividade com Proxies</a>
+            <a href="#middlewares">Middlewares &amp; Actions</a>
+
+            <div class="nav-header">Layout e Estrutura</div>
+            <a href="#primitivas">createElement &amp; Print</a>
+            <a href="#row-col-grid">Row, Col &amp; Grid</a>
+            <a href="#card-form">Card &amp; Form</a>
+            <a href="#tabs">Tabs (Abas)</a>
+
+            <div class="nav-header">Formulários &amp; Inputs</div>
+            <a href="#inputs-basicos">Input, Select &amp; Button</a>
+            <a href="#checkbox-toggle">Checkbox &amp; Toggle</a>
+            <a href="#slider">Slider (Range Contínuo)</a>
+            <a href="#radiogroup">RadioGroup</a>
+            <a href="#autocomplete">Autocomplete (Chips Múltiplos)</a>
+
+            <div class="nav-header">Visualização de Dados</div>
+            <a href="#table">Table (Simples com Render)</a>
+            <a href="#datagrid">DataGrid (Paginação &amp; Filtros)</a>
+            <a href="#treeview">TreeView (Árvore Expansível)</a>
+            <a href="#draggable">DraggableList (Drag &amp; Drop)</a>
+            <a href="#webview">WebView (Iframe Reativo)</a>
+
+            <div class="nav-header">Feedback &amp; Status</div>
+            <a href="#alert-spinner">Alert &amp; Spinner</a>
+            <a href="#toast">Toast (Notificações)</a>
+            <a href="#badge-progress">Badge, Progress &amp; Skeleton</a>
+
+            <div class="nav-header">Navegação &amp; Overlays</div>
+            <a href="#accordion">Accordion (Sanfona)</a>
+            <a href="#drawer">Drawer (Context Menu Flutuante)</a>
+            <a href="#modal">Modal (Isolado e Global)</a>
+            <a href="#breadcrumbs-stepper">Breadcrumbs &amp; Stepper</a>
+            <a href="#carousel">Carousel Magnético</a>
+            <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
+
             <div class="nav-header">Sistema Global</div>
-            <a href="#menus">Menus (Start/MenuBar)</a>
-            <a href="#context-menu">Menu de Contexto</a>
-            <a href="#print">Impressão / Exportação</a>
+            <a href="#temas-paletas">Temas e Paletas de Cores</a>
+            <a href="#menus-globais">MenuBar &amp; StartMenu</a>
+            <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
         </nav>
 
         <!-- Main Content -->
         <main class="content">
-            <h1 id="intro">Desktop Engine V0.6 - Documentação Oficial</h1>
-            <p class="lead">Um micro-framework focado em sistemas corporativos de Janela Única/Múltipla (Desktop in Browser) utilizando apenas Vanilla JS e ES Modules, sem passos de build.</p>
+            <h1 id="intro">DesktopEngine V0.6 - Manual de Referência</h1>
+            <p class="lead">O <strong>DesktopEngine</strong> é um micro-framework em Vanilla JavaScript voltado para criar interfaces do tipo "Desktop in Browser" (janelas flutuantes, arrastáveis e redimensionáveis). Totalmente sem passos de compilação (zero Webpack, zero Node em runtime) e alimentado por reatividade nativa via JavaScript Proxies.</p>
 
-            <hr>
-
-            <h2 id="executando">Executando o Projeto (Módulos ES)</h2>
-            <p>Como o projeto utiliza <code>import</code>/<code>export</code> nativo do navegador, ele não rodará corretamente se você abrir o <code>index.html</code> via protocolo <code>file:///</code> no Windows/Chrome.</p>
             <div class="alert alert-info">
-                <strong>Dica Rápida:</strong> Basta clicar duas vezes em <strong><code>server.bat</code></strong> na pasta do projeto. Ele iniciará um servidor Python na porta 8000. Depois, acesse <code>http://localhost:8000</code> no seu navegador.
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Demonstração ao Vivo no Código:</strong> Todos os componentes descritos neste manual estão implementados e funcionando no arquivo <code>index.html</code>. Abra a janela <strong>"Showcase de Componentes UI"</strong> na barra de tarefas para interagir com eles ao vivo!
+                </div>
             </div>
 
+            <!-- SEÇÃO 1: EXECUTANDO -->
+            <h2 id="executando">Executando o Projeto</h2>
+            <p>O DesktopEngine utiliza ES Modules nativos (<code>import</code> / <code>export</code>). Por segurança do navegador, módulos locais não podem ser abertos diretamente via protocolo <code>file:///</code>.</p>
+            <p>Para executar localmente:</p>
+            <ul>
+                <li><strong>Opção 1 (Windows):</strong> Dê um duplo clique no arquivo <code>server.bat</code> na pasta raiz. Ele abrirá um servidor local na porta <code>8000</code>.</li>
+                <li><strong>Opção 2 (Terminal):</strong> Execute <code>npx serve .</code> ou <code>python -m http.server 8000</code> e acesse <code>http://localhost:8000</code>.</li>
+            </ul>
+
+            <!-- SEÇÃO 2: INIT -->
             <h2 id="init">Inicialização do Desktop</h2>
-            <p>O desktop agora suporta configurações de inicialização para posicionar o "Taskbar" em qualquer canto da tela e ligar/desligar botões de utilidade.</p>
+            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, agrupamento e notificações globais.</p>
+
             <div class="code-box">
 <pre><code>import { Desktop } from './desktop.js';
 
+// Inicialização com opções
 Desktop.init({
-    windowsContainerId: "windows",
-    taskbarContainerId: "taskWindows",
-    taskbarPosition: "bottom", // Aceita: "top", "bottom", "left", "right"
-    showDesktopButton: true    // Mostra/oculta o botão de minimizar tudo
-});</code></pre>
+    windowsContainerId: "windows",       // Container onde as janelas são criadas
+    taskbarContainerId: "taskWindows",   // Container da barra de tarefas
+    taskbarPosition: "bottom",           // "bottom", "top", "left", "right"
+    showDesktopButton: true              // Exibe o botão de minimizar tudo
+});
+
+// Métodos utilitários globais:
+Desktop.showDesktop();                   // Alterna entre minimizar todas ou restaurá-las
+Desktop.arrangeWindows();                // Organiza todas as janelas abertas em grade organizada
+Desktop.notify("Olá mundo!", "success"); // Dispara um toast global ("success", "danger", "info")</code></pre>
             </div>
-            <ul>
-                <li><code>Desktop.showDesktop()</code>: Minimiza todas as janelas ativas ou as restaura.</li>
-                <li><code>Desktop.arrangeWindows()</code>: Organiza todas as janelas abertas numa "Grade" simétrica na tela.</li>
-            </ul>
 
-            <hr>
-
+            <!-- SEÇÃO 3: CRIANDO TELAS -->
             <h2 id="telas">Criando Telas (Windows)</h2>
-            <p>O motor é baseado na criação declarativa de telas através de objetos JavaScript simples, com estado reativo gerenciado por Proxies.</p>
+            <p>Uma tela é um objeto declarativo contendo configurações de janela, estado reativo, ações e uma função de renderização.</p>
+
+            <table>
+                <thead>
+                    <tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>title</code></td><td><code>String</code></td><td><code>"Janela"</code></td><td>Título exibido na barra superior da janela.</td></tr>
+                    <tr><td><code>icon</code></td><td><code>String</code></td><td><code>"📁"</code></td><td>Ícone emoji ou caractere exibido na barra e taskbar.</td></tr>
+                    <tr><td><code>width</code> / <code>height</code></td><td><code>Number</code></td><td><code>500 / 350</code></td><td>Dimensões iniciais em pixels.</td></tr>
+                    <tr><td><code>minWidth</code> / <code>minHeight</code></td><td><code>Number</code></td><td><code>200 / 150</code></td><td>Tamanho mínimo ao redimensionar.</td></tr>
+                    <tr><td><code>singleInstance</code></td><td><code>Boolean</code></td><td><code>false</code></td><td>Se <code>true</code>, foca na janela já aberta ao invés de duplicar.</td></tr>
+                    <tr><td><code>resizable</code></td><td><code>Boolean</code></td><td><code>true</code></td><td>Permite redimensionar puxando as bordas.</td></tr>
+                    <tr><td><code>minimizable</code></td><td><code>Boolean</code></td><td><code>true</code></td><td>Exibe o botão de minimizar na titlebar.</td></tr>
+                    <tr><td><code>maximizable</code></td><td><code>Boolean</code></td><td><code>true</code></td><td>Exibe o botão de maximizar na titlebar.</td></tr>
+                    <tr><td><code>status</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto inicial do rodapé (statusbar).</td></tr>
+                    <tr><td><code>state</code></td><td><code>Object</code></td><td><code>{}</code></td><td>Objeto com o estado inicial da tela.</td></tr>
+                    <tr><td><code>actions</code></td><td><code>Object</code></td><td><code>{}</code></td><td>Dicionário de funções ou esteiras de middleware.</td></tr>
+                    <tr><td><code>view()</code></td><td><code>Function</code></td><td><code>-</code></td><td>Função que retorna elementos DOM da tela (<code>this</code> = instância).</td></tr>
+                </tbody>
+            </table>
+
             <div class="code-box">
 <pre><code>import { Framework } from './core.js';
 import { Desktop } from './desktop.js';
-import { Form, Input, Button, createElement } from './ui.js';
+import { Input, Button, createElement } from './ui.js';
 
-const MinhaTela = {
-    title: "Minha Primeira Tela",
-    icon: "🚀",
-    width: 400,
-    height: 300,
+const MinhaJanela = {
+    title: "Minha Primeira Janela",
+    icon: "💻",
+    width: 450,
+    height: 320,
     singleInstance: true,
-    
-    // Estado inicial (O motor torna-o reativo)
-    state: { nome: "" },
-    
-    // Actions (Middlewares assíncronos)
+    status: "Pronto",
+
+    state: {
+        usuario: ""
+    },
+
     actions: {
-        salvar: [async (ctx, next) => {
-            alert(\`Salvando \${ctx.state.nome}\`);
-            ctx.instance.setStatus("Salvo com sucesso!");
+        salvar: [async (ctx) => {
+            if (!ctx.state.usuario) {
+                Desktop.notify("Preencha o nome do usuário!", "danger");
+                return;
+            }
+            ctx.instance.setStatus("Salvando...");
+            Desktop.notify(`Usuário ${ctx.state.usuario} salvo com sucesso!`, "success");
+            ctx.instance.setStatus("Pronto");
         }]
     },
-    
-    // View (Retorna elementos DOM)
+
     view() {
-        return createElement("div", "", [
-            Input({ label: "Nome", bind: "nome", instance: this }),
-            Button({ text: "Salvar", onClick: "salvar", instance: this })
+        return createElement("div", "p-3", [
+            Input({ label: "Nome de Usuário", bind: "usuario", instance: this }),
+            createElement("br", "", []),
+            Button({ text: "Salvar Dados", onClick: "salvar", instance: this })
         ]);
     }
 };
 
-// Abrindo a tela no Desktop
-Desktop.open(Framework.createWindow(MinhaTela, "ID_UNICO", Desktop));</code></pre>
+// Abre a janela no Desktop
+Desktop.open(Framework.createWindow(MinhaJanela, "JANELA_USUARIO", Desktop));</code></pre>
             </div>
 
-            <h3 id="middlewares">Usando Middlewares nas Actions</h3>
-            <p>A grande vantagem do <code>actions</code> é o suporte a uma esteira de middlewares no estilo <em>Koa/Express</em>. Isso é perfeito para validações e controle de acesso.</p>
-            
+            <!-- SEÇÃO 4: ESTADO REATIVO -->
+            <h2 id="estado-reativo">Reatividade com Proxies (Sem Virtual DOM)</h2>
+            <p>O DesktopEngine utiliza <strong>Proxies Nativos</strong> (no arquivo <code>core.js</code>). Quando você associa um componente com <code>bind: "chave"</code> e <code>instance: this</code>, ele se conecta diretamente ao <code>state</code> da janela:</p>
+            <ul>
+                <li><strong>Leitura Automática:</strong> O componente busca <code>instance.state[bind]</code> e exibe o valor atual.</li>
+                <li><strong>Escrita Automática:</strong> Quando o usuário digita ou seleciona algo, o valor é gravado em <code>instance.state[bind]</code>.</li>
+                <li><strong>Re-renderização Inteligente:</strong> A view é atualizada e o cursor/foco do input é preservado automaticamente via atributo <code>dataset.bind</code>.</li>
+            </ul>
+
+            <!-- SEÇÃO 5: MIDDLEWARES -->
+            <h2 id="middlewares">Middlewares nas Actions (Padrão Koa / Express)</h2>
+            <p>As <code>actions</code> são organizadas como <strong>arrays de funções assíncronas</strong>. Cada função recebe <code>(ctx, next)</code>. Chamar <code>await next()</code> avança para o próximo passo; não chamar interrompe a esteira. Isso é perfeito para criar validadores reutilizáveis.</p>
+
             <div class="code-box">
-<pre><code>// Middleware Desacoplado
-export const ValidateForm = (fields) => async (ctx, next) => {
-    for (let field of fields) {
-        if (!ctx.state[field]) {
-            Desktop.notify(\`O campo \${field} é obrigatório!\`, "warning");
-            return; // Interrompe a esteira
+<pre><code>// 1. Validador Reutilizável (Middleware Desacoplado)
+export const ExigirCampos = (campos) => async (ctx, next) => {
+    for (let campo of campos) {
+        if (!ctx.state[campo]) {
+            Desktop.notify(`O campo "${campo}" é obrigatório!`, "danger");
+            return; // Interrompe a execução aqui
         }
     }
-    await next(); // Passa no teste
+    await next(); // Passou no teste, executa o próximo middleware
 };
 
-// Uso na tela:
-actions: {
-    salvar: [
-        ValidateForm(['nome', 'email']), // 1. Valida
-        async (ctx) => {
-            // 2. Só executa se a validação passar
-            api.post('/users', ctx.state);
-        }
-    ]
-}</code></pre>
+// 2. Uso na Janela
+const TelaCadastro = {
+    state: { nome: "", email: "" },
+    actions: {
+        confirmarCadastro: [
+            ExigirCampos(["nome", "email"]), // Passo 1: Validação
+            async (ctx) => {                  // Passo 2: Execução final
+                Desktop.notify("Cadastro enviado para o servidor!", "success");
+            }
+        ]
+    },
+    view() { /* ... */ }
+};</code></pre>
             </div>
 
             <hr>
 
-            <h2 id="primitivas">Catálogo de Componentes (ui.js)</h2>
+            <!-- SEÇÃO: PRIMITIVAS -->
+            <h2 id="primitivas">Primitivas de Layout e Impressão</h2>
             
-            <h3>Primitivas de Layout</h3>
-            <ul>
-                <li><code>Row({ children, style })</code>: Cria uma linha flexível (display: flex).</li>
-                <li><code>Col({ children, style })</code>: Cria uma coluna expansível (flex: 1).</li>
-                <li><code>Grid({ children, columns = 2 })</code>: Um grid CSS poderoso.</li>
-                <li><code>Card({ title, children })</code>: Caixa com sombra para agrupar informações.</li>
-                <li><code>Tabs({ tabs, activeTabBind, instance })</code>: Sistema de abas conectado ao state.</li>
-            </ul>
-
-            <h3 id="inputs">Inputs e Controles (Two-Way Binding)</h3>
-            <ul>
-                <li><code>Input({ label, bind, instance, type })</code>: Tipos nativos (date, text, number).</li>
-                <li><code>Select({ label, bind, instance, options })</code></li>
-                <li><code>Checkbox({ label, bind, instance })</code>: Caixa de seleção padrão.</li>
-                <li><code>Toggle({ label, bind, instance })</code>: Switch moderno estilo iOS.</li>
-                <li><code>Button({ text, onClick, instance, variant })</code>: Botão de ação executável.</li>
-            </ul>
-
-            <h3 id="visualizacao">Outros Componentes de Visualização</h3>
-            <ul>
-                <li><code>Table({ columns, data })</code>: Tabela simples e formatada, sem recursos complexos.</li>
-                <li><code>Badge({ text, variant })</code>: Tags visuais (ex: primary, success, warning, danger).</li>
-                <li><code>ProgressBar({ value, max })</code>: Barra de progresso para dashboards.</li>
-                <li><code>TreeView({ data, onSelect, instance })</code>: Árvore de navegação expansível.</li>
-                <li><code>DraggableList({ bindItems, onReorder, instance })</code>: Lista interativa com Drag and Drop nativo.</li>
-                <li><code>WebView({ bindUrl, instance, height })</code>: Iframe perfeitamente embutido vinculado ao state.</li>
-            </ul>
-
-            <h3 id="datagrid">Visualização Dinâmica & DataGrid</h3>
-            <p>O <code>DataGrid</code> é a ferramenta definitiva para tabelas. Ele suporta ordenação, filtros por coluna e <strong>Paginação</strong> nativa.</p>
-            
+            <h3>createElement</h3>
+            <p>Fábrica de nós DOM pura e segura utilizada em toda a biblioteca:</p>
             <div class="code-box">
-<pre><code>DataGrid({
-    bindData: "clientes", // Nome do array no instance.state
+<pre><code>import { createElement } from './ui.js';
+
+// Assinatura: createElement(tag, className, children)
+const elemento = createElement("div", "meu-container", [
+    createElement("h2", "titulo", ["Título da Seção"]),
+    createElement("p", "", ["Texto descritivo"])
+]);</code></pre>
+            </div>
+
+            <h3>printElement</h3>
+            <p>Utilitário que clona um elemento do DOM e todos os estilos da página para um iframe isolado e dispara a janela de impressão nativa.</p>
+            <div class="code-box">
+<pre><code>import { printElement } from './ui.js';
+
+// Imprime uma tabela ou relatório específico sem a titlebar da janela
+printElement(meuElementoDOM, { title: "Relatório Mensal de Vendas" });</code></pre>
+            </div>
+
+            <!-- SEÇÃO: ROW, COL, GRID -->
+            <h2 id="row-col-grid">Row, Col e Grid (Layout Flexível)</h2>
+            <p>Blocos de estruturação baseados em Flexbox e CSS Grid:</p>
+
+            <div class="code-box">
+<pre><code>import { Row, Col, Grid, Card, createElement } from './ui.js';
+
+view() {
+    return createElement("div", "", [
+        // Linha com duas colunas proporcionais
+        Row({
+            style: "gap: 16px; align-items: center;",
+            children: [
+                Col({ style: "flex: 2;", children: [ createElement("p", "", ["Coluna Larga"]) ] }),
+                Col({ style: "flex: 1;", children: [ createElement("p", "", ["Coluna Estreita"]) ] })
+            ]
+        }),
+
+        // Grade de 3 colunas automáticas
+        Grid({
+            columns: 3,
+            children: [
+                Card({ title: "Card 1", children: ["Conteúdo A"] }),
+                Card({ title: "Card 2", children: ["Conteúdo B"] }),
+                Card({ title: "Card 3", children: ["Conteúdo C"] })
+            ]
+        })
+    ]);
+}</code></pre>
+            </div>
+
+            <!-- SEÇÃO: TABS -->
+            <h2 id="tabs">Tabs (Navegação por Abas)</h2>
+            <p>Gera um cabeçalho de abas conectado dinamicamente ao <code>state</code> da janela:</p>
+
+            <div class="code-box">
+<pre><code>import { Tabs, createElement } from './ui.js';
+
+// No state:
+state: { abaAtiva: "dados" },
+
+// Na view():
+Tabs({
+    activeTabBind: "abaAtiva",
     instance: this,
-    itemsPerPage: 5,      // Ativa a paginação
-    columns: [
-        { key: "id", label: "Código", sortable: true },
-        { key: "nome", label: "Cliente", sortable: true, filterable: true },
-        { key: "status", render: (val) => Badge({ text: val }) }
+    tabs: [
+        { id: "dados", label: "Dados Gerais", view: function() {
+            return createElement("div", "p-3", ["Formulário de dados..."]);
+        }},
+        { id: "permissoes", label: "Permissões", view: function() {
+            return createElement("div", "p-3", ["Tabela de permissões..."]);
+        }}
     ]
 })</code></pre>
             </div>
 
-            <div class="alert alert-tip">
-                <strong>Paginação Client-Side vs Server-Side:</strong><br><br>
-                <strong>Client-Side (Padrão):</strong> O <code>DataGrid</code> espera que a variável atrelada ao <code>bindData</code> no <code>state</code> contenha todos os registros. O componente faz um <code>.slice()</code> e cuida da navegação sozinho.<br><br>
-                <strong>Server-Side:</strong> Quando você lida com bases de dados enormes, o padrão Client-Side trava o navegador. Nesses casos, siga os passos abaixo para configurar a Paginação Server-Side.
+            <hr>
+
+            <!-- SEÇÃO: FORMULÁRIOS & INPUTS -->
+            <h2 id="inputs-basicos">Inputs e Controles de Formulário</h2>
+
+            <h3>Input</h3>
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>label</code></td><td><code>String</code></td><td><code>""</code></td><td>Rótulo descritivo do campo.</td></tr>
+                    <tr><td><code>bind</code></td><td><code>String</code></td><td><code>-</code></td><td>Chave correspondente no <code>instance.state</code>.</td></tr>
+                    <tr><td><code>type</code></td><td><code>String</code></td><td><code>"text"</code></td><td>Tipo de input nativo (<code>"text"</code>, <code>"password"</code>, <code>"number"</code>, <code>"date"</code>, etc).</td></tr>
+                    <tr><td><code>placeholder</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto de dica no input.</td></tr>
+                    <tr><td><code>width</code></td><td><code>String</code></td><td><code>"100%"</code></td><td>Largura do contêiner.</td></tr>
+                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>A referência <code>this</code> da tela atual.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+<pre><code>Input({ label: "E-mail Corporativo", bind: "email", type: "email", placeholder: "usuario@empresa.com", instance: this })</code></pre>
             </div>
 
-            <div style="margin-left: 20px; margin-bottom: 30px;">
-                <h4>1. Adapte o estado (State)</h4>
-                <p>Ao invés de guardar um grande Array, seu estado guardará apenas os itens da página atual:</p>
-                <div class="code-box">
-<pre><code>state: {
-    clientes: [], // Só os clientes da página atual
-    paginaAtual: 1,
-    totalPaginas: 10
-}</code></pre>
-                </div>
+            <h3>Select</h3>
+            <div class="code-box">
+<pre><code>Select({
+    label: "Departamento",
+    bind: "departamento",
+    instance: this,
+    options: [
+        { label: "Tecnologia", value: "TI" },
+        { label: "Recursos Humanos", value: "RH" },
+        { label: "Financeiro", value: "FIN" }
+    ]
+})</code></pre>
+            </div>
 
-                <h4>2. Configure o Componente DataGrid</h4>
-                <p>Ative a opção <code>serverSide</code> e defina <code>onPageChange</code>:</p>
-                <div class="code-box">
-<pre><code>DataGrid({ 
-    bindData: "clientes", 
-    instance: ctx.instance,
-    serverSide: true, 
-    bindTotalPages: "totalPaginas", 
-    onPageChange: "buscarPagina" 
-});</code></pre>
-                </div>
+            <h3>Button</h3>
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>text</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto exibido no botão.</td></tr>
+                    <tr><td><code>onClick</code></td><td><code>String | Function</code></td><td><code>-</code></td><td>Nome da action em <code>actions</code> ou função callback.</td></tr>
+                    <tr><td><code>variant</code></td><td><code>String</code></td><td><code>"primary"</code></td><td>Estilo: <code>"primary"</code>, <code>"secondary"</code>, <code>"danger"</code>, <code>"success"</code>.</td></tr>
+                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>Contexto da tela para disparar a action.</td></tr>
+                </tbody>
+            </table>
 
-                <h4>3. Crie a Action que vai na API</h4>
-                <div class="code-box">
-<pre><code>actions: {
-    buscarPagina: [async (ctx, novaPagina) => {
-        ctx.instance.setStatus("Carregando página " + novaPagina);
-        
-        const response = await fetch(`/api/clientes?page=\${novaPagina}`);
-        const data = await response.json();
-        
-        ctx.state.clientes = data.items;
-        ctx.state.totalPaginas = data.totalPages;
-        ctx.instance.update();
-    }]
-}</code></pre>
-                </div>
+            <div class="code-box">
+<pre><code>Button({ text: "Confirmar Operação", onClick: "executarAcao", variant: "primary", instance: this })</code></pre>
+            </div>
+
+            <!-- SEÇÃO: CHECKBOX E TOGGLE -->
+            <h2 id="checkbox-toggle">Checkbox e Toggle (Switches)</h2>
+            <div class="code-box">
+<pre><code>import { Checkbox, Toggle, Row } from './ui.js';
+
+// Ambos conectam valores booleanos ao state:
+Row({ children: [
+    Checkbox({ label: "Lembrar meu acesso", bind: "lembrar", instance: this }),
+    Toggle({ label: "Modo Noturno", bind: "darkTheme", instance: this })
+]})</code></pre>
+            </div>
+
+            <!-- SEÇÃO: SLIDER -->
+            <h2 id="slider">Slider (Range Contínuo com Badge)</h2>
+            <p>Controle deslizante que atualiza o valor visualmente durante o arraste e só dispara o re-render no final (evitando travamento de interface):</p>
+            <div class="code-box">
+<pre><code>import { Slider } from './ui.js';
+
+Slider({
+    label: "Nível de Opacidade",
+    bind: "opacidade",
+    min: 0,
+    max: 100,
+    step: 5,
+    instance: this
+})</code></pre>
+            </div>
+
+            <!-- SEÇÃO: RADIO GROUP -->
+            <h2 id="radiogroup">RadioGroup (Seleção Única)</h2>
+            <div class="code-box">
+<pre><code>import { RadioGroup } from './ui.js';
+
+RadioGroup({
+    label: "Tipo de Pessoa",
+    bind: "tipoPessoa",
+    layout: "horizontal", // "horizontal" ou "vertical"
+    instance: this,
+    options: [
+        { label: "Pessoa Física (CPF)", value: "PF" },
+        { label: "Pessoa Jurídica (CNPJ)", value: "PJ" }
+    ]
+})</code></pre>
+            </div>
+
+            <!-- SEÇÃO: AUTOCOMPLETE -->
+            <h2 id="autocomplete">Autocomplete (Com Chips Múltiplos)</h2>
+            <p>Campo de busca com sugestões integradas. Suporta seleção simples (retorna string) ou múltipla (cria tags/chips visuais e manipula um Array no <code>state</code>):</p>
+
+            <div class="code-box">
+<pre><code>import { Autocomplete } from './ui.js';
+
+// Estado correspondente:
+state: { paisesSelecionados: ["Brasil"] },
+
+// Na view():
+Autocomplete({
+    label: "Países de Atuação",
+    bind: "paisesSelecionados",
+    multiple: true, // Cria chips removíveis interativos
+    placeholder: "Digite para filtrar e selecione...",
+    options: ["Brasil", "Alemanha", "Estados Unidos", "França", "Japão", "Itália"],
+    instance: this
+})</code></pre>
             </div>
 
             <hr>
 
-            <h2 id="menus">Componentes Flutuantes Globais</h2>
-            
-            <h3>MenuBar vs StartMenu</h3>
-            <p>O DesktopEngine suporta dois estilos globais. Escolha configurando seu <code>index.html</code> e invocando a UI correspondente:</p>
-            <ul>
-                <li><strong>StartMenu (Estilo Windows):</strong> Ancorado na taskbar inferior.</li>
-                <li><strong>MenuBar (Estilo macOS):</strong> Fixado no topo, com menus dropdown em <em>hover</em>.</li>
-            </ul>
+            <!-- SEÇÃO: TABELAS & DATAGRID -->
+            <h2 id="table">Table (Tabela Simples com Custom Render)</h2>
+            <p>Renderiza dados tabulares estáticos com suporte a customização por coluna através de funções de render:</p>
 
-            <h3 id="context-menu">Menu de Contexto e Modals</h3>
-            <p>Invoque localmente no seu elemento para garantir escopo, utilizando <code>bindContextMenu</code>:</p>
             <div class="code-box">
-<pre><code>import { bindContextMenu } from './ui.js';
+<pre><code>import { Table, Badge } from './ui.js';
 
-bindContextMenu(meuElemento, [
-    { label: "Editar", action: () => alert("Editando...") },
-    { label: "Deletar", action: () => meuElemento.remove() }
-]);</code></pre>
+Table({
+    columns: [
+        { key: "id", label: "Código" },
+        { key: "nome", label: "Nome do Produto" },
+        { key: "status", label: "Situação", render: (val, row) => {
+            return Badge({ text: val, variant: val === "Ativo" ? "success" : "danger" });
+        }}
+    ],
+    data: [
+        { id: 1, nome: "Licença Pro", status: "Ativo" },
+        { id: 2, nome: "Suporte 24h", status: "Inativo" }
+    ]
+})</code></pre>
             </div>
 
-            <p>Para alertas corporativos bloqueantes, utilize o componente <strong>Modal</strong>:</p>
-            <div class="code-box">
-<pre><code>import { Modal, createElement } from './ui.js';
+            <!-- SEÇÃO: DATAGRID -->
+            <h2 id="datagrid">DataGrid Completo (Ordenação, Filtros e Paginação)</h2>
+            <p>O <code>DataGrid</code> é o componente definitivo para exibição de grandes coleções de dados no DesktopEngine. Ele possui controle integrado de ordenação ao clicar no cabeçalho, caixas de filtro por coluna com restauração automática de foco e paginação completa.</p>
 
-Modal({
-    title: "Confirmação",
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>bindData</code></td><td><code>String</code></td><td><code>-</code></td><td>Nome da lista no <code>instance.state</code> contendo os dados.</td></tr>
+                    <tr><td><code>columns</code></td><td><code>Array</code></td><td><code>[]</code></td><td>Configuração das colunas (veja abaixo).</td></tr>
+                    <tr><td><code>itemsPerPage</code></td><td><code>Number</code></td><td><code>5</code></td><td>Quantidade de linhas por página (Modo Client-Side).</td></tr>
+                    <tr><td><code>serverSide</code></td><td><code>Boolean</code></td><td><code>false</code></td><td>Se <code>true</code>, delega a paginação para a API externa.</td></tr>
+                    <tr><td><code>bindTotalPages</code></td><td><code>String</code></td><td><code>null</code></td><td>Nome da chave no <code>state</code> contendo o total de páginas no modo Server-Side.</td></tr>
+                    <tr><td><code>onPageChange</code></td><td><code>String | Function</code></td><td><code>null</code></td><td>Action a ser executada ao mudar de página.</td></tr>
+                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>Referência da tela (<code>this</code>).</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Estrutura das Colunas (columns):</h4>
+            <ul>
+                <li><code>key</code>: Nome da propriedade no objeto do item.</li>
+                <li><code>label</code>: Texto exibido no cabeçalho.</li>
+                <li><code>sortable</code>: <code>true</code> para habilitar ordenação ascendente/descendente.</li>
+                <li><code>filterable</code>: <code>true</code> para renderizar campo de filtro em tempo real.</li>
+                <li><code>render(val, row)</code>: Função opcional para renderizar badges, botões ou nós customizados.</li>
+            </ul>
+
+            <div class="code-box">
+<pre><code>import { DataGrid, Badge, Button, Row } from './ui.js';
+
+// 1. Estado da Janela
+state: {
+    usuarios: [
+        { id: 101, nome: "Carlos Silva", cargo: "Desenvolvedor", status: "Ativo" },
+        { id: 102, nome: "Ana Paula", cargo: "Designer", status: "Ativo" },
+        { id: 103, nome: "Roberto Souza", cargo: "Gerente", status: "Pendente" },
+        { id: 104, nome: "Mariana Costa", cargo: "Analista", status: "Inativo" },
+        { id: 105, nome: "Felipe Gomes", cargo: "DevOps", status: "Ativo" }
+    ]
+},
+
+// 2. Na view():
+DataGrid({
+    bindData: "usuarios",
+    itemsPerPage: 3,
     instance: this,
-    children: [ createElement("p", "", ["Deseja realmente continuar?"]) ]
+    columns: [
+        { key: "id", label: "ID", sortable: true },
+        { key: "nome", label: "Colaborador", sortable: true, filterable: true },
+        { key: "cargo", label: "Cargo", filterable: true },
+        { key: "status", label: "Status", render: (val) => {
+            const v = val === "Ativo" ? "success" : val === "Pendente" ? "warning" : "danger";
+            return Badge({ text: val, variant: v });
+        }},
+        { key: "acoes", label: "Ações", render: (_, row) => {
+            return Button({ text: "Ver", variant: "secondary", onClick: () => alert(`Usuário: ${row.nome}`) });
+        }}
+    ]
+})</code></pre>
+            </div>
+
+            <!-- SEÇÃO: TREEVIEW, DRAGGABLE, WEBVIEW -->
+            <h2 id="treeview">TreeView (Estrutura de Pastas)</h2>
+            <div class="code-box">
+<pre><code>import { TreeView } from './ui.js';
+
+TreeView({
+    data: [
+        { label: "Documentos", children: [
+            { label: "Contratos.pdf" },
+            { label: "Relatório.docx" }
+        ]},
+        { label: "Imagens", children: [
+            { label: "Logo.png" }
+        ]}
+    ],
+    onSelect: (node) => alert(`Selecionado: ${node.label}`)
+})</code></pre>
+            </div>
+
+            <h2 id="draggable">DraggableList (Reordenação Arrastável)</h2>
+            <div class="code-box">
+<pre><code>import { DraggableList } from './ui.js';
+
+// Vinculado a uma lista no state
+DraggableList({
+    bindItems: "minhasTarefas",
+    instance: this,
+    onReorder: (novaLista) => console.log("Nova ordem:", novaLista)
+})</code></pre>
+            </div>
+
+            <h2 id="webview">WebView (Navegador Embutido)</h2>
+            <div class="code-box">
+<pre><code>import { WebView } from './ui.js';
+
+WebView({
+    bindUrl: "urlAtual", // Atualiza o iframe dinamicamente com o state
+    instance: this,
+    height: "400px"
+})</code></pre>
+            </div>
+
+            <hr>
+
+            <!-- SEÇÃO: FEEDBACK & NOTIFICAÇÕES -->
+            <h2 id="alert-spinner">Alert e Spinner</h2>
+            <div class="code-box">
+<pre><code>import { Alert, Spinner, Row } from './ui.js';
+
+Row({ style: "align-items: center; gap: 12px;", children: [
+    Alert({ text: "Sincronização em andamento...", variant: "info" }),
+    Spinner({ size: "20px", color: "var(--primary)" })
+]})</code></pre>
+            </div>
+
+            <h2 id="toast">Toast (Notificações Flutuantes)</h2>
+            <div class="code-box">
+<pre><code>import { Toast } from './ui.js';
+
+// Disparo simples em qualquer lugar ou action
+Toast({ message: "Operação executada com sucesso!", type: "success", duration: 4000 });
+// Tipos disponíveis: "info", "success", "error"</code></pre>
+            </div>
+
+            <h2 id="badge-progress">Badge, ProgressBar e Skeleton</h2>
+            <div class="code-box">
+<pre><code>import { Badge, ProgressBar, Skeleton, Col } from './ui.js';
+
+Col({ children: [
+    Badge({ text: "Concluído", variant: "success" }),
+    ProgressBar({ value: 75, max: 100 }),
+    Skeleton({ width: "100%", height: "24px", shape: "rect" }) // Indicador de carregamento
+]})</code></pre>
+            </div>
+
+            <hr>
+
+            <!-- SEÇÃO: NAVEGAÇÃO & OVERLAYS -->
+            <h2 id="accordion">Accordion (Sanfona Expansível)</h2>
+            <div class="code-box">
+<pre><code>import { Accordion, createElement } from './ui.js';
+
+Accordion({
+    instance: this,
+    items: [
+        { title: "Opções de Segurança", content: "Configurações de firewall e portas..." },
+        { title: "Personalização Visual", content: () => createElement("p", "", ["Retorno dinâmico via função!"]) }
+    ]
+})</code></pre>
+            </div>
+
+            <h2 id="drawer">Drawer (Menu de Contexto Flutuante)</h2>
+            <p>O <code>Drawer</code> desliza a partir da borda lateral com estética de vidro (Glassmorphism). Por padrão, <strong>fica restrito aos limites da janela atual</strong>, sem cobrir o Desktop global.</p>
+
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>bind</code></td><td><code>String</code></td><td><code>-</code></td><td>Propriedade booleana no <code>state</code> que controla a abertura.</td></tr>
+                    <tr><td><code>side</code></td><td><code>String</code></td><td><code>"right"</code></td><td>Lado de entrada: <code>"left"</code> ou <code>"right"</code>.</td></tr>
+                    <tr><td><code>content</code></td><td><code>Array | Node | String</code></td><td><code>-</code></td><td>Filhos renderizados dentro do menu.</td></tr>
+                    <tr><td><code>targetContainer</code></td><td><code>Element</code></td><td><code>windowEl</code></td><td>Opcional. Passe <code>document.getElementById('app')</code> para torná-lo global.</td></tr>
+                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>Referência da tela.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+<pre><code>import { Drawer, Button, createElement } from './ui.js';
+
+// Na view():
+view() {
+    return createElement("div", "", [
+        Drawer({
+            bind: "menuAberto",
+            side: "left",
+            instance: this,
+            content: [
+                createElement("h3", "", ["Menu de Atalhos"]),
+                Button({ text: "Configurações Rápidas", onClick: "abrirConfig" })
+            ]
+        }),
+        Button({ text: "Abrir Menu Lateral", onClick: () => { this.state.menuAberto = true; } })
+    ]);
+}</code></pre>
+            </div>
+
+            <h2 id="modal">Modal (Isolado por Janela ou Global)</h2>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. Se chamado passando <code>instance</code>, o fundo bloqueia apenas a janela onde foi chamado.</p>
+
+            <div class="code-box">
+<pre><code>import { Modal, Button, createElement } from './ui.js';
+
+// 1. Modal Local (Restrito à Janela)
+Modal({
+    title: "Confirmar Exclusão",
+    instance: this,
+    children: [
+        createElement("p", "", ["Deseja realmente excluir este registro?"]),
+        Button({ text: "Sim, Excluir", variant: "danger", onClick: () => { /* ... */ } })
+    ]
+});
+
+// 2. Modal Global (Cobre todas as janelas do Desktop)
+Modal({
+    title: "Aviso do Sistema",
+    instance: this,
+    targetContainer: document.getElementById("app"), // Força container do Desktop
+    children: [
+        createElement("p", "", ["O servidor será reiniciado em 5 minutos."])
+    ]
 });</code></pre>
             </div>
 
-            <h3 id="print">Impressão e Exportação</h3>
-            <p>O framework fornece uma API nativa para imprimir componentes isoladamente, sem mostrar as bordas do navegador.</p>
+            <h2 id="breadcrumbs-stepper">Breadcrumbs e Stepper</h2>
             <div class="code-box">
-<pre><code>import { printElement } from './ui.js';
+<pre><code>import { Breadcrumbs, Stepper } from './ui.js';
 
-// Imprimindo apenas a tabela gerada pelo DataGrid
-printElement(gridEl, { title: "Relatório Financeiro" });</code></pre>
+// Trilha de Navegação
+Breadcrumbs({
+    items: [
+        { label: "Início", action: () => alert("Voltar para o Início") },
+        { label: "Módulos", action: () => alert("Ir para Módulos") },
+        { label: "Configuração Atual" } // Último item fica ativo sem ação
+    ]
+});
+
+// Passos de Progresso (Multi-etapas)
+Stepper({
+    steps: ["Dados Básicos", "Endereço", "Pagamento", "Finalização"],
+    currentStep: 1 // Base 0 (Destaque no passo "Endereço")
+});</code></pre>
             </div>
 
+            <h2 id="carousel">Carousel Magnético (Posições Customizáveis)</h2>
+            <p>Esteira deslizante suave que oculta a barra de scroll nativa e permite posicionar os controles de avançar/recuar em qualquer lugar do layout.</p>
+
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>items</code></td><td><code>Array</code></td><td><code>[]</code></td><td>Array de nós DOM ou strings para os slides.</td></tr>
+                    <tr><td><code>height</code></td><td><code>String</code></td><td><code>"200px"</code></td><td>Altura da área do carrossel.</td></tr>
+                    <tr><td><code>prevControl</code> / <code>nextControl</code></td><td><code>Node | String</code></td><td><code>-</code></td><td>Elementos ou botões de avançar e recuar.</td></tr>
+                    <tr><td><code>controlsPosition</code></td><td><code>String</code></td><td><code>"side"</code></td><td>Posição dos controles: <code>"side"</code>, <code>"top-left"</code>, <code>"top-center"</code>, <code>"top-right"</code>, <code>"bottom-left"</code>, <code>"bottom-center"</code>, <code>"bottom-right"</code>.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+<pre><code>import { Carousel, Button, createElement } from './ui.js';
+
+Carousel({
+    height: "140px",
+    controlsPosition: "bottom-center",
+    prevControl: Button({ text: "◀ Anterior", variant: "secondary" }),
+    nextControl: Button({ text: "Próximo ▶", variant: "secondary" }),
+    items: [
+        createElement("div", "p-3", ["Slide 1: Banner Principal"]),
+        createElement("div", "p-3", ["Slide 2: Novidades do Mês"]),
+        createElement("div", "p-3", ["Slide 3: Atalhos Úteis"])
+    ]
+})</code></pre>
+            </div>
+
+            <h2 id="avatar-tooltip">Avatar e Tooltip</h2>
+            <div class="code-box">
+<pre><code>import { Avatar, Tooltip } from './ui.js';
+
+Tooltip({
+    position: "top", // "top", "bottom", "left", "right"
+    content: "Usuário Administrador - Online",
+    children: Avatar({
+        initials: "AD",
+        size: 44,
+        status: "online" // "online", "busy", "away", "offline"
+    })
+})</code></pre>
+            </div>
+
+            <hr>
+
+            <!-- SEÇÃO: MENUS GLOBAIS -->
+            <h2 id="menus-globais">Menus Globais (MenuBar e StartMenu)</h2>
+            <p>O framework suporta os dois paradigmas clássicos de sistemas operacionais:</p>
+            <ul>
+                <li><strong>StartMenu (Estilo Windows):</strong> Menu inicial ancorado no botão da taskbar.</li>
+                <li><strong>MenuBar (Estilo macOS / Desktop Pro):</strong> Barra de menus fixa no topo com submenus em cascata (hover).</li>
+            </ul>
+
+            <div class="code-box">
+<pre><code>import { MenuBar, StartMenu } from './ui.js';
+
+// Exemplo de estrutura de menu reutilizável
+const meusMenus = [
+    {
+        label: "Arquivo",
+        items: [
+            { label: "Nova Janela", action: () => Desktop.open(MinhaJanelaInstance) },
+            "separator",
+            { label: "Sair", action: () => alert("Saindo...") }
+        ]
+    },
+    {
+        label: "Exibir",
+        items: [
+            { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+            { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+        ]
+    }
+];
+
+// Invocando no MenuBar:
+MenuBar({ containerId: "menuBarTop", menus: meusMenus });
+
+// Ou no StartMenu:
+StartMenu({ buttonId: "btnStart", menus: meusMenus });</code></pre>
+            </div>
+
+            <h2 id="temas-paletas">Sistema de Temas e Schema de Paletas de Cores</h2>
+            <p>O DesktopEngine inclui um motor nativo de temas que altera todas as variáveis visuais (janelas, titlebars, botões, formulários e cards) sem recarregar a página e com persistência automática no <code>localStorage</code>.</p>
+
+            <h3>API do Desktop</h3>
+            <div class="code-box">
+<pre><code>import { Desktop } from './desktop.js';
+
+// 1. Aplicar um tema pré-configurado
+Desktop.setTheme("dark");       // Opções: "light", "dark", "midnight", "emerald", "nord"
+
+// 2. Alternar rapidamente entre Light e Dark
+Desktop.toggleTheme();
+
+// 3. Obter o tema ativo no momento
+const temaAtual = Desktop.getTheme(); // Ex: "midnight"
+
+// 4. Registrar uma Paleta Customizada em Runtime
+Desktop.registerPalette("sunset", {
+    "--bg-primary": "#2b1055",
+    "--bg-secondary": "#3c1b75",
+    "--text-primary": "#fde047",
+    "--text-secondary": "#fbcfe8",
+    "--win-bg": "rgba(43, 16, 85, 0.9)",
+    "--win-border": "rgba(253, 224, 71, 0.3)",
+    "--title-bg-start": "#f43f5e",
+    "--title-bg-end": "#fb7185",
+    "--btn-primary": "#f43f5e",
+    "--btn-primary-hover": "#e11d48",
+    "--btn-primary-text": "#ffffff"
+});
+
+// Ativar a paleta registrada:
+Desktop.setTheme("sunset");</code></pre>
+            </div>
+
+            <h3>Paletas Nativas Embutidas</h3>
+            <table>
+                <thead><tr><th>Nome</th><th>Identificador</th><th>Estilo / Perfil</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Azul Corporativo</strong></td><td><code>"light"</code></td><td>Padrão claro institucional com realces em azul royal.</td></tr>
+                    <tr><td><strong>Slate Dark</strong></td><td><code>"dark"</code></td><td>Fundo escuro grafite com destaques em índigo moderno.</td></tr>
+                    <tr><td><strong>Midnight Cyber</strong></td><td><code>"midnight"</code></td><td>Azul marinho profundo com roxo elétrico (estilo terminal/dev).</td></tr>
+                    <tr><td><strong>Emerald Fintech</strong></td><td><code>"emerald"</code></td><td>Verde esmeralda sofisticado para dashboards financeiros.</td></tr>
+                    <tr><td><strong>Nord Frost</strong></td><td><code>"nord"</code></td><td>Minimalismo ártico com tons glaciais e azul pastel suave.</td></tr>
+                    <tr><td><strong>Alto Contraste</strong></td><td><code>"contrast"</code></td><td>Visual clássico retrô Windows de acessibilidade (fundo preto puro, ciano e barra magenta).</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Schema de Tokens CSS Disponíveis</h3>
+            <p>Qualquer tema ou componente no framework responde a estes tokens semânticos declarados no <code>style.css</code>:</p>
+            <table>
+                <thead><tr><th>Token CSS</th><th>Finalidade</th></tr></thead>
+                <tbody>
+                    <tr><td><code>--bg-primary</code> / <code>--bg-secondary</code></td><td>Cor de fundo do desktop e de painéis secundários.</td></tr>
+                    <tr><td><code>--text-primary</code> / <code>--text-secondary</code></td><td>Tipografia principal e textos atenuados (labels, notas).</td></tr>
+                    <tr><td><code>--win-bg</code> / <code>--win-border</code> / <code>--win-shadow</code></td><td>Fundo com transparência (Glassmorphism), borda e elevação das janelas.</td></tr>
+                    <tr><td><code>--title-bg-start</code> / <code>--title-bg-end</code> / <code>--title-text</code></td><td>Gradiente da barra de título das janelas e cor do título.</td></tr>
+                    <tr><td><code>--btn-primary</code> / <code>--btn-primary-hover</code> / <code>--btn-primary-text</code></td><td>Cores dos botões de ação principal em todo o sistema.</td></tr>
+                    <tr><td><code>--input-bg</code> / <code>--input-border</code></td><td>Fundo e contorno de caixas de entrada e selects.</td></tr>
+                </tbody>
+            </table>
+
+            <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
+            <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção nativa contra colisão de bordas:</p>
+
+            <div class="code-box">
+<pre><code>import { bindContextMenu } from './ui.js';
+
+// Associa o clique direito no elemento
+bindContextMenu(meuCardEl, [
+    { label: "Abrir em Nova Aba", action: () => console.log("Abrir") },
+    { label: "Duplicar Item", action: () => console.log("Duplicar") },
+    "separator",
+    { label: "Excluir", action: () => meuCardEl.remove() }
+]);</code></pre>
+            </div>
+
+            <br><br>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V0.6 &copy; 2026 - O micro-framework corporativo definitivo em Vanilla JS.</p>
         </main>
     </div>
 

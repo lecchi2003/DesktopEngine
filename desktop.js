@@ -8,6 +8,7 @@ export const Desktop = {
     nextId: 1,
     zCounter: 20,
     windows: {}, // Referências das instâncias ativas
+    currentTheme: "light",
     
     init(options = {}) {
         this.options = {
@@ -15,8 +16,17 @@ export const Desktop = {
             taskbarContainerId: "taskWindows",
             taskbarPosition: "bottom",
             showDesktopButton: true,
+            defaultTheme: "light",
             ...options
         };
+        
+        // Carrega tema persistido ou padrão
+        try {
+            const savedTheme = localStorage.getItem("desktop_engine_theme") || this.options.defaultTheme;
+            this.setTheme(savedTheme, false);
+        } catch (e) {
+            this.setTheme(this.options.defaultTheme, false);
+        }
         
         this.windowsEl = document.getElementById(this.options.windowsContainerId);
         this.tasksEl = document.getElementById(this.options.taskbarContainerId);
@@ -392,5 +402,43 @@ export const Desktop = {
                 handle.addEventListener("pointercancel", up);
             });
         });
+    },
+
+    // --- Sistema de Temas e Paletas de Cores ---
+    setTheme(themeName, persist = true) {
+        this.currentTheme = themeName;
+        document.documentElement.setAttribute('data-theme', themeName);
+        if (persist) {
+            try { localStorage.setItem("desktop_engine_theme", themeName); } catch (e) {}
+        }
+        EventBus.emit("theme:change", themeName);
+    },
+
+    getTheme() {
+        return this.currentTheme || document.documentElement.getAttribute('data-theme') || 'light';
+    },
+
+    toggleTheme() {
+        const current = this.getTheme();
+        const next = (current === 'dark' || current === 'midnight') ? 'light' : 'dark';
+        this.setTheme(next);
+        this.notify(`Tema alterado para: ${next}`, "info");
+    },
+
+    registerPalette(name, cssTokens = {}) {
+        let styleEl = document.getElementById("custom-palettes");
+        if (!styleEl) {
+            styleEl = document.createElement("style");
+            styleEl.id = "custom-palettes";
+            document.head.appendChild(styleEl);
+        }
+        
+        let cssRules = `[data-theme="${name}"] {\n`;
+        for (const [key, value] of Object.entries(cssTokens)) {
+            const varName = key.startsWith("--") ? key : `--${key}`;
+            cssRules += `  ${varName}: ${value};\n`;
+        }
+        cssRules += `}\n`;
+        styleEl.appendChild(document.createTextNode(cssRules));
     }
 };
