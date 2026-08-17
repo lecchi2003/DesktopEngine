@@ -10,6 +10,7 @@ export const Desktop = {
     windows: {}, // Referências das instâncias ativas
     screens: {}, // Registro de telas (lazy loaders ou objetos)
     currentTheme: "light",
+    currentLaF: "default",
     
     init(options = {}) {
         this.windows = {}; // Reseta referências ativas ao inicializar
@@ -19,6 +20,7 @@ export const Desktop = {
             taskbarPosition: "bottom",
             showDesktopButton: true,
             defaultTheme: "light",
+            defaultLaF: "default",
             ...options
         };
         
@@ -28,6 +30,14 @@ export const Desktop = {
             this.setTheme(savedTheme, false);
         } catch (e) {
             this.setTheme(this.options.defaultTheme, false);
+        }
+
+        // Carrega Look and Feel persistido ou padrão
+        try {
+            const savedLaF = localStorage.getItem("desktop_engine_laf") || this.options.defaultLaF;
+            this.setLookAndFeel(savedLaF, false);
+        } catch (e) {
+            this.setLookAndFeel(this.options.defaultLaF, false);
         }
         
         this.windowsEl = document.getElementById(this.options.windowsContainerId);
@@ -471,6 +481,60 @@ export const Desktop = {
         }
         cssRules += `}\n`;
         styleEl.appendChild(document.createTextNode(cssRules));
+    },
+
+    // --- Sistema de Look and Feel (L&F / OS Skin) ---
+    setLookAndFeel(lafName, persist = true) {
+        this.currentLaF = lafName;
+        if (!lafName || lafName === 'default') {
+            document.documentElement.removeAttribute('data-laf');
+        } else {
+            document.documentElement.setAttribute('data-laf', lafName);
+        }
+        if (persist) {
+            try { localStorage.setItem("desktop_engine_laf", lafName); } catch (e) {}
+        }
+        EventBus.emit("laf:change", lafName);
+    },
+
+    getLookAndFeel() {
+        return this.currentLaF || document.documentElement.getAttribute('data-laf') || 'default';
+    },
+
+    getAvailableLookAndFeels() {
+        return [
+            // Modernos
+            { id: "default", label: "Padrão / Moderno", category: "Modernos", icon: "✨", desc: "Design padrão limpo e elegante do DesktopEngine" },
+            { id: "macos", label: "macOS (Aqua Modern)", category: "Modernos", icon: "🍎", desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
+            { id: "win11", label: "Windows 11 (Fluent)", category: "Modernos", icon: "🪟", desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
+            
+            // Java Ecosystem
+            { id: "java-metal", label: "Java Metal (Steel)", category: "Java PlaF", icon: "☕", desc: "Clássico Java Swing com tons de aço e texturas de relevo" },
+            { id: "java-ocean", label: "Java Ocean (Metal 2.0)", category: "Java PlaF", icon: "🌊", desc: "Gradiente azul acetinado e contornos chanfrados Swing" },
+            { id: "java-nimbus", label: "Java Nimbus", category: "Java PlaF", icon: "✨", desc: "Superfícies acetinadas, cantos 4px e foco dourado/laranja" },
+            { id: "java-flatlaf", label: "FlatLaf (JetBrains/IDE)", category: "Java PlaF", icon: "🎨", desc: "Estilo IDE moderno, compacto, minimalista e profissional" },
+            { id: "javafx-modena", label: "JavaFX Modena", category: "Java PlaF", icon: "🌿", desc: "Estética neutra cinza, limpa e moderna do JavaFX 8+" },
+            { id: "javafx-caspian", label: "JavaFX Caspian", category: "Java PlaF", icon: "🔷", desc: "Vidro escuro azulado elegante do JavaFX 2" },
+
+            // Retrô & Clássicos
+            { id: "beos", label: "BeOS / Haiku", category: "Retrô & Clássicos", icon: "🟡", desc: "A famosa aba amarela no topo esquerdo da janela" },
+            { id: "win98", label: "Windows 98 (Classic 3D)", category: "Retrô & Clássicos", icon: "🕹️", desc: "Bordas 3D chanfradas outset/inset e botões clássicos cinza" },
+            { id: "winxp", label: "Windows XP (Luna)", category: "Retrô & Clássicos", icon: "🔵", desc: "Barra azul brilhante e botão fechar vermelho luminoso" },
+            { id: "win7", label: "Windows 7 (Aero Glass)", category: "Retrô & Clássicos", icon: "🪟", desc: "Vidro translúcido, reflexos luminosos e botões com brilho" },
+            { id: "nextstep", label: "NeXTSTEP / OpenStep", category: "Retrô & Clássicos", icon: "⬛", desc: "Tons de cinza puro e preto com relevos chanfrados profundos" },
+            { id: "amiga", label: "AmigaOS (Workbench)", category: "Retrô & Clássicos", icon: "💾", desc: "Azul royal, listras pinstripe e acentos âmbar retrô" },
+            { id: "mac-classic", label: "Mac OS System 7 / Platinum", category: "Retrô & Clássicos", icon: "🍏", desc: "Pinstripes horizontais, botão fechar quadrado à esquerda" },
+            { id: "os2-warp", label: "OS/2 Warp (IBM)", category: "Retrô & Clássicos", icon: "🟦", desc: "Estética corporativa azul-acinzentada com chanfros sólidos" },
+
+            // UNIX / Linux
+            { id: "cde-motif", label: "CDE / Motif (Solaris)", category: "UNIX / Linux", icon: "🟣", desc: "Workstation UNIX dos anos 90 com relevos sólidos" },
+            { id: "gnome", label: "GNOME (Adwaita)", category: "UNIX / Linux", icon: "🐧", desc: "Headerbar alta de 42px e botão fechar circular minimalista" },
+            { id: "kde", label: "KDE (Breeze)", category: "UNIX / Linux", icon: "⚙️", desc: "Linhas nítidas, acentos vetoriais e cantos de 4px" },
+
+            // TUI & Sci-Fi
+            { id: "turbovision", label: "Turbo Vision (DOS TUI)", category: "TUI & Sci-Fi", icon: "📟", desc: "Visual de modo texto azul DOS com bordas em caracteres duplos" },
+            { id: "cyberpunk", label: "Cyberpunk HUD", category: "TUI & Sci-Fi", icon: "⚡", desc: "Bordas chanfradas 45º, linhas de grade e acentos neon" }
+        ];
     },
 
     // --- Sistema de Roteamento e Registro de Telas (Screen Registry) ---

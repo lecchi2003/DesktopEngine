@@ -286,6 +286,7 @@
             <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
 
             <div class="nav-header">Sistema Global</div>
+            <a href="#look-and-feel">Look and Feel (20 Skins)</a>
             <a href="#temas-paletas">Temas e Paletas de Cores</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
             <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
@@ -1181,6 +1182,67 @@ MenuBar({
 // Ou no StartMenu:
 StartMenu({ buttonId: "btnStart", menus: meusMenus });</code></pre>
             </div>
+
+            <h2 id="look-and-feel">Sistema de Look and Feel (L&amp;F / OS Skins)</h2>
+            <p>O DesktopEngine possui um subsistema nativo e modular de <strong>Look and Feel (L&amp;F)</strong> que permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela, tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
+            
+            <div class="alert alert-tip">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça do SO via atributo <code>data-laf</code>) é independente da <em>Paleta de Cores</em> (cores e tons via atributo <code>data-theme</code>). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: macOS no tema Midnight Cyber, Windows 98 em Alto Contraste, ou Java Metal no tema Slate Dark).
+                </div>
+            </div>
+
+            <h3>API do Desktop para Look and Feel</h3>
+            <div class="code-box">
+<pre><code>import { Desktop } from './desktop.js';
+
+// 1. Aplicar um Look and Feel nativo
+Desktop.setLookAndFeel("macos"); // ou "win11", "win98", "beos", "java-metal", etc.
+
+// 2. Voltar ao Look and Feel padrão
+Desktop.setLookAndFeel("default");
+
+// 3. Obter o Look and Feel ativo no momento
+const lafAtual = Desktop.getLookAndFeel(); // Ex: "macos"
+
+// 4. Obter catálogo completo com metadados (id, label, icon, category, desc)
+const catalogo = Desktop.getAvailableLookAndFeels();
+
+// 5. Escutar eventos de alteração de Look and Feel
+EventBus.on("laf:change", (lafName) => {
+    console.log("Look and Feel alterado para:", lafName);
+});</code></pre>
+            </div>
+
+            <h3>Catálogo dos 20 Look and Feels Disponíveis</h3>
+            <table>
+                <thead><tr><th>Categoria</th><th>Identificador</th><th>Nome / Sistema</th><th>Destaques Estruturais e Visuais</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Modernos</strong></td><td><code>"default"</code></td><td>Padrão Moderno</td><td>Design padrão suave e limpo do DesktopEngine.</td></tr>
+                    <tr><td><strong>Modernos</strong></td><td><code>"macos"</code></td><td>macOS (Aqua Modern)</td><td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de 12px.</td></tr>
+                    <tr><td><strong>Modernos</strong></td><td><code>"win11"</code></td><td>Windows 11 (Fluent)</td><td>Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho.</td></tr>
+                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-metal"</code></td><td>Java Metal (Steel Classic)</td><td>Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo.</td></tr>
+                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-ocean"</code></td><td>Java Ocean (Metal 2.0)</td><td>Gradiente metálico azul acetinado e chanfros suaves Swing.</td></tr>
+                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-nimbus"</code></td><td>Java Nimbus</td><td>Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar.</td></tr>
+                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-flatlaf"</code></td><td>FlatLaf (IDE IntelliJ)</td><td>Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo.</td></tr>
+                    <tr><td><strong>Java PlaF</strong></td><td><code>"javafx-modena"</code></td><td>JavaFX Modena</td><td>Estética neutra cinza, limpa e moderna do JavaFX 8+.</td></tr>
+                    <tr><td><strong>Java PlaF</strong></td><td><code>"javafx-caspian"</code></td><td>JavaFX Caspian</td><td>Vidro escuro azulado elegante do JavaFX 2.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"beos"</code></td><td>BeOS / Haiku OS</td><td>A famosa <strong>aba amarela</strong> no topo esquerdo da janela com botões chanfrados.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"win98"</code></td><td>Windows 98 (Classic 3D)</td><td>Bordas 3D chanfradas <em>outset/inset</em>, botões clássicos cinza e barra azul.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"winxp"</code></td><td>Windows XP (Luna)</td><td>Barra azul royal brilhante e botão de fechar vermelho luminoso.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"win7"</code></td><td>Windows 7 (Aero Glass)</td><td>Vidro translúcido com reflexos de iluminação e botões com brilho suave.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"nextstep"</code></td><td>NeXTSTEP / OpenStep</td><td>Estética monocromática em tons de cinza puro e preto com relevos 3D profundos.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"amiga"</code></td><td>AmigaOS (Workbench)</td><td>Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"mac-classic"</code></td><td>Mac OS System 7 / Platinum</td><td>Pinstripes horizontais na barra, botão de fechar quadrado à esquerda.</td></tr>
+                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"os2-warp"</code></td><td>OS/2 Warp (IBM)</td><td>Visual corporativo azul-acinzentado com moldura chanfrada sólida.</td></tr>
+                    <tr><td><strong>UNIX / Linux</strong></td><td><code>"cde-motif"</code></td><td>CDE / Motif (Solaris)</td><td>Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo.</td></tr>
+                    <tr><td><strong>UNIX / Linux</strong></td><td><code>"gnome"</code></td><td>GNOME (Adwaita)</td><td>Headerbar espaçosa de 42px com botão de fechar circular minimalista.</td></tr>
+                    <tr><td><strong>UNIX / Linux</strong></td><td><code>"kde"</code></td><td>KDE (Breeze)</td><td>Linhas nítidas, acentos vetoriais azuis e cantos de 4px.</td></tr>
+                    <tr><td><strong>TUI &amp; Sci-Fi</strong></td><td><code>"turbovision"</code></td><td>Turbo Vision (DOS TUI)</td><td>Visual de modo texto azul DOS com bordas em caracteres duplos e monospace.</td></tr>
+                    <tr><td><strong>TUI &amp; Sci-Fi</strong></td><td><code>"cyberpunk"</code></td><td>Cyberpunk HUD</td><td>Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon.</td></tr>
+                </tbody>
+            </table>
 
             <h2 id="temas-paletas">Sistema de Temas e Schema de Paletas de Cores</h2>
             <p>O DesktopEngine inclui um motor nativo de temas que altera todas as variáveis visuais (janelas, titlebars, botões, formulários e cards) sem recarregar a página e com persistência automática no <code>localStorage</code>.</p>

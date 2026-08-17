@@ -859,6 +859,7 @@ select {
 .winButtons {
     height: 100%;
     display: flex;
+    user-select: none;
 }
 
 .winBtn {
@@ -869,6 +870,8 @@ select {
     justify-content: center;
     cursor: pointer;
     font-size: 15px;
+    color: inherit;
+    user-select: none;
     transition: background 0.2s;
 }
 
@@ -878,6 +881,7 @@ select {
 
 .winBtn.close:hover {
     background: #c82d2d;
+    color: #ffffff;
 }
 
 .windowBody {
@@ -2493,4 +2497,2349 @@ h2 {
     100% {
         background-position: 500px;
     }
+}
+
+/* ==========================================================================
+   SUBSISTEMA DE LOOK AND FEEL (L&F / OS SKINS) - DESKTOPENGINE
+   Garante consistência estrutural, estética de SO e alto contraste de cores.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. MODERNOS: macOS (Aqua Modern)
+   -------------------------------------------------------------------------- */
+[data-laf="macos"] .window {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28), 0 0 1px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+[data-laf="macos"] .titlebar {
+    height: 38px;
+    flex: 0 0 38px;
+    background: transparent;
+    border-bottom: 1px solid var(--win-border);
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: var(--text-primary);
+}
+
+[data-laf="macos"] .winButtons {
+    order: -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+}
+
+[data-laf="macos"] .winBtn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    font-size: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    color: transparent !important;
+    text-indent: -9999px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+[data-laf="macos"] .winBtn.close {
+    background: #ff5f56 !important;
+    border: 1px solid #e0443e !important;
+    order: 1;
+}
+
+[data-laf="macos"] .winBtn.minimize {
+    background: #ffbd2e !important;
+    border: 1px solid #dea123 !important;
+    order: 2;
+}
+
+[data-laf="macos"] .winBtn.maximize {
+    background: #27c93f !important;
+    border: 1px solid #1aab29 !important;
+    order: 3;
+}
+
+[data-laf="macos"] .winButtons:hover .winBtn.close::after {
+    content: "×";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 900;
+    color: #4d0000;
+    text-indent: 0;
+    line-height: 1;
+    margin-top: -1px;
+}
+
+[data-laf="macos"] .winButtons:hover .winBtn.minimize::after {
+    content: "−";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 900;
+    color: #5c3b00;
+    text-indent: 0;
+    line-height: 1;
+    margin-top: -1px;
+}
+
+[data-laf="macos"] .winButtons:hover .winBtn.maximize::after {
+    content: "+";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 900;
+    color: #004d10;
+    text-indent: 0;
+    line-height: 1;
+    margin-top: -1px;
+}
+
+[data-laf="macos"] .titleIcon {
+    display: none;
+}
+
+[data-laf="macos"] .titleText {
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-right: 50px;
+}
+
+[data-laf="macos"] #menubar,
+[data-laf="macos"] .ui-menubar {
+    background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-bottom: 1px solid var(--win-border) !important;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+[data-laf="macos"] .menubar-item {
+    border-radius: 4px;
+    padding: 0 10px;
+    margin: 0 2px;
+    color: var(--text-primary) !important;
+}
+
+[data-laf="macos"] .menubar-item:hover,
+[data-laf="macos"] .menubar-item.active {
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent) !important;
+}
+
+[data-laf="macos"] .dropdown,
+[data-laf="macos"] .ui-start-menu {
+    border-radius: 8px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    border: 1px solid var(--win-border) !important;
+    background: var(--menu-bg) !important;
+    color: var(--menu-text) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    padding: 5px !important;
+}
+
+[data-laf="macos"] .menuOption {
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: var(--menu-text) !important;
+}
+
+[data-laf="macos"] .menuOption:hover {
+    background: #007aff !important;
+    color: #ffffff !important;
+}
+
+[data-laf="macos"] #taskbar {
+    background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-top: 1px solid var(--win-border) !important;
+    color: var(--text-primary) !important;
+    padding: 3px 10px;
+    gap: 6px;
+}
+
+[data-laf="macos"] .taskStart {
+    border-radius: 6px;
+    background: color-mix(in srgb, #007aff 15%, transparent);
+    border: 1px solid #007aff;
+    color: #007aff !important;
+    font-weight: 600;
+}
+
+[data-laf="macos"] .taskStart:hover {
+    background: #007aff !important;
+    color: #ffffff !important;
+}
+
+[data-laf="macos"] .taskButton {
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 15%, transparent);
+    color: var(--text-primary) !important;
+    font-weight: 500;
+}
+
+[data-laf="macos"] .taskButton:hover {
+    background: color-mix(in srgb, var(--text-primary) 15%, transparent);
+}
+
+[data-laf="macos"] .taskButton.active {
+    background: color-mix(in srgb, #007aff 20%, transparent) !important;
+    border-color: #007aff !important;
+    color: #007aff !important;
+    box-shadow: inset 0 -2px #007aff !important;
+    font-weight: 600;
+}
+
+[data-laf="macos"] .clock {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-primary) !important;
+}
+
+[data-laf="macos"] .ui-btn,
+[data-laf="macos"] .filter-input,
+[data-laf="macos"] .ui-card {
+    border-radius: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   2. MODERNOS: Windows 11 (Fluent Design)
+   -------------------------------------------------------------------------- */
+[data-laf="win11"] .window {
+    border-radius: 8px;
+    border: 1px solid var(--win-border);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+[data-laf="win11"] .titlebar {
+    height: 34px;
+    background: transparent;
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
+}
+
+[data-laf="win11"] .titleText {
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+[data-laf="win11"] .winBtn {
+    width: 44px;
+    height: 100%;
+    font-size: 12px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+[data-laf="win11"] .winBtn:hover {
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+    color: var(--text-primary);
+}
+
+[data-laf="win11"] .winBtn.close:hover {
+    background: #c42b1c !important;
+    color: #ffffff !important;
+}
+
+[data-laf="win11"] #menubar,
+[data-laf="win11"] .ui-menubar {
+    background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid var(--win-border) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-laf="win11"] .menubar-item {
+    color: var(--text-primary) !important;
+}
+
+[data-laf="win11"] #taskbar {
+    background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid var(--win-border) !important;
+    color: var(--text-primary) !important;
+    height: 40px;
+    flex: 0 0 40px;
+}
+
+[data-laf="win11"] .taskStart {
+    border-radius: 4px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+[data-laf="win11"] .taskStart:hover {
+    background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+}
+
+[data-laf="win11"] .taskButton {
+    border-radius: 4px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-primary) !important;
+    height: 32px;
+}
+
+[data-laf="win11"] .taskButton:hover {
+    background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+}
+
+[data-laf="win11"] .taskButton.active {
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent) !important;
+    border: 1px solid var(--win-border) !important;
+    color: var(--text-primary) !important;
+    box-shadow: inset 0 -3px var(--btn-primary) !important;
+    font-weight: 600;
+}
+
+[data-laf="win11"] .clock {
+    color: var(--text-primary) !important;
+}
+
+[data-laf="win11"] .dropdown,
+[data-laf="win11"] .ui-start-menu {
+    border-radius: 8px !important;
+    border: 1px solid var(--menu-border) !important;
+    background: var(--menu-bg) !important;
+    color: var(--menu-text) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+[data-laf="win11"] .menuOption {
+    color: var(--menu-text) !important;
+}
+
+[data-laf="win11"] .ui-btn,
+[data-laf="win11"] .filter-input,
+[data-laf="win11"] .ui-card {
+    border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   3. JAVA ECOSYSTEM: Java Metal (Steel Classic)
+   -------------------------------------------------------------------------- */
+[data-laf="java-metal"] .window {
+    border: 2px solid #6382bf;
+    border-radius: 0px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.35);
+    background: #d4d0c8;
+}
+
+[data-laf="java-metal"] .titlebar {
+    height: 28px;
+    background: linear-gradient(180deg, #b0c4de 0%, #7b96c8 50%, #6382bf 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Dialog', 'Tahoma', sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    border-bottom: 2px solid #4a6499;
+    padding: 0 4px;
+}
+
+[data-laf="java-metal"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="java-metal"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="java-metal"] .winBtn {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #b0c4de 100%);
+    border: 1px solid #4a6499;
+    color: #000000 !important;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+}
+
+[data-laf="java-metal"] .winBtn:hover {
+    background: linear-gradient(180deg, #ffffff 0%, #9cb8d4 100%);
+    border-color: #2b4578;
+}
+
+[data-laf="java-metal"] .winBtn.close:hover {
+    background: #e0443e !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-metal"] #menubar,
+[data-laf="java-metal"] .ui-menubar {
+    background: linear-gradient(180deg, #d4d0c8 0%, #b0c4de 100%) !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #4a6499 !important;
+    font-family: 'Dialog', Tahoma, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+[data-laf="java-metal"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="java-metal"] .menubar-item:hover,
+[data-laf="java-metal"] .menubar-item.active {
+    background: #6382bf !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-metal"] #taskbar {
+    background: linear-gradient(180deg, #d4d0c8 0%, #b0c4de 100%) !important;
+    color: #000000 !important;
+    border-top: 2px solid #4a6499 !important;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+[data-laf="java-metal"] .taskStart,
+[data-laf="java-metal"] .taskButton {
+    background: linear-gradient(180deg, #ffffff 0%, #b0c4de 100%) !important;
+    border: 1px solid #4a6499 !important;
+    color: #000000 !important;
+    font-weight: bold;
+    border-radius: 0 !important;
+    font-size: 11px;
+    height: 26px;
+}
+
+[data-laf="java-metal"] .taskButton.active {
+    background: linear-gradient(180deg, #7b96c8 0%, #6382bf 100%) !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-metal"] .clock {
+    border: 1px solid #4a6499;
+    background: #ffffff;
+    color: #000000 !important;
+    padding: 2px 6px;
+}
+
+[data-laf="java-metal"] .dropdown,
+[data-laf="java-metal"] .ui-start-menu {
+    background: #d4d0c8 !important;
+    color: #000000 !important;
+    border: 2px outset #4a6499 !important;
+}
+
+[data-laf="java-metal"] .menuOption {
+    color: #000000 !important;
+}
+
+[data-laf="java-metal"] .menuOption:hover {
+    background: #6382bf !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-metal"] .ui-btn {
+    background: linear-gradient(180deg, #ffffff 0%, #d4d0c8 100%);
+    border: 1px solid #7a8a99;
+    border-radius: 0;
+    color: #000000;
+    font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   4. JAVA ECOSYSTEM: Java Ocean (Metal 2.0)
+   -------------------------------------------------------------------------- */
+[data-laf="java-ocean"] .window {
+    border: 1px solid #7a8a99;
+    border-radius: 2px;
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.25);
+    background: #eef3f8;
+}
+
+[data-laf="java-ocean"] .titlebar {
+    height: 28px;
+    background: linear-gradient(180deg, #d8e5f2 0%, #a8c2dc 50%, #7ca0c4 100%) !important;
+    color: #1e3a5f !important;
+    font-weight: bold;
+    border-bottom: 1px solid #5a80a8;
+    padding: 0 4px;
+}
+
+[data-laf="java-ocean"] .titleText {
+    color: #1e3a5f !important;
+}
+
+[data-laf="java-ocean"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="java-ocean"] .winBtn {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(180deg, #f0f6fc 0%, #b8d0e8 100%);
+    border: 1px solid #7ca0c4;
+    color: #1e3a5f !important;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+[data-laf="java-ocean"] .winBtn:hover {
+    background: linear-gradient(180deg, #ffffff 0%, #9cb8d4 100%);
+}
+
+[data-laf="java-ocean"] .winBtn.close:hover {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-ocean"] #menubar,
+[data-laf="java-ocean"] .ui-menubar {
+    background: linear-gradient(180deg, #eef3f8 0%, #c8d8e8 100%) !important;
+    color: #1e3a5f !important;
+    border-bottom: 1px solid #7ca0c4 !important;
+    font-weight: bold;
+}
+
+[data-laf="java-ocean"] .menubar-item {
+    color: #1e3a5f !important;
+}
+
+[data-laf="java-ocean"] .menubar-item:hover,
+[data-laf="java-ocean"] .menubar-item.active {
+    background: #7ca0c4 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-ocean"] #taskbar {
+    background: linear-gradient(180deg, #eef3f8 0%, #c8d8e8 100%) !important;
+    color: #1e3a5f !important;
+    border-top: 1px solid #7ca0c4 !important;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+[data-laf="java-ocean"] .taskStart,
+[data-laf="java-ocean"] .taskButton {
+    background: linear-gradient(180deg, #f0f6fc 0%, #b8d0e8 100%) !important;
+    border: 1px solid #7ca0c4 !important;
+    color: #1e3a5f !important;
+    border-radius: 2px !important;
+    height: 26px;
+}
+
+[data-laf="java-ocean"] .taskButton.active {
+    background: linear-gradient(180deg, #7ca0c4 0%, #5a80a8 100%) !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-ocean"] .clock {
+    color: #1e3a5f !important;
+    font-weight: bold;
+}
+
+[data-laf="java-ocean"] .dropdown,
+[data-laf="java-ocean"] .ui-start-menu {
+    background: #eef3f8 !important;
+    color: #1e3a5f !important;
+    border: 1px solid #7ca0c4 !important;
+}
+
+[data-laf="java-ocean"] .menuOption {
+    color: #1e3a5f !important;
+}
+
+[data-laf="java-ocean"] .menuOption:hover {
+    background: #7ca0c4 !important;
+    color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. JAVA ECOSYSTEM: Java Nimbus
+   -------------------------------------------------------------------------- */
+[data-laf="java-nimbus"] .window {
+    border-radius: 5px;
+    border: 1px solid #92979e;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    background: #d5d8dc;
+}
+
+[data-laf="java-nimbus"] .titlebar {
+    height: 30px;
+    background: linear-gradient(180deg, #e3e6eb 0%, #c4c9d1 50%, #aeb4be 100%) !important;
+    color: #222222 !important;
+    border-bottom: 1px solid #92979e;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 0 4px;
+}
+
+[data-laf="java-nimbus"] .titleText {
+    color: #222222 !important;
+    font-weight: 600;
+}
+
+[data-laf="java-nimbus"] .winButtons {
+    align-items: center;
+    gap: 3px;
+}
+
+[data-laf="java-nimbus"] .winBtn {
+    width: 22px;
+    height: 20px;
+    background: linear-gradient(180deg, #fafafa 0%, #dbe0e6 100%);
+    border: 1px solid #a0a6ae;
+    color: #222222 !important;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+[data-laf="java-nimbus"] .winBtn:hover {
+    box-shadow: 0 0 5px #e78200 !important;
+    border-color: #e78200 !important;
+    background: #ffffff;
+}
+
+[data-laf="java-nimbus"] .winBtn.close:hover {
+    box-shadow: 0 0 5px #ff4444 !important;
+    border-color: #ff4444 !important;
+    color: #ff2222 !important;
+}
+
+[data-laf="java-nimbus"] #menubar,
+[data-laf="java-nimbus"] .ui-menubar {
+    background: linear-gradient(180deg, #fafafa 0%, #d5d8dc 100%) !important;
+    color: #222222 !important;
+    border-bottom: 1px solid #92979e !important;
+}
+
+[data-laf="java-nimbus"] .menubar-item {
+    color: #222222 !important;
+}
+
+[data-laf="java-nimbus"] .menubar-item:hover,
+[data-laf="java-nimbus"] .menubar-item.active {
+    background: #e78200 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-nimbus"] #taskbar {
+    background: linear-gradient(180deg, #fafafa 0%, #d5d8dc 100%) !important;
+    color: #222222 !important;
+    border-top: 1px solid #92979e !important;
+    height: 34px;
+    flex: 0 0 34px;
+}
+
+[data-laf="java-nimbus"] .taskStart,
+[data-laf="java-nimbus"] .taskButton {
+    background: linear-gradient(180deg, #ffffff 0%, #dbe0e6 100%) !important;
+    border: 1px solid #a0a6ae !important;
+    color: #222222 !important;
+    border-radius: 3px !important;
+    height: 26px;
+}
+
+[data-laf="java-nimbus"] .taskButton.active {
+    border-color: #e78200 !important;
+    box-shadow: 0 0 6px #e78200 !important;
+    font-weight: bold;
+}
+
+[data-laf="java-nimbus"] .clock {
+    color: #222222 !important;
+}
+
+[data-laf="java-nimbus"] .dropdown,
+[data-laf="java-nimbus"] .ui-start-menu {
+    background: #f0f2f4 !important;
+    color: #222222 !important;
+    border: 1px solid #92979e !important;
+}
+
+[data-laf="java-nimbus"] .menuOption {
+    color: #222222 !important;
+}
+
+[data-laf="java-nimbus"] .menuOption:hover {
+    background: #e78200 !important;
+    color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. JAVA ECOSYSTEM: Java FlatLaf (IDE IntelliJ / NetBeans)
+   -------------------------------------------------------------------------- */
+[data-laf="java-flatlaf"] .window {
+    border: 1px solid var(--win-border);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+[data-laf="java-flatlaf"] .titlebar {
+    height: 30px;
+    background: transparent;
+    border-bottom: 1px solid var(--win-border);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+[data-laf="java-flatlaf"] .titleText {
+    color: var(--text-primary);
+}
+
+[data-laf="java-flatlaf"] .winBtn {
+    width: 36px;
+    height: 100%;
+    font-size: 12px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    transition: background 0.15s ease;
+}
+
+[data-laf="java-flatlaf"] .winBtn:hover {
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+}
+
+[data-laf="java-flatlaf"] .winBtn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="java-flatlaf"] #menubar,
+[data-laf="java-flatlaf"] .ui-menubar,
+[data-laf="java-flatlaf"] #taskbar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--win-border) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-laf="java-flatlaf"] .menubar-item,
+[data-laf="java-flatlaf"] .taskButton,
+[data-laf="java-flatlaf"] .taskStart,
+[data-laf="java-flatlaf"] .clock {
+    color: var(--text-primary) !important;
+}
+
+[data-laf="java-flatlaf"] .taskButton {
+    border-radius: 3px;
+}
+
+[data-laf="java-flatlaf"] .taskButton.active {
+    background: var(--btn-primary) !important;
+    color: var(--btn-primary-text) !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. JAVA ECOSYSTEM: JavaFX Modena
+   -------------------------------------------------------------------------- */
+[data-laf="javafx-modena"] .window {
+    border: 1px solid #b5b5b5;
+    border-radius: 4px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    background: #ececec;
+}
+
+[data-laf="javafx-modena"] .titlebar {
+    height: 30px;
+    background: #e0e0e0;
+    border-bottom: 1px solid #c8c8c8;
+    color: #222222 !important;
+    padding: 0 4px;
+}
+
+[data-laf="javafx-modena"] .titleText {
+    color: #222222 !important;
+    font-weight: 600;
+}
+
+[data-laf="javafx-modena"] .winButtons {
+    align-items: center;
+    gap: 3px;
+}
+
+[data-laf="javafx-modena"] .winBtn {
+    width: 24px;
+    height: 22px;
+    background: #dcdcdc;
+    border: 1px solid #b8b8b8;
+    color: #222222 !important;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="javafx-modena"] .winBtn:hover {
+    background: #c8c8c8;
+}
+
+[data-laf="javafx-modena"] .winBtn.close:hover {
+    background: #d9534f !important;
+    color: #ffffff !important;
+}
+
+[data-laf="javafx-modena"] #menubar,
+[data-laf="javafx-modena"] .ui-menubar,
+[data-laf="javafx-modena"] #taskbar {
+    background: #e0e0e0 !important;
+    border-color: #c8c8c8 !important;
+    color: #222222 !important;
+}
+
+[data-laf="javafx-modena"] .menubar-item,
+[data-laf="javafx-modena"] .clock {
+    color: #222222 !important;
+}
+
+[data-laf="javafx-modena"] .taskStart,
+[data-laf="javafx-modena"] .taskButton {
+    background: #dcdcdc !important;
+    border: 1px solid #b8b8b8 !important;
+    color: #222222 !important;
+    border-radius: 3px !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. JAVA ECOSYSTEM: JavaFX Caspian
+   -------------------------------------------------------------------------- */
+[data-laf="javafx-caspian"] .window {
+    border: 1px solid #1a2733;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    background: #293542;
+    color: #f0f4f8;
+}
+
+[data-laf="javafx-caspian"] .titlebar {
+    height: 30px;
+    background: linear-gradient(180deg, #445668 0%, #2b3948 100%);
+    color: #e1ebf5 !important;
+    border-bottom: 1px solid #1a2733;
+    padding: 0 4px;
+}
+
+[data-laf="javafx-caspian"] .titleText {
+    color: #e1ebf5 !important;
+    font-weight: 600;
+}
+
+[data-laf="javafx-caspian"] .winButtons {
+    align-items: center;
+    gap: 3px;
+}
+
+[data-laf="javafx-caspian"] .winBtn {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(180deg, #506478 0%, #324354 100%);
+    border: 1px solid #1a2733;
+    color: #e1ebf5 !important;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="javafx-caspian"] .winBtn:hover {
+    background: #627b95;
+}
+
+[data-laf="javafx-caspian"] .winBtn.close:hover {
+    background: #c9302c !important;
+    color: #ffffff !important;
+}
+
+[data-laf="javafx-caspian"] #menubar,
+[data-laf="javafx-caspian"] .ui-menubar,
+[data-laf="javafx-caspian"] #taskbar {
+    background: #293542 !important;
+    border-color: #1a2733 !important;
+    color: #e1ebf5 !important;
+}
+
+[data-laf="javafx-caspian"] .menubar-item,
+[data-laf="javafx-caspian"] .clock {
+    color: #e1ebf5 !important;
+}
+
+[data-laf="javafx-caspian"] .taskStart,
+[data-laf="javafx-caspian"] .taskButton {
+    background: linear-gradient(180deg, #506478 0%, #324354 100%) !important;
+    border: 1px solid #1a2733 !important;
+    color: #e1ebf5 !important;
+    border-radius: 3px !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. RETRÔ: BeOS / Haiku OS
+   -------------------------------------------------------------------------- */
+[data-laf="beos"] .window {
+    border: 2px solid #333333;
+    border-radius: 0;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.35);
+    background: #e0e0e0;
+}
+
+[data-laf="beos"] .titlebar {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+    height: 26px;
+    border: 2px solid #333;
+    border-bottom: none;
+    align-self: flex-start;
+    max-width: 80%;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 10px;
+    padding: 0 8px;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+}
+
+[data-laf="beos"] .titleText {
+    color: #000000 !important;
+}
+
+[data-laf="beos"] .winButtons {
+    order: -1;
+    margin-right: 8px;
+    align-items: center;
+}
+
+[data-laf="beos"] .winBtn {
+    width: 16px;
+    height: 16px;
+    background: #ffe033;
+    border: 1px solid #333;
+    color: #000000 !important;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 2px;
+    margin-right: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="beos"] .winBtn:hover {
+    background: #ffffff;
+}
+
+[data-laf="beos"] .winBtn.close:hover {
+    background: #ff4444;
+    color: #ffffff !important;
+}
+
+[data-laf="beos"] #menubar,
+[data-laf="beos"] .ui-menubar {
+    background: #d8d8d8 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #333 !important;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+[data-laf="beos"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="beos"] .menubar-item:hover,
+[data-laf="beos"] .menubar-item.active {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+}
+
+[data-laf="beos"] #taskbar {
+    background: #dcdcdc !important;
+    border-top: 2px solid #333 !important;
+    color: #000000 !important;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+[data-laf="beos"] .taskStart {
+    background: #ffcc00 !important;
+    border: 1px solid #333 !important;
+    color: #000000 !important;
+    font-weight: bold;
+    font-family: 'Trebuchet MS', sans-serif;
+    border-radius: 3px;
+    height: 26px;
+}
+
+[data-laf="beos"] .taskButton {
+    background: #e4e4e4 !important;
+    border: 1px solid #666 !important;
+    color: #000000 !important;
+    border-radius: 2px;
+    height: 26px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+[data-laf="beos"] .taskButton.active {
+    background: #ffcc00 !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
+    font-weight: 900;
+}
+
+[data-laf="beos"] .clock {
+    background: #ffffff;
+    border: 1px solid #333;
+    color: #000000 !important;
+    padding: 2px 6px;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+[data-laf="beos"] .dropdown,
+[data-laf="beos"] .ui-start-menu {
+    background: #e8e8e8 !important;
+    color: #000000 !important;
+    border: 1px solid #333 !important;
+}
+
+[data-laf="beos"] .menuOption {
+    color: #000000 !important;
+}
+
+[data-laf="beos"] .menuOption:hover {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. RETRÔ: Windows 98 Classic 3D
+   -------------------------------------------------------------------------- */
+[data-laf="win98"] .window {
+    border: 2px outset #ffffff !important;
+    box-shadow: 1px 1px 0px 0px #000000;
+    border-radius: 0px !important;
+    background: #c0c0c0 !important;
+}
+
+[data-laf="win98"] .titlebar {
+    height: 24px;
+    background: linear-gradient(90deg, #000080, #1084d0) !important;
+    color: #ffffff !important;
+    padding: 2px 4px;
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 0;
+}
+
+[data-laf="win98"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="win98"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="win98"] .winBtn {
+    width: 16px;
+    height: 15px;
+    background: #c0c0c0 !important;
+    border: 1px outset #ffffff !important;
+    box-shadow: 1px 1px 0px 0px #000000;
+    color: #000000 !important;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="win98"] .winBtn:active {
+    border-style: inset !important;
+    padding: 1px 0 0 1px;
+}
+
+[data-laf="win98"] #menubar,
+[data-laf="win98"] .ui-menubar {
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border-bottom: 1px solid #808080 !important;
+    border-top: 1px solid #ffffff !important;
+    font-family: 'Tahoma', sans-serif;
+    height: 26px;
+    flex: 0 0 26px;
+}
+
+[data-laf="win98"] .menubar-item {
+    font-size: 11px;
+    border-radius: 0;
+    color: #000000 !important;
+    padding: 0 8px;
+}
+
+[data-laf="win98"] .menubar-item:hover,
+[data-laf="win98"] .menubar-item.active {
+    background: #000080 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="win98"] .dropdown,
+[data-laf="win98"] .ui-start-menu {
+    border: 2px outset #ffffff !important;
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+    box-shadow: 2px 2px 0 #000000 !important;
+    font-family: 'Tahoma', sans-serif;
+}
+
+[data-laf="win98"] .menuOption {
+    font-size: 11px;
+    color: #000000 !important;
+}
+
+[data-laf="win98"] .menuOption:hover {
+    background: #000080 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="win98"] #taskbar {
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border-top: 2px solid #ffffff !important;
+    box-shadow: inset 0 1px 0 #dfdfdf;
+    height: 30px;
+    flex: 0 0 30px;
+    font-family: 'Tahoma', sans-serif;
+}
+
+[data-laf="win98"] .taskStart {
+    border: 2px outset #ffffff !important;
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    font-weight: bold;
+    font-family: 'Tahoma', sans-serif;
+    border-radius: 0 !important;
+    font-size: 11px;
+    height: 24px;
+}
+
+[data-laf="win98"] .taskStart:active {
+    border-style: inset !important;
+    padding: 1px 0 0 1px;
+}
+
+[data-laf="win98"] .taskButton {
+    border: 2px outset #ffffff !important;
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    font-family: 'Tahoma', sans-serif;
+    border-radius: 0 !important;
+    font-size: 11px;
+    height: 24px;
+}
+
+[data-laf="win98"] .taskButton.active {
+    border-style: inset !important;
+    background: #dfdfdf !important;
+    color: #000000 !important;
+    font-weight: bold;
+    padding: 1px 0 0 1px;
+}
+
+[data-laf="win98"] .clock {
+    border: 2px inset #ffffff !important;
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 11px;
+    padding: 2px 6px;
+}
+
+[data-laf="win98"] .ui-btn {
+    border: 2px outset #ffffff !important;
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+    font-family: 'Tahoma', sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   11. RETRÔ: Windows XP Luna
+   -------------------------------------------------------------------------- */
+[data-laf="winxp"] .window {
+    border: 3px solid #0055ea;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.35);
+    background: #ece9d8;
+}
+
+[data-laf="winxp"] .titlebar {
+    height: 30px;
+    background: linear-gradient(180deg, #0058ee 0%, #3593ff 10%, #288eff 30%, #0053ee 70%, #003dd7 100%) !important;
+    color: #ffffff !important;
+    text-shadow: 1px 1px 1px #001f66;
+    font-family: 'Tahoma', sans-serif;
+    font-weight: bold;
+    border-radius: 6px 6px 0 0;
+    padding: 0 4px;
+}
+
+[data-laf="winxp"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="winxp"] .winButtons {
+    align-items: center;
+    gap: 3px;
+}
+
+[data-laf="winxp"] .winBtn {
+    width: 21px;
+    height: 21px;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    background: linear-gradient(180deg, #429eff 0%, #0055ea 100%);
+    color: #ffffff !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="winxp"] .winBtn:hover {
+    filter: brightness(1.15);
+}
+
+[data-laf="winxp"] .winBtn.close {
+    background: linear-gradient(180deg, #ff7a66 0%, #e02800 50%, #c41800 100%) !important;
+    border-color: #ffd0c0;
+}
+
+[data-laf="winxp"] #menubar,
+[data-laf="winxp"] .ui-menubar {
+    background: linear-gradient(180deg, #f7f5ed 0%, #ece9d8 100%) !important;
+    color: #000000 !important;
+    border-bottom: 1px solid #d0ccb8 !important;
+    font-family: 'Tahoma', sans-serif;
+}
+
+[data-laf="winxp"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="winxp"] .menubar-item:hover,
+[data-laf="winxp"] .menubar-item.active {
+    background: #316ac5 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="winxp"] #taskbar {
+    background: linear-gradient(180deg, #1f2f86 0%, #316ac5 3%, #245ddb 10%, #1941a5 100%) !important;
+    color: #ffffff !important;
+    border-top: 1px solid #3c82e6 !important;
+    height: 34px;
+    flex: 0 0 34px;
+}
+
+[data-laf="winxp"] .taskStart {
+    background: linear-gradient(180deg, #3c9c37 0%, #4cb848 10%, #2f7e2a 80%, #225a1e 100%) !important;
+    border: 1px solid #1e521a !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 13px;
+    border-radius: 0 8px 8px 0;
+    text-shadow: 1px 1px 1px #0f300c;
+    height: 30px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+[data-laf="winxp"] .taskButton {
+    background: linear-gradient(180deg, #3877d9 0%, #1e52ba 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #163e8c !important;
+    border-radius: 3px;
+    font-size: 11px;
+    height: 26px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+[data-laf="winxp"] .taskButton.active {
+    background: linear-gradient(180deg, #193c83 0%, #204ca6 100%) !important;
+    color: #ffffff !important;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-laf="winxp"] .clock {
+    background: #0f2a6b !important;
+    border: 1px solid #08173d !important;
+    border-radius: 2px;
+    color: #ffffff !important;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+[data-laf="winxp"] .dropdown,
+[data-laf="winxp"] .ui-start-menu {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #0055ea !important;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-laf="winxp"] .menuOption {
+    color: #000000 !important;
+}
+
+[data-laf="winxp"] .menuOption:hover {
+    background: #316ac5 !important;
+    color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. RETRÔ: Windows 7 Aero Glass
+   -------------------------------------------------------------------------- */
+[data-laf="win7"] .window {
+    border-radius: 8px 8px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background: rgba(220, 235, 252, 0.85);
+    backdrop-filter: blur(16px);
+}
+
+[data-laf="win7"] .titlebar {
+    height: 32px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(200, 225, 255, 0.3) 50%, rgba(160, 200, 245, 0.4) 100%) !important;
+    color: #1e395b !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+}
+
+[data-laf="win7"] .titleText {
+    color: #1e395b !important;
+}
+
+[data-laf="win7"] .winButtons {
+    align-items: center;
+}
+
+[data-laf="win7"] .winBtn {
+    width: 36px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 0 0 4px 4px;
+    color: #1e395b !important;
+    font-size: 12px;
+    margin: 0 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="win7"] .winBtn:hover {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+[data-laf="win7"] .winBtn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
+    border-color: #ff6666;
+}
+
+[data-laf="win7"] #menubar,
+[data-laf="win7"] .ui-menubar {
+    background: rgba(220, 235, 252, 0.88) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+    color: #1e395b !important;
+}
+
+[data-laf="win7"] .menubar-item {
+    color: #1e395b !important;
+}
+
+[data-laf="win7"] .menubar-item:hover,
+[data-laf="win7"] .menubar-item.active {
+    background: rgba(255, 255, 255, 0.6) !important;
+    color: #002244 !important;
+}
+
+[data-laf="win7"] #taskbar {
+    background: linear-gradient(180deg, rgba(20, 45, 80, 0.88) 0%, rgba(10, 20, 40, 0.95) 100%) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    height: 40px;
+    flex: 0 0 40px;
+}
+
+[data-laf="win7"] .taskStart {
+    background: radial-gradient(circle at 50% 30%, #5dade2 0%, #2471a3 60%, #154360 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(93, 173, 226, 0.6);
+    font-size: 11px;
+    font-weight: bold;
+}
+
+[data-laf="win7"] .taskButton {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 4px;
+    color: #ffffff !important;
+    height: 32px;
+    font-size: 12px;
+}
+
+[data-laf="win7"] .taskButton.active {
+    background: rgba(255, 255, 255, 0.35) !important;
+    border-color: rgba(93, 173, 226, 0.8) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(93, 173, 226, 0.7) !important;
+    font-weight: 600;
+}
+
+[data-laf="win7"] .clock {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+[data-laf="win7"] .dropdown,
+[data-laf="win7"] .ui-start-menu {
+    background: rgba(240, 248, 255, 0.95) !important;
+    color: #1e395b !important;
+    border: 1px solid rgba(93, 173, 226, 0.6) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-laf="win7"] .menuOption {
+    color: #1e395b !important;
+}
+
+[data-laf="win7"] .menuOption:hover {
+    background: #3399ff !important;
+    color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   13. RETRÔ: NeXTSTEP / OpenStep
+   -------------------------------------------------------------------------- */
+[data-laf="nextstep"] .window {
+    border: 2px solid #000000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px #000000;
+    background: #aeaeae;
+}
+
+[data-laf="nextstep"] .titlebar {
+    height: 26px;
+    background: #555555 !important;
+    color: #ffffff !important;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-weight: bold;
+    border-bottom: 2px solid #000000;
+    font-size: 12px;
+    padding: 0 4px;
+}
+
+[data-laf="nextstep"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="nextstep"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="nextstep"] .winBtn {
+    width: 18px;
+    height: 18px;
+    background: #aeaeae;
+    border: 2px outset #ffffff;
+    color: #000000 !important;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="nextstep"] .winBtn:active {
+    border-style: inset;
+}
+
+[data-laf="nextstep"] #menubar,
+[data-laf="nextstep"] .ui-menubar,
+[data-laf="nextstep"] #taskbar {
+    background: #555555 !important;
+    color: #ffffff !important;
+    border-color: #000000 !important;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-weight: bold;
+}
+
+[data-laf="nextstep"] .menubar-item,
+[data-laf="nextstep"] .clock {
+    color: #ffffff !important;
+}
+
+[data-laf="nextstep"] .taskStart,
+[data-laf="nextstep"] .taskButton {
+    background: #aeaeae !important;
+    border: 2px outset #ffffff !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+    font-weight: bold;
+    font-size: 11px;
+    height: 26px;
+}
+
+/* --------------------------------------------------------------------------
+   14. RETRÔ: AmigaOS (Workbench)
+   -------------------------------------------------------------------------- */
+[data-laf="amiga"] .window {
+    border: 2px solid #0055aa;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 #000000;
+    background: #aaaaaa;
+}
+
+[data-laf="amiga"] .titlebar {
+    height: 22px;
+    background: #0055aa !important;
+    color: #ff8800 !important;
+    font-family: 'Topaz', monospace, sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 0 4px;
+}
+
+[data-laf="amiga"] .titleText {
+    color: #ff8800 !important;
+}
+
+[data-laf="amiga"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="amiga"] .winBtn {
+    width: 16px;
+    height: 16px;
+    background: #aaaaaa;
+    border: 1px solid #000000;
+    color: #0055aa !important;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="amiga"] .winBtn:hover {
+    background: #ffffff;
+}
+
+[data-laf="amiga"] #menubar,
+[data-laf="amiga"] .ui-menubar,
+[data-laf="amiga"] #taskbar {
+    background: #0055aa !important;
+    color: #ff8800 !important;
+    border-color: #000000 !important;
+    font-family: 'Topaz', monospace;
+    font-weight: bold;
+}
+
+[data-laf="amiga"] .menubar-item,
+[data-laf="amiga"] .clock {
+    color: #ff8800 !important;
+}
+
+[data-laf="amiga"] .taskStart,
+[data-laf="amiga"] .taskButton {
+    background: #aaaaaa !important;
+    border: 1px solid #000000 !important;
+    color: #0055aa !important;
+    font-weight: bold;
+    border-radius: 0;
+    height: 24px;
+}
+
+[data-laf="amiga"] .taskButton.active {
+    background: #ff8800 !important;
+    color: #000000 !important;
+}
+
+/* --------------------------------------------------------------------------
+   15. RETRÔ: Mac OS System 7 / Platinum
+   -------------------------------------------------------------------------- */
+[data-laf="mac-classic"] .window {
+    border: 1px solid #000000;
+    border-radius: 0;
+    box-shadow: 2px 2px 0 #000000;
+    background: #ffffff;
+}
+
+[data-laf="mac-classic"] .titlebar {
+    height: 22px;
+    background: repeating-linear-gradient(180deg, #ffffff 0px, #ffffff 1px, #000000 2px, #000000 2px) !important;
+    color: #000000 !important;
+    font-family: 'Chicago', 'Geneva', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0 6px;
+}
+
+[data-laf="mac-classic"] .titleText {
+    background: #ffffff;
+    color: #000000 !important;
+    padding: 0 8px;
+    flex: 0 0 auto;
+    margin: 0 auto;
+}
+
+[data-laf="mac-classic"] .winButtons {
+    order: -1;
+    align-items: center;
+}
+
+[data-laf="mac-classic"] .winBtn.close {
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 1px solid #000000;
+    color: #000000 !important;
+    font-size: 9px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="mac-classic"] .winBtn.close:active {
+    background: #000000;
+    color: #ffffff !important;
+}
+
+[data-laf="mac-classic"] #menubar,
+[data-laf="mac-classic"] .ui-menubar {
+    background: #ffffff !important;
+    border-bottom: 2px solid #000000 !important;
+    font-family: 'Chicago', 'Geneva', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000 !important;
+}
+
+[data-laf="mac-classic"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="mac-classic"] .menubar-item:hover,
+[data-laf="mac-classic"] .menubar-item.active {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="mac-classic"] #taskbar {
+    background: #ffffff !important;
+    border-top: 2px solid #000000 !important;
+    font-family: 'Chicago', 'Geneva', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000 !important;
+}
+
+[data-laf="mac-classic"] .clock {
+    color: #000000 !important;
+}
+
+[data-laf="mac-classic"] .taskStart,
+[data-laf="mac-classic"] .taskButton {
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    border-radius: 0;
+    font-weight: bold;
+    font-size: 11px;
+    height: 22px;
+}
+
+[data-laf="mac-classic"] .taskButton.active {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   16. RETRÔ: OS/2 Warp (IBM)
+   -------------------------------------------------------------------------- */
+[data-laf="os2-warp"] .window {
+    border: 3px solid #6699cc;
+    border-radius: 0;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+    background: #c0c0c0;
+}
+
+[data-laf="os2-warp"] .titlebar {
+    height: 26px;
+    background: #336699 !important;
+    color: #ffffff !important;
+    font-family: 'WarpSans', 'Helvetica', sans-serif;
+    font-weight: bold;
+    padding: 0 4px;
+}
+
+[data-laf="os2-warp"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="os2-warp"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="os2-warp"] .winBtn {
+    width: 18px;
+    height: 18px;
+    background: #c0c0c0;
+    border: 1px outset #ffffff;
+    color: #000000 !important;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="os2-warp"] .winBtn:hover {
+    background: #e0e0e0;
+}
+
+[data-laf="os2-warp"] #menubar,
+[data-laf="os2-warp"] .ui-menubar,
+[data-laf="os2-warp"] #taskbar {
+    background: #336699 !important;
+    color: #ffffff !important;
+    font-family: 'WarpSans', 'Helvetica', sans-serif;
+    font-weight: bold;
+    border-color: #6699cc !important;
+}
+
+[data-laf="os2-warp"] .menubar-item,
+[data-laf="os2-warp"] .clock {
+    color: #ffffff !important;
+}
+
+[data-laf="os2-warp"] .taskStart,
+[data-laf="os2-warp"] .taskButton {
+    background: #c0c0c0 !important;
+    border: 1px outset #ffffff !important;
+    color: #000000 !important;
+    font-weight: bold;
+    border-radius: 0;
+    height: 26px;
+}
+
+/* --------------------------------------------------------------------------
+   17. UNIX / LINUX: CDE / Motif (Solaris)
+   -------------------------------------------------------------------------- */
+[data-laf="cde-motif"] .window {
+    border: 4px solid #6b7189;
+    border-radius: 0;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    background: #a2a8be;
+}
+
+[data-laf="cde-motif"] .titlebar {
+    height: 28px;
+    background: #555b73 !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace, sans-serif;
+    font-weight: bold;
+    border-bottom: 2px solid #3d4153;
+    padding: 0 4px;
+}
+
+[data-laf="cde-motif"] .titleText {
+    color: #ffffff !important;
+}
+
+[data-laf="cde-motif"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="cde-motif"] .winBtn {
+    width: 20px;
+    height: 20px;
+    background: #8990a8;
+    border: 2px outset #c0c6dc;
+    color: #ffffff !important;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="cde-motif"] .winBtn:active {
+    border-style: inset;
+}
+
+[data-laf="cde-motif"] #menubar,
+[data-laf="cde-motif"] .ui-menubar {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #3d4153 !important;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+[data-laf="cde-motif"] .menubar-item {
+    color: #ffffff !important;
+}
+
+[data-laf="cde-motif"] #taskbar {
+    background: #555b73 !important;
+    color: #ffffff !important;
+    border-top: 3px solid #3d4153 !important;
+    height: 36px;
+    flex: 0 0 36px;
+}
+
+[data-laf="cde-motif"] .taskStart,
+[data-laf="cde-motif"] .taskButton {
+    background: #8990a8 !important;
+    border: 2px outset #c0c6dc !important;
+    color: #ffffff !important;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 0;
+    height: 28px;
+}
+
+[data-laf="cde-motif"] .taskButton.active {
+    border-style: inset !important;
+    background: #6b7189 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="cde-motif"] .clock {
+    background: #3d4153;
+    border: 2px inset #2a2c38;
+    color: #ffffff !important;
+    padding: 2px 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+/* --------------------------------------------------------------------------
+   18. UNIX / LINUX: GNOME (Adwaita)
+   -------------------------------------------------------------------------- */
+[data-laf="gnome"] .window {
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--win-border);
+}
+
+[data-laf="gnome"] .titlebar {
+    height: 42px;
+    background: transparent;
+    border-bottom: 1px solid var(--win-border);
+    padding: 0 12px;
+    color: var(--text-primary);
+}
+
+[data-laf="gnome"] .titleText {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+[data-laf="gnome"] .winButtons {
+    align-items: center;
+    gap: 4px;
+}
+
+[data-laf="gnome"] .winBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.18);
+    color: var(--text-primary) !important;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+[data-laf="gnome"] .winBtn:hover {
+    background: rgba(128, 128, 128, 0.35);
+}
+
+[data-laf="gnome"] .winBtn.close:hover {
+    background: #e01b24 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="gnome"] #menubar,
+[data-laf="gnome"] .ui-menubar,
+[data-laf="gnome"] #taskbar {
+    background: rgba(30, 30, 30, 0.95) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+[data-laf="gnome"] .menubar-item,
+[data-laf="gnome"] .clock {
+    color: #ffffff !important;
+}
+
+[data-laf="gnome"] .taskStart,
+[data-laf="gnome"] .taskButton {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid transparent !important;
+    border-radius: 16px;
+    color: #ffffff !important;
+    font-size: 12px;
+    height: 28px;
+}
+
+[data-laf="gnome"] .taskButton.active {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+/* --------------------------------------------------------------------------
+   19. UNIX / LINUX: KDE (Breeze)
+   -------------------------------------------------------------------------- */
+[data-laf="kde"] .window {
+    border-radius: 4px;
+    border: 1px solid rgba(61, 174, 233, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+[data-laf="kde"] .titlebar {
+    height: 32px;
+    background: transparent;
+    border-bottom: 1px solid rgba(61, 174, 233, 0.2);
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+[data-laf="kde"] .titleText {
+    color: var(--text-primary);
+}
+
+[data-laf="kde"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="kde"] .winBtn {
+    width: 26px;
+    height: 26px;
+    border-radius: 3px;
+    color: var(--text-primary) !important;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+[data-laf="kde"] .winBtn:hover {
+    background: rgba(61, 174, 233, 0.25);
+}
+
+[data-laf="kde"] .winBtn.close:hover {
+    background: #da4453 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="kde"] #menubar,
+[data-laf="kde"] .ui-menubar,
+[data-laf="kde"] #taskbar {
+    background: rgba(35, 38, 41, 0.92) !important;
+    color: #eff0f1 !important;
+    border-color: rgba(61, 174, 233, 0.3) !important;
+    font-family: 'Noto Sans', sans-serif;
+}
+
+[data-laf="kde"] .menubar-item,
+[data-laf="kde"] .clock {
+    color: #eff0f1 !important;
+}
+
+[data-laf="kde"] .taskStart,
+[data-laf="kde"] .taskButton {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(61, 174, 233, 0.2) !important;
+    border-radius: 3px;
+    color: #eff0f1 !important;
+}
+
+[data-laf="kde"] .taskButton.active {
+    background: rgba(61, 174, 233, 0.3) !important;
+    border-color: #3daee9 !important;
+    color: #eff0f1 !important;
+    box-shadow: inset 0 -2px #3daee9 !important;
+}
+
+/* --------------------------------------------------------------------------
+   20. TUI & SCI-FI: Turbo Vision (DOS TUI)
+   -------------------------------------------------------------------------- */
+[data-laf="turbovision"] .window {
+    border: 2px solid #ffffff;
+    border-radius: 0;
+    box-shadow: 8px 8px 0px #000000;
+    background: #0000a8 !important;
+    color: #ffffff !important;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+[data-laf="turbovision"] .titlebar {
+    height: 24px;
+    background: #00aaaa !important;
+    color: #000000 !important;
+    font-weight: bold;
+    font-family: monospace;
+    border-bottom: 2px solid #ffffff;
+    padding: 0 4px;
+}
+
+[data-laf="turbovision"] .titleText {
+    text-align: center;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+[data-laf="turbovision"] .winButtons {
+    align-items: center;
+    gap: 2px;
+}
+
+[data-laf="turbovision"] .winBtn {
+    width: 20px;
+    height: 20px;
+    background: #00aaaa;
+    border: 1px solid #000000;
+    color: #000000 !important;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="turbovision"] .winBtn:hover {
+    background: #ffffff;
+}
+
+[data-laf="turbovision"] .windowBody {
+    background: #0000a8 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="turbovision"] #menubar,
+[data-laf="turbovision"] .ui-menubar {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    font-size: 13px;
+    border-bottom: 2px solid #ffffff !important;
+}
+
+[data-laf="turbovision"] .menubar-item {
+    color: #000000 !important;
+}
+
+[data-laf="turbovision"] .menubar-item:hover,
+[data-laf="turbovision"] .menubar-item.active {
+    background: #000000 !important;
+    color: #00aaaa !important;
+}
+
+[data-laf="turbovision"] #taskbar {
+    background: #0000a8 !important;
+    color: #ffffff !important;
+    border-top: 2px solid #ffffff !important;
+    font-family: 'Consolas', monospace;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+[data-laf="turbovision"] .taskStart,
+[data-laf="turbovision"] .taskButton {
+    background: #00aaaa !important;
+    border: 1px solid #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Consolas', monospace;
+    font-weight: bold;
+    border-radius: 0;
+    font-size: 12px;
+    height: 26px;
+}
+
+[data-laf="turbovision"] .taskButton.active {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 900;
+}
+
+[data-laf="turbovision"] .clock {
+    background: #000000;
+    color: #00ff00 !important;
+    border: 1px solid #00ff00;
+    font-family: 'Consolas', monospace;
+    padding: 2px 8px;
+}
+
+[data-laf="turbovision"] .dropdown,
+[data-laf="turbovision"] .ui-start-menu {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    font-family: 'Consolas', monospace;
+}
+
+[data-laf="turbovision"] .menuOption {
+    color: #000000 !important;
+}
+
+[data-laf="turbovision"] .menuOption:hover {
+    background: #000000 !important;
+    color: #00ffcc !important;
+}
+
+/* --------------------------------------------------------------------------
+   21. TUI & SCI-FI: Cyberpunk HUD
+   -------------------------------------------------------------------------- */
+[data-laf="cyberpunk"] .window {
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+    border: 1px solid #00ffcc;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3), inset 0 0 10px rgba(0, 255, 204, 0.1);
+    background: rgba(10, 14, 23, 0.95);
+}
+
+[data-laf="cyberpunk"] .titlebar {
+    height: 34px;
+    background: linear-gradient(90deg, #ff0055 0%, #7928ca 50%, #00ffcc 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Orbitron', monospace, sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 11px;
+    padding: 0 6px;
+}
+
+[data-laf="cyberpunk"] .titleText {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px #00ffcc;
+}
+
+[data-laf="cyberpunk"] .winButtons {
+    align-items: center;
+    gap: 4px;
+}
+
+[data-laf="cyberpunk"] .winBtn {
+    width: 28px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #00ffcc;
+    color: #00ffcc !important;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+[data-laf="cyberpunk"] .winBtn:hover {
+    background: #00ffcc !important;
+    color: #000000 !important;
+    box-shadow: 0 0 10px #00ffcc;
+}
+
+[data-laf="cyberpunk"] .winBtn.close:hover {
+    background: #ff0055 !important;
+    border-color: #ff0055 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px #ff0055;
+}
+
+[data-laf="cyberpunk"] #menubar,
+[data-laf="cyberpunk"] .ui-menubar {
+    background: rgba(10, 14, 23, 0.95) !important;
+    color: #00ffcc !important;
+    border-bottom: 2px solid #00ffcc !important;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 1px;
+    font-size: 12px;
+}
+
+[data-laf="cyberpunk"] .menubar-item {
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk"] .menubar-item:hover,
+[data-laf="cyberpunk"] .menubar-item.active {
+    background: rgba(0, 255, 204, 0.15) !important;
+    color: #ff0055 !important;
+    text-shadow: 0 0 8px #ff0055;
+}
+
+[data-laf="cyberpunk"] #taskbar {
+    background: rgba(10, 14, 23, 0.95) !important;
+    color: #00ffcc !important;
+    border-top: 2px solid #00ffcc !important;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    font-family: 'Orbitron', monospace;
+    height: 38px;
+    flex: 0 0 38px;
+}
+
+[data-laf="cyberpunk"] .taskStart {
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    background: linear-gradient(90deg, #ff0055, #7928ca) !important;
+    border: 1px solid #ff0055 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    height: 30px;
+    letter-spacing: 1px;
+}
+
+[data-laf="cyberpunk"] .taskButton {
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    background: rgba(0, 255, 204, 0.1) !important;
+    border: 1px solid #00ffcc !important;
+    color: #00ffcc !important;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    height: 30px;
+}
+
+[data-laf="cyberpunk"] .taskButton.active {
+    background: #00ffcc !important;
+    color: #000000 !important;
+    font-weight: bold;
+    box-shadow: 0 0 15px #00ffcc;
+}
+
+[data-laf="cyberpunk"] .clock {
+    color: #ff0055 !important;
+    text-shadow: 0 0 10px #ff0055;
+    font-family: 'Orbitron', monospace;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+[data-laf="cyberpunk"] .dropdown,
+[data-laf="cyberpunk"] .ui-start-menu {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
+    font-family: 'Orbitron', monospace;
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk"] .menuOption {
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk"] .menuOption:hover {
+    background: #00ffcc !important;
+    color: #000000 !important;
 }

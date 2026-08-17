@@ -576,6 +576,64 @@ bindContextMenu(meuElemento, [
 
 ---
 
+## 🎭 Sistema de Look and Feel (L&F / OS Skins)
+
+O DesktopEngine possui um subsistema nativo e modular de **Look and Feel (L&F)** que permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela, tipografia, cantos e molduras do ambiente desktop em tempo de execução.
+
+> [!TIP]
+> **Ortogonalidade:** O *Look and Feel* (estrutura da carcaça do SO via atributo `data-laf`) é independente da *Paleta de Cores* (cores e tons via atributo `data-theme`). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: macOS no tema Midnight Cyber, Windows 98 em Alto Contraste, ou Java Metal no tema Slate Dark).
+
+### API de Look and Feel no `Desktop`
+```javascript
+import { Desktop } from './desktop.js';
+
+// 1. Aplicar um Look and Feel nativo
+Desktop.setLookAndFeel("macos"); // ou "win11", "win98", "beos", "java-metal", etc.
+
+// 2. Voltar ao Look and Feel padrão
+Desktop.setLookAndFeel("default");
+
+// 3. Obter o Look and Feel ativo no momento
+const lafAtual = Desktop.getLookAndFeel(); // Ex: "macos"
+
+// 4. Obter catálogo completo com metadados (id, label, icon, category, desc)
+const catalogo = Desktop.getAvailableLookAndFeels();
+
+// 5. Escutar eventos de alteração de Look and Feel
+EventBus.on("laf:change", (lafName) => {
+    console.log("Look and Feel alterado para:", lafName);
+});
+```
+
+### Catálogo dos 20 Look and Feels Disponíveis
+
+| Categoria | Identificador | Nome / Sistema | Destaques Estruturais e Visuais |
+| :--- | :--- | :--- | :--- |
+| **Modernos** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
+| **Modernos** | `"macos"` | macOS (Aqua Modern) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
+| **Modernos** | `"win11"` | Windows 11 (Fluent) | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Java PlaF** | `"java-metal"` | Java Metal (Steel Classic) | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
+| **Java PlaF** | `"java-ocean"` | Java Ocean (Metal 2.0) | Gradiente metálico azul acetinado e chanfros suaves Swing. |
+| **Java PlaF** | `"java-nimbus"` | Java Nimbus | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
+| **Java PlaF** | `"java-flatlaf"` | FlatLaf (IDE IntelliJ) | Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo. |
+| **Java PlaF** | `"javafx-modena"` | JavaFX Modena | Estética neutra cinza, limpa e moderna do JavaFX 8+. |
+| **Java PlaF** | `"javafx-caspian"` | JavaFX Caspian | Vidro escuro azulado elegante do JavaFX 2. |
+| **Retrô & Clássicos** | `"beos"` | BeOS / Haiku OS | A famosa **aba amarela** no topo esquerdo da janela com botões chanfrados. |
+| **Retrô & Clássicos** | `"win98"` | Windows 98 (Classic 3D) | Bordas 3D chanfradas *outset/inset*, botões clássicos cinza e barra azul. |
+| **Retrô & Clássicos** | `"winxp"` | Windows XP (Luna) | Barra azul royal brilhante e botão de fechar vermelho luminoso. |
+| **Retrô & Clássicos** | `"win7"` | Windows 7 (Aero Glass) | Vidro translúcido com reflexos de iluminação e botões com brilho suave. |
+| **Retrô & Clássicos** | `"nextstep"` | NeXTSTEP / OpenStep | Estética monocromática em tons de cinza puro e preto com relevos 3D profundos. |
+| **Retrô & Clássicos** | `"amiga"` | AmigaOS (Workbench) | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
+| **Retrô & Clássicos** | `"mac-classic"` | Mac OS System 7 / Platinum | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
+| **Retrô & Clássicos** | `"os2-warp"` | OS/2 Warp (IBM) | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
+| **UNIX / Linux** | `"cde-motif"` | CDE / Motif (Solaris) | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
+| **UNIX / Linux** | `"gnome"` | GNOME (Adwaita) | Headerbar espaçosa de 42px com botão de fechar circular minimalista. |
+| **UNIX / Linux** | `"kde"` | KDE (Breeze) | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
+| **TUI & Sci-Fi** | `"turbovision"` | Turbo Vision (DOS TUI) | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
+| **TUI & Sci-Fi** | `"cyberpunk"` | Cyberpunk HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
+
+---
+
 ## 🎨 Sistema de Temas e Schema de Paletas de Cores
 
 O DesktopEngine possui um motor completo de alternância de paletas com persistência automática no `localStorage`.
