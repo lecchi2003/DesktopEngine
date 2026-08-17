@@ -12,6 +12,7 @@ export const Desktop = {
     currentTheme: "light",
     
     init(options = {}) {
+        this.windows = {}; // Reseta referências ativas ao inicializar
         this.options = {
             windowsContainerId: "windows",
             taskbarContainerId: "taskWindows",
@@ -140,22 +141,29 @@ export const Desktop = {
     },
 
     blinkWindow(w) {
+        if (!w) return;
         w.classList.remove("blink");
         void w.offsetWidth; // Force reflow
         w.classList.add("blink");
-        setTimeout(() => w.classList.remove("blink"), 400);
+        setTimeout(() => {
+            if (w && document.body.contains(w)) w.classList.remove("blink");
+        }, 400);
     },
 
     open(instance) {
         // Verifica se a tela permite apenas uma instância aberta simultaneamente
         if (instance.config.singleInstance) {
             for (let id in this.windows) {
-                if (this.windows[id].config === instance.config) {
+                if (this.windows[id] && this.windows[id].config === instance.config) {
                     const w = this.windows[id].windowEl;
-                    if (w.classList.contains("minimized")) this.restoreWindow(w);
-                    else this.focusWindow(w);
-                    this.blinkWindow(w);
-                    return w;
+                    if (w && document.body.contains(w)) {
+                        if (w.classList.contains("minimized")) this.restoreWindow(w);
+                        else this.focusWindow(w);
+                        this.blinkWindow(w);
+                        return w;
+                    } else {
+                        delete this.windows[id];
+                    }
                 }
             }
         }
@@ -163,18 +171,23 @@ export const Desktop = {
         if (this.windows[instance.id]) {
             // Já está aberta
             const w = this.windows[instance.id].windowEl;
-            if (w.classList.contains("minimized")) this.restoreWindow(w);
-            else this.focusWindow(w);
-            this.blinkWindow(w);
-            return w;
+            if (w && document.body.contains(w)) {
+                if (w.classList.contains("minimized")) this.restoreWindow(w);
+                else this.focusWindow(w);
+                this.blinkWindow(w);
+                return w;
+            } else {
+                delete this.windows[instance.id];
+            }
         }
 
-        this.windows[instance.id] = instance;
         const config = instance.config;
 
         const w = document.createElement("div");
         w.className = "window";
         w.dataset.id = instance.id;
+        instance.windowEl = w;
+        this.windows[instance.id] = instance;
         
         const offset = (this.nextId * 27) % 160;
         w.style.left = (45 + offset) + "px";
@@ -190,8 +203,8 @@ export const Desktop = {
 
         w.innerHTML = `
             <div class="titlebar">
-                <div class="titleIcon">${config.icon || "🗔"}</div>
-                <div class="titleText">${config.title || "Window"}</div>
+                <div class="titleIcon"></div>
+                <div class="titleText"></div>
                 <div class="winButtons">
                     ${minimizable ? `<div class="winBtn minimize" title="Minimizar">−</div>` : ''}
                     ${maximizable ? `<div class="winBtn maximize" title="Maximizar">□</div>` : ''}
@@ -199,7 +212,7 @@ export const Desktop = {
                 </div>
             </div>
             <div class="windowBody"></div>
-            <div class="statusbar">${config.status || "Pronto"}</div>
+            <div class="statusbar"></div>
             ${resizable ? `
             <div class="resizeHandle r-n" data-dir="n"></div>
             <div class="resizeHandle r-s" data-dir="s"></div>
@@ -211,12 +224,22 @@ export const Desktop = {
             <div class="resizeHandle r-sw" data-dir="sw"></div>
             ` : ''}
         `;
+
+        const titleIconEl = w.querySelector(".titleIcon");
+        if (titleIconEl) titleIconEl.textContent = config.icon || "🗔";
+
+        const titleTextEl = w.querySelector(".titleText");
+        if (titleTextEl) titleTextEl.textContent = config.title || "Window";
+
+        const statusbarEl = w.querySelector(".statusbar");
+        if (statusbarEl) statusbarEl.textContent = config.status || "Pronto";
+
         // Renderiza conteúdo
         const bodyEl = w.querySelector(".windowBody");
         const contentEl = instance.render();
-        bodyEl.appendChild(contentEl);
-        
-        instance.windowEl = w;
+        if (bodyEl && contentEl) {
+            bodyEl.appendChild(contentEl);
+        }
 
         this.windowsEl.appendChild(w);
 
@@ -277,15 +300,18 @@ export const Desktop = {
     },
 
     minimizeWindow(w) {
+        if (!w || !document.body.contains(w)) return;
         w.classList.add("minimized");
     },
 
     restoreWindow(w) {
+        if (!w || !document.body.contains(w)) return;
         w.classList.remove("minimized");
         this.focusWindow(w);
     },
 
     maximizeWindow(w) {
+        if (!w || !document.body.contains(w)) return;
         if (w.classList.contains("maximized")) {
             w.classList.remove("maximized");
             if (w.dataset.oldStyle) {
@@ -305,13 +331,14 @@ export const Desktop = {
     },
 
     closeWindow(instance, w, task) {
-        instance.onDestroy();
-        delete this.windows[instance.id];
-        w.remove();
+        if (instance && instance.onDestroy) instance.onDestroy();
+        if (instance) delete this.windows[instance.id];
+        if (w) w.remove();
         if (task) task.remove();
     },
 
     toggleWindow(w) {
+        if (!w || !document.body.contains(w)) return;
         if (w.classList.contains("minimized")) this.restoreWindow(w);
         else if (w.style.zIndex == this.zCounter || +w.style.zIndex >= this.zCounter - 1) this.minimizeWindow(w);
         else this.focusWindow(w);
@@ -490,7 +517,7 @@ export const Desktop = {
         // Se singleInstance = true e a janela já existe aberta:
         if (config.singleInstance && this.windows[screenId]) {
             const existingInstance = this.windows[screenId];
-            if (existingInstance.windowEl) {
+            if (existingInstance.windowEl && document.body.contains(existingInstance.windowEl)) {
                 this.focusWindow(existingInstance.windowEl);
                 if (existingInstance.windowEl.classList.contains("minimized")) {
                     this.restoreWindow(existingInstance.windowEl);
@@ -500,6 +527,8 @@ export const Desktop = {
                     if (existingInstance.update) existingInstance.update();
                 }
                 return existingInstance;
+            } else {
+                delete this.windows[screenId];
             }
         }
 
