@@ -251,6 +251,7 @@
             <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
             <a href="#estado-reativo">Reatividade com Proxies</a>
             <a href="#middlewares">Middlewares &amp; Actions</a>
+            <a href="#ciclo-de-vida">Ciclo de Vida (Lifecycle Hooks)</a>
 
             <div class="nav-header">Layout e Estrutura</div>
             <a href="#primitivas">createElement &amp; Print</a>
@@ -286,11 +287,13 @@
             <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
 
             <div class="nav-header">Sistema Global & Arquitetura</div>
+            <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
+            <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
+            <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
             <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
             <a href="#look-and-feel">Look and Feel (20 Skins)</a>
             <a href="#temas-paletas">Temas e Paletas de Cores</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
-            <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
             <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
         </nav>
 
@@ -627,21 +630,175 @@ const TelaCadastro = {
 };</code></pre>
             </div>
 
+            <!-- SEÇÃO: CICLO DE VIDA (LIFECYCLE HOOKS) -->
+            <h2 id="ciclo-de-vida">Ciclo de Vida das Janelas (Lifecycle Hooks)</h2>
+            <p>Toda janela no DesktopEngine possui um ciclo de vida estruturado em <strong>4 fases</strong> com pontos de gancho (<em>hooks</em>) que permitem inicializar configurações, reagir a alterações de dados, monitorar o foco e estado da janela e realizar limpeza de memória ou interceptar o fechamento:</p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hook / Método</th>
+                            <th>Fase</th>
+                            <th>Descrição &amp; Assinatura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>beforeMount()</code></td><td>Montagem</td><td>Executado <strong>antes</strong> do primeiro <code>render()</code> da janela. Ideal para inicializar dados pré-DOM.</td></tr>
+                        <tr><td><code>onMount()</code></td><td>Montagem</td><td>Executado logo após a janela ser inserida fisicamente no DOM. Ideal para requisições <code>fetch()</code>, timers e gráficos.</td></tr>
+                        <tr><td><code>beforeUpdate(prop, new, old)</code></td><td>Reatividade</td><td>Executado imediatamente antes do DOM da janela ser atualizado por uma alteração no <code>state</code>.</td></tr>
+                        <tr><td><code>onUpdate()</code></td><td>Reatividade</td><td>Executado logo após o novo DOM da janela ser reconstruído.</td></tr>
+                        <tr><td><code>onFocus()</code></td><td>Janela</td><td>Disparado quando a janela ganha foco e passa para o primeiro plano.</td></tr>
+                        <tr><td><code>onBlur()</code></td><td>Janela</td><td>Disparado quando o foco é transferido para outra janela.</td></tr>
+                        <tr><td><code>onMinimize()</code></td><td>Janela</td><td>Disparado quando a janela é minimizada para a barra de tarefas.</td></tr>
+                        <tr><td><code>onRestore()</code></td><td>Janela</td><td>Disparado quando a janela é restaurada da barra de tarefas.</td></tr>
+                        <tr><td><code>onMaximize(isMax)</code></td><td>Janela</td><td>Disparado ao maximizar (<code>true</code>) ou restaurar o tamanho normal (<code>false</code>).</td></tr>
+                        <tr><td><code>onResize(width, height)</code></td><td>Janela</td><td>Disparado ao redimensionar a janela pelas alças.</td></tr>
+                        <tr><td><code>onMove(x, y)</code></td><td>Janela</td><td>Disparado ao arrastar a janela pela barra de título.</td></tr>
+                        <tr><td><code>beforeClose()</code></td><td>Destruição</td><td>Executado antes de fechar. Se retornar <code>false</code> ou uma <code>Promise&lt;false&gt;</code>, o fechamento é <strong>cancelado</strong>.</td></tr>
+                        <tr><td><code>onDestroy()</code></td><td>Destruição</td><td>Executado após a janela ser removida do DOM. Ideal para limpar <code>clearInterval</code> e ouvintes.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-box">
+<pre><code>export default {
+    title: "Exemplo Completo com Todos os Hooks",
+    icon: "⏱️",
+    width: 600,
+    height: 450,
+    state: {
+        contador: 0,
+        timerId: null,
+        temAlteracoesPendentes: true
+    },
+
+    // 1. ANTES DA MONTAGEM (Pré-DOM)
+    beforeMount() {
+        console.log("1. [beforeMount] Inicializando configurações antes do primeiro render().");
+    },
+
+    // 2. APÓS A MONTAGEM (Inserido no DOM)
+    onMount() {
+        console.log("2. [onMount] Janela inserida no DOM. Iniciando timer.");
+        this.state.timerId = setInterval(() => {
+            this.state.contador++;
+        }, 1000);
+        this.setStatus("Monitor ativo.");
+    },
+
+    // 3. ANTES DA RE-RENDERIZAÇÃO
+    beforeUpdate(prop, newValue, oldValue) {
+        console.log(`3. [beforeUpdate] Propriedade '${prop}' mudando de '${oldValue}' para '${newValue}'.`);
+    },
+
+    // 4. APÓS A RE-RENDERIZAÇÃO DO DOM
+    onUpdate() {
+        console.log("4. [onUpdate] Novo DOM reconstruído e aplicado com sucesso.");
+    },
+
+    // 5. GANHO DE FOCO
+    onFocus() {
+        console.log("5. [onFocus] Janela ganhou o foco e veio para frente.");
+        this.setStatus("Janela em primeiro plano.");
+    },
+
+    // 6. PERDA DE FOCO
+    onBlur() {
+        console.log("6. [onBlur] Janela perdeu o foco.");
+        this.setStatus("Janela em segundo plano.");
+    },
+
+    // 7. MINIMIZAR
+    onMinimize() {
+        console.log("7. [onMinimize] Janela minimizada para a barra de tarefas.");
+    },
+
+    // 8. RESTAURAR
+    onRestore() {
+        console.log("8. [onRestore] Janela restaurada.");
+    },
+
+    // 9. MAXIMIZAR / DESMAXIMIZAR
+    onMaximize(isMaximized) {
+        console.log(`9. [onMaximize] Janela ${isMaximized ? "maximizada" : "restaurada ao tamanho original"}.`);
+    },
+
+    // 10. REDIMENSIONAR
+    onResize(width, height) {
+        console.log(`10. [onResize] Novas dimensões: ${width}x${height}px.`);
+    },
+
+    // 11. ARRASTAR / MOVER
+    onMove(x, y) {
+        console.log(`11. [onMove] Nova posição: X=${x}px, Y=${y}px.`);
+    },
+
+    // 12. INTERCEPTADOR DE FECHAMENTO (Antes de Destruir)
+    async beforeClose() {
+        if (this.state.temAlteracoesPendentes) {
+            // Pode retornar false ou uma Promise<boolean> para cancelar o fechamento
+            return await Modal.confirm("Você tem dados não salvos. Deseja realmente fechar?");
+        }
+        return true; // Permite fechar
+    },
+
+    // 13. DESTRUIÇÃO E LIMPEZA DE MEMÓRIA (Pós-Remoção)
+    onDestroy() {
+        console.log("13. [onDestroy] Janela destruída. Limpando timers e liberando memória.");
+        clearInterval(this.state.timerId);
+    },
+
+    view() {
+        return createElement("div", "flex-col", [
+            Card({
+                title: "Painel de Demonstração dos Hooks",
+                children: [
+                    createElement("p", "", [`Contador Reativo: ${this.state.contador}`]),
+                    Button({
+                        text: "Incrementar Manualmente",
+                        variant: "primary",
+                        onClick: () => this.state.contador++
+                    })
+                ]
+            })
+        ]);
+    }
+};</code></pre>
+            </div>
+
             <hr>
 
             <!-- SEÇÃO: PRIMITIVAS -->
             <h2 id="primitivas">Primitivas de Layout e Impressão</h2>
             
-            <h3>createElement</h3>
-            <p>Fábrica de nós DOM pura e segura utilizada em toda a biblioteca:</p>
+            <h3>createElement (Fábrica DOM Polimórfica)</h3>
+            <p>Fábrica de nós DOM pura, rápida e segura utilizada em toda a biblioteca. Suporta múltiplas assinaturas polimórficas para maior ergonomia:</p>
             <div class="code-box">
 <pre><code>import { createElement } from './ui.js';
 
-// Assinatura: createElement(tag, className, children)
-const elemento = createElement("div", "meu-container", [
-    createElement("h2", "titulo", ["Título da Seção"]),
-    createElement("p", "", ["Texto descritivo"])
-]);</code></pre>
+// 1. Passando filhos diretamente (sem precisar de classe vazia ""):
+const div1 = createElement("div", [
+    createElement("h2", "Título Direto"),
+    createElement("p", "Texto descritivo simples")
+]);
+
+// 2. Com classe e filhos (Padrão clássico):
+const div2 = createElement("div", "meu-container", [
+    createElement("span", "badge", ["Status Ativo"])
+]);
+
+// 3. Com objeto de propriedades, estilos e eventos (Estilo Hyperscript):
+const div3 = createElement("button", {
+    className: "btn btn-primary",
+    id: "btn-salvar",
+    style: { fontWeight: "bold", padding: "8px 16px" },
+    onclick: () => alert("Salvo!")
+}, ["Salvar Dados"]);
+
+// 4. Tags vazias e quebras simples:
+const hr = createElement("hr");
+const br = createElement("br");</code></pre>
             </div>
 
             <h3>printElement</h3>
@@ -1061,17 +1218,23 @@ view() {
 Modal({
     title: "Confirmar Exclusão",
     instance: this,
+    closable: true, // Padrão: true. Se false, oculta o botão 'X' superior
     children: [
         createElement("p", "", ["Deseja realmente excluir este registro?"]),
         Button({ text: "Sim, Excluir", variant: "danger", onClick: () => { /* ... */ } })
     ]
 });
 
-// 2. Modal Global (Cobre todas as janelas do Desktop)
+// 2. Modal Global Sem Botão 'X' e com Interceptador beforeClose
 Modal({
-    title: "Aviso do Sistema",
+    title: "Aviso Crítico do Sistema",
     instance: this,
+    showCloseButton: false, // Oculta o 'X' e desativa a tecla ESC
     targetContainer: document.getElementById("app"), // Força container do Desktop
+    async beforeClose() {
+        // Pode validar ou bloquear o fechamento retornando false
+        return true;
+    },
     children: [
         createElement("p", "", ["O servidor será reiniciado em 5 minutos."])
     ]
@@ -1328,13 +1491,79 @@ const mbEl = this.getMenuBar();</code></pre>
             <h3>4. Métodos de Controle Auxiliares da Janela</h3>
             <p>Toda instância de janela agora expõe métodos diretos e convenientes para controle:</p>
             <ul>
-                <li><code>instance.setMenuBar(menus)</code>: Atualiza ou remove a barra de menus da janela.</li>
-                <li><code>instance.getMenuBar()</code>: Retorna o elemento HTML da barra de menus da janela.</li>
-                <li><code>instance.close()</code>: Fecha e destrói a janela atual.</li>
+                <li><code>instance.openDialog(config, props)</code>: Abre uma janela modal filha acoplada e bloqueando a janela atual, retornando uma <code>Promise</code> com o resultado.</li>
+                <li><code>instance.openChildWindow(config, props)</code>: Alias para <code>openDialog</code>.</li>
+                <li><code>instance.close(dados)</code>: Fecha a janela atual (e devolve <code>dados</code> para quem abriu via <code>openDialog</code>).</li>
                 <li><code>instance.minimize()</code>: Minimiza a janela para a taskbar.</li>
                 <li><code>instance.maximize()</code>: Alterna entre maximizada e restaurada.</li>
                 <li><code>instance.restore()</code>: Restaura a janela se estiver minimizada.</li>
                 <li><code>instance.focus()</code>: Traz a janela para o primeiro plano.</li>
+            </ul>
+
+            <!-- SEÇÃO: JANELAS FILHAS (DIALOGS) -->
+            <h2 id="janelas-filhas">Janelas Modais Filhas (Dialogs / Sub-Windows)</h2>
+            <p>O DesktopEngine suporta nativamente o padrão de <strong>Janelas Modais Filhas (Child Modal Windows)</strong>. Uma janela mãe pode abrir uma janela filha que é posicionada centralizada sobre ela, bloqueando exclusivamente a janela mãe com uma camada de desfoque (<em>frosted glass</em>) enquanto as demais janelas do sistema continuam ativas.</p>
+
+            <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Retorno com Promise (Dialog Pattern):</strong> Ao chamar <code>await this.openDialog(config)</code>, a execução na janela mãe pausa de forma assíncrona até que o usuário feche a janela filha chamando <code>this.close(dados)</code>, devolvendo o valor diretamente!
+                </div>
+            </div>
+
+            <h3>1. Exemplo de Janela Mãe Abrindo Diálogo</h3>
+            <div class="code-box">
+<pre><code>// Dentro da Janela Mãe (this é a instância da janela mãe):
+const usuarioSelecionado = await this.openDialog({
+    title: "Selecionar Usuário",
+    icon: "👤",
+    width: 440,
+    height: 320,
+    state: {
+        lista: ["Carlos Silva", "Mariana Costa", "Rafael Dias"],
+        selecionado: "Carlos Silva"
+    },
+    view() {
+        return createElement("div", "flex-col", [
+            createElement("p", "", ["Escolha o usuário para vincular:"]),
+            Select({ bind: "selecionado", options: this.state.lista, instance: this }),
+            Row({
+                style: "justify-content: flex-end; gap: 8px; margin-top: auto;",
+                children: [
+                    Button({
+                        text: "Cancelar",
+                        onClick: () => this.close(null) // Fecha sem valor
+                    }),
+                    Button({
+                        text: "Confirmar Seleção",
+                        variant: "primary",
+                        onClick: () => this.close(this.state.selecionado) // Fecha e devolve o valor!
+                    })
+                ]
+            })
+        ]);
+    }
+});
+
+if (usuarioSelecionado) {
+    console.log("Usuário recebido da janela filha:", usuarioSelecionado);
+}</code></pre>
+            </div>
+
+            <h3>2. Modos de Exibição: Confinada vs Flutuante</h3>
+            <p>Você pode controlar se a janela filha deve se movimentar livremente pelo desktop ou ficar restrita ao contorno físico da janela mãe:</p>
+            <ul>
+                <li><code>contained: true</code>: A janela filha é renderizada <strong>dentro do espaço da janela pai</strong> e seu arrasto fica estritamente confinado aos limites da janela mãe (estilo MDI Clássico).</li>
+                <li><code>contained: false</code> (Padrão): A janela filha flutua livremente pelo Desktop, mas mantém o bloqueio modal e foco vinculados à janela mãe.</li>
+                <li><code>closable: false</code> / <code>showCloseButton: false</code>: Oculta o botão <code>X</code> da barra de título, forçando o usuário a interagir com os botões de ação internos.</li>
+            </ul>
+
+            <h3>3. Ciclo de Vida Vinculado (Parent-Child)</h3>
+            <ul>
+                <li><strong>Bloqueio Inteligente:</strong> Clicar na janela mãe bloqueada faz a janela filha piscar (<em>blink effect</em>) para alertar o usuário.</li>
+                <li><strong>Minimização Conjunta:</strong> Minimizar ou restaurar a janela mãe minimiza e restaura automaticamente a janela filha modal.</li>
+                <li><strong>Fechamento em Cascata:</strong> Fechar a janela mãe destrói automaticamente as janelas filhas vinculadas.</li>
+                <li><strong>Abertura via Screen Registry:</strong> Também é possível abrir pelo ID registrado: <code>const dados = await this.openDialog("seletor_usuario", { role: "admin" });</code></li>
             </ul>
 
             <h2 id="integracao-api">Integração com APIs REST &amp; Backend</h2>
@@ -1430,6 +1659,83 @@ export default {
         ]);
     }
 };</code></pre>
+            </div>
+
+            <!-- SEÇÃO: BACKGROUND TASKS & WEB WORKERS -->
+            <h2 id="background-tasks">Processamento em Segundo Plano &amp; Multitarefa (Background Tasks &amp; Web Workers)</h2>
+            <p>O DesktopEngine foi desenvolvido para permitir <strong>multitarefa real entre janelas</strong>. Uma janela pode executar relatórios demorados, processamento massivo de planilhas ou cálculos pesados de Big Data em segundo plano enquanto o usuário utiliza outras janelas (como editores, cadastros e gráficos) com <strong>60 FPS fluidos</strong> e zero travamento na interface.</p>
+
+            <h3>1. Padrão Web Worker (Thread de CPU Dedicada)</h3>
+            <p>Para processamento matemático pesado ou parsing de arquivos gigantescos no navegador, utilize um <code>Web Worker</code>. O processamento roda em um núcleo de CPU separado da thread de renderização da interface:</p>
+
+            <div class="code-box">
+<pre><code>// Dentro da Janela de Relatórios:
+export default {
+    title: "Gerador de Relatórios",
+    state: { progresso: 0, isProcessando: false, worker: null },
+
+    iniciarCalculoPesado(totalLinhas = 100000) {
+        this.state.isProcessando = true;
+
+        // Cria o Worker inline (ou a partir de um arquivo .js)
+        const workerCode = `
+            self.onmessage = function(e) {
+                const total = e.data.total;
+                for (let i = 0; i < total; i++) {
+                    // Cálculo pesado...
+                    if (i % 1000 === 0) {
+                        self.postMessage({ progresso: Math.floor((i / total) * 100) });
+                    }
+                }
+                self.postMessage({ progresso: 100, concluido: true });
+            };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        this.state.worker = new Worker(URL.createObjectURL(blob));
+
+        this.state.worker.onmessage = (e) => {
+            this.state.progresso = e.data.progresso;
+            if (e.data.concluido) {
+                this.state.isProcessando = false;
+                Desktop.notify("📊 Relatório processado com sucesso!", "success");
+            }
+        };
+
+        this.state.worker.postMessage({ total: totalLinhas });
+    },
+
+    onDestroy() {
+        // Limpa a thread do Worker ao fechar a janela para liberar memória
+        if (this.state.worker) this.state.worker.terminate();
+    },
+
+    view() {
+        return createElement("div", "flex-col", [
+            ProgressBar({ value: this.state.progresso, max: 100 }),
+            Button({
+                text: this.state.isProcessando ? "Calculando..." : "Iniciar Geração",
+                disabled: this.state.isProcessando,
+                onClick: () => this.iniciarCalculoPesado()
+            })
+        ]);
+    }
+};</code></pre>
+            </div>
+
+            <h3>2. Padrão Async Stream / Chunking (Requisições em Lotes)</h3>
+            <p>Quando a geração do relatório consome dados de APIs remotas, utilize <code>async/await</code> com divisão em lotes (<em>chunking</em>). O Event Loop do navegador atualiza a barra de progresso e mantém a responsividade das demais janelas:</p>
+
+            <div class="code-box">
+<pre><code>async gerarRelatorioAsync(lotes = 10) {
+    this.state.isProcessando = true;
+    for (let i = 1; i <= lotes; i++) {
+        await new Promise(r => setTimeout(r, 400)); // Simula requisição assíncrona
+        this.state.progresso = (i / lotes) * 100;
+    }
+    this.state.isProcessando = false;
+    Desktop.notify("Relatório concluído!", "success");
+}</code></pre>
             </div>
 
             <h3>2. Boas Práticas na Integração com Serviços</h3>
