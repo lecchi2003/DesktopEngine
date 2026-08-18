@@ -566,9 +566,25 @@
                                         title: "Aparência e Look & Feel do Sistema", children: [
                                             Select({
                                                 label: "Look and Feel (Design do Sistema)", bind: "laf", instance: this, options: [
+                                                    // ── Padrão ──────────────────────────────────
                                                     { label: "✨ Padrão (DesktopEngine Modern)", value: "default" },
+
+                                                    // ── macOS / Apple ───────────────────────────
+                                                    { label: "─── macOS / Apple ───", value: "default", disabled: true },
                                                     { label: "🍎 Aqua Frosted (Vidro Fosco)", value: "aqua-frosted" },
-                                                    { label: "🪟 Fluent Acrylic (Acrílico Moderno)", value: "fluent-acrylic" },
+                                                    { label: "💠 Cupertino Touch (iOS Style)", value: "cupertino-touch" },
+
+                                                    // ── Windows ─────────────────────────────────
+                                                    { label: "─── Windows ───", value: "default", disabled: true },
+                                                    { label: "🪟 Aero Glass (Translúcido)", value: "aero-glass" },
+                                                    { label: "🌀 Fluent Acrylic (Acrílico Moderno)", value: "fluent-acrylic" },
+                                                    { label: "🔵 Luna Classic (Azul & Verde)", value: "luna-blue" },
+                                                    { label: "🕹️ Retro 3D (Chanfrado)", value: "retro-3d" },
+                                                    { label: "⬛ Dark Slate (Next Dark)", value: "next-dark" },
+                                                    { label: "💾 Workbench Boing (Retro Cores)", value: "workbench-boing" },
+
+                                                    // ── Java / Enterprise ────────────────────────
+                                                    { label: "─── Java / Enterprise ───", value: "default", disabled: true },
                                                     { label: "☕ Steel Metal (Classic Swing)", value: "steel-metal" },
                                                     { label: "🌊 Ocean Metal (Steel Blue)", value: "ocean-metal" },
                                                     { label: "✨ Nimbus Vector (Vibrant)", value: "nimbus-vector" },
@@ -576,16 +592,33 @@
                                                     { label: "🌿 Modena Soft (Enterprise)", value: "modena-soft" },
                                                     { label: "🔷 Caspian Slate (Dark Blue)", value: "caspian-dark" },
                                                     { label: "🟡 Yellow Tab (Media Style)", value: "yellow-tab" },
-                                                    { label: "🕹️ Retro 3D (Chanfrado)", value: "retro-3d" },
-                                                    { label: "🔵 Luna Blue (Azul & Verde)", value: "luna-blue" },
-                                                    { label: "🪟 Aero Glass (Translúcido)", value: "aero-glass" },
-                                                    { label: "⬛ Next Dark (Step Style)", value: "next-dark" },
-                                                    { label: "💾 Workbench Boing (Retro Cores)", value: "workbench-boing" },
                                                     { label: "🍏 Platinum Classic (Monocromático)", value: "platinum-classic" },
                                                     { label: "🟦 Warp Enterprise (Cobalt)", value: "warp-enterprise" },
-                                                    { label: "🟣 Motif Panel (UNIX CDE)", value: "motif-panel" },
-                                                    { label: "🐧 Adwaita Slate (Clean Flat)", value: "adwaita-slate" },
-                                                    { label: "⚙️ Breeze Plasma (Glass Glow)", value: "breeze-plasma" },
+
+                                                    // ── Modern UI ───────────────────────────────
+                                                    { label: "─── Modern UI ───", value: "default", disabled: true },
+                                                    { label: "🌫️ Spatial Glass (Imersivo)", value: "spatial-glass" },
+                                                    { label: "🔘 Neumorphism (Soft UI)", value: "neumorphism" },
+                                                    { label: "💜 Material Tonal (Material You)", value: "material-tonal" },
+                                                    { label: "⚫ One Touch (Curvas Suaves)", value: "one-touch" },
+                                                    { label: "▦ Flat Tiles (Modern UI)", value: "flat-tiles" },
+                                                    { label: "🎯 Tactical HUD (Cyberdeck)", value: "tactical-hud" },
+
+                                                    // ── Unix / Linux ─────────────────────────────
+                                                    { label: "─── Unix / Linux ───", value: "default", disabled: true },
+                                                    { label: "🟠 Aubergine Orange (Ubuntu Yaru)", value: "aubergine-orange" },
+                                                    { label: "🏔️ Pantheon Pure (Light Minimal)", value: "pantheon-pure" },
+                                                    { label: "🌊 Cosmic Teal (Modern Desktop)", value: "cosmic-teal" },
+                                                    { label: "▦ Tiling Grid (i3/TWM Tiling)", value: "tiling-grid" },
+                                                    { label: "🩶 Greybird Lite (Lightweight)", value: "greybird-lite" },
+                                                    { label: "⚡ E-Fusion (Glow Compositor)", value: "e-fusion" },
+                                                    { label: "🖥️ X11 Box (GNUstep/NeXT)", value: "x11-box" },
+                                                    { label: "🟣 Motif Panel (UNIX CDE/Solaris)", value: "motif-panel" },
+                                                    { label: "🐧 Adwaita Slate (GNOME Clean)", value: "adwaita-slate" },
+                                                    { label: "⚙️ Breeze Plasma (KDE Plasma)", value: "breeze-plasma" },
+
+                                                    // ── Especial / Terminal ──────────────────────
+                                                    { label: "─── Especial / Terminal ───", value: "default", disabled: true },
                                                     { label: "📟 Turbo TUI (DOS Console)", value: "turbo-tui" },
                                                     { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" }
                                                 ]
