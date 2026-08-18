@@ -44,7 +44,12 @@ Desktop.init({
     showDesktopButton: true              // Botão para minimizar/restaurar tudo
 });
 
-// Métodos Globais Úteis:
+// Métodos Globais Úteis de Controle e Posicionamento:
+Desktop.setTaskbarPosition("right");     // Altera a barra de tarefas ("bottom", "top", "left", "right")
+Desktop.getTaskbarPosition();            // Retorna a posição ativa da barra de tarefas
+Desktop.setMenuBarPosition("top");       // Altera o MenuBar ("top", "bottom", "left", "right")
+Desktop.getMenuBarPosition();            // Retorna a posição ativa do MenuBar
+
 Desktop.showDesktop();                   // Minimiza todas ou restaura as janelas
 Desktop.arrangeWindows();                // Organiza janelas abertas em grade simétrica
 Desktop.notify("Operação concluída!", "success"); // Notificação global ("success", "danger", "info")
@@ -681,6 +686,77 @@ Tooltip({
 })
 ```
 
+#### `DockWidget` (Collapsible Tray & Messenger de Eventos)
+Painel expansível ancorado no rodapé (estilo mensageiro do LinkedIn ou monitor de logs em tempo real), com suporte a minimização para a barra de tarefas (ao lado do relógio estilo Windows Tray):
+```javascript
+import { DockWidget } from './ui.js';
+
+const dock = DockWidget({
+    title: "Mensagens do Sistema",
+    icon: "💬",
+    badge: 3,
+    badgeVariant: "danger",
+    position: "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+    width: "320px",
+    height: "300px",
+    allowMinimizeToTray: true, // Habilita o botão para minimizar para o cantinho da Taskbar
+    headerActions: [
+        {
+            icon: "🧹",
+            title: "Limpar histórico",
+            action: (dockApi) => {
+                dockApi.setContent([]);
+                dockApi.setBadge(0);
+            }
+        }
+    ],
+    content: [
+        "✨ DesktopEngine V1.0 ativo.",
+        "📡 EventBus conectado."
+    ],
+    onExpand: (dockApi) => {
+        dockApi.setBadge(0); // Limpa badge ao abrir/ler
+    }
+});
+
+// Métodos programáticos do Dock:
+dock.addItem("📩 Novo alerta recebido!", true); // insere no topo
+dock.setBadge(1);
+dock.expand();
+dock.collapse();
+dock.minimizeToTray();  // Minimiza para a bandeja ao lado do relógio
+dock.restoreFromTray(); // Restaura da bandeja
+```
+
+#### `FloatButton` (Floating Action Button / Speed Dial)
+Botão de ação rápida flutuante com menu em cascata (Speed Dial) para Desktop ou Janelas:
+```javascript
+import { FloatButton } from './ui.js';
+
+FloatButton({
+    icon: "⚡",
+    activeIcon: "✕",
+    tooltip: "Ações Rápidas",
+    position: "bottom-right",
+    variant: "primary",
+    shape: "circle", // 'circle', 'rounded', 'square'
+    actions: [
+        {
+            icon: "✨",
+            label: "Abrir Showcase",
+            variant: "primary",
+            action: () => Desktop.openScreen("showcase")
+        },
+        {
+            icon: "📊",
+            label: "Relatórios",
+            variant: "success",
+            action: () => Desktop.openScreen("background_reports")
+        }
+    ]
+});
+```
+
 ---
 
 ### 6. Menus Globais e ContextMenu
@@ -698,15 +774,20 @@ const estruturaMenus = [
     }
 ];
 
-// Estilo macOS / Linux / Personalizado ("top", "bottom", "left", "right"):
+// Barra de menus global ("top", "bottom", "left", "right"):
 MenuBar({
     containerId: "menubar",
     position: "top", // Se a Taskbar também estiver no topo, a Taskbar fica acima e o MenuBar logo abaixo!
     menus: estruturaMenus
 });
 
-// Estilo Windows (Menu Iniciar na Barra de Tarefas):
+// Menu Iniciar na Barra de Tarefas:
 StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
+
+// Alternando dinamicamente onde o MenuBar deve ficar:
+Desktop.setMenuBarMode("separate");  // Exibe como barra de menus separada no desktop
+Desktop.setMenuBarMode("startmenu"); // Oculta a barra separada e mantém os menus no botão Iniciar
+Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "none"
 ```
 
 #### `MenuBar em Janelas (Window MenuBar)`
@@ -1146,41 +1227,41 @@ EventBus.on("laf:change", (lafName) => {
 | Categoria | Identificador | Nome Conceitual | Destaques Estruturais e Visuais |
 | :--- | :--- | :--- | :--- |
 | **Modernos & Translúcidos** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
-| **Modernos & Translúcidos** | `"aqua-frosted"` *(alias: `"macos"`)* | Aqua Frosted (Vidro Fosco) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
-| **Modernos & Translúcidos** | `"fluent-acrylic"` *(alias: `"win11"`)* | Fluent Acrylic | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
-| **Modernos & Translúcidos** | `"material-tonal"` *(alias: `"material3"`)* | Material Tonal | Superfícies em camadas tonais, cantos de 20px e botões pílula (*Pill*). |
-| **Modernos & Translúcidos** | `"cupertino-touch"` *(alias: `"cupertino"`)* | Cupertino Touch | Vidro fosco translúcido (*frosted glass* 28px blur), squircle de 20px e sombras suaves. |
-| **Modernos & Translúcidos** | `"one-touch"` *(alias: `"oneui"`)* | One Touch | Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico. |
-| **Modernos & Translúcidos** | `"flat-tiles"` *(alias: `"metro"`)* | Flat Tiles | Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste. |
-| **Espacial & Tátil** | `"spatial-glass"` *(alias: `"visionos"`)* | Spatial Glass | Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas. |
+| **Modernos & Translúcidos** | `"aqua-frosted"` | Aqua Frosted (Vidro Fosco) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
+| **Modernos & Translúcidos** | `"fluent-acrylic"` | Fluent Acrylic | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Modernos & Translúcidos** | `"material-tonal"` | Material Tonal | Superfícies em camadas tonais, cantos de 20px e botões pílula (*Pill*). |
+| **Modernos & Translúcidos** | `"cupertino-touch"` | Cupertino Touch | Vidro fosco translúcido (*frosted glass* 28px blur), squircle de 20px e sombras suaves. |
+| **Modernos & Translúcidos** | `"one-touch"` | One Touch | Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico. |
+| **Modernos & Translúcidos** | `"flat-tiles"` | Flat Tiles | Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste. |
+| **Espacial & Tátil** | `"spatial-glass"` | Spatial Glass | Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas. |
 | **Espacial & Tátil** | `"neumorphism"` | Neumorphism (Soft UI) | Superfícies esculpidas em relevo suave com luz e sombra duplas opostas. |
 | **Espacial & Tátil** | `"tactical-hud"` | Tactical HUD (Cyberdeck) | Interface tática militar em âmbar/neon, cantos chanfrados em 45º e estética de ficção científica. |
-| **Swing & Java** | `"steel-metal"` *(alias: `"java-metal"`)* | Steel Metal | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
-| **Swing & Java** | `"ocean-metal"` *(alias: `"java-ocean"`)* | Ocean Metal | Gradiente metálico azul acetinado e chanfros suaves Swing. |
-| **Swing & Java** | `"nimbus-vector"` *(alias: `"java-nimbus"`)* | Nimbus Vector | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
-| **Swing & Java** | `"flatlaf-ide"` *(alias: `"java-flatlaf"`)* | Modern IDE (Studio) | Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo. |
-| **Swing & Java** | `"modena-soft"` *(alias: `"javafx-modena"`)* | Modena Soft | Estética neutra cinza, limpa e moderna do JavaFX 8+. |
-| **Swing & Java** | `"caspian-dark"` *(alias: `"javafx-caspian"`)* | Caspian Dark | Vidro escuro azulado elegante do JavaFX 2. |
-| **Retrô & Clássicos 3D** | `"yellow-tab"` *(alias: `"beos"`)* | Yellow Tab | A famosa **aba amarela** no topo esquerdo da janela com botões chanfrados. |
-| **Retrô & Clássicos 3D** | `"retro-3d"` *(alias: `"win98"`)* | Retro 3D (Chanfrado) | Bordas 3D chanfradas *outset/inset*, botões clássicos cinza e barra azul. |
-| **Retrô & Clássicos 3D** | `"luna-blue"` *(alias: `"winxp"`)* | Luna Classic | Barra azul royal brilhante e botão de fechar vermelho luminoso. |
-| **Retrô & Clássicos 3D** | `"aero-glass"` *(alias: `"win7"`)* | Aero Glass | Vidro translúcido com reflexos de iluminação e botões com brilho suave. |
-| **Retrô & Clássicos 3D** | `"next-dark"` *(alias: `"nextstep"`)* | Dark Slate Cube | Estética monocromática em tons de cinza puro e preto com relevos 3D profundos. |
-| **Retrô & Clássicos 3D** | `"workbench-boing"` *(alias: `"amiga"`)* | Workbench Retro | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
-| **Retrô & Clássicos 3D** | `"platinum-classic"` *(alias: `"mac-classic"`)* | Platinum Classic | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
-| **Retrô & Clássicos 3D** | `"warp-enterprise"` *(alias: `"os2-warp"`)* | Warp Enterprise | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
-| **Desktops Unix & Abertos** | `"aubergine-orange"` *(alias: `"ubuntu"`)* | Aubergine Orange | Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste. |
-| **Desktops Unix & Abertos** | `"pantheon-pure"` *(alias: `"elementary"`)* | Pantheon Pure | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
-| **Desktops Unix & Abertos** | `"cosmic-teal"` *(alias: `"pop-cosmic"`)* | Cosmic Teal | Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar. |
-| **Desktops Unix & Abertos** | `"tiling-grid"` *(alias: `"i3wm"`)* | Tiling Grid | Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px. |
-| **Desktops Unix & Abertos** | `"greybird-lite"` *(alias: `"xfce"`)* | Greybird Lite | Gradiente suave azul-acinzentado, botões leves e cantos de 4px. |
-| **Desktops Unix & Abertos** | `"e-fusion"` *(alias: `"enlightenment"`)* | Fusion Neon | Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi. |
-| **Desktops Unix & Abertos** | `"x11-box"` *(alias: `"windowmaker"`)* | X11 Dark Box | Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta. |
-| **Desktops Unix & Abertos** | `"motif-panel"` *(alias: `"cde-motif"`)* | Motif Panel | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
-| **Desktops Unix & Abertos** | `"adwaita-slate"` *(alias: `"gnome"`)* | Adwaita Slate | Headerbar espaçosa de 42px com botão de fechar circular minimalista e alto contraste. |
-| **Desktops Unix & Abertos** | `"breeze-plasma"` *(alias: `"kde"`)* | Breeze Plasma | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
-| **Console & Sci-Fi** | `"turbo-tui"` *(alias: `"turbovision"`)* | DOS TUI Console | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
-| **Console & Sci-Fi** | `"cyberpunk-neon"` *(alias: `"cyberpunk"`)* | Cyber Neon HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
+| **Swing & Java** | `"steel-metal"` | Steel Metal | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
+| **Swing & Java** | `"ocean-metal"` | Ocean Metal | Gradiente metálico azul acetinado e chanfros suaves Swing. |
+| **Swing & Java** | `"nimbus-vector"` | Nimbus Vector | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
+| **Swing & Java** | `"flatlaf-ide"` | Modern IDE (Studio) | Estilo moderno de IDE profissional, compacto e limpo. |
+| **Swing & Java** | `"modena-soft"` | Modena Soft | Estética neutra cinza, limpa e moderna. |
+| **Swing & Java** | `"caspian-dark"` | Caspian Dark | Vidro escuro azulado elegante. |
+| **Retrô & Clássicos 3D** | `"yellow-tab"` | Yellow Tab | A famosa **aba amarela** no topo esquerdo da janela com botões chanfrados. |
+| **Retrô & Clássicos 3D** | `"retro-3d"` | Retro 3D (Chanfrado) | Bordas 3D chanfradas *outset/inset*, botões clássicos cinza e barra azul. |
+| **Retrô & Clássicos 3D** | `"luna-blue"` | Luna Classic | Barra azul royal brilhante e botão de fechar vermelho luminoso. |
+| **Retrô & Clássicos 3D** | `"aero-glass"` | Aero Glass | Vidro translúcido com reflexos de iluminação e botões com brilho suave. |
+| **Retrô & Clássicos 3D** | `"next-dark"` | Dark Slate Cube | Estética monocromática em tons de cinza puro e preto com relevos 3D profundos. |
+| **Retrô & Clássicos 3D** | `"workbench-boing"` | Workbench Retro | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
+| **Retrô & Clássicos 3D** | `"platinum-classic"` | Platinum Classic | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
+| **Retrô & Clássicos 3D** | `"warp-enterprise"` | Warp Enterprise | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
+| **Desktops Unix & Abertos** | `"aubergine-orange"` | Aubergine Orange | Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste. |
+| **Desktops Unix & Abertos** | `"pantheon-pure"` | Pantheon Pure | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
+| **Desktops Unix & Abertos** | `"cosmic-teal"` | Cosmic Teal | Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar. |
+| **Desktops Unix & Abertos** | `"tiling-grid"` | Tiling Grid | Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px. |
+| **Desktops Unix & Abertos** | `"greybird-lite"` | Greybird Lite | Gradiente suave azul-acinzentado, botões leves e cantos de 4px. |
+| **Desktops Unix & Abertos** | `"e-fusion"` | Fusion Neon | Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi. |
+| **Desktops Unix & Abertos** | `"x11-box"` | X11 Dark Box | Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta. |
+| **Desktops Unix & Abertos** | `"motif-panel"` | Motif Panel | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
+| **Desktops Unix & Abertos** | `"adwaita-slate"` | Adwaita Slate | Headerbar espaçosa de 42px com botão de fechar circular minimalista e alto contraste. |
+| **Desktops Unix & Abertos** | `"breeze-plasma"` | Breeze Plasma | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
+| **Console & Sci-Fi** | `"turbo-tui"` | DOS TUI Console | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
+| **Console & Sci-Fi** | `"cyberpunk-neon"` | Cyber Neon HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
 
 ---
 

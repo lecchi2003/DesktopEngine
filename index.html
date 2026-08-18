@@ -30,14 +30,15 @@
             Form, Input, Textarea, Select, Checkbox, Toggle, Button,
             Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
             Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
-            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
+            Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton,
+            DockWidget, FloatButton
         } from './ui.js';
 
         // Inicializa o desktop na posição escolhida
         Desktop.init({
             windowsContainerId: "windows",
             taskbarContainerId: "taskWindows",
-            taskbarPosition: "bottom", // Pode ser 'top', 'bottom', 'left', 'right'
+            taskbarPosition: "left", // Pode ser 'top', 'bottom', 'left', 'right'
             startButtonId: "startBtn",
             showDesktopButton: true
         });
@@ -111,6 +112,27 @@
                                 ]
                             },
                             {
+                                label: "📌 Posição da Barra de Tarefas",
+                                items: [
+                                    { label: "⬇️ Rodapé (Padrão)", action: () => Desktop.setTaskbarPosition("bottom") },
+                                    { label: "⬆️ Topo", action: () => Desktop.setTaskbarPosition("top") },
+                                    { label: "⬅️ Esquerda", action: () => Desktop.setTaskbarPosition("left") },
+                                    { label: "➡️ Direita", action: () => Desktop.setTaskbarPosition("right") }
+                                ]
+                            },
+                            {
+                                label: "🧭 Exibição do MenuBar",
+                                items: [
+                                    { label: "🪟 Barra Separada (Global)", action: () => Desktop.setMenuBarMode("separate") },
+                                    { label: "🔘 Integrado ao Menu Iniciar", action: () => Desktop.setMenuBarMode("startmenu") },
+                                    "separator",
+                                    { label: "⬆️ Posicionar no Topo", action: () => Desktop.setMenuBarPosition("top") },
+                                    { label: "⬇️ Posicionar no Rodapé", action: () => Desktop.setMenuBarPosition("bottom") },
+                                    { label: "⬅️ Posicionar na Esquerda", action: () => Desktop.setMenuBarPosition("left") },
+                                    { label: "➡️ Posicionar na Direita", action: () => Desktop.setMenuBarPosition("right") }
+                                ]
+                            },
+                            {
                                 label: "Paleta de Cores",
                                 items: [
                                     { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
@@ -118,7 +140,7 @@
                                     { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
                                     { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
                                     { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                    { label: "Alto Contraste (Windows Classic)", action: () => Desktop.setTheme("contrast") }
+                                    { label: "Alto Contraste", action: () => Desktop.setTheme("contrast") }
                                 ]
                             },
                             {
@@ -372,8 +394,29 @@
                 volume: 50,
                 tema: Desktop.getTheme ? Desktop.getTheme() : "light",
                 laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
+                taskbarPos: Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom",
+                menubarPos: Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "top",
                 pais: ["Brasil"],
                 menuLateral: false
+            },
+            onMount() {
+                // Sincroniza com as configurações reais ativas do Desktop
+                this.state.tema = Desktop.getTheme ? Desktop.getTheme() : "light";
+                this.state.laf = Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default";
+                this.state.taskbarPos = Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom";
+                this.state.menubarPos = Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "top";
+
+                this._unsubEvents = [
+                    EventBus.on("theme:change", (t) => { this.state.tema = t; }),
+                    EventBus.on("laf:change", (l) => { this.state.laf = l; }),
+                    EventBus.on("taskbar:positionchange", (p) => { this.state.taskbarPos = p; }),
+                    EventBus.on("menubar:positionchange", (m) => { this.state.menubarPos = m; })
+                ];
+            },
+            onDestroy() {
+                if (this._unsubEvents) {
+                    this._unsubEvents.forEach(unsub => unsub && unsub());
+                }
             },
             actions: {
                 nextStep: [async (ctx) => {
@@ -420,16 +463,24 @@
                 }]
             },
             view() {
-                // Aplica o tema globalmente no Desktop Engine
-                if (Desktop && typeof Desktop.setTheme === 'function') {
+                // Aplica o tema se tiver sido modificado pelo select da tela
+                if (Desktop && typeof Desktop.setTheme === 'function' && Desktop.getTheme() !== this.state.tema) {
                     Desktop.setTheme(this.state.tema);
-                } else {
-                    document.documentElement.setAttribute('data-theme', this.state.tema);
                 }
 
-                // Aplica o Look and Feel globalmente no Desktop Engine
-                if (Desktop && typeof Desktop.setLookAndFeel === 'function') {
+                // Aplica o Look and Feel se tiver sido modificado pelo select da tela
+                if (Desktop && typeof Desktop.setLookAndFeel === 'function' && Desktop.getLookAndFeel() !== this.state.laf) {
                     Desktop.setLookAndFeel(this.state.laf);
+                }
+
+                // Aplica a posição da Barra de Tarefas se tiver sido modificada pelo select
+                if (Desktop && typeof Desktop.setTaskbarPosition === 'function' && Desktop.getTaskbarPosition() !== this.state.taskbarPos) {
+                    Desktop.setTaskbarPosition(this.state.taskbarPos);
+                }
+
+                // Aplica a posição do MenuBar se tiver sido modificada pelo select
+                if (Desktop && typeof Desktop.setMenuBarPosition === 'function' && Desktop.getMenuBarPosition() !== this.state.menubarPos) {
+                    Desktop.setMenuBarPosition(this.state.menubarPos);
                 }
 
                 return createElement("div", "", [
@@ -498,6 +549,27 @@
                                                     { label: "⚙️ Breeze Plasma (Glass Glow)", value: "breeze-plasma" },
                                                     { label: "📟 Turbo TUI (DOS Console)", value: "turbo-tui" },
                                                     { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" }
+                                                ]
+                                            }),
+                                            Grid({
+                                                columns: 2, children: [
+                                                    Select({
+                                                        label: "📌 Posição da Barra de Tarefas", bind: "taskbarPos", instance: this, options: [
+                                                            { label: "⬇️ Rodapé (Padrão)", value: "bottom" },
+                                                            { label: "⬆️ Topo", value: "top" },
+                                                            { label: "⬅️ Esquerda", value: "left" },
+                                                            { label: "➡️ Direita", value: "right" }
+                                                        ]
+                                                    }),
+                                                    Select({
+                                                        label: "🧭 Exibição / Posição do MenuBar", bind: "menubarPos", instance: this, options: [
+                                                            { label: "⬆️ Topo (Barra Separada)", value: "top" },
+                                                            { label: "⬇️ Rodapé (Barra Separada)", value: "bottom" },
+                                                            { label: "⬅️ Esquerda (Barra Separada)", value: "left" },
+                                                            { label: "➡️ Direita (Barra Separada)", value: "right" },
+                                                            { label: "🔘 Apenas no Menu Iniciar (Ocultar Barra)", value: "none" }
+                                                        ]
+                                                    })
                                                 ]
                                             }),
                                             RadioGroup({
@@ -601,6 +673,46 @@
                                     Button({ text: "Concluir Setup", onClick: "salvarTudo", instance: this, variant: "primary" })
                                 ]
                             })
+                        ]
+                    }),
+
+                    // --- COMPONENTES ANCORADOS LOCALMENTE DENTRO DESTA JANELA ---
+                    DockWidget({
+                        title: "Console da Janela",
+                        icon: "📑",
+                        badge: 1,
+                        position: "bottom-left",
+                        width: "250px",
+                        height: "180px",
+                        instance: this,
+                        content: [
+                            "💡 DockWidget em modo local.",
+                            "Este painel está contido 100% dentro desta janela."
+                        ]
+                    }),
+
+                    FloatButton({
+                        icon: "⚡",
+                        tooltip: "Ações da Janela",
+                        position: "bottom-right",
+                        variant: "success",
+                        instance: this,
+                        actions: [
+                            {
+                                icon: "💾",
+                                label: "Salvar Dados",
+                                variant: "primary",
+                                action: () => Toast({ message: "Ação disparada de dentro da janela!", type: "success" })
+                            },
+                            {
+                                icon: "🔄",
+                                label: "Resetar Etapas",
+                                variant: "danger",
+                                action: () => {
+                                    this.state.step = 0;
+                                    Toast({ message: "Etapas resetadas!", type: "info" });
+                                }
+                            }
                         ]
                     })
                 ]);
@@ -741,15 +853,82 @@
             setTimeout(() => Desktop.openScreen("lifecycle_demo"), 150);
         }, 100);
 
+        // --- 1. DOCK WIDGET GLOBAL (ESTILO LINKEDIN MESSENGER / LOG DE EVENTOS) ---
+        const eventLogDock = DockWidget({
+            title: "Mensagens & Eventos",
+            icon: "💬",
+            badge: 3,
+            badgeVariant: "danger",
+            position: "bottom-right",
+            width: "320px",
+            height: "300px",
+            headerActions: [
+                {
+                    icon: "🧹",
+                    title: "Limpar logs",
+                    action: (dock) => {
+                        dock.setContent([]);
+                        dock.setBadge(0);
+                        Toast({ message: "Histórico de eventos limpo!", type: "info" });
+                    }
+                },
+                {
+                    icon: "➕",
+                    title: "Simular nova mensagem",
+                    action: (dock) => {
+                        const count = (parseInt(dock.element.querySelector('.ui-dock-badge')?.textContent) || 0) + 1;
+                        dock.setBadge(count);
+                        dock.addItem(`📩 Nova mensagem recebida às ${new Date().toLocaleTimeString('pt-BR')}`, true);
+                        Toast({ message: "Nova notificação recebida no Dock!", type: "success" });
+                    }
+                }
+            ],
+            content: [
+                "✨ Desktop Engine V1.0 inicializado com sucesso.",
+                "📡 Conexão com EventBus estabelecida.",
+                "🔔 Sistema pronto para receber eventos em tempo real."
+            ],
+            onExpand: (dock) => {
+                dock.setBadge(0); // Limpa badge ao abrir/ler mensagens
+            }
+        });
+
+        // --- 2. FLOAT BUTTON GLOBAL (FAB COM SPEED DIAL DE AÇÕES RÁPIDAS) ---
+        const quickActionsFab = FloatButton({
+            icon: "⚡",
+            activeIcon: "✕",
+            tooltip: "Ações Rápidas do Desktop",
+            position: "bottom-right",
+            variant: "primary",
+            actions: [
+                {
+                    icon: "✨",
+                    label: "Showcase Completo",
+                    variant: "primary",
+                    action: () => Desktop.openScreen("showcase")
+                },
+                {
+                    icon: "📊",
+                    label: "Relatórios Background",
+                    variant: "success",
+                    action: () => Desktop.openScreen("background_reports")
+                },
+                {
+                    icon: "⏱️",
+                    label: "Monitor de Hooks",
+                    variant: "info",
+                    action: () => Desktop.openScreen("lifecycle_demo")
+                },
+                {
+                    icon: "💬",
+                    label: "Alternar Dock Messenger",
+                    variant: "surface",
+                    action: () => eventLogDock.querySelector('.ui-dock-header')?.click()
+                }
+            ]
+        });
+
     </script>
-    <!-- Adicionando um pequeno fix CSS para a tela do Browser ficar 100% de altura -->
-    <style>
-        .flex-col {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-    </style>
 </body>
 
 </html>

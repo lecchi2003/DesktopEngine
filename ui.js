@@ -643,7 +643,7 @@ export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal"
     });
 }
 
-export function MenuBar({ containerId, element, position = "top", menus = [], windowInstance = null } = {}) {
+export function MenuBar({ containerId, element, position, menus = [], windowInstance = null } = {}) {
     let bar;
     if (element && (element.nodeType || element instanceof HTMLElement)) {
         bar = element;
@@ -658,12 +658,27 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
     if (!bar.classList.contains("ui-menubar")) {
         bar.classList.add("ui-menubar");
     }
-    bar.dataset.position = position;
 
     const app = document.getElementById("app");
     const isGlobalBar = app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")));
+
+    let effectivePosition = position;
+    if (!effectivePosition) {
+        if (isGlobalBar && typeof Desktop !== 'undefined' && Desktop.getMenuBarPosition) {
+            effectivePosition = Desktop.getMenuBarPosition();
+        } else {
+            effectivePosition = "top";
+        }
+    }
+    bar.dataset.position = effectivePosition;
+
     if (isGlobalBar) {
-        app.dataset.menubar = position;
+        app.dataset.menubar = effectivePosition;
+        if (effectivePosition === "none") {
+            bar.style.display = "none";
+        } else {
+            bar.style.display = "";
+        }
     }
 
     // --- Mobile Hamburger & Drawer para Menus Globais, Janelas e StartMenu ---
@@ -1983,4 +1998,368 @@ export function Skeleton({ width = "100%", height = "20px", shape = "rect" }) {
     el.style.width = typeof width === 'number' ? `${width}px` : width;
     el.style.height = typeof height === 'number' ? `${height}px` : height;
     return el;
+}
+
+// --- DOCK WIDGET (COLLAPSIBLE TRAY / MESSENGER / LOG DOCK) ---
+export function DockWidget({
+    title = "Mensagens",
+    icon = "💬",
+    badge = null,
+    bindBadge = null,
+    badgeVariant = "danger",
+    expanded = false,
+    bindExpanded = null,
+    position = "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+    width = "320px",
+    height = "380px",
+    headerActions = [], // [{ icon, title, action: (widget, e) => {} }]
+    content = [],       // Array de elementos, nós DOM ou função () => []
+    instance = null,
+    targetContainer = null,
+    allowMinimizeToTray = true, // Permite minimizar para a bandeja/taskbar (estilo Windows tray)
+    trayTooltip = null,
+    onToggle = null,
+    onExpand = null,
+    onCollapse = null,
+    onMinimizeToTray = null,
+    onRestoreFromTray = null
+} = {}) {
+    const isLocal = !!instance && !targetContainer;
+    let target = targetContainer || (instance?.element) || document.getElementById("app") || document.body;
+    
+    // Contêiner principal do Dock
+    const dock = createElement("div", `ui-dock-widget pos-${position} ${isLocal ? 'is-local' : 'is-global'}`);
+    dock.style.width = typeof width === 'number' ? `${width}px` : width;
+    
+    let isExp = expanded;
+    if (bindExpanded && instance?.state && instance.state[bindExpanded] !== undefined) {
+        isExp = !!instance.state[bindExpanded];
+    }
+    if (isExp) dock.classList.add("expanded");
+
+    // Header / Barra clicável
+    const header = createElement("div", "ui-dock-header");
+    
+    // Esquerda: Ícone + Título + Badge
+    const headerLeft = createElement("div", "ui-dock-header-left");
+    if (icon) {
+        if (typeof icon === 'string') {
+            headerLeft.appendChild(createElement("span", "ui-dock-icon", [icon]));
+        } else if (icon instanceof Node) {
+            headerLeft.appendChild(icon);
+        }
+    }
+    const titleEl = createElement("span", "ui-dock-title", [title]);
+    headerLeft.appendChild(titleEl);
+
+    // Badge de notificações/eventos
+    let currentBadge = badge;
+    if (bindBadge && instance?.state && instance.state[bindBadge] !== undefined) {
+        currentBadge = instance.state[bindBadge];
+    }
+    const badgeEl = createElement("span", `ui-dock-badge badge-${badgeVariant}`, [String(currentBadge || "")]);
+    if (!currentBadge) badgeEl.style.display = "none";
+    headerLeft.appendChild(badgeEl);
+
+    // Direita: Ações customizadas + Botão de minimizar na Tray + Botão de chevron (Expand/Collapse)
+    const headerRight = createElement("div", "ui-dock-header-right");
+    
+    headerActions.forEach(act => {
+        const actBtn = createElement("button", "ui-dock-action-btn");
+        if (act.title) actBtn.title = act.title;
+        if (typeof act.icon === 'string') actBtn.innerHTML = act.icon;
+        else if (act.icon instanceof Node) actBtn.appendChild(act.icon);
+        actBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (typeof act.action === 'function') act.action(dockApi, e);
+            else if (typeof act.action === 'string' && instance && typeof instance[act.action] === 'function') {
+                instance[act.action](e);
+            }
+        };
+        headerRight.appendChild(actBtn);
+    });
+
+    // Botão de Minimizar para Tray (Barra de Tarefas / Canto do Relógio)
+    let minTrayBtn = null;
+    let trayIconBtn = null;
+    let trayBadgeEl = null;
+
+    if (allowMinimizeToTray && !isLocal) {
+        minTrayBtn = createElement("button", "ui-dock-action-btn ui-dock-tray-btn", ["🗕"]);
+        minTrayBtn.title = "Minimizar para a Barra de Tarefas";
+        minTrayBtn.onclick = (e) => {
+            e.stopPropagation();
+            minimizeToTray();
+        };
+        headerRight.appendChild(minTrayBtn);
+    }
+
+    const chevronBtn = createElement("button", "ui-dock-chevron-btn", [isExp ? "▼" : "▲"]);
+    chevronBtn.title = isExp ? "Recolher" : "Expandir";
+    headerRight.appendChild(chevronBtn);
+
+    header.appendChild(headerLeft);
+    header.appendChild(headerRight);
+
+    // Corpo / Conteúdo expansível
+    const body = createElement("div", "ui-dock-body");
+    body.style.maxHeight = typeof height === 'number' ? `${height}px` : height;
+
+    const renderContent = () => {
+        body.innerHTML = "";
+        let items = typeof content === 'function' ? content(dockApi) : content;
+        if (!Array.isArray(items)) items = [items];
+        items.forEach(child => {
+            if (typeof child === 'string') {
+                body.appendChild(createElement("div", "ui-dock-text-item", [child]));
+            } else if (child instanceof Node) {
+                body.appendChild(child);
+            }
+        });
+    };
+    renderContent();
+
+    dock.appendChild(header);
+    dock.appendChild(body);
+
+    // Toggle logic
+    const toggle = (forceState) => {
+        const next = typeof forceState === 'boolean' ? forceState : !dock.classList.contains("expanded");
+        dock.classList.toggle("expanded", next);
+        chevronBtn.textContent = next ? "▼" : "▲";
+        chevronBtn.title = next ? "Recolher" : "Expandir";
+        
+        if (bindExpanded && instance?.state) {
+            instance.state[bindExpanded] = next;
+        }
+
+        if (next) {
+            if (typeof onExpand === 'function') onExpand(dockApi);
+            if (typeof onToggle === 'function') onToggle(true, dockApi);
+        } else {
+            if (typeof onCollapse === 'function') onCollapse(dockApi);
+            if (typeof onToggle === 'function') onToggle(false, dockApi);
+        }
+    };
+
+    header.onclick = () => toggle();
+
+    // Minimizar / Restaurar da Tray (Bandeja do Sistema / Taskbar)
+    const minimizeToTray = () => {
+        dock.classList.add("minimized-to-tray");
+        dock.style.display = "none";
+
+        if (!trayIconBtn) {
+            // Localiza a taskbar ou contêiner da bandeja
+            const taskbar = document.getElementById("taskbar");
+            const clock = document.getElementById("clock");
+            
+            trayIconBtn = createElement("button", `ui-dock-tray-icon badge-${badgeVariant}`);
+            trayIconBtn.title = trayTooltip || `${title} (Minimizado)`;
+            
+            const iconSpan = createElement("span", "ui-dock-tray-icon-symbol", [typeof icon === 'string' ? icon : '💬']);
+            trayIconBtn.appendChild(iconSpan);
+
+            trayBadgeEl = createElement("span", `ui-dock-tray-badge badge-${badgeVariant}`, [String(currentBadge || "")]);
+            if (!currentBadge) trayBadgeEl.style.display = "none";
+            trayIconBtn.appendChild(trayBadgeEl);
+
+            trayIconBtn.onclick = (e) => {
+                e.stopPropagation();
+                restoreFromTray();
+            };
+
+            if (taskbar && clock) {
+                taskbar.insertBefore(trayIconBtn, clock);
+            } else if (taskbar) {
+                taskbar.appendChild(trayIconBtn);
+            } else {
+                document.body.appendChild(trayIconBtn);
+            }
+        } else {
+            trayIconBtn.style.display = "inline-flex";
+        }
+
+        if (typeof onMinimizeToTray === 'function') onMinimizeToTray(dockApi);
+    };
+
+    const restoreFromTray = (andExpand = true) => {
+        dock.classList.remove("minimized-to-tray");
+        dock.style.display = "";
+        if (trayIconBtn) {
+            trayIconBtn.style.display = "none";
+        }
+        if (andExpand) {
+            toggle(true);
+        }
+        if (typeof onRestoreFromTray === 'function') onRestoreFromTray(dockApi);
+    };
+
+    // API pública do componente
+    const dockApi = {
+        element: dock,
+        toggle: (state) => toggle(state),
+        expand: () => toggle(true),
+        collapse: () => toggle(false),
+        minimizeToTray: () => minimizeToTray(),
+        restoreFromTray: (andExpand) => restoreFromTray(andExpand),
+        isMinimizedToTray: () => dock.classList.contains("minimized-to-tray"),
+        isExpanded: () => dock.classList.contains("expanded"),
+        setBadge(val, variant) {
+            currentBadge = val;
+            if (val === null || val === undefined || val === 0 || val === "") {
+                badgeEl.style.display = "none";
+                badgeEl.textContent = "";
+                if (trayBadgeEl) {
+                    trayBadgeEl.style.display = "none";
+                    trayBadgeEl.textContent = "";
+                }
+            } else {
+                badgeEl.style.display = "inline-flex";
+                badgeEl.textContent = String(val);
+                if (trayBadgeEl) {
+                    trayBadgeEl.style.display = "inline-flex";
+                    trayBadgeEl.textContent = String(val);
+                }
+            }
+            if (variant) {
+                badgeVariant = variant;
+                badgeEl.className = `ui-dock-badge badge-${variant}`;
+                if (trayIconBtn) trayIconBtn.className = `ui-dock-tray-icon badge-${variant}`;
+                if (trayBadgeEl) trayBadgeEl.className = `ui-dock-tray-badge badge-${variant}`;
+            }
+            if (bindBadge && instance?.state) {
+                instance.state[bindBadge] = val;
+            }
+        },
+        setTitle(t) {
+            title = t;
+            titleEl.textContent = t;
+            if (trayIconBtn) trayIconBtn.title = trayTooltip || `${t} (Minimizado)`;
+        },
+        setContent(newContent) {
+            content = newContent;
+            renderContent();
+        },
+        addItem(item, prepend = false) {
+            const node = typeof item === 'string' ? createElement("div", "ui-dock-text-item", [item]) : item;
+            if (prepend && body.firstChild) {
+                body.insertBefore(node, body.firstChild);
+            } else {
+                body.appendChild(node);
+            }
+        },
+        destroy() {
+            if (trayIconBtn) trayIconBtn.remove();
+            dock.remove();
+        }
+    };
+
+    // Anexa ao target se for global ou configurado
+    if (!instance || targetContainer) {
+        target.appendChild(dock);
+    }
+
+    return dock;
+}
+
+// --- FLOAT BUTTON (FAB / SPEED DIAL / QUICK ACTIONS) ---
+export function FloatButton({
+    icon = "⚡",
+    activeIcon = "✕",
+    tooltip = "Ações Rápidas",
+    position = "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+    variant = "primary",       // 'primary', 'success', 'danger', 'info', 'surface'
+    size = "52px",
+    shape = "circle",          // 'circle', 'square', 'rounded'
+    actions = [],              // [{ icon, label, variant, action: (btn, e) => {} }]
+    onClick = null,
+    instance = null,
+    targetContainer = null
+} = {}) {
+    const isLocal = !!instance && !targetContainer;
+    let target = targetContainer || (instance?.element) || document.getElementById("app") || document.body;
+
+    const wrap = createElement("div", `ui-float-button-wrap pos-${position} ${isLocal ? 'is-local' : 'is-global'}`);
+    
+    // Contêiner de ações em cascata (Speed Dial)
+    const dial = createElement("div", `ui-float-dial dial-${position.startsWith('top') ? 'down' : 'up'}`);
+    
+    actions.forEach((act, idx) => {
+        const item = createElement("div", `ui-float-dial-item variant-${act.variant || 'surface'}`);
+        item.style.transitionDelay = `${idx * 0.04}s`;
+        
+        if (act.label) {
+            const lbl = createElement("span", "ui-float-dial-label", [act.label]);
+            item.appendChild(lbl);
+        }
+        
+        const actionBtn = createElement("button", `ui-float-dial-btn variant-${act.variant || 'surface'}`);
+        if (act.tooltip) actionBtn.title = act.tooltip;
+        if (typeof act.icon === 'string') actionBtn.innerHTML = act.icon;
+        else if (act.icon instanceof Node) actionBtn.appendChild(act.icon);
+
+        actionBtn.onclick = (e) => {
+            e.stopPropagation();
+            wrap.classList.remove("open");
+            if (typeof act.action === 'function') act.action(fabApi, e);
+            else if (typeof act.action === 'string' && instance && typeof instance[act.action] === 'function') {
+                instance[act.action](e);
+            }
+        };
+
+        item.appendChild(actionBtn);
+        dial.appendChild(item);
+    });
+
+    // Botão Principal
+    const mainBtn = createElement("button", `ui-float-btn variant-${variant} shape-${shape}`);
+    mainBtn.style.width = typeof size === 'number' ? `${size}px` : size;
+    mainBtn.style.height = typeof size === 'number' ? `${size}px` : size;
+    if (tooltip) mainBtn.title = tooltip;
+
+    const iconSpan = createElement("span", "ui-float-btn-icon", [typeof icon === 'string' ? icon : '']);
+    if (icon instanceof Node) iconSpan.appendChild(icon);
+    
+    const activeIconSpan = createElement("span", "ui-float-btn-icon-active", [typeof activeIcon === 'string' ? activeIcon : '']);
+    if (activeIcon instanceof Node) activeIconSpan.appendChild(activeIcon);
+
+    mainBtn.appendChild(iconSpan);
+    if (actions.length > 0) mainBtn.appendChild(activeIconSpan);
+
+    mainBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (actions.length > 0) {
+            wrap.classList.toggle("open");
+        }
+        if (typeof onClick === 'function') onClick(fabApi, e);
+        else if (typeof onClick === 'string' && instance && typeof instance[onClick] === 'function') {
+            instance[onClick](e);
+        }
+    };
+
+    // Fecha ao clicar fora
+    document.addEventListener("click", (e) => {
+        if (!wrap.contains(e.target)) {
+            wrap.classList.remove("open");
+        }
+    });
+
+    wrap.appendChild(dial);
+    wrap.appendChild(mainBtn);
+
+    const fabApi = {
+        element: wrap,
+        open: () => wrap.classList.add("open"),
+        close: () => wrap.classList.remove("open"),
+        toggle: () => wrap.classList.toggle("open"),
+        isOpen: () => wrap.classList.contains("open"),
+        destroy: () => wrap.remove()
+    };
+
+    if (!instance || targetContainer) {
+        target.appendChild(wrap);
+    }
+
+    return wrap;
 }
