@@ -711,8 +711,8 @@ StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
 
 #### `MenuBar em Janelas (Window MenuBar)`
 Além da barra de menus global do Desktop, qualquer janela pode possuir sua **própria barra de menus dedicada (Window MenuBar)** posicionada imediatamente abaixo da titlebar, exatamente como nos aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).
-
-Suporta ícones visuais (`icon`), atalhos de teclado alinhados à direita (`shortcut`), submenus aninhados multinível (`items`), desabilitação condicional (`disabled`) e injeção automática do contexto da instância da janela `(instance, event)` nas ações.
+ 
+Suporta ícones visuais (`icon`), atalhos de teclado alinhados à direita (`shortcut`), submenus aninhados multinível com **inversão automática de lado (Smart Flip)** para nunca transbordar a tela, **ajuste vertical inteligente com rolagem automática** para listas extensas, desabilitação condicional (`disabled`) e injeção automática do contexto da instância da janela `(instance, event)` nas ações.
 
 ##### 1. Declaração Declarativa na Configuração da Tela
 ```javascript
@@ -1122,13 +1122,20 @@ EventBus.on("laf:change", (lafName) => {
 });
 ```
 
-### Catálogo dos 20 Look and Feels Disponíveis
+### Catálogo dos 34 Look and Feels Disponíveis
 
 | Categoria | Identificador | Nome / Sistema | Destaques Estruturais e Visuais |
 | :--- | :--- | :--- | :--- |
-| **Modernos** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
-| **Modernos** | `"macos"` | macOS (Aqua Modern) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
-| **Modernos** | `"win11"` | Windows 11 (Fluent) | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Modernos & Mobile** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
+| **Modernos & Mobile** | `"macos"` | macOS (Aqua Modern) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
+| **Modernos & Mobile** | `"win11"` | Windows 11 (Fluent) | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Modernos & Mobile** | `"material3"` | Material You / M3 (Android) | Superfícies em camadas tonais, cantos de 20px e botões pílula (*Pill*). |
+| **Modernos & Mobile** | `"cupertino"` | Cupertino (iOS 18) | Vidro fosco translúcido (*frosted glass* 28px blur), squircle de 20px e sombras suaves. |
+| **Modernos & Mobile** | `"oneui"` | Samsung One UI | Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico. |
+| **Modernos & Mobile** | `"metro"` | Windows Metro (Flat) | Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste. |
+| **Espacial & Tátil** | `"visionos"` | Apple VisionOS | Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas. |
+| **Espacial & Tátil** | `"neumorphism"` | Neumorphism (Soft UI) | Superfícies esculpidas em relevo suave com luz e sombra duplas opostas. |
+| **Espacial & Tátil** | `"tactical-hud"` | Tactical HUD (Cyberdeck) | Interface tática militar em âmbar/neon, cantos chanfrados em 45º e estética de ficção científica. |
 | **Java PlaF** | `"java-metal"` | Java Metal (Steel Classic) | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
 | **Java PlaF** | `"java-ocean"` | Java Ocean (Metal 2.0) | Gradiente metálico azul acetinado e chanfros suaves Swing. |
 | **Java PlaF** | `"java-nimbus"` | Java Nimbus | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
@@ -1143,6 +1150,13 @@ EventBus.on("laf:change", (lafName) => {
 | **Retrô & Clássicos** | `"amiga"` | AmigaOS (Workbench) | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
 | **Retrô & Clássicos** | `"mac-classic"` | Mac OS System 7 / Platinum | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
 | **Retrô & Clássicos** | `"os2-warp"` | OS/2 Warp (IBM) | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
+| **UNIX / Linux** | `"ubuntu"` | Ubuntu (Yaru) | Barra grafite com acentos em Laranja Ubuntu e botões circulares. |
+| **UNIX / Linux** | `"elementary"` | Elementary OS (Pantheon) | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
+| **UNIX / Linux** | `"pop-cosmic"` | Pop!_OS (COSMIC) | Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76). |
+| **UNIX / Linux** | `"i3wm"` | i3wm / Sway (Tiling) | Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px. |
+| **UNIX / Linux** | `"xfce"` | XFCE (Greybird) | Gradiente suave azul-acinzentado, botões leves e cantos de 4px. |
+| **UNIX / Linux** | `"enlightenment"` | Enlightenment (E25) | Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi. |
+| **UNIX / Linux** | `"windowmaker"` | Window Maker (X11) | Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta. |
 | **UNIX / Linux** | `"cde-motif"` | CDE / Motif (Solaris) | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
 | **UNIX / Linux** | `"gnome"` | GNOME (Adwaita) | Headerbar espaçosa de 42px com botão de fechar circular minimalista. |
 | **UNIX / Linux** | `"kde"` | KDE (Breeze) | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
@@ -1194,7 +1208,46 @@ Desktop.registerPalette("synthwave", {
 
 ---
 
+## 📱 Modo Mobile & Responsivo (Stacked Windows, Drawer & Bottom Sheet)
+
+O **DesktopEngine** oferece suporte híbrido responsivo nativo: opera como **Desktop tradicional com janelas flutuantes livres** em telas grandes e converte-se automaticamente em uma **experiência Mobile nativa** em smartphones ou telas menores (`<= 768px` ou via classe `.mobile-mode`).
+
+### 1. Comportamento das Janelas Empilhadas (Mobile Stack Flow)
+- **Fluxo Vertical com Auto-Scroll:** As janelas deixam de ter posições absolutas (x,y) e passam a ser empilhadas verticalmente com `width: 100%` dentro do desktop com rolagem vertical suave.
+- **Auto-Scroll na Criação:** Ao abrir qualquer tela (ex: `Desktop.openScreen()` ou `Desktop.createWindow()`), o desktop rola suavemente para baixo garantindo foco visual imediato na nova janela aberta.
+- **Ajustes de Interação:** Handles de redimensionamento livre e arrastar de coordenadas absolutas são desativados de forma transparente no mobile para não interferir na rolagem da página.
+
+### 2. MenuBar Mobile (Global & Window MenuBars com Hamburger & Accordion)
+Em visualizações móveis, tanto a barra superior global quanto os **Window MenuBars** dentro de janelas (ex: Editor, Navegador) transformam-se em botões compactos **Hamburger (☰)**. Ao serem tocados, abrem uma **Drawer Lateral / Bottom Sheet deslizante** contendo toda a hierarquia de menus em formato de sanfona (*Accordion*) com áreas de toque confortáveis (mínimo de 44px de altura) e fechamento automático ao selecionar uma ação.
+
+### 3. Menu de Contexto Mobile (Bottom Sheet / Action Sheet & Long-Press)
+O `ContextMenu` detecta o ambiente touch/mobile e abre uma **Bottom Sheet (Folha Inferior deslizante)** com fundo escurecido (*backdrop*), opções táteis com ícones e botão de *Cancelar*. O método `bindContextMenu` inclui suporte automático a **toque prolongado (long-press de 450ms)** com vibração tátil (haptic feedback) em smartphones e tablets.
+
+### 4. Layout Linear dos Componentes nas Janelas
+Todos os containers de layout (`Row`, `Col`, `Grid`, `Form`) dentro das janelas adaptam-se para `flex-direction: column` com 100% de largura, campos de formulário ganham altura ergonômica de toque e abas/tabelas recebem rolagem horizontal fluida (touch swipe).
+
+### 5. API de Controle do Modo Mobile
+```javascript
+import { Desktop } from './desktop.js';
+
+// 1. Inicialização com modo responsivo
+Desktop.init({
+    responsiveMode: "auto",      // 'auto' (detecta <= 768px), 'mobile' ou 'desktop'
+    mobileBreakpoint: 768        // Breakpoint em pixels para troca automática
+});
+
+// 2. Métodos e Utilitários Mobile
+Desktop.isMobile();              // Retorna true se estiver no modo mobile ativo
+Desktop.setMobileMode("mobile"); // Força o modo mobile (janelas empilhadas)
+Desktop.setMobileMode("desktop");// Força o modo desktop (janelas flutuantes livres)
+Desktop.setMobileMode("auto");   // Retorna para detecção automática por viewport
+Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneamente
+```
+
+---
+
 ## 📖 Visualizando a Documentação Interativa
 
 Para navegar pelo manual visual com menu lateral expansível e tabelas de consulta rápida:
 👉 Abra o arquivo **`docs.html`** no seu navegador.
+

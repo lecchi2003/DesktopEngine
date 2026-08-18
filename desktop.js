@@ -11,6 +11,7 @@ export const Desktop = {
     screens: {}, // Registro de telas (lazy loaders ou objetos)
     currentTheme: "light",
     currentLaF: "default",
+    isMobileActive: false,
     
     init(options = {}) {
         this.windows = {}; // Reseta referências ativas ao inicializar
@@ -21,6 +22,8 @@ export const Desktop = {
             showDesktopButton: true,
             defaultTheme: "light",
             defaultLaF: "default",
+            responsiveMode: "auto", // 'auto' | 'mobile' | 'desktop'
+            mobileBreakpoint: 768,
             ...options
         };
         
@@ -51,13 +54,19 @@ export const Desktop = {
             desktopBtn.style.display = "none";
         }
         
+        // Configura modo responsivo
+        this.setMobileMode(this.options.responsiveMode || "auto", false);
+        
         window.addEventListener("resize", () => {
-            document.querySelectorAll(".window:not(.maximized)").forEach(w => {
-                const maxX = this.windowsEl.clientWidth - w.offsetWidth;
-                const maxY = this.windowsEl.clientHeight - w.offsetHeight;
-                w.style.left = Math.max(0, Math.min(maxX, w.offsetLeft)) + "px";
-                w.style.top = Math.max(0, Math.min(maxY, w.offsetTop)) + "px";
-            });
+            this.checkResponsiveMode();
+            if (!this.isMobile()) {
+                document.querySelectorAll(".window:not(.maximized)").forEach(w => {
+                    const maxX = this.windowsEl.clientWidth - w.offsetWidth;
+                    const maxY = this.windowsEl.clientHeight - w.offsetHeight;
+                    w.style.left = Math.max(0, Math.min(maxX, w.offsetLeft)) + "px";
+                    w.style.top = Math.max(0, Math.min(maxY, w.offsetTop)) + "px";
+                });
+            }
         });
         
         document.addEventListener('mousedown', (e) => {
@@ -326,6 +335,14 @@ export const Desktop = {
         }
 
         this.focusWindow(w);
+
+        if (this.isMobile()) {
+            setTimeout(() => {
+                try {
+                    w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch (e) {}
+            }, 80);
+        }
         
         return w;
     },
@@ -500,17 +517,19 @@ export const Desktop = {
     setupDrag(w, bar) {
         let drag = null;
         bar.addEventListener("dblclick", e => {
+            if (this.isMobile()) return;
             if (e.target.closest(".winBtn")) return;
             this.maximizeWindow(w);
         });
         bar.addEventListener("pointerdown", e => {
+            if (this.isMobile()) return;
             if (e.target.closest(".winBtn") || w.classList.contains("maximized")) return;
             this.focusWindow(w);
             drag = { x: e.clientX, y: e.clientY, left: w.offsetLeft, top: w.offsetTop };
             bar.setPointerCapture(e.pointerId);
         });
         bar.addEventListener("pointermove", e => {
-            if (!drag) return;
+            if (!drag || this.isMobile()) return;
             const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
             const containerEl = w.parentElement || this.windowsEl;
             const maxX = Math.max(0, containerEl.clientWidth - w.offsetWidth);
@@ -533,7 +552,7 @@ export const Desktop = {
     setupResize(w) {
         w.querySelectorAll(".resizeHandle").forEach(handle => {
             handle.addEventListener("pointerdown", e => {
-                if (w.classList.contains("maximized")) return;
+                if (this.isMobile() || w.classList.contains("maximized")) return;
                 e.preventDefault(); 
                 e.stopPropagation(); 
                 this.focusWindow(w);
@@ -547,6 +566,7 @@ export const Desktop = {
                 handle.setPointerCapture(e.pointerId);
 
                 const move = ev => {
+                    if (this.isMobile()) return;
                     let { x, y, left, top, width, height } = start;
                     const dx = ev.clientX - x, dy = ev.clientY - y;
                     const minW = 280, minH = 180;
@@ -649,12 +669,75 @@ export const Desktop = {
         return this.currentLaF || document.documentElement.getAttribute('data-laf') || 'default';
     },
 
+    // --- Modo Mobile & Responsividade ---
+    isMobile() {
+        if (this._mobileExplicit !== undefined) {
+            return this._mobileExplicit;
+        }
+        const app = document.getElementById("app");
+        if (app && app.classList.contains("mobile-mode")) return true;
+        const bp = this.options?.mobileBreakpoint || 768;
+        return window.innerWidth <= bp;
+    },
+
+    checkResponsiveMode() {
+        if (this.options.responsiveMode === "auto") {
+            const bp = this.options.mobileBreakpoint || 768;
+            const isMob = window.innerWidth <= bp;
+            this.applyMobileClass(isMob);
+        }
+    },
+
+    setMobileMode(mode, persist = true) {
+        if (mode === "auto") {
+            this.options.responsiveMode = "auto";
+            delete this._mobileExplicit;
+            this.checkResponsiveMode();
+        } else {
+            const isMob = mode === true || mode === "mobile";
+            this.options.responsiveMode = isMob ? "mobile" : "desktop";
+            this._mobileExplicit = isMob;
+            this.applyMobileClass(isMob);
+        }
+        if (persist) {
+            try {
+                localStorage.setItem("desktop_engine_responsive", this.options.responsiveMode);
+            } catch (e) {}
+        }
+        EventBus.emit("desktop:modechange", { isMobile: this.isMobile(), mode: this.options.responsiveMode });
+    },
+
+    toggleMobileMode() {
+        const next = !this.isMobile();
+        this.setMobileMode(next);
+        this.notify(next ? "📱 Modo Mobile ativado (Janelas Empilhadas)" : "🖥️ Modo Desktop ativado (Janelas Flutuantes)", "info");
+        return next;
+    },
+
+    applyMobileClass(isMob) {
+        this.isMobileActive = isMob;
+        const app = document.getElementById("app");
+        if (app) {
+            app.classList.toggle("mobile-mode", isMob);
+        }
+        document.documentElement.classList.toggle("mobile-mode", isMob);
+    },
+
     getAvailableLookAndFeels() {
         return [
-            // Modernos
-            { id: "default", label: "Padrão / Moderno", category: "Modernos", icon: "✨", desc: "Design padrão limpo e elegante do DesktopEngine" },
-            { id: "macos", label: "macOS (Aqua Modern)", category: "Modernos", icon: "🍎", desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
-            { id: "win11", label: "Windows 11 (Fluent)", category: "Modernos", icon: "🪟", desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
+            // Modernos & Mobile Design Systems
+            { id: "default", label: "Padrão / Moderno", category: "Modernos & Mobile", icon: "✨", desc: "Design padrão limpo e elegante do DesktopEngine" },
+            { id: "macos", label: "macOS (Aqua Modern)", category: "Modernos & Mobile", icon: "🍎", desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
+            { id: "win11", label: "Windows 11 (Fluent)", category: "Modernos & Mobile", icon: "🪟", desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
+            { id: "material3", label: "Material You / M3", category: "Modernos & Mobile", icon: "🤖", desc: "Superfícies em camadas tonais, cantos de 20px e botões pílula (Android)" },
+            { id: "cupertino", label: "Cupertino (iOS 18)", category: "Modernos & Mobile", icon: "🍏", desc: "Vidro fosco ultra-translúcido, squircle de 20px e sombras suaves (Apple)" },
+            { id: "oneui", label: "Samsung One UI", category: "Modernos & Mobile", icon: "🌌", desc: "Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico" },
+            { id: "metro", label: "Windows Metro (Flat)", category: "Modernos & Mobile", icon: "🪟", desc: "Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste" },
+
+            // Computação Espacial & Tátil
+            { id: "visionos", label: "Apple VisionOS", category: "Espacial & Tátil", icon: "🥽", desc: "Vidro espacial hiper-translúcido, bordas com reflexo de luz e sombras volumétricas" },
+            { id: "neumorphism", label: "Neumorphism (Soft UI)", category: "Espacial & Tátil", icon: "🫧", desc: "Superfícies esculpidas em relevo suave com luz e sombra duplas opostas" },
+            { id: "tactical-hud", label: "Tactical HUD (Cyberdeck)", category: "Espacial & Tátil", icon: "⚡", desc: "Interface tática militar em âmbar/neon, cantos em 45º e linhas de mira" },
             
             // Java Ecosystem
             { id: "java-metal", label: "Java Metal (Steel)", category: "Java PlaF", icon: "☕", desc: "Clássico Java Swing com tons de aço e texturas de relevo" },
@@ -675,6 +758,13 @@ export const Desktop = {
             { id: "os2-warp", label: "OS/2 Warp (IBM)", category: "Retrô & Clássicos", icon: "🟦", desc: "Estética corporativa azul-acinzentada com chanfros sólidos" },
 
             // UNIX / Linux
+            { id: "ubuntu", label: "Ubuntu (Yaru)", category: "UNIX / Linux", icon: "🟠", desc: "Barra grafite com acentos em Laranja Ubuntu e botões circulares" },
+            { id: "elementary", label: "Elementary OS (Pantheon)", category: "UNIX / Linux", icon: "🕊️", desc: "Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px" },
+            { id: "pop-cosmic", label: "Pop!_OS (COSMIC)", category: "UNIX / Linux", icon: "🚀", desc: "Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76)" },
+            { id: "i3wm", label: "i3wm / Sway (Tiling)", category: "UNIX / Linux", icon: "🪟", desc: "Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px" },
+            { id: "xfce", label: "XFCE (Greybird)", category: "UNIX / Linux", icon: "🐭", desc: "Gradiente suave azul-acinzentado, botões leves e cantos de 4px" },
+            { id: "enlightenment", label: "Enlightenment (E25)", category: "UNIX / Linux", icon: "🌌", desc: "Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi" },
+            { id: "windowmaker", label: "Window Maker (X11)", category: "UNIX / Linux", icon: "⬛", desc: "Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta" },
             { id: "cde-motif", label: "CDE / Motif (Solaris)", category: "UNIX / Linux", icon: "🟣", desc: "Workstation UNIX dos anos 90 com relevos sólidos" },
             { id: "gnome", label: "GNOME (Adwaita)", category: "UNIX / Linux", icon: "🐧", desc: "Headerbar alta de 42px e botão fechar circular minimalista" },
             { id: "kde", label: "KDE (Breeze)", category: "UNIX / Linux", icon: "⚙️", desc: "Linhas nítidas, acentos vetoriais e cantos de 4px" },
@@ -829,8 +919,15 @@ export const Desktop = {
                             this.blinkWindow(childWinEl);
                         });
 
-                        pEl.appendChild(overlay);
+                        if (isContained && childWinEl.parentElement === pEl) {
+                            pEl.insertBefore(overlay, childWinEl);
+                            childWinEl.style.zIndex = "250";
+                        } else {
+                            pEl.appendChild(overlay);
+                        }
+
                         pEl.classList.add("has-modal-child");
+                        childWinEl.classList.add("is-child-dialog");
                         parentInstance._modalChildWindow = childInstance;
                         childInstance._modalParentOverlay = overlay;
                     }

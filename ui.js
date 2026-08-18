@@ -349,8 +349,82 @@ export function TreeView({ data = [], onSelect, instance }) {
 
 
 export function ContextMenu({ x, y, items = [] }) {
-    document.querySelectorAll(".ui-context-menu").forEach(el => el.remove());
+    document.querySelectorAll(".ui-context-menu, .ui-bottom-sheet-backdrop").forEach(el => el.remove());
     
+    const isMobileMode = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.isMobile === 'function') 
+        ? window.Desktop.isMobile() 
+        : (window.innerWidth <= 768 || !!document.getElementById("app")?.classList.contains("mobile-mode"));
+
+    if (isMobileMode) {
+        // --- Modo Mobile: Bottom Sheet (Action Sheet) ---
+        const backdrop = createElement("div", "ui-bottom-sheet-backdrop", []);
+        const sheet = createElement("div", "ui-bottom-sheet", [
+            createElement("div", "bottom-sheet-handle-bar", [
+                createElement("div", "bottom-sheet-handle", [])
+            ]),
+            createElement("div", "bottom-sheet-content", [])
+        ]);
+
+        const contentEl = sheet.querySelector(".bottom-sheet-content");
+
+        const closeBottomSheet = () => {
+            sheet.classList.remove("show");
+            backdrop.classList.remove("show");
+            setTimeout(() => {
+                backdrop.remove();
+            }, 250);
+        };
+
+        backdrop.onclick = (e) => {
+            if (e.target === backdrop) closeBottomSheet();
+        };
+
+        items.forEach(item => {
+            if (item === "separator") {
+                contentEl.appendChild(createElement("div", "bottom-sheet-sep", []));
+            } else {
+                const optChildren = [];
+                if (item.icon) {
+                    optChildren.push(createElement("span", "bottom-sheet-icon", [item.icon]));
+                }
+                optChildren.push(createElement("span", "bottom-sheet-label", [item.label || ""]));
+                if (item.shortcut) {
+                    optChildren.push(createElement("span", "bottom-sheet-shortcut", [item.shortcut]));
+                }
+
+                const opt = createElement("div", "bottom-sheet-option", optChildren);
+                opt.onclick = () => {
+                    closeBottomSheet();
+                    if (item.screen) {
+                        const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                        if (d && typeof d.openScreen === 'function') {
+                            d.openScreen(item.screen, item.props);
+                        }
+                    } else if (item.action) {
+                        item.action();
+                    }
+                };
+                contentEl.appendChild(opt);
+            }
+        });
+
+        // Botão de Cancelar
+        const cancelBtn = createElement("button", "bottom-sheet-cancel-btn", ["✕ Cancelar"]);
+        cancelBtn.onclick = closeBottomSheet;
+        sheet.appendChild(cancelBtn);
+
+        backdrop.appendChild(sheet);
+        document.body.appendChild(backdrop);
+
+        requestAnimationFrame(() => {
+            backdrop.classList.add("show");
+            sheet.classList.add("show");
+        });
+
+        return sheet;
+    }
+    
+    // --- Modo Desktop: Menu Flutuante Tradicional ---
     const menu = createElement("div", "ui-context-menu", []);
     menu.style.left = x + "px";
     menu.style.top = y + "px";
@@ -359,7 +433,15 @@ export function ContextMenu({ x, y, items = [] }) {
         if (item === "separator") {
             menu.appendChild(createElement("div", "menuSep", []));
         } else {
-            const opt = createElement("div", "menuOption", [item.label]);
+            const optChildren = [];
+            if (item.icon) {
+                optChildren.push(createElement("span", "menuOption-icon", [item.icon]));
+            }
+            optChildren.push(createElement("span", "menuOption-label", [item.label || ""]));
+            if (item.shortcut) {
+                optChildren.push(createElement("span", "menuShortcut", [item.shortcut]));
+            }
+            const opt = createElement("div", "menuOption", optChildren);
             opt.onclick = () => {
                 if (item.screen) {
                     const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
@@ -402,6 +484,7 @@ export function ContextMenu({ x, y, items = [] }) {
 }
 
 export function bindContextMenu(element, items = []) {
+    // Clique do botão direito padrão (Desktop)
     element.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -412,6 +495,43 @@ export function bindContextMenu(element, items = []) {
         
         ContextMenu({ x: e.clientX, y: e.clientY, items: menuItems });
     });
+
+    // Suporte nativo a Long-Press Touch para Mobile
+    let touchTimer = null;
+    let startX = 0, startY = 0;
+
+    element.addEventListener("touchstart", (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+
+        touchTimer = setTimeout(() => {
+            touchTimer = null;
+            if (navigator.vibrate) try { navigator.vibrate(40); } catch(err) {}
+            const menuItems = typeof items === 'function' ? items(touch) : items;
+            if (menuItems && menuItems.length > 0) {
+                ContextMenu({ x: touch.clientX, y: touch.clientY, items: menuItems });
+            }
+        }, 450);
+    }, { passive: true });
+
+    element.addEventListener("touchmove", (e) => {
+        if (!touchTimer) return;
+        const touch = e.touches[0];
+        if (Math.hypot(touch.clientX - startX, touch.clientY - startY) > 10) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+        }
+    }, { passive: true });
+
+    element.addEventListener("touchend", () => {
+        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+    }, { passive: true });
+
+    element.addEventListener("touchcancel", () => {
+        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+    }, { passive: true });
 }
 
 export function MenuBar({ containerId, element, position = "top", menus = [], windowInstance = null } = {}) {
@@ -432,10 +552,210 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
     bar.dataset.position = position;
 
     const app = document.getElementById("app");
-    if (app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")))) {
+    const isGlobalBar = app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")));
+    if (isGlobalBar) {
         app.dataset.menubar = position;
     }
 
+    // --- Mobile Hamburger & Drawer para a Barra Global ou de Janela ---
+    const buildMobileItems = (items, closeFn) => {
+        const list = createElement("div", "drawer-item-list", []);
+        items.forEach(subItem => {
+            if (subItem === "separator") {
+                list.appendChild(createElement("div", "drawer-sep", []));
+            } else {
+                const optChildren = [];
+                if (subItem.icon) optChildren.push(createElement("span", "drawer-opt-icon", [subItem.icon]));
+                optChildren.push(createElement("span", "drawer-opt-label", [subItem.label || ""]));
+                if (subItem.items && subItem.items.length > 0) {
+                    optChildren.push(createElement("span", "drawer-accordion-arrow", ["▼"]));
+                }
+
+                const opt = createElement("div", "drawer-option", optChildren);
+
+                if (subItem.items && subItem.items.length > 0) {
+                    opt.classList.add("drawer-has-sub");
+                    const subList = buildMobileItems(subItem.items, closeFn);
+                    subList.style.display = "none";
+
+                    opt.onclick = (ev) => {
+                        ev.stopPropagation();
+                        const isOpen = subList.style.display === "flex";
+                        subList.style.display = isOpen ? "none" : "flex";
+                        opt.classList.toggle("expanded", !isOpen);
+                    };
+
+                    const group = createElement("div", "drawer-group", [opt, subList]);
+                    list.appendChild(group);
+                } else {
+                    opt.onclick = (ev) => {
+                        ev.stopPropagation();
+                        if (closeFn) closeFn();
+                        if (subItem.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(subItem.screen, subItem.props);
+                            }
+                        } else if (subItem.action) {
+                            subItem.action(windowInstance, ev);
+                        }
+                    };
+                    list.appendChild(opt);
+                }
+            }
+        });
+        return list;
+    };
+
+    if (isGlobalBar) {
+        const hamburger = createElement("button", "menubar-mobile-hamburger", ["☰"]);
+        hamburger.setAttribute("aria-label", "Abrir Menu");
+        bar.appendChild(hamburger);
+
+        hamburger.onclick = (e) => {
+            e.stopPropagation();
+            openMobileDrawer();
+        };
+
+        const openMobileDrawer = () => {
+            document.querySelectorAll(".menubar-mobile-drawer-backdrop").forEach(d => d.remove());
+            
+            const backdrop = createElement("div", "menubar-mobile-drawer-backdrop", []);
+            const drawer = createElement("div", "menubar-mobile-drawer", [
+                createElement("div", "drawer-header", [
+                    createElement("div", "drawer-title", ["📱 Menu Principal"]),
+                    createElement("button", "drawer-close-btn", ["✕"])
+                ]),
+                createElement("div", "drawer-content", [])
+            ]);
+
+            const closeDrawer = () => {
+                drawer.classList.remove("open");
+                backdrop.classList.remove("show");
+                setTimeout(() => backdrop.remove(), 250);
+            };
+
+            drawer.querySelector(".drawer-close-btn").onclick = closeDrawer;
+            backdrop.onclick = (e) => {
+                if (e.target === backdrop) closeDrawer();
+            };
+
+            const contentEl = drawer.querySelector(".drawer-content");
+
+            menus.forEach(menu => {
+                const catHeader = createElement("div", "drawer-cat-header", [
+                    menu.icon ? createElement("span", "drawer-cat-icon", [menu.icon]) : null,
+                    createElement("span", "drawer-cat-title", [menu.label || ""]),
+                    menu.items && menu.items.length > 0 ? createElement("span", "drawer-accordion-arrow", ["▼"]) : null
+                ].filter(Boolean));
+
+                const group = createElement("div", "drawer-category-group", [catHeader]);
+
+                if (menu.items && menu.items.length > 0) {
+                    const subList = buildMobileItems(menu.items, closeDrawer);
+                    subList.style.display = "none";
+
+                    catHeader.onclick = () => {
+                        const isOpen = subList.style.display === "flex";
+                        subList.style.display = isOpen ? "none" : "flex";
+                        catHeader.classList.toggle("expanded", !isOpen);
+                    };
+                    group.appendChild(subList);
+                }
+                contentEl.appendChild(group);
+            });
+
+            backdrop.appendChild(drawer);
+            document.body.appendChild(backdrop);
+
+            requestAnimationFrame(() => {
+                backdrop.classList.add("show");
+                drawer.classList.add("open");
+            });
+        };
+    } else {
+        // --- Hamburger & Sheet para Window MenuBar (MenuBar dentro de Janela) ---
+        const winTitle = windowInstance?.config?.title ? `Menu: ${windowInstance.config.title}` : "Menu da Janela";
+        const winIcon = windowInstance?.config?.icon || "☰";
+        const winHamburger = createElement("button", "window-menubar-hamburger", [
+            createElement("span", "window-menubar-hamburger-icon", [winIcon]),
+            createElement("span", "window-menubar-hamburger-label", ["Menu"])
+        ]);
+        winHamburger.setAttribute("aria-label", winTitle);
+        bar.appendChild(winHamburger);
+
+        winHamburger.onclick = (e) => {
+            e.stopPropagation();
+            openWindowMobileSheet();
+        };
+
+        const openWindowMobileSheet = () => {
+            document.querySelectorAll(".ui-bottom-sheet-backdrop").forEach(d => d.remove());
+
+            const backdrop = createElement("div", "ui-bottom-sheet-backdrop", []);
+            const sheet = createElement("div", "ui-bottom-sheet", [
+                createElement("div", "bottom-sheet-handle-bar", [
+                    createElement("div", "bottom-sheet-handle", [])
+                ]),
+                createElement("div", "drawer-header", [
+                    createElement("div", "drawer-title", [`${winIcon} ${winTitle}`]),
+                    createElement("button", "drawer-close-btn", ["✕"])
+                ]),
+                createElement("div", "bottom-sheet-content", [])
+            ]);
+
+            const closeSheet = () => {
+                sheet.classList.remove("show");
+                backdrop.classList.remove("show");
+                setTimeout(() => backdrop.remove(), 250);
+            };
+
+            sheet.querySelector(".drawer-close-btn").onclick = closeSheet;
+            backdrop.onclick = (e) => {
+                if (e.target === backdrop) closeSheet();
+            };
+
+            const contentEl = sheet.querySelector(".bottom-sheet-content");
+
+            menus.forEach(menu => {
+                const catHeader = createElement("div", "drawer-cat-header", [
+                    menu.icon ? createElement("span", "drawer-cat-icon", [menu.icon]) : null,
+                    createElement("span", "drawer-cat-title", [menu.label || ""]),
+                    menu.items && menu.items.length > 0 ? createElement("span", "drawer-accordion-arrow", ["▼"]) : null
+                ].filter(Boolean));
+
+                const group = createElement("div", "drawer-category-group", [catHeader]);
+
+                if (menu.items && menu.items.length > 0) {
+                    const subList = buildMobileItems(menu.items, closeSheet);
+                    subList.style.display = "none"; // Inicia recolhido em sanfona/accordion
+
+                    catHeader.onclick = () => {
+                        const isOpen = subList.style.display === "flex";
+                        subList.style.display = isOpen ? "none" : "flex";
+                        catHeader.classList.toggle("expanded", !isOpen);
+                    };
+                    group.appendChild(subList);
+                }
+                contentEl.appendChild(group);
+            });
+
+            // Botão Fechar
+            const cancelBtn = createElement("button", "bottom-sheet-cancel-btn", ["✕ Fechar Menu"]);
+            cancelBtn.onclick = closeSheet;
+            sheet.appendChild(cancelBtn);
+
+            backdrop.appendChild(sheet);
+            document.body.appendChild(backdrop);
+
+            requestAnimationFrame(() => {
+                backdrop.classList.add("show");
+                sheet.classList.add("show");
+            });
+        };
+    }
+
+    // --- Menus Padrão Desktop & Itens da Barra ---
     function buildMenu(items, isSub = false) {
         const containerClass = isSub ? "dropdown sub-dropdown" : "dropdown menubar-dropdown";
         const container = createElement("div", containerClass, []);
@@ -474,10 +794,84 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
                     
+                    const positionSub = () => {
+                        nested.style.display = "flex";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+
+                        const vw = window.innerWidth || document.documentElement.clientWidth;
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const pad = 10;
+                        const rect = nested.getBoundingClientRect();
+
+                        // 1. Inversão Horizontal Inteligente (se ultrapassar a borda direita)
+                        if (rect.right > vw - pad) {
+                            nested.classList.add("open-left");
+                            nested.style.setProperty("left", "auto", "important");
+                            nested.style.setProperty("right", "100%", "important");
+                            nested.style.setProperty("margin-left", "0", "important");
+                            nested.style.setProperty("margin-right", "-4px", "important");
+
+                            const rectLeft = nested.getBoundingClientRect();
+                            if (rectLeft.left < pad) {
+                                nested.classList.remove("open-left");
+                                nested.style.setProperty("left", "auto", "important");
+                                nested.style.setProperty("right", "0", "important");
+                                nested.style.setProperty("max-width", `${vw - 2 * pad}px`, "important");
+                            }
+                        }
+
+                        // 2. Ajuste Vertical Inteligente (se ultrapassar a borda inferior)
+                        const curRect = nested.getBoundingClientRect();
+                        if (curRect.bottom > vh - pad) {
+                            const overflow = curRect.bottom - (vh - pad);
+                            const optRect = opt.getBoundingClientRect();
+                            const spaceAbove = optRect.top - pad;
+                            const spaceBelow = vh - optRect.bottom - pad;
+
+                            if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
+                                nested.classList.add("open-top");
+                                nested.style.setProperty("top", "auto", "important");
+                                nested.style.setProperty("bottom", "0", "important");
+                                nested.style.setProperty("margin-top", "0", "important");
+                                nested.style.setProperty("margin-bottom", "-4px", "important");
+                            } else {
+                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                                nested.style.setProperty("top", `${-shiftY}px`, "important");
+                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                nested.style.setProperty("overflow-y", "auto", "important");
+                            }
+                        }
+                    };
+
                     opt.addEventListener("mouseenter", () => {
-                        if (!isDisabled) nested.style.display = "flex";
+                        if (!isDisabled) positionSub();
                     });
-                    opt.addEventListener("mouseleave", () => nested.style.display = "none");
+                    opt.addEventListener("mouseleave", () => {
+                        nested.style.display = "none";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+                    });
                 } else {
                     opt.onclick = (e) => { 
                         if (isDisabled) return;
@@ -514,8 +908,30 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
             item.appendChild(dropdown);
         }
         
+        const activateItem = () => {
+            bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+            item.classList.add("active");
+            isMenuOpen = true;
+
+            const dropdown = item.querySelector(".menubar-dropdown");
+            if (dropdown) {
+                dropdown.classList.remove("align-right");
+                dropdown.style.removeProperty("max-height");
+                dropdown.style.removeProperty("overflow-y");
+                const rect = dropdown.getBoundingClientRect();
+                const vw = window.innerWidth || document.documentElement.clientWidth;
+                const vh = window.innerHeight || document.documentElement.clientHeight;
+                if (rect.right > vw - 10) {
+                    dropdown.classList.add("align-right");
+                }
+                if (rect.bottom > vh - 10) {
+                    dropdown.style.setProperty("max-height", `${vh - rect.top - 12}px`, "important");
+                    dropdown.style.setProperty("overflow-y", "auto", "important");
+                }
+            }
+        };
+
         item.onmousedown = (e) => {
-            // Ignora se o clique foi dentro do dropdown aberto (deixa o onclick da opção agir)
             if (e.target.closest(".ui-start-menu") || e.target.closest(".dropdown")) return;
 
             e.stopPropagation();
@@ -523,16 +939,13 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
                 item.classList.remove("active");
                 isMenuOpen = false;
             } else {
-                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
-                item.classList.add("active");
-                isMenuOpen = true;
+                activateItem();
             }
         };
 
         item.onmouseenter = () => {
             if (isMenuOpen && !item.classList.contains("active")) {
-                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
-                item.classList.add("active");
+                activateItem();
             }
         };
 
@@ -571,8 +984,54 @@ export function StartMenu({ buttonId, menus = [] }) {
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
                     
-                    opt.addEventListener("mouseenter", () => nested.style.display = "block");
-                    opt.addEventListener("mouseleave", () => nested.style.display = "none");
+                    const positionStartSub = () => {
+                        nested.style.display = "flex";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("overflow-y");
+
+                        const vw = window.innerWidth || document.documentElement.clientWidth;
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const pad = 10;
+                        const rect = nested.getBoundingClientRect();
+
+                        if (rect.right > vw - pad) {
+                            nested.classList.add("open-left");
+                            nested.style.setProperty("left", "auto", "important");
+                            nested.style.setProperty("right", "100%", "important");
+                            nested.style.setProperty("margin-left", "0", "important");
+                            nested.style.setProperty("margin-right", "-4px", "important");
+                        }
+                        const curRect = nested.getBoundingClientRect();
+                        if (curRect.bottom > vh - pad) {
+                            const overflow = curRect.bottom - (vh - pad);
+                            const optRect = opt.getBoundingClientRect();
+                            const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                            nested.style.setProperty("top", `${-shiftY}px`, "important");
+                            nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                            nested.style.setProperty("overflow-y", "auto", "important");
+                        }
+                    };
+
+                    opt.addEventListener("mouseenter", positionStartSub);
+                    opt.addEventListener("mouseleave", () => {
+                        nested.style.display = "none";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("overflow-y");
+                    });
                 } else {
                     opt.onclick = (e) => { 
                         e.stopPropagation();
@@ -612,7 +1071,7 @@ export function StartMenu({ buttonId, menus = [] }) {
 
 // --- MAIS COMPONENTES CORPORATIVOS ---
 
-export function Select({ label, bind, instance, options = [] }) {
+export function Select({ label, bind, instance, options = [], onChange }) {
     const wrap = createElement("div", "ui-field");
     if (label) wrap.appendChild(createElement("label", "", [label]));
     
@@ -631,6 +1090,8 @@ export function Select({ label, bind, instance, options = [] }) {
         
         select.addEventListener("change", (e) => {
             instance.state[bind] = e.target.value;
+            if (typeof onChange === 'function') onChange(e.target.value, e);
+            else if (typeof onChange === 'string' && typeof instance.runAction === 'function') instance.runAction(onChange, e);
         });
     }
     wrap.appendChild(select);
