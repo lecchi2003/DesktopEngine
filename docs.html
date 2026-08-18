@@ -341,6 +341,7 @@
             <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
             <a href="#look-and-feel">Look and Feel (20 Skins)</a>
             <a href="#temas-paletas">Temas e Paletas de Cores</a>
+            <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
             <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
         </nav>
@@ -2583,8 +2584,45 @@ bindContextMenu(meuCardEl, [
 ]);</code></pre>
             </div>
 
+            <h2 id="modo-mobile">Modo Mobile &amp; Responsivo (Stacked Windows, Drawer &amp; Bottom Sheet)</h2>
+            <p>O <strong>DesktopEngine</strong> oferece suporte híbrido responsivo nativo: opera como <strong>Desktop tradicional com janelas flutuantes livres</strong> em telas grandes e converte-se automaticamente em uma <strong>experiência Mobile nativa</strong> em smartphones ou telas menores (<code>&le; 768px</code> ou via classe <code>.mobile-mode</code>).</p>
+
+            <h3>1. Comportamento das Janelas Empilhadas (Mobile Stack Flow)</h3>
+            <ul>
+                <li><strong>Fluxo Vertical com Auto-Scroll:</strong> As janelas deixam de ter posições absolutas (x,y) e passam a ser empilhadas verticalmente com <code>width: 100%</code> dentro do desktop com rolagem vertical suave.</li>
+                <li><strong>Auto-Scroll na Criação:</strong> Ao abrir qualquer tela (ex: <code>Desktop.openScreen()</code> ou <code>Desktop.createWindow()</code>), o desktop rola suavemente para baixo garantindo foco visual imediato na nova janela aberta.</li>
+                <li><strong>Ajustes de Interação:</strong> Handles de redimensionamento livre e arrastar de coordenadas absolutas são desativados de forma transparente no mobile para não interferir na rolagem da página.</li>
+            </ul>
+
+            <h3>2. MenuBar Mobile (Global &amp; Window MenuBars com Hamburger &amp; Accordion)</h3>
+            <p>Em visualizações móveis, tanto a barra superior global quanto os <strong>Window MenuBars</strong> dentro de janelas (ex: Editor, Navegador) transformam-se em botões compactos <strong>Hamburger (☰)</strong>. Ao serem tocados, abrem uma <strong>Drawer Lateral / Bottom Sheet deslizante</strong> contendo toda a hierarquia de menus em formato de sanfona (<em>Accordion</em>) com áreas de toque confortáveis (mínimo de 44px de altura) e fechamento automático ao selecionar uma ação.</p>
+
+            <h3>3. Menu de Contexto Mobile (Bottom Sheet / Action Sheet &amp; Long-Press)</h3>
+            <p>O <code>ContextMenu</code> detecta o ambiente touch/mobile e abre uma <strong>Bottom Sheet (Folha Inferior deslizante)</strong> com fundo escurecido (<em>backdrop</em>), opções táteis com ícones e botão de <em>Cancelar</em>. O método <code>bindContextMenu</code> inclui suporte automático a <strong>toque prolongado (long-press de 450ms)</strong> com vibração tátil (haptic feedback) em smartphones e tablets.</p>
+
+            <h3>4. Layout Linear dos Componentes nas Janelas</h3>
+            <p>Todos os containers de layout (<code>Row</code>, <code>Col</code>, <code>Grid</code>, <code>Form</code>) dentro das janelas adaptam-se para <code>flex-direction: column</code> com 100% de largura, campos de formulário ganham altura ergonômica de toque e abas/tabelas recebem rolagem horizontal fluida (touch swipe).</p>
+
+            <h3>5. API de Controle do Modo Mobile</h3>
+            <div class="code-box">
+                <pre><code>import { Desktop } from './desktop.js';
+
+// 1. Inicialização com modo responsivo
+Desktop.init({
+    responsiveMode: "auto",      // 'auto' (detecta <= 768px), 'mobile' ou 'desktop'
+    mobileBreakpoint: 768        // Breakpoint em pixels para troca automática
+});
+
+// 2. Métodos e Utilitários Mobile
+Desktop.isMobile();              // Retorna true se estiver no modo mobile ativo
+Desktop.setMobileMode("mobile"); // Força o modo mobile (janelas empilhadas)
+Desktop.setMobileMode("desktop");// Força o modo desktop (janelas flutuantes livres)
+Desktop.setMobileMode("auto");   // Retorna para detecção automática por viewport
+Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneamente</code></pre>
+            </div>
+
             <br><br>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V0.6 &copy; 2026 -
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V1.0 &copy; 2026 -
                 O micro-framework corporativo definitivo em Vanilla JS.</p>
         </main>
     </div>

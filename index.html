@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V1.0 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="./style.css?v=15">
+    <link rel="stylesheet" href="./style.css?v=20">
 </head>
 
 <body>
@@ -89,6 +89,8 @@
                 {
                     label: "Exibir",
                     items: [
+                        { label: "📱 Alternar Modo Mobile / Desktop", action: () => Desktop.toggleMobileMode() },
+                        "separator",
                         { label: "Organizar Janelas em Grade", action: () => Desktop.arrangeWindows() },
                         { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
                     ]
@@ -100,6 +102,14 @@
                             label: "Preferências",
                             items: [
                                 { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
+                                {
+                                    label: "📱 Modo Responsivo",
+                                    items: [
+                                        { label: "📱 Forçar Modo Mobile (Empilhado)", action: () => Desktop.setMobileMode("mobile") },
+                                        { label: "🖥️ Forçar Modo Desktop (Flutuante)", action: () => Desktop.setMobileMode("desktop") },
+                                        { label: "🔄 Detecção Automática (Viewport)", action: () => Desktop.setMobileMode("auto") }
+                                    ]
+                                },
                                 {
                                     label: "Paleta de Cores",
                                     items: [
