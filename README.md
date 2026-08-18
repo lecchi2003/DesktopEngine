@@ -304,6 +304,135 @@ actions: {
 
 ---
 
+## ⏱️ Ciclo de Vida das Janelas (Lifecycle Hooks)
+
+Toda janela no DesktopEngine possui um ciclo de vida estruturado em **4 fases** com pontos de gancho (*hooks*) que permitem inicializar configurações, reagir a alterações de dados, monitorar o foco e estado da janela e realizar limpeza de memória ou interceptar o fechamento:
+
+### Tabela de Hooks Disponíveis
+| Hook / Método | Fase | Descrição & Assinatura |
+|---|---|---|
+| `beforeMount()` | Montagem | Executado **antes** do primeiro `render()` da janela. Ideal para inicializar dados pré-DOM. |
+| `onMount()` | Montagem | Executado logo após a janela ser inserida fisicamente no DOM. Ideal para requisições `fetch()`, timers e gráficos. |
+| `beforeUpdate(prop, new, old)` | Reatividade | Executado imediatamente antes do DOM da janela ser atualizado por uma alteração no `state`. |
+| `onUpdate()` | Reatividade | Executado logo após o novo DOM da janela ser reconstruído. |
+| `onFocus()` | Janela | Disparado quando a janela ganha foco e passa para o primeiro plano. |
+| `onBlur()` | Janela | Disparado quando o foco é transferido para outra janela. |
+| `onMinimize()` | Janela | Disparado quando a janela é minimizada para a barra de tarefas. |
+| `onRestore()` | Janela | Disparado quando a janela é restaurada da barra de tarefas. |
+| `onMaximize(isMax)` | Janela | Disparado ao maximizar (`true`) ou restaurar o tamanho normal (`false`). |
+| `onResize(width, height)` | Janela | Disparado ao redimensionar a janela pelas alças. |
+| `onMove(x, y)` | Janela | Disparado ao arrastar a janela pela barra de título. |
+| `beforeClose()` | Destruição | Executado antes de fechar. Se retornar `false` ou uma `Promise<false>`, o fechamento é **cancelado**. |
+| `onDestroy()` | Destruição | Executado após a janela ser removida do DOM. Ideal para limpar `clearInterval` e ouvintes. |
+
+```javascript
+export default {
+    title: "Exemplo Completo com Todos os Hooks",
+    icon: "⏱️",
+    width: 600,
+    height: 450,
+    state: {
+        contador: 0,
+        timerId: null,
+        temAlteracoesPendentes: true
+    },
+
+    // 1. ANTES DA MONTAGEM (Pré-DOM)
+    beforeMount() {
+        console.log("1. [beforeMount] Inicializando configurações antes do primeiro render().");
+    },
+
+    // 2. APÓS A MONTAGEM (Inserido no DOM)
+    onMount() {
+        console.log("2. [onMount] Janela inserida no DOM. Iniciando timer.");
+        this.state.timerId = setInterval(() => {
+            this.state.contador++;
+        }, 1000);
+        this.setStatus("Monitor ativo.");
+    },
+
+    // 3. ANTES DA RE-RENDERIZAÇÃO
+    beforeUpdate(prop, newValue, oldValue) {
+        console.log(`3. [beforeUpdate] Propriedade '${prop}' mudando de '${oldValue}' para '${newValue}'.`);
+    },
+
+    // 4. APÓS A RE-RENDERIZAÇÃO DO DOM
+    onUpdate() {
+        console.log("4. [onUpdate] Novo DOM reconstruído e aplicado com sucesso.");
+    },
+
+    // 5. GANHO DE FOCO
+    onFocus() {
+        console.log("5. [onFocus] Janela ganhou o foco e veio para frente.");
+        this.setStatus("Janela em primeiro plano.");
+    },
+
+    // 6. PERDA DE FOCO
+    onBlur() {
+        console.log("6. [onBlur] Janela perdeu o foco.");
+        this.setStatus("Janela em segundo plano.");
+    },
+
+    // 7. MINIMIZAR
+    onMinimize() {
+        console.log("7. [onMinimize] Janela minimizada para a barra de tarefas.");
+    },
+
+    // 8. RESTAURAR
+    onRestore() {
+        console.log("8. [onRestore] Janela restaurada.");
+    },
+
+    // 9. MAXIMIZAR / DESMAXIMIZAR
+    onMaximize(isMaximized) {
+        console.log(`9. [onMaximize] Janela ${isMaximized ? "maximizada" : "restaurada ao tamanho original"}.`);
+    },
+
+    // 10. REDIMENSIONAR
+    onResize(width, height) {
+        console.log(`10. [onResize] Novas dimensões: ${width}x${height}px.`);
+    },
+
+    // 11. ARRASTAR / MOVER
+    onMove(x, y) {
+        console.log(`11. [onMove] Nova posição: X=${x}px, Y=${y}px.`);
+    },
+
+    // 12. INTERCEPTADOR DE FECHAMENTO (Antes de Destruir)
+    async beforeClose() {
+        if (this.state.temAlteracoesPendentes) {
+            // Pode retornar false ou uma Promise<boolean> para cancelar o fechamento
+            return await Modal.confirm("Você tem dados não salvos. Deseja realmente fechar?");
+        }
+        return true; // Permite fechar
+    },
+
+    // 13. DESTRUIÇÃO E LIMPEZA DE MEMÓRIA (Pós-Remoção)
+    onDestroy() {
+        console.log("13. [onDestroy] Janela destruída. Limpando timers e liberando memória.");
+        clearInterval(this.state.timerId);
+    },
+
+    view() {
+        return createElement("div", "flex-col", [
+            Card({
+                title: "Painel de Demonstração dos Hooks",
+                children: [
+                    createElement("p", "", [`Contador Reativo: ${this.state.contador}`]),
+                    Button({
+                        text: "Incrementar Manualmente",
+                        variant: "primary",
+                        onClick: () => this.state.contador++
+                    })
+                ]
+            })
+        ]);
+    }
+};
+```
+
+---
+
 ## 📚 Catálogo Completo de Componentes (`ui.js`)
 
 Todos os componentes aceitam composição direta e utilizam classes CSS corporativas nativas.
@@ -494,17 +623,23 @@ Drawer({
 Modal({
     title: "Confirmação",
     instance: this,
+    closable: true, // Padrão: true. Se false, oculta o 'X' superior
     children: [
         createElement("p", "", ["Deseja salvar as alterações?"]),
         Button({ text: "Sim", onClick: "salvarTudo", instance: this })
     ]
 });
 
-// 2. Modal Global (Cobre todo o DesktopEngine):
+// 2. Modal Global Sem Botão 'X' e com Interceptador beforeClose:
 Modal({
     title: "Alerta Crítico",
     instance: this,
+    showCloseButton: false, // Oculta o 'X' e desativa a tecla ESC
     targetContainer: document.getElementById("app"),
+    async beforeClose() {
+        // Pode validar ou bloquear o fechamento retornando false
+        return true;
+    },
     children: [ createElement("p", "", ["Manutenção do servidor agendada."]) ]
 });
 ```
@@ -687,13 +822,76 @@ const mbEl = this.getMenuBar();
 
 ##### 4. Métodos de Controle Auxiliares da Janela
 Toda instância de janela expõe métodos diretos e convenientes para controle:
+- `instance.openDialog(config, props)`: Abre uma janela modal filha acoplada e bloqueando a janela atual, retornando uma `Promise` com o resultado.
+- `instance.openChildWindow(config, props)`: Alias para `openDialog`.
 - `instance.setMenuBar(menus)`: Atualiza ou remove a barra de menus da janela.
 - `instance.getMenuBar()`: Retorna o elemento HTML da barra de menus da janela.
-- `instance.close()`: Fecha e destrói a janela atual.
+- `instance.close(dados)`: Fecha a janela atual (e devolve `dados` para quem abriu via `openDialog`).
 - `instance.minimize()`: Minimiza a janela para a taskbar.
 - `instance.maximize()`: Alterna entre maximizada e restaurada.
 - `instance.restore()`: Restaura a janela se estiver minimizada.
 - `instance.focus()`: Traz a janela para o primeiro plano.
+
+---
+
+## 🪟 Janelas Modais Filhas (Dialogs / Sub-Windows)
+
+O DesktopEngine suporta nativamente o clássico padrão de **Janelas Modais Filhas (Child Modal Windows)**. Uma janela mãe pode abrir uma janela filha que é posicionada centralizada sobre ela, bloqueando exclusivamente a janela mãe com uma camada de desfoque (*frosted glass*) enquanto as demais janelas do sistema continuam ativas.
+
+### 1. Padrão de Diálogo com Retorno Assíncrono (`await openDialog`)
+Ao chamar `await this.openDialog(config)`, a execução na janela mãe pausa de forma assíncrona até que o usuário feche a janela filha chamando `this.close(dados)`, devolvendo o valor diretamente para a variável local da janela mãe:
+
+```javascript
+// Dentro da Janela Mãe (this é a instância da janela mãe):
+const usuarioSelecionado = await this.openDialog({
+    title: "Selecionar Usuário",
+    icon: "👤",
+    width: 440,
+    height: 320,
+    state: {
+        lista: ["Carlos Silva", "Mariana Costa", "Rafael Dias"],
+        selecionado: "Carlos Silva"
+    },
+    view() {
+        return createElement("div", "flex-col", [
+            createElement("p", "", ["Escolha o usuário para vincular:"]),
+            Select({ bind: "selecionado", options: this.state.lista, instance: this }),
+            Row({
+                style: "justify-content: flex-end; gap: 8px; margin-top: auto;",
+                children: [
+                    Button({
+                        text: "Cancelar",
+                        onClick: () => this.close(null) // Fecha sem valor
+                    }),
+                    Button({
+                        text: "Confirmar Seleção",
+                        variant: "primary",
+                        onClick: () => this.close(this.state.selecionado) // Fecha e devolve o valor!
+                    })
+                ]
+            })
+        ]);
+    }
+});
+
+if (usuarioSelecionado) {
+    console.log("Usuário recebido da janela filha:", usuarioSelecionado);
+}
+```
+
+### 2. Modos de Exibição: Confinada vs Flutuante
+Você pode controlar se a janela filha deve se movimentar livremente pelo desktop ou ficar restrita ao contorno físico da janela mãe:
+- `contained: true`: A janela filha é renderizada **dentro do espaço da janela pai** e seu arrasto fica estritamente confinado aos limites da janela mãe (estilo MDI Clássico).
+- `contained: false` (Padrão): A janela filha flutua livremente pelo Desktop, mas mantém o bloqueio modal e foco vinculados à janela mãe.
+- `closable: false` / `showCloseButton: false`: Oculta o botão `X` da barra de título, forçando o usuário a interagir com os botões de ação internos.
+
+### 3. Ciclo de Vida Vinculado (Parent-Child)
+- **Bloqueio Inteligente:** Clicar na janela mãe bloqueada faz a janela filha piscar (*blink effect*) para alertar o usuário.
+- **Minimização Conjunta:** Minimizar ou restaurar a janela mãe minimiza e restaura automaticamente a janela filha modal.
+- **Fechamento em Cascata:** Fechar a janela mãe destrói automaticamente as janelas filhas vinculadas.
+- **Abertura via Screen Registry:** Também é possível abrir pelo ID registrado: `const dados = await this.openDialog("seletor_usuario", { role: "admin" });`
+
+---
 
 #### `ContextMenu` & `bindContextMenu`
 ```javascript

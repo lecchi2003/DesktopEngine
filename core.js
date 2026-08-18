@@ -59,9 +59,10 @@ export const Framework = {
         // Objeto de estado reativo via Proxy
         let state = new Proxy({ ...config.state }, {
             set(target, prop, value) {
+                const oldValue = target[prop];
                 target[prop] = value;
-                if (instance.update && !isSilentStateUpdate) {
-                    instance.update();
+                if (instance.update && !isSilentStateUpdate && instance.el) {
+                    instance.update(prop, value, oldValue);
                 }
                 return true;
             }
@@ -135,7 +136,11 @@ export const Framework = {
                 return div;
             },
 
-            update() {
+            update(prop = null, newValue = null, oldValue = null) {
+                if (typeof this.beforeUpdate === 'function') {
+                    try { this.beforeUpdate(prop, newValue, oldValue); } catch (e) { console.error("Erro no hook beforeUpdate:", e); }
+                }
+
                 if (this.el && this.el.parentNode) {
                     // Salvar o foco atual e posições de seleção/cursor
                     const activeElement = document.activeElement;
@@ -165,6 +170,10 @@ export const Framework = {
                                 elToFocus.setSelectionRange(selStart, selEnd);
                             }
                         }
+                    }
+
+                    if (typeof this.onUpdate === 'function') {
+                        try { this.onUpdate(); } catch (e) { console.error("Erro no hook onUpdate:", e); }
                     }
                 }
             },
@@ -199,10 +208,22 @@ export const Framework = {
                 return this.windowEl ? this.windowEl.querySelector('.window-menubar') : null;
             },
 
-            close() {
+            openDialog(childScreenOrId, initialProps = {}) {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.openDialog === 'function') {
+                    return dm.openDialog(childScreenOrId, this, initialProps);
+                }
+                return Promise.reject(new Error("DesktopManager não disponível para abrir janela modal filha."));
+            },
+
+            openChildWindow(childScreenOrId, initialProps = {}) {
+                return this.openDialog(childScreenOrId, initialProps);
+            },
+
+            close(resultData = undefined) {
                 const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
                 if (dm && typeof dm.closeWindow === 'function') {
-                    dm.closeWindow(this, this.windowEl, this.taskEl);
+                    return dm.closeWindow(this, this.windowEl, this.taskEl, resultData);
                 }
             },
 
@@ -234,15 +255,82 @@ export const Framework = {
                 }
             },
             
-            // Ciclo de vida
+            // --- Lifecycle Hooks (Ciclo de Vida da Janela) ---
+            beforeMount() {
+                if (typeof config.beforeMount === 'function') {
+                    config.beforeMount.call(this);
+                }
+            },
+
             onMount() {
-                if (config.onMount) {
+                if (typeof config.onMount === 'function') {
                     config.onMount.call(this);
                 }
             },
+
+            beforeUpdate(prop, newValue, oldValue) {
+                if (typeof config.beforeUpdate === 'function') {
+                    config.beforeUpdate.call(this, prop, newValue, oldValue);
+                }
+            },
+
+            onUpdate() {
+                if (typeof config.onUpdate === 'function') {
+                    config.onUpdate.call(this);
+                }
+            },
+
+            onFocus() {
+                if (typeof config.onFocus === 'function') {
+                    config.onFocus.call(this);
+                }
+            },
+
+            onBlur() {
+                if (typeof config.onBlur === 'function') {
+                    config.onBlur.call(this);
+                }
+            },
+
+            onMinimize() {
+                if (typeof config.onMinimize === 'function') {
+                    config.onMinimize.call(this);
+                }
+            },
+
+            onRestore() {
+                if (typeof config.onRestore === 'function') {
+                    config.onRestore.call(this);
+                }
+            },
+
+            onMaximize(isMaximized) {
+                if (typeof config.onMaximize === 'function') {
+                    config.onMaximize.call(this, isMaximized);
+                }
+            },
+
+            onResize(width, height) {
+                if (typeof config.onResize === 'function') {
+                    config.onResize.call(this, width, height);
+                }
+            },
+
+            onMove(x, y) {
+                if (typeof config.onMove === 'function') {
+                    config.onMove.call(this, x, y);
+                }
+            },
+
+            async beforeClose() {
+                if (typeof config.beforeClose === 'function') {
+                    return await config.beforeClose.call(this);
+                }
+                return true;
+            },
             
             onDestroy() {
-                if (config.onDestroy) {
+                if (typeof config.onDestroy === 'function') {
                     config.onDestroy.call(this);
                 }
             }

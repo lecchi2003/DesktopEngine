@@ -161,11 +161,15 @@ export const Desktop = {
     },
 
     open(instance) {
-        // Verifica se a tela permite apenas uma instância aberta simultaneamente
-        if (instance.config.singleInstance) {
-            for (let id in this.windows) {
-                if (this.windows[id] && this.windows[id].config === instance.config) {
-                    const w = this.windows[id].windowEl;
+        return this.createWindow(instance);
+    },
+
+    createWindow(instance) {
+        if (instance.config?.singleInstance) {
+            // Procura se já existe uma instância aberta dessa mesma tela
+            for (const [id, openWin] of Object.entries(this.windows)) {
+                if (openWin.config === instance.config) {
+                    const w = openWin.windowEl;
                     if (w && document.body.contains(w)) {
                         if (w.classList.contains("minimized")) this.restoreWindow(w);
                         else this.focusWindow(w);
@@ -175,19 +179,6 @@ export const Desktop = {
                         delete this.windows[id];
                     }
                 }
-            }
-        }
-
-        if (this.windows[instance.id]) {
-            // Já está aberta
-            const w = this.windows[instance.id].windowEl;
-            if (w && document.body.contains(w)) {
-                if (w.classList.contains("minimized")) this.restoreWindow(w);
-                else this.focusWindow(w);
-                this.blinkWindow(w);
-                return w;
-            } else {
-                delete this.windows[instance.id];
             }
         }
 
@@ -207,6 +198,7 @@ export const Desktop = {
         if (config.width) w.style.width = config.width + "px";
         if (config.height) w.style.height = config.height + "px";
 
+        const closable = (config.closable !== false && config.showCloseButton !== false);
         const minimizable = config.minimizable !== false;
         const maximizable = config.maximizable !== false;
         const resizable = config.resizable !== false;
@@ -218,7 +210,7 @@ export const Desktop = {
                 <div class="winButtons">
                     ${minimizable ? `<div class="winBtn minimize" title="Minimizar">−</div>` : ''}
                     ${maximizable ? `<div class="winBtn maximize" title="Maximizar">□</div>` : ''}
-                    <div class="winBtn close" title="Fechar">×</div>
+                    ${closable ? `<div class="winBtn close" title="Fechar">×</div>` : ''}
                 </div>
             </div>
             <div class="window-menubar ui-menubar" style="display: none;"></div>
@@ -245,10 +237,10 @@ export const Desktop = {
         const statusbarEl = w.querySelector(".statusbar");
         if (statusbarEl) statusbarEl.textContent = config.status || "Pronto";
 
-        // --- Injeção de Métodos de Controle na Instância (Antes do Render) ---
+        // --- Injeção de Métodos de Controle na Instância ---
         instance.setMenuBar = (menus) => this.setWindowMenuBar(instance, menus);
         instance.getMenuBar = () => instance.windowEl ? instance.windowEl.querySelector(".window-menubar") : null;
-        instance.close = () => this.closeWindow(instance, w, task);
+        instance.close = (resultData = undefined) => this.closeWindow(instance, w, task, resultData);
         instance.minimize = () => this.minimizeWindow(w);
         instance.maximize = () => this.maximizeWindow(w);
         instance.restore = () => this.restoreWindow(w);
@@ -260,6 +252,11 @@ export const Desktop = {
             this.setWindowMenuBar(instance, windowMenus);
         }
 
+        // --- Hook: beforeMount (Antes do primeiro render) ---
+        if (typeof instance.beforeMount === 'function') {
+            try { instance.beforeMount(); } catch (e) { console.error("Erro no hook beforeMount:", e); }
+        }
+
         // Renderiza conteúdo
         const bodyEl = w.querySelector(".windowBody");
         const contentEl = instance.render();
@@ -267,7 +264,33 @@ export const Desktop = {
             bodyEl.appendChild(contentEl);
         }
 
-        this.windowsEl.appendChild(w);
+        const isContained = (config.contained || config.insideParent || config.containedInParent) && instance.parentInstance && instance.parentInstance.windowEl;
+
+        if (isContained) {
+            const pEl = instance.parentInstance.windowEl;
+            pEl.classList.add("has-contained-child");
+            w.classList.add("is-contained-child");
+            pEl.appendChild(w);
+
+            const childW = config.width || 420;
+            const childH = config.height || 300;
+            const left = Math.max(0, (pEl.clientWidth - childW) / 2);
+            const top = Math.max(0, (pEl.clientHeight - childH) / 2);
+            w.style.left = left + "px";
+            w.style.top = top + "px";
+        } else {
+            this.windowsEl.appendChild(w);
+        }
+
+        // Taskbar button
+        const task = document.createElement("button");
+        task.className = "taskButton";
+        task.dataset.window = instance.id;
+        const windowTitle = (config.icon ? config.icon + " " : "") + (config.title || "Window");
+        task.textContent = windowTitle;
+        task.title = windowTitle; // Hint / tooltip com o título completo ao parar o mouse
+        this.tasksEl.appendChild(task);
+        instance.taskEl = task;
 
         // --- Menus Dinâmicos Baseados nas Propriedades ---
         const buildMenu = (forTaskbar = false) => {
@@ -279,28 +302,16 @@ export const Desktop = {
             return menu;
         };
 
-        // --- Adiciona Menu de Contexto na Titlebar ---
+        // --- Adiciona Menu de Contexto na Titlebar e Taskbar ---
         const titlebarEl = w.querySelector('.titlebar');
-        
-        // Taskbar button
-        const task = document.createElement("button");
-        task.className = "taskButton";
-        task.dataset.window = instance.id;
-        const windowTitle = (config.icon ? config.icon + " " : "") + (config.title || "Window");
-        task.textContent = windowTitle;
-        task.title = windowTitle; // Hint / tooltip com o título completo ao parar o mouse
-        this.tasksEl.appendChild(task);
-        instance.taskEl = task;
-        
         bindContextMenu(titlebarEl, buildMenu());
+        bindContextMenu(task, buildMenu(true));
 
         // Bind events
         task.addEventListener("click", () => this.toggleWindow(w));
         
-        // --- Adiciona Menu de Contexto na Taskbar ---
-        bindContextMenu(task, buildMenu(true));
-        
-        w.querySelector(".close").onclick = () => this.closeWindow(instance, w, task);
+        const closeBtn = w.querySelector(".close");
+        if (closeBtn) closeBtn.onclick = () => this.closeWindow(instance, w, task);
         if (minimizable) w.querySelector(".minimize").onclick = () => this.minimizeWindow(w);
         if (maximizable) w.querySelector(".maximize").onclick = () => this.maximizeWindow(w);
 
@@ -310,7 +321,10 @@ export const Desktop = {
         this.nextId++;
         
         // Trigger onMount
-        instance.onMount();
+        if (typeof instance.onMount === 'function') {
+            try { instance.onMount(); } catch (e) { console.error("Erro no hook onMount:", e); }
+        }
+
         this.focusWindow(w);
         
         return w;
@@ -318,51 +332,82 @@ export const Desktop = {
 
     setWindowMenuBar(instance, menus) {
         if (!instance || !instance.windowEl) return;
-        const w = instance.windowEl;
-        let mbEl = w.querySelector(".window-menubar");
+        const mbEl = instance.windowEl.querySelector(".window-menubar");
+        if (!mbEl) return;
+
         if (!menus || (Array.isArray(menus) && menus.length === 0)) {
-            if (mbEl) {
-                mbEl.innerHTML = "";
-                mbEl.style.display = "none";
-            }
+            mbEl.innerHTML = "";
+            mbEl.style.display = "none";
             return;
         }
-        if (!mbEl) {
-            mbEl = document.createElement("div");
-            mbEl.className = "window-menubar ui-menubar";
-            const titlebar = w.querySelector(".titlebar");
-            if (titlebar && titlebar.nextSibling) {
-                w.insertBefore(mbEl, titlebar.nextSibling);
-            } else {
-                w.prepend(mbEl);
-            }
-        }
+
+        mbEl.innerHTML = "";
         mbEl.style.display = "flex";
         MenuBar({ element: mbEl, menus, windowInstance: instance });
     },
 
     focusWindow(w) {
         if (!w || !document.body.contains(w)) return;
+        
+        const currentId = w.dataset.id;
+        if (this.activeWindowId && this.activeWindowId !== currentId) {
+            const prevInstance = this.windows[this.activeWindowId];
+            if (prevInstance && typeof prevInstance.onBlur === 'function') {
+                try { prevInstance.onBlur(); } catch (e) { console.error("Erro no hook onBlur:", e); }
+            }
+        }
+
+        this.activeWindowId = currentId;
         w.style.zIndex = ++this.zCounter;
         
-        const task = document.querySelector(`[data-window="${w.dataset.id}"]`);
+        const task = document.querySelector(`[data-window="${currentId}"]`);
         document.querySelectorAll(".taskButton").forEach(x => x.classList.remove("active"));
         if (task) task.classList.add("active");
+
+        const currentInstance = this.windows[currentId];
+        if (currentInstance && typeof currentInstance.onFocus === 'function') {
+            try { currentInstance.onFocus(); } catch (e) { console.error("Erro no hook onFocus:", e); }
+        }
     },
 
     minimizeWindow(w) {
         if (!w || !document.body.contains(w)) return;
         w.classList.add("minimized");
+
+        const inst = this.windows[w.dataset.id];
+        if (inst) {
+            // Se possuir janela filha modal, minimiza a filha junto
+            if (inst._modalChildWindow && inst._modalChildWindow.windowEl) {
+                inst._modalChildWindow.windowEl.classList.add("minimized");
+            }
+            if (typeof inst.onMinimize === 'function') {
+                try { inst.onMinimize(); } catch (e) { console.error("Erro no hook onMinimize:", e); }
+            }
+        }
     },
 
     restoreWindow(w) {
         if (!w || !document.body.contains(w)) return;
         w.classList.remove("minimized");
         this.focusWindow(w);
+
+        const inst = this.windows[w.dataset.id];
+        if (inst) {
+            // Se possuir janela filha modal, restaura e foca a filha
+            if (inst._modalChildWindow && inst._modalChildWindow.windowEl) {
+                inst._modalChildWindow.windowEl.classList.remove("minimized");
+                this.focusWindow(inst._modalChildWindow.windowEl);
+            }
+            if (typeof inst.onRestore === 'function') {
+                try { inst.onRestore(); } catch (e) { console.error("Erro no hook onRestore:", e); }
+            }
+        }
     },
 
     maximizeWindow(w) {
         if (!w || !document.body.contains(w)) return;
+        const willMaximize = !w.classList.contains("maximized");
+
         if (w.classList.contains("maximized")) {
             w.classList.remove("maximized");
             if (w.dataset.oldStyle) {
@@ -379,13 +424,61 @@ export const Desktop = {
             w.classList.add("maximized");
         }
         this.focusWindow(w);
+
+        const inst = this.windows[w.dataset.id];
+        if (inst && typeof inst.onMaximize === 'function') {
+            try { inst.onMaximize(willMaximize); } catch (e) { console.error("Erro no hook onMaximize:", e); }
+        }
     },
 
-    closeWindow(instance, w, task) {
-        if (instance && instance.onDestroy) instance.onDestroy();
-        if (instance) delete this.windows[instance.id];
+    async closeWindow(instance, w, task, resultData = undefined) {
+        if (instance && typeof instance.beforeClose === 'function') {
+            try {
+                const canClose = await instance.beforeClose();
+                if (canClose === false) return false; // Bloqueia o fechamento da janela
+            } catch (err) {
+                console.error("Erro no hook beforeClose:", err);
+            }
+        }
+
+        // Se esta janela tiver uma janela modal filha aberta, fecha a filha primeiro
+        if (instance && instance._modalChildWindow) {
+            const child = instance._modalChildWindow;
+            await this.closeWindow(child, child.windowEl, child.taskEl);
+        }
+
+        // Se esta janela for filha modal de outra, remove o bloqueio/overlay da janela mãe
+        if (instance && instance._modalParentOverlay) {
+            instance._modalParentOverlay.remove();
+            instance._modalParentOverlay = null;
+        }
+
+        if (instance && instance.parentInstance) {
+            const parent = instance.parentInstance;
+            parent._modalChildWindow = null;
+            if (parent.windowEl) {
+                parent.windowEl.classList.remove("has-modal-child");
+                this.focusWindow(parent.windowEl);
+            }
+        }
+
+        // Se for um diálogo com Promise aguardando retorno, resolve com o resultado
+        if (instance && typeof instance._dialogResolver === 'function') {
+            instance._dialogResolver(resultData);
+            instance._dialogResolver = null;
+        }
+
+        if (instance && typeof instance.onDestroy === 'function') {
+            try { instance.onDestroy(); } catch (e) { console.error("Erro no hook onDestroy:", e); }
+        }
+
+        if (instance) {
+            if (this.activeWindowId === instance.id) this.activeWindowId = null;
+            delete this.windows[instance.id];
+        }
         if (w) w.remove();
         if (task) task.remove();
+        return true;
     },
 
     toggleWindow(w) {
@@ -419,10 +512,18 @@ export const Desktop = {
         bar.addEventListener("pointermove", e => {
             if (!drag) return;
             const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-            const maxX = this.windowsEl.clientWidth - w.offsetWidth;
-            const maxY = this.windowsEl.clientHeight - w.offsetHeight;
-            w.style.left = Math.max(0, Math.min(maxX, drag.left + dx)) + "px";
-            w.style.top = Math.max(0, Math.min(maxY, drag.top + dy)) + "px";
+            const containerEl = w.parentElement || this.windowsEl;
+            const maxX = Math.max(0, containerEl.clientWidth - w.offsetWidth);
+            const maxY = Math.max(0, containerEl.clientHeight - w.offsetHeight);
+            const newLeft = Math.max(0, Math.min(maxX, drag.left + dx));
+            const newTop = Math.max(0, Math.min(maxY, drag.top + dy));
+            w.style.left = newLeft + "px";
+            w.style.top = newTop + "px";
+
+            const inst = this.windows[w.dataset.id];
+            if (inst && typeof inst.onMove === 'function') {
+                try { inst.onMove(newLeft, newTop); } catch (err) {}
+            }
         });
         const stopDrag = () => drag = null;
         bar.addEventListener("pointerup", stopDrag);
@@ -450,6 +551,7 @@ export const Desktop = {
                     const dx = ev.clientX - x, dy = ev.clientY - y;
                     const minW = 280, minH = 180;
                     
+                    const containerEl = w.parentElement || this.windowsEl;
                     if (dir.includes("e")) width = Math.max(minW, start.width + dx);
                     if (dir.includes("s")) height = Math.max(minH, start.height + dy);
                     if (dir.includes("w")) {
@@ -464,13 +566,18 @@ export const Desktop = {
                     if (left < 0) { width += left; left = 0; }
                     if (top < 0) { height += top; top = 0; }
                     
-                    if (left + width > this.windowsEl.clientWidth) width = this.windowsEl.clientWidth - left;
-                    if (top + height > this.windowsEl.clientHeight) height = this.windowsEl.clientHeight - top;
+                    if (left + width > containerEl.clientWidth) width = containerEl.clientWidth - left;
+                    if (top + height > containerEl.clientHeight) height = containerEl.clientHeight - top;
                     
                     w.style.left = left + "px"; 
                     w.style.top = top + "px";
                     w.style.width = Math.max(minW, width) + "px"; 
                     w.style.height = Math.max(minH, height) + "px";
+
+                    const inst = this.windows[w.dataset.id];
+                    if (inst && typeof inst.onResize === 'function') {
+                        try { inst.onResize(parseInt(w.style.width), parseInt(w.style.height)); } catch (err) {}
+                    }
                 };
                 
                 const up = () => {
@@ -643,9 +750,98 @@ export const Desktop = {
             state: { ...(config.state || {}), ...(initialProps || {}) }
         };
 
-        const windowInstance = Framework.createWindow(instanceConfig, screenId, this);
+        const instanceId = config.singleInstance ? screenId : `${screenId}_${this.nextId}`;
+        const windowInstance = Framework.createWindow(instanceConfig, instanceId, this);
         this.open(windowInstance);
         return windowInstance;
+    },
+
+    async openDialog(idOrConfig, parentInstance, initialProps = {}) {
+        return new Promise(async (resolve) => {
+            try {
+                let config = null;
+                let screenId = "dialog";
+
+                if (typeof idOrConfig === 'string') {
+                    screenId = idOrConfig;
+                    const registered = this.screens[screenId];
+                    if (!registered) {
+                        this.notify(`Diálogo "${screenId}" não foi registrado no Desktop.`, "danger");
+                        return resolve(null);
+                    }
+
+                    if (typeof registered === 'function') {
+                        const res = await registered(initialProps);
+                        config = res.default || res;
+                    } else {
+                        config = registered;
+                    }
+                } else if (typeof idOrConfig === 'object') {
+                    config = idOrConfig;
+                    screenId = config.id || `dialog_${Date.now()}`;
+                }
+
+                if (!config) return resolve(null);
+
+                const instanceConfig = {
+                    ...config,
+                    singleInstance: false, // Diálogos são instâncias específicas
+                    state: { ...(config.state || {}), ...(initialProps || {}) }
+                };
+
+                const instanceId = `${screenId}_dlg_${++this.nextId}`;
+                const childInstance = Framework.createWindow(instanceConfig, instanceId, this);
+
+                // Vincula o resolver da Promise ao fechamento
+                childInstance._dialogResolver = resolve;
+                childInstance.parentInstance = parentInstance;
+                childInstance.isDialog = true;
+
+                // Abre a janela filha
+                const childWinEl = this.createWindow(childInstance);
+                if (childWinEl) {
+                    childWinEl.classList.add("is-child-dialog");
+
+                    // Se foi informado parentInstance, centraliza sobre o pai e anexa overlay de bloqueio
+                    if (parentInstance && parentInstance.windowEl && document.body.contains(parentInstance.windowEl)) {
+                        const pEl = parentInstance.windowEl;
+                        
+                        const isContained = (config.contained || config.insideParent || config.containedInParent);
+
+                        if (!isContained) {
+                            // Posiciona centralizado sobre a janela pai no Desktop
+                            const childW = config.width || 440;
+                            const childH = config.height || 320;
+                            const left = Math.max(10, pEl.offsetLeft + (pEl.offsetWidth - childW) / 2);
+                            const top = Math.max(10, pEl.offsetTop + (pEl.offsetHeight - childH) / 2);
+                            childWinEl.style.left = left + "px";
+                            childWinEl.style.top = top + "px";
+                        }
+
+                        // Cria overlay de bloqueio na janela pai
+                        const overlay = document.createElement("div");
+                        overlay.className = "window-modal-overlay";
+                        overlay.title = "Janela bloqueada pelo diálogo aberto.";
+                        overlay.addEventListener("click", (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.focusWindow(childWinEl);
+                            this.blinkWindow(childWinEl);
+                        });
+
+                        pEl.appendChild(overlay);
+                        pEl.classList.add("has-modal-child");
+                        parentInstance._modalChildWindow = childInstance;
+                        childInstance._modalParentOverlay = overlay;
+                    }
+
+                    this.focusWindow(childWinEl);
+                }
+            } catch (err) {
+                console.error("Erro ao abrir janela modal filha (openDialog):", err);
+                resolve(null);
+            }
+        });
     }
 };
 

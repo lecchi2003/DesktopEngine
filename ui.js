@@ -622,20 +622,34 @@ export function ProgressBar({ value = 0, max = 100 }) {
     return wrap;
 }
 
-export function Modal({ title, children = [], onClose, instance, targetContainer }) {
+export function Modal({ title, children = [], onClose, beforeClose, showCloseButton = true, closable = true, instance, targetContainer }) {
     const overlay = createElement("div", "ui-modal-overlay", []);
     const content = [];
+    const hasCloseBtn = (showCloseButton !== false && closable !== false);
+
+    const closeModal = async () => {
+        if (typeof beforeClose === 'function') {
+            try {
+                const canClose = await beforeClose();
+                if (canClose === false) return;
+            } catch (err) {
+                console.error("Erro no hook beforeClose do Modal:", err);
+            }
+        }
+        if (onClose && instance) instance.runAction(onClose);
+        else if (typeof onClose === 'function') onClose();
+        overlay.remove();
+        document.removeEventListener('keydown', escListener);
+    };
     
     if (title) {
-        const header = createElement("div", "ui-modal-header", [
-            createElement("h3", "", [title]),
-            createElement("span", "ui-modal-close", ["×"])
-        ]);
-        header.querySelector('.ui-modal-close').onclick = () => {
-            if (onClose && instance) instance.runAction(onClose);
-            else if (typeof onClose === 'function') onClose();
-            overlay.remove();
-        };
+        const headerChildren = [createElement("h3", "", [title])];
+        if (hasCloseBtn) {
+            const closeBtn = createElement("span", "ui-modal-close", ["×"]);
+            closeBtn.onclick = () => closeModal();
+            headerChildren.push(closeBtn);
+        }
+        const header = createElement("div", "ui-modal-header", headerChildren);
         content.push(header);
     }
     
@@ -645,13 +659,10 @@ export function Modal({ title, children = [], onClose, instance, targetContainer
     const dialog = createElement("div", "ui-modal-dialog", content);
     overlay.appendChild(dialog);
     
-    // Auto-close on escape
+    // Auto-close on escape (apenas se closable = true)
     const escListener = (e) => {
-        if (e.key === 'Escape') {
-            if (onClose && instance) instance.runAction(onClose);
-            else if (typeof onClose === 'function') onClose();
-            overlay.remove();
-            document.removeEventListener('keydown', escListener);
+        if (e.key === 'Escape' && hasCloseBtn) {
+            closeModal();
         }
     };
     document.addEventListener('keydown', escListener);

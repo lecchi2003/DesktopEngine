@@ -73,6 +73,8 @@
                     items: [
                         { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
                         "separator",
+                        { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
+                        { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
                         { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
                         { label: "Editor de Documentos (Window MenuBar)", screen: "editor" },
                         { label: "Painel de Controle (Lazy)", screen: "dashboard" },
@@ -177,6 +179,8 @@
                 items: [
                     { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
                     "separator",
+                    { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
+                    { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
                     { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
                     { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
                     { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
@@ -621,10 +625,37 @@
                                 ]
                             }),
                             Card({
-                                title: "✨ MenuBar em Janelas (Novo)",
+                                title: "✨ 6. MenuBar em Janelas",
                                 children: [
                                     createElement("p", "text-secondary", ["Cada janela pode ter sua própria barra de menus em cascata com atalhos, ícones e ações reativas."]),
                                     Button({ text: "Abrir Editor com MenuBar ↗", onClick: () => Desktop.openScreen("editor"), variant: "success" })
+                                ]
+                            })
+                        ]
+                    }),
+                    createElement("br", "", []),
+                    Grid({
+                        columns: 2,
+                        children: [
+                            Card({
+                                title: "⏱️ 7. Ciclo de Vida (13 Hooks)",
+                                children: [
+                                    createElement("p", "text-secondary", ["Demonstração interativa dos 13 hooks (beforeMount, onMount, onFocus, beforeClose, onDestroy, etc.)."]),
+                                    Button({ text: "Abrir Monitor de Ciclo de Vida ↗", onClick: () => Desktop.openScreen("lifecycle_demo"), variant: "primary" })
+                                ]
+                            }),
+                            Card({
+                                title: "🛍️ 8. CRUD com API REST",
+                                children: [
+                                    createElement("p", "text-secondary", ["Exemplo prático de consumo de API assíncrona com Basic Auth e persistência de dados."]),
+                                    Button({ text: "Abrir Gerenciador de Produtos ↗", onClick: () => Desktop.openScreen("crud_api"), variant: "primary" })
+                                ]
+                            }),
+                            Card({
+                                title: "🪟 9. Janelas Filhas (Dialogs)",
+                                children: [
+                                    createElement("p", "text-secondary", ["Sub-janelas modais acopladas à janela mãe com bloqueio local, foco e retorno assíncrono."]),
+                                    Button({ text: "Abrir Diálogos Modais ↗", onClick: () => Desktop.openScreen("child_modal_demo"), variant: "success" })
                                 ]
                             })
                         ]
@@ -639,6 +670,8 @@
             "hub_arquiteturas": () => HubArquiteturasScreen,
 
             // 1. Telas com Lazy Loading nativo (Arquivos isolados em /screens)
+            "child_modal_demo": () => import('./screens/ChildModalDemoScreen.js'),
+            "lifecycle_demo": () => import('./screens/LifecycleDemoScreen.js'),
             "crud_api": () => import('./screens/ProductsCrudScreen.js'),
             "editor": () => import('./screens/EditorScreen.js'),
             "browser": () => import('./screens/BrowserScreen.js'),
@@ -655,7 +688,7 @@
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
             Desktop.openScreen("hub_arquiteturas");
-            setTimeout(() => Desktop.openScreen("editor"), 150);
+            setTimeout(() => Desktop.openScreen("lifecycle_demo"), 150);
         }, 100);
 
     </script>
