@@ -1,4 +1,4 @@
-# Desktop Engine V0.6 - Documentação Oficial
+# Desktop Engine V1.0 - Documentação Oficial
 
 O **Desktop Engine** é um micro-framework focado no desenvolvimento ágil de sistemas corporativos baseados no conceito de **Desktop in Browser** (Janelas flutuantes, arrastáveis e redimensionáveis). Construído exclusivamente com Vanilla JavaScript puro e ES Modules nativos, **sem nenhuma dependência externa ou passos de compilação/build** (sem Webpack, sem Vite, sem Node em runtime).
 

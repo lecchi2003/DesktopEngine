@@ -1,10 +1,13 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Documentação Completa - DesktopEngine V0.6</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Documentação Completa - DesktopEngine V1.0</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #4F46E5;
@@ -48,7 +51,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -111,12 +114,43 @@
             overflow-y: auto;
         }
 
-        h1 { font-size: 2.4rem; margin-top: 0; margin-bottom: 0.8rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
-        h2 { font-size: 1.6rem; margin-top: 2.8rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-weight: 700; color: #1e293b; }
-        h3 { font-size: 1.2rem; margin-top: 2rem; color: var(--primary); font-weight: 600; }
-        h4 { font-size: 1.05rem; margin-top: 1.4rem; color: #334155; font-weight: 600; }
-        p { margin-bottom: 1rem; color: #334155; }
-        
+        h1 {
+            font-size: 2.4rem;
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-top: 2.8rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 1.05rem;
+            margin-top: 1.4rem;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
         .lead {
             font-size: 1.15rem;
             font-weight: 400;
@@ -169,7 +203,8 @@
             font-size: 0.9rem;
         }
 
-        th, td {
+        th,
+        td {
             text-align: left;
             padding: 0.65rem 0.9rem;
             border-bottom: 1px solid var(--border);
@@ -190,7 +225,7 @@
             gap: 12px;
             align-items: flex-start;
         }
-        
+
         .alert-info {
             background-color: #eff6ff;
             border-left: 4px solid var(--primary);
@@ -208,7 +243,7 @@
             border-left: 4px solid #f59e0b;
             color: #92400e;
         }
-        
+
         .alert-icon {
             font-size: 1.25rem;
             line-height: 1;
@@ -228,15 +263,28 @@
             margin-bottom: 1.5rem;
         }
 
-        ul { margin-bottom: 1.25rem; padding-left: 1.5rem; color: #334155; }
-        li { margin-bottom: 0.4rem; }
-        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0 2rem; }
+        ul {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #334155;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 3rem 0 2rem;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="navbar">
-        <div>DesktopEngine V0.6</div>
+        <div>DesktopEngine V1.0</div>
         <div class="badge">Documentação de Referência Completa</div>
     </div>
 
@@ -300,35 +348,47 @@
         <!-- Main Content -->
         <main class="content">
             <h1 id="intro">DesktopEngine V0.6 - Manual de Referência</h1>
-            <p class="lead">O <strong>DesktopEngine</strong> é um micro-framework em Vanilla JavaScript voltado para criar interfaces do tipo "Desktop in Browser" (janelas flutuantes, arrastáveis e redimensionáveis). Totalmente sem passos de compilação (zero Webpack, zero Node em runtime) e alimentado por reatividade nativa via JavaScript Proxies.</p>
+            <p class="lead">O <strong>DesktopEngine</strong> é um micro-framework em Vanilla JavaScript voltado para
+                criar interfaces do tipo "Desktop in Browser" (janelas flutuantes, arrastáveis e redimensionáveis).
+                Totalmente sem passos de compilação (zero Webpack, zero Node em runtime) e alimentado por reatividade
+                nativa via JavaScript Proxies.</p>
 
             <div class="alert alert-info">
                 <span class="alert-icon">💡</span>
                 <div>
-                    <strong>Demonstração ao Vivo no Código:</strong> Todos os componentes descritos neste manual estão implementados e funcionando no arquivo <code>index.html</code>. Abra a janela <strong>"Showcase de Componentes UI"</strong> na barra de tarefas para interagir com eles ao vivo!
+                    <strong>Demonstração ao Vivo no Código:</strong> Todos os componentes descritos neste manual estão
+                    implementados e funcionando no arquivo <code>index.html</code>. Abra a janela <strong>"Showcase de
+                        Componentes UI"</strong> na barra de tarefas para interagir com eles ao vivo!
                 </div>
             </div>
 
             <!-- SEÇÃO 1: EXECUTANDO -->
             <h2 id="executando">Executando o Projeto</h2>
-            <p>O DesktopEngine utiliza ES Modules nativos (<code>import</code> / <code>export</code>). Por segurança do navegador, módulos locais não podem ser abertos diretamente via protocolo <code>file:///</code>.</p>
+            <p>O DesktopEngine utiliza ES Modules nativos (<code>import</code> / <code>export</code>). Por segurança do
+                navegador, módulos locais não podem ser abertos diretamente via protocolo <code>file:///</code>.</p>
             <p>Para executar localmente:</p>
             <ul>
-                <li><strong>Opção 1 (Windows):</strong> Dê um duplo clique no arquivo <code>server.bat</code> na pasta raiz. Ele abrirá um servidor local na porta <code>8000</code>.</li>
-                <li><strong>Opção 2 (Terminal):</strong> Execute <code>npx serve .</code> ou <code>python -m http.server 8000</code> e acesse <code>http://localhost:8000</code>.</li>
+                <li><strong>Opção 1 (Windows):</strong> Dê um duplo clique no arquivo <code>server.bat</code> na pasta
+                    raiz. Ele abrirá um servidor local na porta <code>8000</code>.</li>
+                <li><strong>Opção 2 (Terminal):</strong> Execute <code>npx serve .</code> ou
+                    <code>python -m http.server 8000</code> e acesse <code>http://localhost:8000</code>.
+                </li>
             </ul>
             <p>Páginas de demonstração incluídas:</p>
             <ul>
-                <li><code>index.html</code>: Layout moderno com <strong>MenuBar superior</strong> (estilo macOS) e taskbar de janelas.</li>
-                <li><code>index2.html</code>: Layout clássico com <strong>Menu Iniciar na Taskbar</strong> (estilo Windows).</li>
+                <li><code>index.html</code>: Layout moderno com <strong>MenuBar superior</strong> (estilo macOS) e
+                    taskbar de janelas.</li>
+                <li><code>index2.html</code>: Layout clássico com <strong>Menu Iniciar na Taskbar</strong> (estilo
+                    Windows).</li>
             </ul>
 
             <!-- SEÇÃO 2: INIT -->
             <h2 id="init">Inicialização do Desktop</h2>
-            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, agrupamento e notificações globais.</p>
+            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, agrupamento e notificações
+                globais.</p>
 
             <div class="code-box">
-<pre><code>import { Desktop } from './desktop.js';
+                <pre><code>import { Desktop } from './desktop.js';
 
 // Inicialização com opções
 Desktop.init({
@@ -346,30 +406,96 @@ Desktop.notify("Olá mundo!", "success"); // Dispara um toast global ("success",
 
             <!-- SEÇÃO 3: CRIANDO TELAS -->
             <h2 id="telas">Criando Telas (Windows)</h2>
-            <p>Uma tela é um objeto declarativo contendo configurações de janela, estado reativo, ações e uma função de renderização.</p>
+            <p>Uma tela é um objeto declarativo contendo configurações de janela, estado reativo, ações e uma função de
+                renderização.</p>
 
             <table>
                 <thead>
-                    <tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr><td><code>title</code></td><td><code>String</code></td><td><code>"Janela"</code></td><td>Título exibido na barra superior da janela.</td></tr>
-                    <tr><td><code>icon</code></td><td><code>String</code></td><td><code>"📁"</code></td><td>Ícone emoji ou caractere exibido na barra e taskbar.</td></tr>
-                    <tr><td><code>width</code> / <code>height</code></td><td><code>Number</code></td><td><code>500 / 350</code></td><td>Dimensões iniciais em pixels.</td></tr>
-                    <tr><td><code>minWidth</code> / <code>minHeight</code></td><td><code>Number</code></td><td><code>200 / 150</code></td><td>Tamanho mínimo ao redimensionar.</td></tr>
-                    <tr><td><code>singleInstance</code></td><td><code>Boolean</code></td><td><code>false</code></td><td>Se <code>true</code>, foca na janela já aberta ao invés de duplicar.</td></tr>
-                    <tr><td><code>resizable</code></td><td><code>Boolean</code></td><td><code>true</code></td><td>Permite redimensionar puxando as bordas.</td></tr>
-                    <tr><td><code>minimizable</code></td><td><code>Boolean</code></td><td><code>true</code></td><td>Exibe o botão de minimizar na titlebar.</td></tr>
-                    <tr><td><code>maximizable</code></td><td><code>Boolean</code></td><td><code>true</code></td><td>Exibe o botão de maximizar na titlebar.</td></tr>
-                    <tr><td><code>status</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto inicial do rodapé (statusbar).</td></tr>
-                    <tr><td><code>state</code></td><td><code>Object</code></td><td><code>{}</code></td><td>Objeto com o estado inicial da tela.</td></tr>
-                    <tr><td><code>actions</code></td><td><code>Object</code></td><td><code>{}</code></td><td>Dicionário de funções ou esteiras de middleware.</td></tr>
-                    <tr><td><code>view()</code></td><td><code>Function</code></td><td><code>-</code></td><td>Função que retorna elementos DOM da tela (<code>this</code> = instância).</td></tr>
+                    <tr>
+                        <td><code>title</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"Janela"</code></td>
+                        <td>Título exibido na barra superior da janela.</td>
+                    </tr>
+                    <tr>
+                        <td><code>icon</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"📁"</code></td>
+                        <td>Ícone emoji ou caractere exibido na barra e taskbar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>width</code> / <code>height</code></td>
+                        <td><code>Number</code></td>
+                        <td><code>500 / 350</code></td>
+                        <td>Dimensões iniciais em pixels.</td>
+                    </tr>
+                    <tr>
+                        <td><code>minWidth</code> / <code>minHeight</code></td>
+                        <td><code>Number</code></td>
+                        <td><code>200 / 150</code></td>
+                        <td>Tamanho mínimo ao redimensionar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>singleInstance</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>false</code></td>
+                        <td>Se <code>true</code>, foca na janela já aberta ao invés de duplicar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>resizable</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Permite redimensionar puxando as bordas.</td>
+                    </tr>
+                    <tr>
+                        <td><code>minimizable</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Exibe o botão de minimizar na titlebar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>maximizable</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Exibe o botão de maximizar na titlebar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>status</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Texto inicial do rodapé (statusbar).</td>
+                    </tr>
+                    <tr>
+                        <td><code>state</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>{}</code></td>
+                        <td>Objeto com o estado inicial da tela.</td>
+                    </tr>
+                    <tr>
+                        <td><code>actions</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>{}</code></td>
+                        <td>Dicionário de funções ou esteiras de middleware.</td>
+                    </tr>
+                    <tr>
+                        <td><code>view()</code></td>
+                        <td><code>Function</code></td>
+                        <td><code>-</code></td>
+                        <td>Função que retorna elementos DOM da tela (<code>this</code> = instância).</td>
+                    </tr>
                 </tbody>
             </table>
 
             <div class="code-box">
-<pre><code>import { Framework } from './core.js';
+                <pre><code>import { Framework } from './core.js';
 import { Desktop } from './desktop.js';
 import { Input, Button, createElement } from './ui.js';
 
@@ -409,27 +535,38 @@ Desktop.open(Framework.createWindow(MinhaJanela, "JANELA_USUARIO", Desktop));</c
 
             <!-- SEÇÃO NOVO: ARQUITETURA MODULAR & SCREEN REGISTRY -->
             <h2 id="arquitetura-telas">Padrões e Formas de Criação de Telas</h2>
-            <p>O DesktopEngine foi arquitetado para se adaptar a diferentes estilos e tamanhos de projetos. Abaixo estão as <strong>5 formas completas de se criar telas</strong>, cada uma com uma página HTML de demonstração ao vivo:</p>
+            <p>O DesktopEngine foi arquitetado para se adaptar a diferentes estilos e tamanhos de projetos. Abaixo estão
+                as <strong>5 formas completas de se criar telas</strong>, cada uma com uma página HTML de demonstração
+                ao vivo:</p>
 
             <div class="alert alert-info">
                 <span class="alert-icon">🌐</span>
                 <div>
                     <strong>Páginas de Demonstração Interativas:</strong>
                     <ul style="margin: 6px 0 0 0; padding-left: 20px;">
-                        <li><a href="index-direct.html"><code>index-direct.html</code></a> — Padrão 1: Criação Direta (Inline Objects &amp; Multi-Instâncias)</li>
-                        <li><a href="index-lazy.html"><code>index-lazy.html</code></a> — Padrão 2: Screen Registry &amp; Lazy Loading Modular</li>
-                        <li><a href="index-factory.html"><code>index-factory.html</code></a> — Padrão 3: Factory Functions &amp; Geradores de Telas</li>
-                        <li><a href="index-class.html"><code>index-class.html</code></a> — Padrão 4: Orientação a Objetos com Classes ES6</li>
-                        <li><a href="index-template.html"><code>index-template.html</code></a> — Padrão 5: Templates HTML Estáticos &amp; Strings</li>
+                        <li><a href="index-direct.html"><code>index-direct.html</code></a> — Padrão 1: Criação Direta
+                            (Inline Objects &amp; Multi-Instâncias)</li>
+                        <li><a href="index-lazy.html"><code>index-lazy.html</code></a> — Padrão 2: Screen Registry &amp;
+                            Lazy Loading Modular</li>
+                        <li><a href="index-factory.html"><code>index-factory.html</code></a> — Padrão 3: Factory
+                            Functions &amp; Geradores de Telas</li>
+                        <li><a href="index-class.html"><code>index-class.html</code></a> — Padrão 4: Orientação a
+                            Objetos com Classes ES6</li>
+                        <li><a href="index-template.html"><code>index-template.html</code></a> — Padrão 5: Templates
+                            HTML Estáticos &amp; Strings</li>
                     </ul>
                 </div>
             </div>
 
             <h3 id="padrao-1">1. Padrão Direto / Inline Objects (<code>index-direct.html</code>)</h3>
-            <p>A forma mais simples e rápida: objetos declarados diretamente no código da página e abertos via <code>Desktop.open(Framework.createWindow(config, id, Desktop))</code>. Suporta telas Single-Instance e Multi-Instance (múltiplas janelas abertas simultaneamente, como post-its ou anotações rápidas com IDs temporais <code>nota_${Date.now()}</code>):</p>
+            <p>A forma mais simples e rápida: objetos declarados diretamente no código da página e abertos via
+                <code>Desktop.open(Framework.createWindow(config, id, Desktop))</code>. Suporta telas Single-Instance e
+                Multi-Instance (múltiplas janelas abertas simultaneamente, como post-its ou anotações rápidas com IDs
+                temporais <code>nota_${Date.now()}</code>):
+            </p>
 
             <div class="code-box">
-<pre><code>import { Framework } from './core.js';
+                <pre><code>import { Framework } from './core.js';
 import { Desktop } from './desktop.js';
 import { Input, Button, createElement } from './ui.js';
 
@@ -453,10 +590,12 @@ Desktop.open(Framework.createWindow(PostItScreen, `nota_${Date.now()}`, Desktop)
             </div>
 
             <h3 id="padrao-2">2. Padrão Modular com Lazy Loading (<code>index-lazy.html</code>)</h3>
-            <p>Para sistemas corporativos de grande porte. Cada tela reside em seu próprio arquivo na pasta <code>/screens/</code> e é carregada sob demanda via Dynamic Imports nativos do ES Modules:</p>
+            <p>Para sistemas corporativos de grande porte. Cada tela reside em seu próprio arquivo na pasta
+                <code>/screens/</code> e é carregada sob demanda via Dynamic Imports nativos do ES Modules:
+            </p>
 
             <div class="code-box">
-<pre><code>// screens/UsuariosScreen.js
+                <pre><code>// screens/UsuariosScreen.js
 import { Input, Button, Card } from '../ui.js';
 
 export default {
@@ -488,10 +627,11 @@ Desktop.openScreen("usuarios", { nome: "João Silva" });</code></pre>
             </div>
 
             <h3 id="padrao-3">3. Padrão Factory Functions / Geradores de Telas (<code>index-factory.html</code>)</h3>
-            <p>Funções geradoras parametrizadas que criam telas padronizadas de CRUD, relatórios analíticos de BI ou visualizadores em poucas linhas de código, eliminando mais de 80% do boilerplate:</p>
+            <p>Funções geradoras parametrizadas que criam telas padronizadas de CRUD, relatórios analíticos de BI ou
+                visualizadores em poucas linhas de código, eliminando mais de 80% do boilerplate:</p>
 
             <div class="code-box">
-<pre><code>// Factory para geração de telas CRUD completas
+                <pre><code>// Factory para geração de telas CRUD completas
 function createCrudScreen({ entityName, title, columns, fields, initialData = [] }) {
     return {
         title: title || `Gestão de ${entityName}`,
@@ -516,10 +656,13 @@ Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop));<
             </div>
 
             <h3 id="padrao-4">4. Padrão Orientado a Objetos com Classes ES6 (<code>index-class.html</code>)</h3>
-            <p>Encapsulamento clássico com uma classe base <code>BaseScreen</code>. Métodos com prefixo <code>action_</code> viram automaticamente ações da tela e os hooks <code>onMount()</code> e <code>onDestroy()</code> gerenciam timers e recursos de ciclo de vida:</p>
+            <p>Encapsulamento clássico com uma classe base <code>BaseScreen</code>. Métodos com prefixo
+                <code>action_</code> viram automaticamente ações da tela e os hooks <code>onMount()</code> e
+                <code>onDestroy()</code> gerenciam timers e recursos de ciclo de vida:
+            </p>
 
             <div class="code-box">
-<pre><code>class SystemMonitorScreen extends BaseScreen {
+                <pre><code>class SystemMonitorScreen extends BaseScreen {
     constructor() {
         super({
             title: "Monitor do Servidor",
@@ -561,10 +704,13 @@ new SystemMonitorScreen().open("monitor_sys");</code></pre>
             </div>
 
             <h3 id="padrao-5">5. Padrão Templates HTML Estáticos &amp; Strings (<code>index-template.html</code>)</h3>
-            <p>Ideal para quem prefere escrever marcação HTML tradicional, Template Literals ou clonar tags nativas <code>&lt;template id="..."&gt;</code> do documento, preservando o estado reativo via Proxy do Framework:</p>
+            <p>Ideal para quem prefere escrever marcação HTML tradicional, Template Literals ou clonar tags nativas
+                <code>&lt;template id="..."&gt;</code> do documento, preservando o estado reativo via Proxy do
+                Framework:
+            </p>
 
             <div class="code-box">
-<pre><code>const CalculadoraScreen = {
+                <pre><code>const CalculadoraScreen = {
     title: "Calculadora de Empréstimo",
     icon: "🧮",
     width: 500,
@@ -592,19 +738,27 @@ Desktop.open(Framework.createWindow(CalculadoraScreen, "calc_win", Desktop));</c
 
             <!-- SEÇÃO 4: ESTADO REATIVO -->
             <h2 id="estado-reativo">Reatividade com Proxies (Sem Virtual DOM)</h2>
-            <p>O DesktopEngine utiliza <strong>Proxies Nativos</strong> (no arquivo <code>core.js</code>). Quando você associa um componente com <code>bind: "chave"</code> e <code>instance: this</code>, ele se conecta diretamente ao <code>state</code> da janela:</p>
+            <p>O DesktopEngine utiliza <strong>Proxies Nativos</strong> (no arquivo <code>core.js</code>). Quando você
+                associa um componente com <code>bind: "chave"</code> e <code>instance: this</code>, ele se conecta
+                diretamente ao <code>state</code> da janela:</p>
             <ul>
-                <li><strong>Leitura Automática:</strong> O componente busca <code>instance.state[bind]</code> e exibe o valor atual.</li>
-                <li><strong>Escrita Automática:</strong> Quando o usuário digita ou seleciona algo, o valor é gravado em <code>instance.state[bind]</code>.</li>
-                <li><strong>Re-renderização Inteligente:</strong> A view é atualizada e o cursor/foco do input é preservado automaticamente via atributo <code>dataset.bind</code>.</li>
+                <li><strong>Leitura Automática:</strong> O componente busca <code>instance.state[bind]</code> e exibe o
+                    valor atual.</li>
+                <li><strong>Escrita Automática:</strong> Quando o usuário digita ou seleciona algo, o valor é gravado em
+                    <code>instance.state[bind]</code>.
+                </li>
+                <li><strong>Re-renderização Inteligente:</strong> A view é atualizada e o cursor/foco do input é
+                    preservado automaticamente via atributo <code>dataset.bind</code>.</li>
             </ul>
 
             <!-- SEÇÃO 5: MIDDLEWARES -->
             <h2 id="middlewares">Middlewares nas Actions (Padrão Koa / Express)</h2>
-            <p>As <code>actions</code> são organizadas como <strong>arrays de funções assíncronas</strong>. Cada função recebe <code>(ctx, next)</code>. Chamar <code>await next()</code> avança para o próximo passo; não chamar interrompe a esteira. Isso é perfeito para criar validadores reutilizáveis.</p>
+            <p>As <code>actions</code> são organizadas como <strong>arrays de funções assíncronas</strong>. Cada função
+                recebe <code>(ctx, next)</code>. Chamar <code>await next()</code> avança para o próximo passo; não
+                chamar interrompe a esteira. Isso é perfeito para criar validadores reutilizáveis.</p>
 
             <div class="code-box">
-<pre><code>// 1. Validador Reutilizável (Middleware Desacoplado)
+                <pre><code>// 1. Validador Reutilizável (Middleware Desacoplado)
 export const ExigirCampos = (campos) => async (ctx, next) => {
     for (let campo of campos) {
         if (!ctx.state[campo]) {
@@ -632,7 +786,9 @@ const TelaCadastro = {
 
             <!-- SEÇÃO: CICLO DE VIDA (LIFECYCLE HOOKS) -->
             <h2 id="ciclo-de-vida">Ciclo de Vida das Janelas (Lifecycle Hooks)</h2>
-            <p>Toda janela no DesktopEngine possui um ciclo de vida estruturado em <strong>4 fases</strong> com pontos de gancho (<em>hooks</em>) que permitem inicializar configurações, reagir a alterações de dados, monitorar o foco e estado da janela e realizar limpeza de memória ou interceptar o fechamento:</p>
+            <p>Toda janela no DesktopEngine possui um ciclo de vida estruturado em <strong>4 fases</strong> com pontos
+                de gancho (<em>hooks</em>) que permitem inicializar configurações, reagir a alterações de dados,
+                monitorar o foco e estado da janela e realizar limpeza de memória ou interceptar o fechamento:</p>
 
             <div class="table-wrapper">
                 <table>
@@ -644,25 +800,87 @@ const TelaCadastro = {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td><code>beforeMount()</code></td><td>Montagem</td><td>Executado <strong>antes</strong> do primeiro <code>render()</code> da janela. Ideal para inicializar dados pré-DOM.</td></tr>
-                        <tr><td><code>onMount()</code></td><td>Montagem</td><td>Executado logo após a janela ser inserida fisicamente no DOM. Ideal para requisições <code>fetch()</code>, timers e gráficos.</td></tr>
-                        <tr><td><code>beforeUpdate(prop, new, old)</code></td><td>Reatividade</td><td>Executado imediatamente antes do DOM da janela ser atualizado por uma alteração no <code>state</code>.</td></tr>
-                        <tr><td><code>onUpdate()</code></td><td>Reatividade</td><td>Executado logo após o novo DOM da janela ser reconstruído.</td></tr>
-                        <tr><td><code>onFocus()</code></td><td>Janela</td><td>Disparado quando a janela ganha foco e passa para o primeiro plano.</td></tr>
-                        <tr><td><code>onBlur()</code></td><td>Janela</td><td>Disparado quando o foco é transferido para outra janela.</td></tr>
-                        <tr><td><code>onMinimize()</code></td><td>Janela</td><td>Disparado quando a janela é minimizada para a barra de tarefas.</td></tr>
-                        <tr><td><code>onRestore()</code></td><td>Janela</td><td>Disparado quando a janela é restaurada da barra de tarefas.</td></tr>
-                        <tr><td><code>onMaximize(isMax)</code></td><td>Janela</td><td>Disparado ao maximizar (<code>true</code>) ou restaurar o tamanho normal (<code>false</code>).</td></tr>
-                        <tr><td><code>onResize(width, height)</code></td><td>Janela</td><td>Disparado ao redimensionar a janela pelas alças.</td></tr>
-                        <tr><td><code>onMove(x, y)</code></td><td>Janela</td><td>Disparado ao arrastar a janela pela barra de título.</td></tr>
-                        <tr><td><code>beforeClose()</code></td><td>Destruição</td><td>Executado antes de fechar. Se retornar <code>false</code> ou uma <code>Promise&lt;false&gt;</code>, o fechamento é <strong>cancelado</strong>.</td></tr>
-                        <tr><td><code>onDestroy()</code></td><td>Destruição</td><td>Executado após a janela ser removida do DOM. Ideal para limpar <code>clearInterval</code> e ouvintes.</td></tr>
+                        <tr>
+                            <td><code>beforeMount()</code></td>
+                            <td>Montagem</td>
+                            <td>Executado <strong>antes</strong> do primeiro <code>render()</code> da janela. Ideal para
+                                inicializar dados pré-DOM.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onMount()</code></td>
+                            <td>Montagem</td>
+                            <td>Executado logo após a janela ser inserida fisicamente no DOM. Ideal para requisições
+                                <code>fetch()</code>, timers e gráficos.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>beforeUpdate(prop, new, old)</code></td>
+                            <td>Reatividade</td>
+                            <td>Executado imediatamente antes do DOM da janela ser atualizado por uma alteração no
+                                <code>state</code>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>onUpdate()</code></td>
+                            <td>Reatividade</td>
+                            <td>Executado logo após o novo DOM da janela ser reconstruído.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onFocus()</code></td>
+                            <td>Janela</td>
+                            <td>Disparado quando a janela ganha foco e passa para o primeiro plano.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onBlur()</code></td>
+                            <td>Janela</td>
+                            <td>Disparado quando o foco é transferido para outra janela.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onMinimize()</code></td>
+                            <td>Janela</td>
+                            <td>Disparado quando a janela é minimizada para a barra de tarefas.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onRestore()</code></td>
+                            <td>Janela</td>
+                            <td>Disparado quando a janela é restaurada da barra de tarefas.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onMaximize(isMax)</code></td>
+                            <td>Janela</td>
+                            <td>Disparado ao maximizar (<code>true</code>) ou restaurar o tamanho normal
+                                (<code>false</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code>onResize(width, height)</code></td>
+                            <td>Janela</td>
+                            <td>Disparado ao redimensionar a janela pelas alças.</td>
+                        </tr>
+                        <tr>
+                            <td><code>onMove(x, y)</code></td>
+                            <td>Janela</td>
+                            <td>Disparado ao arrastar a janela pela barra de título.</td>
+                        </tr>
+                        <tr>
+                            <td><code>beforeClose()</code></td>
+                            <td>Destruição</td>
+                            <td>Executado antes de fechar. Se retornar <code>false</code> ou uma
+                                <code>Promise&lt;false&gt;</code>, o fechamento é <strong>cancelado</strong>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>onDestroy()</code></td>
+                            <td>Destruição</td>
+                            <td>Executado após a janela ser removida do DOM. Ideal para limpar
+                                <code>clearInterval</code> e ouvintes.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="code-box">
-<pre><code>export default {
+                <pre><code>export default {
     title: "Exemplo Completo com Todos os Hooks",
     icon: "⏱️",
     width: 600,
@@ -771,11 +989,12 @@ const TelaCadastro = {
 
             <!-- SEÇÃO: PRIMITIVAS -->
             <h2 id="primitivas">Primitivas de Layout e Impressão</h2>
-            
+
             <h3>createElement (Fábrica DOM Polimórfica)</h3>
-            <p>Fábrica de nós DOM pura, rápida e segura utilizada em toda a biblioteca. Suporta múltiplas assinaturas polimórficas para maior ergonomia:</p>
+            <p>Fábrica de nós DOM pura, rápida e segura utilizada em toda a biblioteca. Suporta múltiplas assinaturas
+                polimórficas para maior ergonomia:</p>
             <div class="code-box">
-<pre><code>import { createElement } from './ui.js';
+                <pre><code>import { createElement } from './ui.js';
 
 // 1. Passando filhos diretamente (sem precisar de classe vazia ""):
 const div1 = createElement("div", [
@@ -802,9 +1021,10 @@ const br = createElement("br");</code></pre>
             </div>
 
             <h3>printElement</h3>
-            <p>Utilitário que clona um elemento do DOM e todos os estilos da página para um iframe isolado e dispara a janela de impressão nativa.</p>
+            <p>Utilitário que clona um elemento do DOM e todos os estilos da página para um iframe isolado e dispara a
+                janela de impressão nativa.</p>
             <div class="code-box">
-<pre><code>import { printElement } from './ui.js';
+                <pre><code>import { printElement } from './ui.js';
 
 // Imprime uma tabela ou relatório específico sem a titlebar da janela
 printElement(meuElementoDOM, { title: "Relatório Mensal de Vendas" });</code></pre>
@@ -815,7 +1035,7 @@ printElement(meuElementoDOM, { title: "Relatório Mensal de Vendas" });</code></
             <p>Blocos de estruturação baseados em Flexbox e CSS Grid:</p>
 
             <div class="code-box">
-<pre><code>import { Row, Col, Grid, Card, createElement } from './ui.js';
+                <pre><code>import { Row, Col, Grid, Card, createElement } from './ui.js';
 
 view() {
     return createElement("div", "", [
@@ -846,7 +1066,7 @@ view() {
             <p>Gera um cabeçalho de abas conectado dinamicamente ao <code>state</code> da janela:</p>
 
             <div class="code-box">
-<pre><code>import { Tabs, createElement } from './ui.js';
+                <pre><code>import { Tabs, createElement } from './ui.js';
 
 // No state:
 state: { abaAtiva: "dados" },
@@ -873,40 +1093,111 @@ Tabs({
 
             <h3>Input</h3>
             <table>
-                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>label</code></td><td><code>String</code></td><td><code>""</code></td><td>Rótulo descritivo do campo.</td></tr>
-                    <tr><td><code>bind</code></td><td><code>String</code></td><td><code>-</code></td><td>Chave correspondente no <code>instance.state</code>.</td></tr>
-                    <tr><td><code>type</code></td><td><code>String</code></td><td><code>"text"</code></td><td>Tipo de input nativo (<code>"text"</code>, <code>"password"</code>, <code>"number"</code>, <code>"date"</code>, etc).</td></tr>
-                    <tr><td><code>placeholder</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto de dica no input.</td></tr>
-                    <tr><td><code>width</code></td><td><code>String</code></td><td><code>"100%"</code></td><td>Largura do contêiner.</td></tr>
-                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>A referência <code>this</code> da tela atual.</td></tr>
+                    <tr>
+                        <td><code>label</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Rótulo descritivo do campo.</td>
+                    </tr>
+                    <tr>
+                        <td><code>bind</code></td>
+                        <td><code>String</code></td>
+                        <td><code>-</code></td>
+                        <td>Chave correspondente no <code>instance.state</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>type</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"text"</code></td>
+                        <td>Tipo de input nativo (<code>"text"</code>, <code>"password"</code>, <code>"number"</code>,
+                            <code>"date"</code>, etc).
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>placeholder</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Texto de dica no input.</td>
+                    </tr>
+                    <tr>
+                        <td><code>width</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"100%"</code></td>
+                        <td>Largura do contêiner.</td>
+                    </tr>
+                    <tr>
+                        <td><code>instance</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>-</code></td>
+                        <td>A referência <code>this</code> da tela atual.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <div class="code-box">
-<pre><code>Input({ label: "E-mail Corporativo", bind: "email", type: "email", placeholder: "usuario@empresa.com", instance: this })</code></pre>
+                <pre><code>Input({ label: "E-mail Corporativo", bind: "email", type: "email", placeholder: "usuario@empresa.com", instance: this })</code></pre>
             </div>
 
             <h3>Textarea</h3>
             <table>
-                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>label</code></td><td><code>String</code></td><td><code>""</code></td><td>Rótulo descritivo do campo.</td></tr>
-                    <tr><td><code>bind</code></td><td><code>String</code></td><td><code>-</code></td><td>Chave correspondente no <code>instance.state</code>.</td></tr>
-                    <tr><td><code>rows</code></td><td><code>Number</code></td><td><code>4</code></td><td>Quantidade inicial de linhas visíveis.</td></tr>
-                    <tr><td><code>placeholder</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto de dica.</td></tr>
-                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>A referência <code>this</code> da tela atual.</td></tr>
+                    <tr>
+                        <td><code>label</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Rótulo descritivo do campo.</td>
+                    </tr>
+                    <tr>
+                        <td><code>bind</code></td>
+                        <td><code>String</code></td>
+                        <td><code>-</code></td>
+                        <td>Chave correspondente no <code>instance.state</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>rows</code></td>
+                        <td><code>Number</code></td>
+                        <td><code>4</code></td>
+                        <td>Quantidade inicial de linhas visíveis.</td>
+                    </tr>
+                    <tr>
+                        <td><code>placeholder</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Texto de dica.</td>
+                    </tr>
+                    <tr>
+                        <td><code>instance</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>-</code></td>
+                        <td>A referência <code>this</code> da tela atual.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <div class="code-box">
-<pre><code>Textarea({ label: "Observações", bind: "obs", rows: 4, instance: this })</code></pre>
+                <pre><code>Textarea({ label: "Observações", bind: "obs", rows: 4, instance: this })</code></pre>
             </div>
 
             <h3>Select</h3>
             <div class="code-box">
-<pre><code>Select({
+                <pre><code>Select({
     label: "Departamento",
     bind: "departamento",
     instance: this,
@@ -920,23 +1211,52 @@ Tabs({
 
             <h3>Button</h3>
             <table>
-                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>text</code></td><td><code>String</code></td><td><code>""</code></td><td>Texto exibido no botão.</td></tr>
-                    <tr><td><code>onClick</code></td><td><code>String | Function</code></td><td><code>-</code></td><td>Nome da action em <code>actions</code> ou função callback.</td></tr>
-                    <tr><td><code>variant</code></td><td><code>String</code></td><td><code>"primary"</code></td><td>Estilo: <code>"primary"</code>, <code>"secondary"</code>, <code>"danger"</code>, <code>"success"</code>.</td></tr>
-                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>Contexto da tela para disparar a action.</td></tr>
+                    <tr>
+                        <td><code>text</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Texto exibido no botão.</td>
+                    </tr>
+                    <tr>
+                        <td><code>onClick</code></td>
+                        <td><code>String | Function</code></td>
+                        <td><code>-</code></td>
+                        <td>Nome da action em <code>actions</code> ou função callback.</td>
+                    </tr>
+                    <tr>
+                        <td><code>variant</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"primary"</code></td>
+                        <td>Estilo: <code>"primary"</code>, <code>"secondary"</code>, <code>"danger"</code>,
+                            <code>"success"</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>instance</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>-</code></td>
+                        <td>Contexto da tela para disparar a action.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <div class="code-box">
-<pre><code>Button({ text: "Confirmar Operação", onClick: "executarAcao", variant: "primary", instance: this })</code></pre>
+                <pre><code>Button({ text: "Confirmar Operação", onClick: "executarAcao", variant: "primary", instance: this })</code></pre>
             </div>
 
             <!-- SEÇÃO: CHECKBOX E TOGGLE -->
             <h2 id="checkbox-toggle">Checkbox e Toggle (Switches)</h2>
             <div class="code-box">
-<pre><code>import { Checkbox, Toggle, Row } from './ui.js';
+                <pre><code>import { Checkbox, Toggle, Row } from './ui.js';
 
 // Ambos conectam valores booleanos ao state:
 Row({ children: [
@@ -947,9 +1267,10 @@ Row({ children: [
 
             <!-- SEÇÃO: SLIDER -->
             <h2 id="slider">Slider (Range Contínuo com Badge)</h2>
-            <p>Controle deslizante que atualiza o valor visualmente durante o arraste e só dispara o re-render no final (evitando travamento de interface):</p>
+            <p>Controle deslizante que atualiza o valor visualmente durante o arraste e só dispara o re-render no final
+                (evitando travamento de interface):</p>
             <div class="code-box">
-<pre><code>import { Slider } from './ui.js';
+                <pre><code>import { Slider } from './ui.js';
 
 Slider({
     label: "Nível de Opacidade",
@@ -964,7 +1285,7 @@ Slider({
             <!-- SEÇÃO: RADIO GROUP -->
             <h2 id="radiogroup">RadioGroup (Seleção Única)</h2>
             <div class="code-box">
-<pre><code>import { RadioGroup } from './ui.js';
+                <pre><code>import { RadioGroup } from './ui.js';
 
 RadioGroup({
     label: "Tipo de Pessoa",
@@ -980,10 +1301,11 @@ RadioGroup({
 
             <!-- SEÇÃO: AUTOCOMPLETE -->
             <h2 id="autocomplete">Autocomplete (Com Chips Múltiplos)</h2>
-            <p>Campo de busca com sugestões integradas. Suporta seleção simples (retorna string) ou múltipla (cria tags/chips visuais e manipula um Array no <code>state</code>):</p>
+            <p>Campo de busca com sugestões integradas. Suporta seleção simples (retorna string) ou múltipla (cria
+                tags/chips visuais e manipula um Array no <code>state</code>):</p>
 
             <div class="code-box">
-<pre><code>import { Autocomplete } from './ui.js';
+                <pre><code>import { Autocomplete } from './ui.js';
 
 // Estado correspondente:
 state: { paisesSelecionados: ["Brasil"] },
@@ -1003,10 +1325,11 @@ Autocomplete({
 
             <!-- SEÇÃO: TABELAS & DATAGRID -->
             <h2 id="table">Table (Tabela Simples com Custom Render)</h2>
-            <p>Renderiza dados tabulares estáticos com suporte a customização por coluna através de funções de render:</p>
+            <p>Renderiza dados tabulares estáticos com suporte a customização por coluna através de funções de render:
+            </p>
 
             <div class="code-box">
-<pre><code>import { Table, Badge } from './ui.js';
+                <pre><code>import { Table, Badge } from './ui.js';
 
 Table({
     columns: [
@@ -1025,18 +1348,62 @@ Table({
 
             <!-- SEÇÃO: DATAGRID -->
             <h2 id="datagrid">DataGrid Completo (Ordenação, Filtros e Paginação)</h2>
-            <p>O <code>DataGrid</code> é o componente definitivo para exibição de grandes coleções de dados no DesktopEngine. Ele possui controle integrado de ordenação ao clicar no cabeçalho, caixas de filtro por coluna com restauração automática de foco e paginação completa.</p>
+            <p>O <code>DataGrid</code> é o componente definitivo para exibição de grandes coleções de dados no
+                DesktopEngine. Ele possui controle integrado de ordenação ao clicar no cabeçalho, caixas de filtro por
+                coluna com restauração automática de foco e paginação completa.</p>
 
             <table>
-                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>bindData</code></td><td><code>String</code></td><td><code>-</code></td><td>Nome da lista no <code>instance.state</code> contendo os dados.</td></tr>
-                    <tr><td><code>columns</code></td><td><code>Array</code></td><td><code>[]</code></td><td>Configuração das colunas (veja abaixo).</td></tr>
-                    <tr><td><code>itemsPerPage</code></td><td><code>Number</code></td><td><code>5</code></td><td>Quantidade de linhas por página (Modo Client-Side).</td></tr>
-                    <tr><td><code>serverSide</code></td><td><code>Boolean</code></td><td><code>false</code></td><td>Se <code>true</code>, delega a paginação para a API externa.</td></tr>
-                    <tr><td><code>bindTotalPages</code></td><td><code>String</code></td><td><code>null</code></td><td>Nome da chave no <code>state</code> contendo o total de páginas no modo Server-Side.</td></tr>
-                    <tr><td><code>onPageChange</code></td><td><code>String | Function</code></td><td><code>null</code></td><td>Action a ser executada ao mudar de página.</td></tr>
-                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>Referência da tela (<code>this</code>).</td></tr>
+                    <tr>
+                        <td><code>bindData</code></td>
+                        <td><code>String</code></td>
+                        <td><code>-</code></td>
+                        <td>Nome da lista no <code>instance.state</code> contendo os dados.</td>
+                    </tr>
+                    <tr>
+                        <td><code>columns</code></td>
+                        <td><code>Array</code></td>
+                        <td><code>[]</code></td>
+                        <td>Configuração das colunas (veja abaixo).</td>
+                    </tr>
+                    <tr>
+                        <td><code>itemsPerPage</code></td>
+                        <td><code>Number</code></td>
+                        <td><code>5</code></td>
+                        <td>Quantidade de linhas por página (Modo Client-Side).</td>
+                    </tr>
+                    <tr>
+                        <td><code>serverSide</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>false</code></td>
+                        <td>Se <code>true</code>, delega a paginação para a API externa.</td>
+                    </tr>
+                    <tr>
+                        <td><code>bindTotalPages</code></td>
+                        <td><code>String</code></td>
+                        <td><code>null</code></td>
+                        <td>Nome da chave no <code>state</code> contendo o total de páginas no modo Server-Side.</td>
+                    </tr>
+                    <tr>
+                        <td><code>onPageChange</code></td>
+                        <td><code>String | Function</code></td>
+                        <td><code>null</code></td>
+                        <td>Action a ser executada ao mudar de página.</td>
+                    </tr>
+                    <tr>
+                        <td><code>instance</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>-</code></td>
+                        <td>Referência da tela (<code>this</code>).</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -1046,11 +1413,12 @@ Table({
                 <li><code>label</code>: Texto exibido no cabeçalho.</li>
                 <li><code>sortable</code>: <code>true</code> para habilitar ordenação ascendente/descendente.</li>
                 <li><code>filterable</code>: <code>true</code> para renderizar campo de filtro em tempo real.</li>
-                <li><code>render(val, row)</code>: Função opcional para renderizar badges, botões ou nós customizados.</li>
+                <li><code>render(val, row)</code>: Função opcional para renderizar badges, botões ou nós customizados.
+                </li>
             </ul>
 
             <div class="code-box">
-<pre><code>import { DataGrid, Badge, Button, Row } from './ui.js';
+                <pre><code>import { DataGrid, Badge, Button, Row } from './ui.js';
 
 // 1. Estado da Janela
 state: {
@@ -1086,7 +1454,7 @@ DataGrid({
             <!-- SEÇÃO: TREEVIEW, DRAGGABLE, WEBVIEW -->
             <h2 id="treeview">TreeView (Estrutura de Pastas)</h2>
             <div class="code-box">
-<pre><code>import { TreeView } from './ui.js';
+                <pre><code>import { TreeView } from './ui.js';
 
 TreeView({
     data: [
@@ -1104,7 +1472,7 @@ TreeView({
 
             <h2 id="draggable">DraggableList (Reordenação Arrastável)</h2>
             <div class="code-box">
-<pre><code>import { DraggableList } from './ui.js';
+                <pre><code>import { DraggableList } from './ui.js';
 
 // Vinculado a uma lista no state
 DraggableList({
@@ -1116,7 +1484,7 @@ DraggableList({
 
             <h2 id="webview">WebView (Navegador Embutido)</h2>
             <div class="code-box">
-<pre><code>import { WebView } from './ui.js';
+                <pre><code>import { WebView } from './ui.js';
 
 WebView({
     bindUrl: "urlAtual", // Atualiza o iframe dinamicamente com o state
@@ -1130,7 +1498,7 @@ WebView({
             <!-- SEÇÃO: FEEDBACK & NOTIFICAÇÕES -->
             <h2 id="alert-spinner">Alert e Spinner</h2>
             <div class="code-box">
-<pre><code>import { Alert, Spinner, Row } from './ui.js';
+                <pre><code>import { Alert, Spinner, Row } from './ui.js';
 
 Row({ style: "align-items: center; gap: 12px;", children: [
     Alert({ text: "Sincronização em andamento...", variant: "info" }),
@@ -1140,7 +1508,7 @@ Row({ style: "align-items: center; gap: 12px;", children: [
 
             <h2 id="toast">Toast (Notificações Flutuantes)</h2>
             <div class="code-box">
-<pre><code>import { Toast } from './ui.js';
+                <pre><code>import { Toast } from './ui.js';
 
 // Disparo simples em qualquer lugar ou action
 Toast({ message: "Operação executada com sucesso!", type: "success", duration: 4000 });
@@ -1149,7 +1517,7 @@ Toast({ message: "Operação executada com sucesso!", type: "success", duration:
 
             <h2 id="badge-progress">Badge, ProgressBar e Skeleton</h2>
             <div class="code-box">
-<pre><code>import { Badge, ProgressBar, Skeleton, Col } from './ui.js';
+                <pre><code>import { Badge, ProgressBar, Skeleton, Col } from './ui.js';
 
 Col({ children: [
     Badge({ text: "Concluído", variant: "success" }),
@@ -1163,7 +1531,7 @@ Col({ children: [
             <!-- SEÇÃO: NAVEGAÇÃO & OVERLAYS -->
             <h2 id="accordion">Accordion (Sanfona Expansível)</h2>
             <div class="code-box">
-<pre><code>import { Accordion, createElement } from './ui.js';
+                <pre><code>import { Accordion, createElement } from './ui.js';
 
 Accordion({
     instance: this,
@@ -1175,21 +1543,54 @@ Accordion({
             </div>
 
             <h2 id="drawer">Drawer (Menu de Contexto Flutuante)</h2>
-            <p>O <code>Drawer</code> desliza a partir da borda lateral com estética de vidro (Glassmorphism). Por padrão, <strong>fica restrito aos limites da janela atual</strong>, sem cobrir o Desktop global.</p>
+            <p>O <code>Drawer</code> desliza a partir da borda lateral com estética de vidro (Glassmorphism). Por
+                padrão, <strong>fica restrito aos limites da janela atual</strong>, sem cobrir o Desktop global.</p>
 
             <table>
-                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>bind</code></td><td><code>String</code></td><td><code>-</code></td><td>Propriedade booleana no <code>state</code> que controla a abertura.</td></tr>
-                    <tr><td><code>side</code></td><td><code>String</code></td><td><code>"right"</code></td><td>Lado de entrada: <code>"left"</code> ou <code>"right"</code>.</td></tr>
-                    <tr><td><code>content</code></td><td><code>Array | Node | String</code></td><td><code>-</code></td><td>Filhos renderizados dentro do menu.</td></tr>
-                    <tr><td><code>targetContainer</code></td><td><code>Element</code></td><td><code>windowEl</code></td><td>Opcional. Passe <code>document.getElementById('app')</code> para torná-lo global.</td></tr>
-                    <tr><td><code>instance</code></td><td><code>Object</code></td><td><code>-</code></td><td>Referência da tela.</td></tr>
+                    <tr>
+                        <td><code>bind</code></td>
+                        <td><code>String</code></td>
+                        <td><code>-</code></td>
+                        <td>Propriedade booleana no <code>state</code> que controla a abertura.</td>
+                    </tr>
+                    <tr>
+                        <td><code>side</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"right"</code></td>
+                        <td>Lado de entrada: <code>"left"</code> ou <code>"right"</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>content</code></td>
+                        <td><code>Array | Node | String</code></td>
+                        <td><code>-</code></td>
+                        <td>Filhos renderizados dentro do menu.</td>
+                    </tr>
+                    <tr>
+                        <td><code>targetContainer</code></td>
+                        <td><code>Element</code></td>
+                        <td><code>windowEl</code></td>
+                        <td>Opcional. Passe <code>document.getElementById('app')</code> para torná-lo global.</td>
+                    </tr>
+                    <tr>
+                        <td><code>instance</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>-</code></td>
+                        <td>Referência da tela.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <div class="code-box">
-<pre><code>import { Drawer, Button, createElement } from './ui.js';
+                <pre><code>import { Drawer, Button, createElement } from './ui.js';
 
 // Na view():
 view() {
@@ -1209,10 +1610,11 @@ view() {
             </div>
 
             <h2 id="modal">Modal (Isolado por Janela ou Global)</h2>
-            <p>Diálogos de confirmação ou formulários de foco bloqueante. Se chamado passando <code>instance</code>, o fundo bloqueia apenas a janela onde foi chamado.</p>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. Se chamado passando <code>instance</code>, o
+                fundo bloqueia apenas a janela onde foi chamado.</p>
 
             <div class="code-box">
-<pre><code>import { Modal, Button, createElement } from './ui.js';
+                <pre><code>import { Modal, Button, createElement } from './ui.js';
 
 // 1. Modal Local (Restrito à Janela)
 Modal({
@@ -1243,7 +1645,7 @@ Modal({
 
             <h2 id="breadcrumbs-stepper">Breadcrumbs e Stepper</h2>
             <div class="code-box">
-<pre><code>import { Breadcrumbs, Stepper } from './ui.js';
+                <pre><code>import { Breadcrumbs, Stepper } from './ui.js';
 
 // Trilha de Navegação
 Breadcrumbs({
@@ -1262,20 +1664,51 @@ Stepper({
             </div>
 
             <h2 id="carousel">Carousel Magnético (Posições Customizáveis)</h2>
-            <p>Esteira deslizante suave que oculta a barra de scroll nativa e permite posicionar os controles de avançar/recuar em qualquer lugar do layout.</p>
+            <p>Esteira deslizante suave que oculta a barra de scroll nativa e permite posicionar os controles de
+                avançar/recuar em qualquer lugar do layout.</p>
 
             <table>
-                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>items</code></td><td><code>Array</code></td><td><code>[]</code></td><td>Array de nós DOM ou strings para os slides.</td></tr>
-                    <tr><td><code>height</code></td><td><code>String</code></td><td><code>"200px"</code></td><td>Altura da área do carrossel.</td></tr>
-                    <tr><td><code>prevControl</code> / <code>nextControl</code></td><td><code>Node | String</code></td><td><code>-</code></td><td>Elementos ou botões de avançar e recuar.</td></tr>
-                    <tr><td><code>controlsPosition</code></td><td><code>String</code></td><td><code>"side"</code></td><td>Posição dos controles: <code>"side"</code>, <code>"top-left"</code>, <code>"top-center"</code>, <code>"top-right"</code>, <code>"bottom-left"</code>, <code>"bottom-center"</code>, <code>"bottom-right"</code>.</td></tr>
+                    <tr>
+                        <td><code>items</code></td>
+                        <td><code>Array</code></td>
+                        <td><code>[]</code></td>
+                        <td>Array de nós DOM ou strings para os slides.</td>
+                    </tr>
+                    <tr>
+                        <td><code>height</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"200px"</code></td>
+                        <td>Altura da área do carrossel.</td>
+                    </tr>
+                    <tr>
+                        <td><code>prevControl</code> / <code>nextControl</code></td>
+                        <td><code>Node | String</code></td>
+                        <td><code>-</code></td>
+                        <td>Elementos ou botões de avançar e recuar.</td>
+                    </tr>
+                    <tr>
+                        <td><code>controlsPosition</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"side"</code></td>
+                        <td>Posição dos controles: <code>"side"</code>, <code>"top-left"</code>,
+                            <code>"top-center"</code>, <code>"top-right"</code>, <code>"bottom-left"</code>,
+                            <code>"bottom-center"</code>, <code>"bottom-right"</code>.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
             <div class="code-box">
-<pre><code>import { Carousel, Button, createElement } from './ui.js';
+                <pre><code>import { Carousel, Button, createElement } from './ui.js';
 
 Carousel({
     height: "140px",
@@ -1292,7 +1725,7 @@ Carousel({
 
             <h2 id="avatar-tooltip">Avatar e Tooltip</h2>
             <div class="code-box">
-<pre><code>import { Avatar, Tooltip } from './ui.js';
+                <pre><code>import { Avatar, Tooltip } from './ui.js';
 
 Tooltip({
     position: "top", // "top", "bottom", "left", "right"
@@ -1312,11 +1745,12 @@ Tooltip({
             <p>O framework suporta os dois paradigmas clássicos de sistemas operacionais:</p>
             <ul>
                 <li><strong>StartMenu (Estilo Windows):</strong> Menu inicial ancorado no botão da taskbar.</li>
-                <li><strong>MenuBar (Estilo macOS / Desktop Pro):</strong> Barra de menus fixa no topo com submenus em cascata (hover).</li>
+                <li><strong>MenuBar (Estilo macOS / Desktop Pro):</strong> Barra de menus fixa no topo com submenus em
+                    cascata (hover).</li>
             </ul>
 
             <div class="code-box">
-<pre><code>import { MenuBar, StartMenu } from './ui.js';
+                <pre><code>import { MenuBar, StartMenu } from './ui.js';
 
 // Exemplo de estrutura de menu reutilizável
 const meusMenus = [
@@ -1350,20 +1784,26 @@ StartMenu({ buttonId: "btnStart", menus: meusMenus });</code></pre>
 
             <!-- SEÇÃO: WINDOW MENUBAR -->
             <h2 id="window-menubar">MenuBar em Janelas (Window MenuBar)</h2>
-            <p>Além da barra de menus global do Desktop, qualquer janela pode possuir sua <strong>própria barra de menus dedicada (Window MenuBar)</strong> posicionada imediatamente abaixo da titlebar, exatamente como nos aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).</p>
+            <p>Além da barra de menus global do Desktop, qualquer janela pode possuir sua <strong>própria barra de menus
+                    dedicada (Window MenuBar)</strong> posicionada imediatamente abaixo da titlebar, exatamente como nos
+                aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).</p>
 
             <div class="alert alert-info">
                 <span class="alert-icon">✨</span>
                 <div>
-                    <strong>Recursos Avançados:</strong> Suporta ícones visuais (<code>icon</code>), atalhos de teclado alinhados à direita (<code>shortcut</code>), submenus aninhados multinível (<code>items</code>), desabilitação condicional (<code>disabled</code>) e injeção automática do contexto da instância da janela <code>(instance, event)</code> nas ações.
+                    <strong>Recursos Avançados:</strong> Suporta ícones visuais (<code>icon</code>), atalhos de teclado
+                    alinhados à direita (<code>shortcut</code>), submenus aninhados multinível (<code>items</code>),
+                    desabilitação condicional (<code>disabled</code>) e injeção automática do contexto da instância da
+                    janela <code>(instance, event)</code> nas ações.
                 </div>
             </div>
 
             <h3>1. Declaração Declarativa na Configuração da Tela</h3>
-            <p>Basta declarar a propriedade <code>menubar</code> (ou <code>menus</code>) no objeto de configuração da tela:</p>
+            <p>Basta declarar a propriedade <code>menubar</code> (ou <code>menus</code>) no objeto de configuração da
+                tela:</p>
 
             <div class="code-box">
-<pre><code>// screens/EditorScreen.js
+                <pre><code>// screens/EditorScreen.js
 import { Toast, Modal, createElement } from '../ui.js';
 
 export default {
@@ -1446,7 +1886,7 @@ export default {
             <p>Você pode alterar ou remover a barra de menus da janela a qualquer momento durante a execução:</p>
 
             <div class="code-box">
-<pre><code>// Dentro de qualquer view() ou action:
+                <pre><code>// Dentro de qualquer view() ou action:
 // 1. Atualizar com novos menus
 this.setMenuBar([
     {
@@ -1476,14 +1916,51 @@ const mbEl = this.getMenuBar();</code></pre>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td><code>label</code></td><td>String</td><td>Texto exibido na opção do menu.</td></tr>
-                        <tr><td><code>icon</code></td><td>String</td><td>Ícone / emoji exibido à esquerda (ex: <code>"💾"</code>, <code>"📁"</code>).</td></tr>
-                        <tr><td><code>shortcut</code></td><td>String</td><td>Dica de atalho de teclado exibida à direita (ex: <code>"Ctrl+S"</code>, <code>"Alt+F4"</code>).</td></tr>
-                        <tr><td><code>action</code></td><td>Function</td><td>Função executada ao clicar: <code>(instance, event) => { ... }</code>.</td></tr>
-                        <tr><td><code>screen</code></td><td>String</td><td>ID de tela registrada no <code>Desktop.registerScreens</code> para abrir automaticamente.</td></tr>
-                        <tr><td><code>props</code></td><td>Object</td><td>Props iniciais passadas para a tela quando <code>screen</code> for informada.</td></tr>
-                        <tr><td><code>items</code></td><td>Array</td><td>Submenus em cascata (suporta separadores <code>"separator"</code> e novos níveis).</td></tr>
-                        <tr><td><code>disabled</code></td><td>Boolean | Function</td><td>Desabilita visual e funcionalmente a opção se for <code>true</code> ou <code>(instance) => boolean</code>.</td></tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td>String</td>
+                            <td>Texto exibido na opção do menu.</td>
+                        </tr>
+                        <tr>
+                            <td><code>icon</code></td>
+                            <td>String</td>
+                            <td>Ícone / emoji exibido à esquerda (ex: <code>"💾"</code>, <code>"📁"</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code>shortcut</code></td>
+                            <td>String</td>
+                            <td>Dica de atalho de teclado exibida à direita (ex: <code>"Ctrl+S"</code>,
+                                <code>"Alt+F4"</code>).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>action</code></td>
+                            <td>Function</td>
+                            <td>Função executada ao clicar: <code>(instance, event) => { ... }</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>screen</code></td>
+                            <td>String</td>
+                            <td>ID de tela registrada no <code>Desktop.registerScreens</code> para abrir
+                                automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td><code>props</code></td>
+                            <td>Object</td>
+                            <td>Props iniciais passadas para a tela quando <code>screen</code> for informada.</td>
+                        </tr>
+                        <tr>
+                            <td><code>items</code></td>
+                            <td>Array</td>
+                            <td>Submenus em cascata (suporta separadores <code>"separator"</code> e novos níveis).</td>
+                        </tr>
+                        <tr>
+                            <td><code>disabled</code></td>
+                            <td>Boolean | Function</td>
+                            <td>Desabilita visual e funcionalmente a opção se for <code>true</code> ou
+                                <code>(instance) => boolean</code>.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -1491,9 +1968,11 @@ const mbEl = this.getMenuBar();</code></pre>
             <h3>4. Métodos de Controle Auxiliares da Janela</h3>
             <p>Toda instância de janela agora expõe métodos diretos e convenientes para controle:</p>
             <ul>
-                <li><code>instance.openDialog(config, props)</code>: Abre uma janela modal filha acoplada e bloqueando a janela atual, retornando uma <code>Promise</code> com o resultado.</li>
+                <li><code>instance.openDialog(config, props)</code>: Abre uma janela modal filha acoplada e bloqueando a
+                    janela atual, retornando uma <code>Promise</code> com o resultado.</li>
                 <li><code>instance.openChildWindow(config, props)</code>: Alias para <code>openDialog</code>.</li>
-                <li><code>instance.close(dados)</code>: Fecha a janela atual (e devolve <code>dados</code> para quem abriu via <code>openDialog</code>).</li>
+                <li><code>instance.close(dados)</code>: Fecha a janela atual (e devolve <code>dados</code> para quem
+                    abriu via <code>openDialog</code>).</li>
                 <li><code>instance.minimize()</code>: Minimiza a janela para a taskbar.</li>
                 <li><code>instance.maximize()</code>: Alterna entre maximizada e restaurada.</li>
                 <li><code>instance.restore()</code>: Restaura a janela se estiver minimizada.</li>
@@ -1502,18 +1981,24 @@ const mbEl = this.getMenuBar();</code></pre>
 
             <!-- SEÇÃO: JANELAS FILHAS (DIALOGS) -->
             <h2 id="janelas-filhas">Janelas Modais Filhas (Dialogs / Sub-Windows)</h2>
-            <p>O DesktopEngine suporta nativamente o padrão de <strong>Janelas Modais Filhas (Child Modal Windows)</strong>. Uma janela mãe pode abrir uma janela filha que é posicionada centralizada sobre ela, bloqueando exclusivamente a janela mãe com uma camada de desfoque (<em>frosted glass</em>) enquanto as demais janelas do sistema continuam ativas.</p>
+            <p>O DesktopEngine suporta nativamente o padrão de <strong>Janelas Modais Filhas (Child Modal
+                    Windows)</strong>. Uma janela mãe pode abrir uma janela filha que é posicionada centralizada sobre
+                ela, bloqueando exclusivamente a janela mãe com uma camada de desfoque (<em>frosted glass</em>) enquanto
+                as demais janelas do sistema continuam ativas.</p>
 
             <div class="alert alert-info">
                 <span class="alert-icon">💡</span>
                 <div>
-                    <strong>Retorno com Promise (Dialog Pattern):</strong> Ao chamar <code>await this.openDialog(config)</code>, a execução na janela mãe pausa de forma assíncrona até que o usuário feche a janela filha chamando <code>this.close(dados)</code>, devolvendo o valor diretamente!
+                    <strong>Retorno com Promise (Dialog Pattern):</strong> Ao chamar
+                    <code>await this.openDialog(config)</code>, a execução na janela mãe pausa de forma assíncrona até
+                    que o usuário feche a janela filha chamando <code>this.close(dados)</code>, devolvendo o valor
+                    diretamente!
                 </div>
             </div>
 
             <h3>1. Exemplo de Janela Mãe Abrindo Diálogo</h3>
             <div class="code-box">
-<pre><code>// Dentro da Janela Mãe (this é a instância da janela mãe):
+                <pre><code>// Dentro da Janela Mãe (this é a instância da janela mãe):
 const usuarioSelecionado = await this.openDialog({
     title: "Selecionar Usuário",
     icon: "👤",
@@ -1551,29 +2036,44 @@ if (usuarioSelecionado) {
             </div>
 
             <h3>2. Modos de Exibição: Confinada vs Flutuante</h3>
-            <p>Você pode controlar se a janela filha deve se movimentar livremente pelo desktop ou ficar restrita ao contorno físico da janela mãe:</p>
+            <p>Você pode controlar se a janela filha deve se movimentar livremente pelo desktop ou ficar restrita ao
+                contorno físico da janela mãe:</p>
             <ul>
-                <li><code>contained: true</code>: A janela filha é renderizada <strong>dentro do espaço da janela pai</strong> e seu arrasto fica estritamente confinado aos limites da janela mãe (estilo MDI Clássico).</li>
-                <li><code>contained: false</code> (Padrão): A janela filha flutua livremente pelo Desktop, mas mantém o bloqueio modal e foco vinculados à janela mãe.</li>
-                <li><code>closable: false</code> / <code>showCloseButton: false</code>: Oculta o botão <code>X</code> da barra de título, forçando o usuário a interagir com os botões de ação internos.</li>
+                <li><code>contained: true</code>: A janela filha é renderizada <strong>dentro do espaço da janela
+                        pai</strong> e seu arrasto fica estritamente confinado aos limites da janela mãe (estilo MDI
+                    Clássico).</li>
+                <li><code>contained: false</code> (Padrão): A janela filha flutua livremente pelo Desktop, mas mantém o
+                    bloqueio modal e foco vinculados à janela mãe.</li>
+                <li><code>closable: false</code> / <code>showCloseButton: false</code>: Oculta o botão <code>X</code> da
+                    barra de título, forçando o usuário a interagir com os botões de ação internos.</li>
             </ul>
 
             <h3>3. Ciclo de Vida Vinculado (Parent-Child)</h3>
             <ul>
-                <li><strong>Bloqueio Inteligente:</strong> Clicar na janela mãe bloqueada faz a janela filha piscar (<em>blink effect</em>) para alertar o usuário.</li>
-                <li><strong>Minimização Conjunta:</strong> Minimizar ou restaurar a janela mãe minimiza e restaura automaticamente a janela filha modal.</li>
-                <li><strong>Fechamento em Cascata:</strong> Fechar a janela mãe destrói automaticamente as janelas filhas vinculadas.</li>
-                <li><strong>Abertura via Screen Registry:</strong> Também é possível abrir pelo ID registrado: <code>const dados = await this.openDialog("seletor_usuario", { role: "admin" });</code></li>
+                <li><strong>Bloqueio Inteligente:</strong> Clicar na janela mãe bloqueada faz a janela filha piscar
+                    (<em>blink effect</em>) para alertar o usuário.</li>
+                <li><strong>Minimização Conjunta:</strong> Minimizar ou restaurar a janela mãe minimiza e restaura
+                    automaticamente a janela filha modal.</li>
+                <li><strong>Fechamento em Cascata:</strong> Fechar a janela mãe destrói automaticamente as janelas
+                    filhas vinculadas.</li>
+                <li><strong>Abertura via Screen Registry:</strong> Também é possível abrir pelo ID registrado:
+                    <code>const dados = await this.openDialog("seletor_usuario", { role: "admin" });</code>
+                </li>
             </ul>
 
             <h2 id="integracao-api">Integração com APIs REST &amp; Backend</h2>
-            <p>O <strong>DesktopEngine</strong> é 100% agnóstico a backends e linguagens de servidor. Toda janela ou componente do framework pode se comunicar de forma assíncrona com APIs RESTful (Node.js, Python, Java, Go, PHP, C#/.NET, etc.) utilizando a Web API padrão <code>fetch()</code>, autenticação por cabeçalhos (Bearer JWT, Basic Auth, API Key) e reatividade automática.</p>
+            <p>O <strong>DesktopEngine</strong> é 100% agnóstico a backends e linguagens de servidor. Toda janela ou
+                componente do framework pode se comunicar de forma assíncrona com APIs RESTful (Node.js, Python, Java,
+                Go, PHP, C#/.NET, etc.) utilizando a Web API padrão <code>fetch()</code>, autenticação por cabeçalhos
+                (Bearer JWT, Basic Auth, API Key) e reatividade automática.</p>
 
             <h3>1. Padrão Arquitetural: Estado Reativo para Consumo de APIs</h3>
-            <p>Recomenda-se centralizar o estado de comunicação (dados, indicador de carregamento, erros e paginação) no <code>state</code> da janela:</p>
+            <p>Recomenda-se centralizar o estado de comunicação (dados, indicador de carregamento, erros e paginação) no
+                <code>state</code> da janela:
+            </p>
 
             <div class="code-box">
-<pre><code>import { createElement, Table, Button, Spinner, Toast, Modal } from './ui.js';
+                <pre><code>import { createElement, Table, Button, Spinner, Toast, Modal } from './ui.js';
 
 export default {
     title: "Gestão Corporativa (Consumo de API)",
@@ -1662,14 +2162,21 @@ export default {
             </div>
 
             <!-- SEÇÃO: BACKGROUND TASKS & WEB WORKERS -->
-            <h2 id="background-tasks">Processamento em Segundo Plano &amp; Multitarefa (Background Tasks &amp; Web Workers)</h2>
-            <p>O DesktopEngine foi desenvolvido para permitir <strong>multitarefa real entre janelas</strong>. Uma janela pode executar relatórios demorados, processamento massivo de planilhas ou cálculos pesados de Big Data em segundo plano enquanto o usuário utiliza outras janelas (como editores, cadastros e gráficos) com <strong>60 FPS fluidos</strong> e zero travamento na interface.</p>
+            <h2 id="background-tasks">Processamento em Segundo Plano &amp; Multitarefa (Background Tasks &amp; Web
+                Workers)</h2>
+            <p>O DesktopEngine foi desenvolvido para permitir <strong>multitarefa real entre janelas</strong>. Uma
+                janela pode executar relatórios demorados, processamento massivo de planilhas ou cálculos pesados de Big
+                Data em segundo plano enquanto o usuário utiliza outras janelas (como editores, cadastros e gráficos)
+                com <strong>60 FPS fluidos</strong> e zero travamento na interface.</p>
 
             <h3>1. Padrão Web Worker (Thread de CPU Dedicada)</h3>
-            <p>Para processamento matemático pesado ou parsing de arquivos gigantescos no navegador, utilize um <code>Web Worker</code>. O processamento roda em um núcleo de CPU separado da thread de renderização da interface:</p>
+            <p>Para processamento matemático pesado ou parsing de arquivos gigantescos no navegador, utilize um
+                <code>Web Worker</code>. O processamento roda em um núcleo de CPU separado da thread de renderização da
+                interface:
+            </p>
 
             <div class="code-box">
-<pre><code>// Dentro da Janela de Relatórios:
+                <pre><code>// Dentro da Janela de Relatórios:
 export default {
     title: "Gerador de Relatórios",
     state: { progresso: 0, isProcessando: false, worker: null },
@@ -1724,10 +2231,12 @@ export default {
             </div>
 
             <h3>2. Padrão Async Stream / Chunking (Requisições em Lotes)</h3>
-            <p>Quando a geração do relatório consome dados de APIs remotas, utilize <code>async/await</code> com divisão em lotes (<em>chunking</em>). O Event Loop do navegador atualiza a barra de progresso e mantém a responsividade das demais janelas:</p>
+            <p>Quando a geração do relatório consome dados de APIs remotas, utilize <code>async/await</code> com divisão
+                em lotes (<em>chunking</em>). O Event Loop do navegador atualiza a barra de progresso e mantém a
+                responsividade das demais janelas:</p>
 
             <div class="code-box">
-<pre><code>async gerarRelatorioAsync(lotes = 10) {
+                <pre><code>async gerarRelatorioAsync(lotes = 10) {
     this.state.isProcessando = true;
     for (let i = 1; i <= lotes; i++) {
         await new Promise(r => setTimeout(r, 400)); // Simula requisição assíncrona
@@ -1740,24 +2249,35 @@ export default {
 
             <h3>2. Boas Práticas na Integração com Serviços</h3>
             <ul>
-                <li><strong>Preservação de Foco na Digitação:</strong> Ao vincular campos de busca ou filtros a inputs, o DesktopEngine utiliza <code>instance._setSilentState()</code> para atualizar o estado sem destruir os elementos DOM ativos durante a digitação.</li>
-                <li><strong>Orquestração com Actions &amp; Middlewares:</strong> Para fluxos com validações encadeadas, use <code>actions: { salvar: [validarForm, enviarApi, logAuditoria] }</code>.</li>
-                <li><strong>Tratamento de Autenticação 401:</strong> Intercepte respostas de status <code>401 Unauthorized</code> para abrir dinamicamente um <code>Modal()</code> de login ou renovação de token sem fechar a janela do usuário.</li>
+                <li><strong>Preservação de Foco na Digitação:</strong> Ao vincular campos de busca ou filtros a inputs,
+                    o DesktopEngine utiliza <code>instance._setSilentState()</code> para atualizar o estado sem destruir
+                    os elementos DOM ativos durante a digitação.</li>
+                <li><strong>Orquestração com Actions &amp; Middlewares:</strong> Para fluxos com validações encadeadas,
+                    use <code>actions: { salvar: [validarForm, enviarApi, logAuditoria] }</code>.</li>
+                <li><strong>Tratamento de Autenticação 401:</strong> Intercepte respostas de status
+                    <code>401 Unauthorized</code> para abrir dinamicamente um <code>Modal()</code> de login ou renovação
+                    de token sem fechar a janela do usuário.
+                </li>
             </ul>
 
             <h2 id="look-and-feel">Sistema de Look and Feel (L&amp;F / OS Skins)</h2>
-            <p>O DesktopEngine possui um subsistema nativo e modular de <strong>Look and Feel (L&amp;F)</strong> que permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela, tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
-            
+            <p>O DesktopEngine possui um subsistema nativo e modular de <strong>Look and Feel (L&amp;F)</strong> que
+                permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela,
+                tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
+
             <div class="alert alert-tip">
                 <span class="alert-icon">💡</span>
                 <div>
-                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça do SO via atributo <code>data-laf</code>) é independente da <em>Paleta de Cores</em> (cores e tons via atributo <code>data-theme</code>). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: macOS no tema Midnight Cyber, Windows 98 em Alto Contraste, ou Java Metal no tema Slate Dark).
+                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça do SO via atributo
+                    <code>data-laf</code>) é independente da <em>Paleta de Cores</em> (cores e tons via atributo
+                    <code>data-theme</code>). Você pode combinar livremente qualquer Look and Feel com qualquer Tema
+                    (ex: macOS no tema Midnight Cyber, Windows 98 em Alto Contraste, ou Java Metal no tema Slate Dark).
                 </div>
             </div>
 
             <h3>API do Desktop para Look and Feel</h3>
             <div class="code-box">
-<pre><code>import { Desktop } from './desktop.js';
+                <pre><code>import { Desktop } from './desktop.js';
 
 // 1. Aplicar um Look and Feel nativo
 Desktop.setLookAndFeel("macos"); // ou "win11", "win98", "beos", "java-metal", etc.
@@ -1779,39 +2299,160 @@ EventBus.on("laf:change", (lafName) => {
 
             <h3>Catálogo dos 20 Look and Feels Disponíveis</h3>
             <table>
-                <thead><tr><th>Categoria</th><th>Identificador</th><th>Nome / Sistema</th><th>Destaques Estruturais e Visuais</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Identificador</th>
+                        <th>Nome / Sistema</th>
+                        <th>Destaques Estruturais e Visuais</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><strong>Modernos</strong></td><td><code>"default"</code></td><td>Padrão Moderno</td><td>Design padrão suave e limpo do DesktopEngine.</td></tr>
-                    <tr><td><strong>Modernos</strong></td><td><code>"macos"</code></td><td>macOS (Aqua Modern)</td><td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de 12px.</td></tr>
-                    <tr><td><strong>Modernos</strong></td><td><code>"win11"</code></td><td>Windows 11 (Fluent)</td><td>Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho.</td></tr>
-                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-metal"</code></td><td>Java Metal (Steel Classic)</td><td>Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo.</td></tr>
-                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-ocean"</code></td><td>Java Ocean (Metal 2.0)</td><td>Gradiente metálico azul acetinado e chanfros suaves Swing.</td></tr>
-                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-nimbus"</code></td><td>Java Nimbus</td><td>Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar.</td></tr>
-                    <tr><td><strong>Java PlaF</strong></td><td><code>"java-flatlaf"</code></td><td>FlatLaf (IDE IntelliJ)</td><td>Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo.</td></tr>
-                    <tr><td><strong>Java PlaF</strong></td><td><code>"javafx-modena"</code></td><td>JavaFX Modena</td><td>Estética neutra cinza, limpa e moderna do JavaFX 8+.</td></tr>
-                    <tr><td><strong>Java PlaF</strong></td><td><code>"javafx-caspian"</code></td><td>JavaFX Caspian</td><td>Vidro escuro azulado elegante do JavaFX 2.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"beos"</code></td><td>BeOS / Haiku OS</td><td>A famosa <strong>aba amarela</strong> no topo esquerdo da janela com botões chanfrados.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"win98"</code></td><td>Windows 98 (Classic 3D)</td><td>Bordas 3D chanfradas <em>outset/inset</em>, botões clássicos cinza e barra azul.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"winxp"</code></td><td>Windows XP (Luna)</td><td>Barra azul royal brilhante e botão de fechar vermelho luminoso.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"win7"</code></td><td>Windows 7 (Aero Glass)</td><td>Vidro translúcido com reflexos de iluminação e botões com brilho suave.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"nextstep"</code></td><td>NeXTSTEP / OpenStep</td><td>Estética monocromática em tons de cinza puro e preto com relevos 3D profundos.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"amiga"</code></td><td>AmigaOS (Workbench)</td><td>Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"mac-classic"</code></td><td>Mac OS System 7 / Platinum</td><td>Pinstripes horizontais na barra, botão de fechar quadrado à esquerda.</td></tr>
-                    <tr><td><strong>Retrô &amp; Clássicos</strong></td><td><code>"os2-warp"</code></td><td>OS/2 Warp (IBM)</td><td>Visual corporativo azul-acinzentado com moldura chanfrada sólida.</td></tr>
-                    <tr><td><strong>UNIX / Linux</strong></td><td><code>"cde-motif"</code></td><td>CDE / Motif (Solaris)</td><td>Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo.</td></tr>
-                    <tr><td><strong>UNIX / Linux</strong></td><td><code>"gnome"</code></td><td>GNOME (Adwaita)</td><td>Headerbar espaçosa de 42px com botão de fechar circular minimalista.</td></tr>
-                    <tr><td><strong>UNIX / Linux</strong></td><td><code>"kde"</code></td><td>KDE (Breeze)</td><td>Linhas nítidas, acentos vetoriais azuis e cantos de 4px.</td></tr>
-                    <tr><td><strong>TUI &amp; Sci-Fi</strong></td><td><code>"turbovision"</code></td><td>Turbo Vision (DOS TUI)</td><td>Visual de modo texto azul DOS com bordas em caracteres duplos e monospace.</td></tr>
-                    <tr><td><strong>TUI &amp; Sci-Fi</strong></td><td><code>"cyberpunk"</code></td><td>Cyberpunk HUD</td><td>Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon.</td></tr>
+                    <tr>
+                        <td><strong>Modernos</strong></td>
+                        <td><code>"default"</code></td>
+                        <td>Padrão Moderno</td>
+                        <td>Design padrão suave e limpo do DesktopEngine.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modernos</strong></td>
+                        <td><code>"macos"</code></td>
+                        <td>macOS (Aqua Modern)</td>
+                        <td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de
+                            12px.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modernos</strong></td>
+                        <td><code>"win11"</code></td>
+                        <td>Windows 11 (Fluent)</td>
+                        <td>Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Java PlaF</strong></td>
+                        <td><code>"java-metal"</code></td>
+                        <td>Java Metal (Steel Classic)</td>
+                        <td>Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Java PlaF</strong></td>
+                        <td><code>"java-ocean"</code></td>
+                        <td>Java Ocean (Metal 2.0)</td>
+                        <td>Gradiente metálico azul acetinado e chanfros suaves Swing.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Java PlaF</strong></td>
+                        <td><code>"java-nimbus"</code></td>
+                        <td>Java Nimbus</td>
+                        <td>Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Java PlaF</strong></td>
+                        <td><code>"java-flatlaf"</code></td>
+                        <td>FlatLaf (IDE IntelliJ)</td>
+                        <td>Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Java PlaF</strong></td>
+                        <td><code>"javafx-modena"</code></td>
+                        <td>JavaFX Modena</td>
+                        <td>Estética neutra cinza, limpa e moderna do JavaFX 8+.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Java PlaF</strong></td>
+                        <td><code>"javafx-caspian"</code></td>
+                        <td>JavaFX Caspian</td>
+                        <td>Vidro escuro azulado elegante do JavaFX 2.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"beos"</code></td>
+                        <td>BeOS / Haiku OS</td>
+                        <td>A famosa <strong>aba amarela</strong> no topo esquerdo da janela com botões chanfrados.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"win98"</code></td>
+                        <td>Windows 98 (Classic 3D)</td>
+                        <td>Bordas 3D chanfradas <em>outset/inset</em>, botões clássicos cinza e barra azul.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"winxp"</code></td>
+                        <td>Windows XP (Luna)</td>
+                        <td>Barra azul royal brilhante e botão de fechar vermelho luminoso.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"win7"</code></td>
+                        <td>Windows 7 (Aero Glass)</td>
+                        <td>Vidro translúcido com reflexos de iluminação e botões com brilho suave.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"nextstep"</code></td>
+                        <td>NeXTSTEP / OpenStep</td>
+                        <td>Estética monocromática em tons de cinza puro e preto com relevos 3D profundos.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"amiga"</code></td>
+                        <td>AmigaOS (Workbench)</td>
+                        <td>Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"mac-classic"</code></td>
+                        <td>Mac OS System 7 / Platinum</td>
+                        <td>Pinstripes horizontais na barra, botão de fechar quadrado à esquerda.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retrô &amp; Clássicos</strong></td>
+                        <td><code>"os2-warp"</code></td>
+                        <td>OS/2 Warp (IBM)</td>
+                        <td>Visual corporativo azul-acinzentado com moldura chanfrada sólida.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"cde-motif"</code></td>
+                        <td>CDE / Motif (Solaris)</td>
+                        <td>Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"gnome"</code></td>
+                        <td>GNOME (Adwaita)</td>
+                        <td>Headerbar espaçosa de 42px com botão de fechar circular minimalista.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"kde"</code></td>
+                        <td>KDE (Breeze)</td>
+                        <td>Linhas nítidas, acentos vetoriais azuis e cantos de 4px.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TUI &amp; Sci-Fi</strong></td>
+                        <td><code>"turbovision"</code></td>
+                        <td>Turbo Vision (DOS TUI)</td>
+                        <td>Visual de modo texto azul DOS com bordas em caracteres duplos e monospace.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TUI &amp; Sci-Fi</strong></td>
+                        <td><code>"cyberpunk"</code></td>
+                        <td>Cyberpunk HUD</td>
+                        <td>Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <h2 id="temas-paletas">Sistema de Temas e Schema de Paletas de Cores</h2>
-            <p>O DesktopEngine inclui um motor nativo de temas que altera todas as variáveis visuais (janelas, titlebars, botões, formulários e cards) sem recarregar a página e com persistência automática no <code>localStorage</code>.</p>
+            <p>O DesktopEngine inclui um motor nativo de temas que altera todas as variáveis visuais (janelas,
+                titlebars, botões, formulários e cards) sem recarregar a página e com persistência automática no
+                <code>localStorage</code>.
+            </p>
 
             <h3>API do Desktop</h3>
             <div class="code-box">
-<pre><code>import { Desktop } from './desktop.js';
+                <pre><code>import { Desktop } from './desktop.js';
 
 // 1. Aplicar um tema pré-configurado
 Desktop.setTheme("dark");       // Opções: "light", "dark", "midnight", "emerald", "nord"
@@ -1843,36 +2484,95 @@ Desktop.setTheme("sunset");</code></pre>
 
             <h3>Paletas Nativas Embutidas</h3>
             <table>
-                <thead><tr><th>Nome</th><th>Identificador</th><th>Estilo / Perfil</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Identificador</th>
+                        <th>Estilo / Perfil</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><strong>Azul Corporativo</strong></td><td><code>"light"</code></td><td>Padrão claro institucional com realces em azul royal.</td></tr>
-                    <tr><td><strong>Slate Dark</strong></td><td><code>"dark"</code></td><td>Fundo escuro grafite com destaques em índigo moderno.</td></tr>
-                    <tr><td><strong>Midnight Cyber</strong></td><td><code>"midnight"</code></td><td>Azul marinho profundo com roxo elétrico (estilo terminal/dev).</td></tr>
-                    <tr><td><strong>Emerald Fintech</strong></td><td><code>"emerald"</code></td><td>Verde esmeralda sofisticado para dashboards financeiros.</td></tr>
-                    <tr><td><strong>Nord Frost</strong></td><td><code>"nord"</code></td><td>Minimalismo ártico com tons glaciais e azul pastel suave.</td></tr>
-                    <tr><td><strong>Alto Contraste</strong></td><td><code>"contrast"</code></td><td>Visual clássico retrô Windows de acessibilidade (fundo preto puro, ciano e barra magenta).</td></tr>
+                    <tr>
+                        <td><strong>Azul Corporativo</strong></td>
+                        <td><code>"light"</code></td>
+                        <td>Padrão claro institucional com realces em azul royal.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Slate Dark</strong></td>
+                        <td><code>"dark"</code></td>
+                        <td>Fundo escuro grafite com destaques em índigo moderno.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Midnight Cyber</strong></td>
+                        <td><code>"midnight"</code></td>
+                        <td>Azul marinho profundo com roxo elétrico (estilo terminal/dev).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Emerald Fintech</strong></td>
+                        <td><code>"emerald"</code></td>
+                        <td>Verde esmeralda sofisticado para dashboards financeiros.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nord Frost</strong></td>
+                        <td><code>"nord"</code></td>
+                        <td>Minimalismo ártico com tons glaciais e azul pastel suave.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alto Contraste</strong></td>
+                        <td><code>"contrast"</code></td>
+                        <td>Visual clássico retrô Windows de acessibilidade (fundo preto puro, ciano e barra magenta).
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
             <h3>Schema de Tokens CSS Disponíveis</h3>
-            <p>Qualquer tema ou componente no framework responde a estes tokens semânticos declarados no <code>style.css</code>:</p>
+            <p>Qualquer tema ou componente no framework responde a estes tokens semânticos declarados no
+                <code>style.css</code>:
+            </p>
             <table>
-                <thead><tr><th>Token CSS</th><th>Finalidade</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Token CSS</th>
+                        <th>Finalidade</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr><td><code>--bg-primary</code> / <code>--bg-secondary</code></td><td>Cor de fundo do desktop e de painéis secundários.</td></tr>
-                    <tr><td><code>--text-primary</code> / <code>--text-secondary</code></td><td>Tipografia principal e textos atenuados (labels, notas).</td></tr>
-                    <tr><td><code>--win-bg</code> / <code>--win-border</code> / <code>--win-shadow</code></td><td>Fundo com transparência (Glassmorphism), borda e elevação das janelas.</td></tr>
-                    <tr><td><code>--title-bg-start</code> / <code>--title-bg-end</code> / <code>--title-text</code></td><td>Gradiente da barra de título das janelas e cor do título.</td></tr>
-                    <tr><td><code>--btn-primary</code> / <code>--btn-primary-hover</code> / <code>--btn-primary-text</code></td><td>Cores dos botões de ação principal em todo o sistema.</td></tr>
-                    <tr><td><code>--input-bg</code> / <code>--input-border</code></td><td>Fundo e contorno de caixas de entrada e selects.</td></tr>
+                    <tr>
+                        <td><code>--bg-primary</code> / <code>--bg-secondary</code></td>
+                        <td>Cor de fundo do desktop e de painéis secundários.</td>
+                    </tr>
+                    <tr>
+                        <td><code>--text-primary</code> / <code>--text-secondary</code></td>
+                        <td>Tipografia principal e textos atenuados (labels, notas).</td>
+                    </tr>
+                    <tr>
+                        <td><code>--win-bg</code> / <code>--win-border</code> / <code>--win-shadow</code></td>
+                        <td>Fundo com transparência (Glassmorphism), borda e elevação das janelas.</td>
+                    </tr>
+                    <tr>
+                        <td><code>--title-bg-start</code> / <code>--title-bg-end</code> / <code>--title-text</code></td>
+                        <td>Gradiente da barra de título das janelas e cor do título.</td>
+                    </tr>
+                    <tr>
+                        <td><code>--btn-primary</code> / <code>--btn-primary-hover</code> /
+                            <code>--btn-primary-text</code>
+                        </td>
+                        <td>Cores dos botões de ação principal em todo o sistema.</td>
+                    </tr>
+                    <tr>
+                        <td><code>--input-bg</code> / <code>--input-border</code></td>
+                        <td>Fundo e contorno de caixas de entrada e selects.</td>
+                    </tr>
                 </tbody>
             </table>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
-            <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção nativa contra colisão de bordas:</p>
+            <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção
+                nativa contra colisão de bordas:</p>
 
             <div class="code-box">
-<pre><code>import { bindContextMenu } from './ui.js';
+                <pre><code>import { bindContextMenu } from './ui.js';
 
 // Associa o clique direito no elemento
 bindContextMenu(meuCardEl, [
@@ -1884,9 +2584,11 @@ bindContextMenu(meuCardEl, [
             </div>
 
             <br><br>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V0.6 &copy; 2026 - O micro-framework corporativo definitivo em Vanilla JS.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V0.6 &copy; 2026 -
+                O micro-framework corporativo definitivo em Vanilla JS.</p>
         </main>
     </div>
 
 </body>
+
 </html>

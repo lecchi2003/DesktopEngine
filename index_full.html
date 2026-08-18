@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <title>Desktop Engine V0.6 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="./style.css?v=4">
+    <title>Desktop Engine V1.0 - Ultimate Showcase</title>
+    <link rel="stylesheet" href="./style.css?v=15">
 </head>
 
 <body>
@@ -435,9 +435,11 @@
                         instance: ctx.instance,
                         children: [
                             createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({ text: "Fechar", onClick: () => {
-                                document.querySelector('.ui-modal-overlay.show').remove();
-                            }})
+                            Button({
+                                text: "Fechar", onClick: () => {
+                                    document.querySelector('.ui-modal-overlay.show').remove();
+                                }
+                            })
                         ]
                     });
                 }],
@@ -448,9 +450,11 @@
                         targetContainer: document.getElementById("app"),
                         children: [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({ text: "Fechar", onClick: () => {
-                                document.querySelector('.ui-modal-overlay.show').remove();
-                            }})
+                            Button({
+                                text: "Fechar", onClick: () => {
+                                    document.querySelector('.ui-modal-overlay.show').remove();
+                                }
+                            })
                         ]
                     });
                 }]
@@ -485,11 +489,13 @@
                                     createElement("h2", "", ["Painel de Elementos Visuais"]),
                                 ]
                             }),
-                            Row({ style: "gap: 8px;", children: [
-                                Button({ text: "Modal Local", onClick: "abrirModalLocal", instance: this }),
-                                Button({ text: "Modal Global", onClick: "abrirModalGlobal", instance: this, variant: "danger" }),
-                                Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer", instance: this })
-                            ]})
+                            Row({
+                                style: "gap: 8px;", children: [
+                                    Button({ text: "Modal Local", onClick: "abrirModalLocal", instance: this }),
+                                    Button({ text: "Modal Global", onClick: "abrirModalGlobal", instance: this, variant: "danger" }),
+                                    Button({ text: "Abrir Drawer Esq.", onClick: "toggleDrawer", instance: this })
+                                ]
+                            })
                         ]
                     }),
 
