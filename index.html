@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V1.0 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="./style.css?v=20">
+    <link rel="stylesheet" href="./style.css?v=21">
 </head>
 
 <body>
@@ -125,11 +125,23 @@
                                     label: "Look and Feel (Aparência do SO)",
                                     items: [
                                         {
-                                            label: "🍎 & 🪟 Modernos",
+                                            label: "📱 & 💻 Modernos & Mobile",
                                             items: [
                                                 { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
                                                 { label: "🍎 macOS (Aqua Modern)", action: () => Desktop.setLookAndFeel("macos") },
-                                                { label: "🪟 Windows 11 (Fluent)", action: () => Desktop.setLookAndFeel("win11") }
+                                                { label: "🪟 Windows 11 (Fluent)", action: () => Desktop.setLookAndFeel("win11") },
+                                                { label: "🤖 Material You (Android M3)", action: () => Desktop.setLookAndFeel("material3") },
+                                                { label: "🍏 Cupertino (iOS 18)", action: () => Desktop.setLookAndFeel("cupertino") },
+                                                { label: "🌌 Samsung One UI", action: () => Desktop.setLookAndFeel("oneui") },
+                                                { label: "🪟 Windows Metro (Flat)", action: () => Desktop.setLookAndFeel("metro") }
+                                            ]
+                                        },
+                                        {
+                                            label: "🥽 & 🫧 Espacial & Tátil",
+                                            items: [
+                                                { label: "🥽 Apple VisionOS", action: () => Desktop.setLookAndFeel("visionos") },
+                                                { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
+                                                { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
                                             ]
                                         },
                                         {
@@ -159,6 +171,13 @@
                                         {
                                             label: "🐧 UNIX & Linux",
                                             items: [
+                                                { label: "🟠 Ubuntu (Yaru)", action: () => Desktop.setLookAndFeel("ubuntu") },
+                                                { label: "🕊️ Elementary OS (Pantheon)", action: () => Desktop.setLookAndFeel("elementary") },
+                                                { label: "🚀 Pop!_OS (COSMIC)", action: () => Desktop.setLookAndFeel("pop-cosmic") },
+                                                { label: "🪟 i3wm / Sway (Tiling)", action: () => Desktop.setLookAndFeel("i3wm") },
+                                                { label: "🐭 XFCE (Greybird)", action: () => Desktop.setLookAndFeel("xfce") },
+                                                { label: "🌌 Enlightenment (E25)", action: () => Desktop.setLookAndFeel("enlightenment") },
+                                                { label: "⬛ Window Maker (X11)", action: () => Desktop.setLookAndFeel("windowmaker") },
                                                 { label: "🟣 CDE / Motif (Solaris)", action: () => Desktop.setLookAndFeel("cde-motif") },
                                                 { label: "🐧 GNOME (Adwaita)", action: () => Desktop.setLookAndFeel("gnome") },
                                                 { label: "⚙️ KDE (Breeze)", action: () => Desktop.setLookAndFeel("kde") }

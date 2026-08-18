@@ -711,8 +711,8 @@ StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
 
 #### `MenuBar em Janelas (Window MenuBar)`
 Além da barra de menus global do Desktop, qualquer janela pode possuir sua **própria barra de menus dedicada (Window MenuBar)** posicionada imediatamente abaixo da titlebar, exatamente como nos aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).
-
-Suporta ícones visuais (`icon`), atalhos de teclado alinhados à direita (`shortcut`), submenus aninhados multinível (`items`), desabilitação condicional (`disabled`) e injeção automática do contexto da instância da janela `(instance, event)` nas ações.
+ 
+Suporta ícones visuais (`icon`), atalhos de teclado alinhados à direita (`shortcut`), submenus aninhados multinível com **inversão automática de lado (Smart Flip)** para nunca transbordar a tela, **ajuste vertical inteligente com rolagem automática** para listas extensas, desabilitação condicional (`disabled`) e injeção automática do contexto da instância da janela `(instance, event)` nas ações.
 
 ##### 1. Declaração Declarativa na Configuração da Tela
 ```javascript
@@ -1122,13 +1122,20 @@ EventBus.on("laf:change", (lafName) => {
 });
 ```
 
-### Catálogo dos 20 Look and Feels Disponíveis
+### Catálogo dos 34 Look and Feels Disponíveis
 
 | Categoria | Identificador | Nome / Sistema | Destaques Estruturais e Visuais |
 | :--- | :--- | :--- | :--- |
-| **Modernos** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
-| **Modernos** | `"macos"` | macOS (Aqua Modern) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
-| **Modernos** | `"win11"` | Windows 11 (Fluent) | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Modernos & Mobile** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
+| **Modernos & Mobile** | `"macos"` | macOS (Aqua Modern) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
+| **Modernos & Mobile** | `"win11"` | Windows 11 (Fluent) | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Modernos & Mobile** | `"material3"` | Material You / M3 (Android) | Superfícies em camadas tonais, cantos de 20px e botões pílula (*Pill*). |
+| **Modernos & Mobile** | `"cupertino"` | Cupertino (iOS 18) | Vidro fosco translúcido (*frosted glass* 28px blur), squircle de 20px e sombras suaves. |
+| **Modernos & Mobile** | `"oneui"` | Samsung One UI | Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico. |
+| **Modernos & Mobile** | `"metro"` | Windows Metro (Flat) | Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste. |
+| **Espacial & Tátil** | `"visionos"` | Apple VisionOS | Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas. |
+| **Espacial & Tátil** | `"neumorphism"` | Neumorphism (Soft UI) | Superfícies esculpidas em relevo suave com luz e sombra duplas opostas. |
+| **Espacial & Tátil** | `"tactical-hud"` | Tactical HUD (Cyberdeck) | Interface tática militar em âmbar/neon, cantos chanfrados em 45º e estética de ficção científica. |
 | **Java PlaF** | `"java-metal"` | Java Metal (Steel Classic) | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
 | **Java PlaF** | `"java-ocean"` | Java Ocean (Metal 2.0) | Gradiente metálico azul acetinado e chanfros suaves Swing. |
 | **Java PlaF** | `"java-nimbus"` | Java Nimbus | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
@@ -1143,6 +1150,13 @@ EventBus.on("laf:change", (lafName) => {
 | **Retrô & Clássicos** | `"amiga"` | AmigaOS (Workbench) | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
 | **Retrô & Clássicos** | `"mac-classic"` | Mac OS System 7 / Platinum | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
 | **Retrô & Clássicos** | `"os2-warp"` | OS/2 Warp (IBM) | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
+| **UNIX / Linux** | `"ubuntu"` | Ubuntu (Yaru) | Barra grafite com acentos em Laranja Ubuntu e botões circulares. |
+| **UNIX / Linux** | `"elementary"` | Elementary OS (Pantheon) | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
+| **UNIX / Linux** | `"pop-cosmic"` | Pop!_OS (COSMIC) | Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76). |
+| **UNIX / Linux** | `"i3wm"` | i3wm / Sway (Tiling) | Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px. |
+| **UNIX / Linux** | `"xfce"` | XFCE (Greybird) | Gradiente suave azul-acinzentado, botões leves e cantos de 4px. |
+| **UNIX / Linux** | `"enlightenment"` | Enlightenment (E25) | Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi. |
+| **UNIX / Linux** | `"windowmaker"` | Window Maker (X11) | Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta. |
 | **UNIX / Linux** | `"cde-motif"` | CDE / Motif (Solaris) | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
 | **UNIX / Linux** | `"gnome"` | GNOME (Adwaita) | Headerbar espaçosa de 42px com botão de fechar circular minimalista. |
 | **UNIX / Linux** | `"kde"` | KDE (Breeze) | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |

@@ -725,10 +725,19 @@ export const Desktop = {
 
     getAvailableLookAndFeels() {
         return [
-            // Modernos
-            { id: "default", label: "Padrão / Moderno", category: "Modernos", icon: "✨", desc: "Design padrão limpo e elegante do DesktopEngine" },
-            { id: "macos", label: "macOS (Aqua Modern)", category: "Modernos", icon: "🍎", desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
-            { id: "win11", label: "Windows 11 (Fluent)", category: "Modernos", icon: "🪟", desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
+            // Modernos & Mobile Design Systems
+            { id: "default", label: "Padrão / Moderno", category: "Modernos & Mobile", icon: "✨", desc: "Design padrão limpo e elegante do DesktopEngine" },
+            { id: "macos", label: "macOS (Aqua Modern)", category: "Modernos & Mobile", icon: "🍎", desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
+            { id: "win11", label: "Windows 11 (Fluent)", category: "Modernos & Mobile", icon: "🪟", desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
+            { id: "material3", label: "Material You / M3", category: "Modernos & Mobile", icon: "🤖", desc: "Superfícies em camadas tonais, cantos de 20px e botões pílula (Android)" },
+            { id: "cupertino", label: "Cupertino (iOS 18)", category: "Modernos & Mobile", icon: "🍏", desc: "Vidro fosco ultra-translúcido, squircle de 20px e sombras suaves (Apple)" },
+            { id: "oneui", label: "Samsung One UI", category: "Modernos & Mobile", icon: "🌌", desc: "Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico" },
+            { id: "metro", label: "Windows Metro (Flat)", category: "Modernos & Mobile", icon: "🪟", desc: "Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste" },
+
+            // Computação Espacial & Tátil
+            { id: "visionos", label: "Apple VisionOS", category: "Espacial & Tátil", icon: "🥽", desc: "Vidro espacial hiper-translúcido, bordas com reflexo de luz e sombras volumétricas" },
+            { id: "neumorphism", label: "Neumorphism (Soft UI)", category: "Espacial & Tátil", icon: "🫧", desc: "Superfícies esculpidas em relevo suave com luz e sombra duplas opostas" },
+            { id: "tactical-hud", label: "Tactical HUD (Cyberdeck)", category: "Espacial & Tátil", icon: "⚡", desc: "Interface tática militar em âmbar/neon, cantos em 45º e linhas de mira" },
             
             // Java Ecosystem
             { id: "java-metal", label: "Java Metal (Steel)", category: "Java PlaF", icon: "☕", desc: "Clássico Java Swing com tons de aço e texturas de relevo" },
@@ -749,6 +758,13 @@ export const Desktop = {
             { id: "os2-warp", label: "OS/2 Warp (IBM)", category: "Retrô & Clássicos", icon: "🟦", desc: "Estética corporativa azul-acinzentada com chanfros sólidos" },
 
             // UNIX / Linux
+            { id: "ubuntu", label: "Ubuntu (Yaru)", category: "UNIX / Linux", icon: "🟠", desc: "Barra grafite com acentos em Laranja Ubuntu e botões circulares" },
+            { id: "elementary", label: "Elementary OS (Pantheon)", category: "UNIX / Linux", icon: "🕊️", desc: "Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px" },
+            { id: "pop-cosmic", label: "Pop!_OS (COSMIC)", category: "UNIX / Linux", icon: "🚀", desc: "Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76)" },
+            { id: "i3wm", label: "i3wm / Sway (Tiling)", category: "UNIX / Linux", icon: "🪟", desc: "Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px" },
+            { id: "xfce", label: "XFCE (Greybird)", category: "UNIX / Linux", icon: "🐭", desc: "Gradiente suave azul-acinzentado, botões leves e cantos de 4px" },
+            { id: "enlightenment", label: "Enlightenment (E25)", category: "UNIX / Linux", icon: "🌌", desc: "Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi" },
+            { id: "windowmaker", label: "Window Maker (X11)", category: "UNIX / Linux", icon: "⬛", desc: "Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta" },
             { id: "cde-motif", label: "CDE / Motif (Solaris)", category: "UNIX / Linux", icon: "🟣", desc: "Workstation UNIX dos anos 90 com relevos sólidos" },
             { id: "gnome", label: "GNOME (Adwaita)", category: "UNIX / Linux", icon: "🐧", desc: "Headerbar alta de 42px e botão fechar circular minimalista" },
             { id: "kde", label: "KDE (Breeze)", category: "UNIX / Linux", icon: "⚙️", desc: "Linhas nítidas, acentos vetoriais e cantos de 4px" },

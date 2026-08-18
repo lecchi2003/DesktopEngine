@@ -3,19 +3,20 @@ import { Desktop } from '../desktop.js';
 import {
     createElement, Row, Col, Card, Grid, Button, Modal, Drawer,
     Breadcrumbs, Stepper, Slider, RadioGroup, Autocomplete, Alert, Spinner,
-    Toast, Tooltip, Avatar, Carousel, Skeleton, Accordion
+    Toast, Tooltip, Avatar, Carousel, Skeleton, Accordion, Select
 } from '../ui.js';
 
 export default {
     title: "Showcase de Componentes UI",
     icon: "✨",
-    width: 850,
-    height: 600,
+    width: 880,
+    height: 640,
     singleInstance: true,
     state: {
         step: 0,
         volume: 50,
         tema: Desktop.getTheme ? Desktop.getTheme() : "light",
+        laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
         pais: ["Brasil"],
         menuLateral: false
     },
@@ -72,6 +73,11 @@ export default {
             document.documentElement.setAttribute('data-theme', this.state.tema);
         }
 
+        const lafList = (Desktop.getAvailableLookAndFeels ? Desktop.getAvailableLookAndFeels() : []).map(l => ({
+            label: `${l.icon} ${l.label} (${l.category})`,
+            value: l.id
+        }));
+
         return createElement("div", "", [
             Drawer({
                 bind: "menuLateral", side: "left", instance: this, content: [
@@ -111,7 +117,17 @@ export default {
                     Col({
                         style: "flex: 1; margin-right: 16px;", children: [
                             Card({
-                                title: "Formulários Avançados", children: [
+                                title: "Formulários & Temas do Sistema", children: [
+                                    Select({
+                                        label: "Look and Feel do Sistema (34 Skins Disponíveis)",
+                                        bind: "laf",
+                                        instance: this,
+                                        options: lafList,
+                                        onChange: (val) => {
+                                            if (Desktop.setLookAndFeel) Desktop.setLookAndFeel(val);
+                                            Toast({ message: `Look and Feel alterado para: ${val}`, type: "info" });
+                                        }
+                                    }),
                                     Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
                                     RadioGroup({
                                         label: "Paleta de Cores do Sistema", bind: "tema", options: [
@@ -134,8 +150,8 @@ export default {
                                     Alert({ text: "Esta é uma demonstração de todos os novos componentes reunidos.", variant: "success" }),
                                     Row({
                                         style: "align-items: center; gap: 12px;", children: [
-                                            Spinner({ size: "20px", color: "var(--btn-primary)" }),
-                                            createElement("span", "", ["Carregando recursos em segundo plano..."])
+                                             Spinner({ size: "20px", color: "var(--btn-primary)" }),
+                                             createElement("span", "", ["Carregando recursos em segundo plano..."])
                                         ]
                                     })
                                 ]

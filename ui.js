@@ -794,10 +794,84 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
                     
+                    const positionSub = () => {
+                        nested.style.display = "flex";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+
+                        const vw = window.innerWidth || document.documentElement.clientWidth;
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const pad = 10;
+                        const rect = nested.getBoundingClientRect();
+
+                        // 1. Inversão Horizontal Inteligente (se ultrapassar a borda direita)
+                        if (rect.right > vw - pad) {
+                            nested.classList.add("open-left");
+                            nested.style.setProperty("left", "auto", "important");
+                            nested.style.setProperty("right", "100%", "important");
+                            nested.style.setProperty("margin-left", "0", "important");
+                            nested.style.setProperty("margin-right", "-4px", "important");
+
+                            const rectLeft = nested.getBoundingClientRect();
+                            if (rectLeft.left < pad) {
+                                nested.classList.remove("open-left");
+                                nested.style.setProperty("left", "auto", "important");
+                                nested.style.setProperty("right", "0", "important");
+                                nested.style.setProperty("max-width", `${vw - 2 * pad}px`, "important");
+                            }
+                        }
+
+                        // 2. Ajuste Vertical Inteligente (se ultrapassar a borda inferior)
+                        const curRect = nested.getBoundingClientRect();
+                        if (curRect.bottom > vh - pad) {
+                            const overflow = curRect.bottom - (vh - pad);
+                            const optRect = opt.getBoundingClientRect();
+                            const spaceAbove = optRect.top - pad;
+                            const spaceBelow = vh - optRect.bottom - pad;
+
+                            if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
+                                nested.classList.add("open-top");
+                                nested.style.setProperty("top", "auto", "important");
+                                nested.style.setProperty("bottom", "0", "important");
+                                nested.style.setProperty("margin-top", "0", "important");
+                                nested.style.setProperty("margin-bottom", "-4px", "important");
+                            } else {
+                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                                nested.style.setProperty("top", `${-shiftY}px`, "important");
+                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                nested.style.setProperty("overflow-y", "auto", "important");
+                            }
+                        }
+                    };
+
                     opt.addEventListener("mouseenter", () => {
-                        if (!isDisabled) nested.style.display = "flex";
+                        if (!isDisabled) positionSub();
                     });
-                    opt.addEventListener("mouseleave", () => nested.style.display = "none");
+                    opt.addEventListener("mouseleave", () => {
+                        nested.style.display = "none";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+                    });
                 } else {
                     opt.onclick = (e) => { 
                         if (isDisabled) return;
@@ -834,8 +908,30 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
             item.appendChild(dropdown);
         }
         
+        const activateItem = () => {
+            bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+            item.classList.add("active");
+            isMenuOpen = true;
+
+            const dropdown = item.querySelector(".menubar-dropdown");
+            if (dropdown) {
+                dropdown.classList.remove("align-right");
+                dropdown.style.removeProperty("max-height");
+                dropdown.style.removeProperty("overflow-y");
+                const rect = dropdown.getBoundingClientRect();
+                const vw = window.innerWidth || document.documentElement.clientWidth;
+                const vh = window.innerHeight || document.documentElement.clientHeight;
+                if (rect.right > vw - 10) {
+                    dropdown.classList.add("align-right");
+                }
+                if (rect.bottom > vh - 10) {
+                    dropdown.style.setProperty("max-height", `${vh - rect.top - 12}px`, "important");
+                    dropdown.style.setProperty("overflow-y", "auto", "important");
+                }
+            }
+        };
+
         item.onmousedown = (e) => {
-            // Ignora se o clique foi dentro do dropdown aberto (deixa o onclick da opção agir)
             if (e.target.closest(".ui-start-menu") || e.target.closest(".dropdown")) return;
 
             e.stopPropagation();
@@ -843,16 +939,13 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
                 item.classList.remove("active");
                 isMenuOpen = false;
             } else {
-                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
-                item.classList.add("active");
-                isMenuOpen = true;
+                activateItem();
             }
         };
 
         item.onmouseenter = () => {
             if (isMenuOpen && !item.classList.contains("active")) {
-                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
-                item.classList.add("active");
+                activateItem();
             }
         };
 
@@ -891,8 +984,54 @@ export function StartMenu({ buttonId, menus = [] }) {
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
                     
-                    opt.addEventListener("mouseenter", () => nested.style.display = "block");
-                    opt.addEventListener("mouseleave", () => nested.style.display = "none");
+                    const positionStartSub = () => {
+                        nested.style.display = "flex";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("overflow-y");
+
+                        const vw = window.innerWidth || document.documentElement.clientWidth;
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const pad = 10;
+                        const rect = nested.getBoundingClientRect();
+
+                        if (rect.right > vw - pad) {
+                            nested.classList.add("open-left");
+                            nested.style.setProperty("left", "auto", "important");
+                            nested.style.setProperty("right", "100%", "important");
+                            nested.style.setProperty("margin-left", "0", "important");
+                            nested.style.setProperty("margin-right", "-4px", "important");
+                        }
+                        const curRect = nested.getBoundingClientRect();
+                        if (curRect.bottom > vh - pad) {
+                            const overflow = curRect.bottom - (vh - pad);
+                            const optRect = opt.getBoundingClientRect();
+                            const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                            nested.style.setProperty("top", `${-shiftY}px`, "important");
+                            nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                            nested.style.setProperty("overflow-y", "auto", "important");
+                        }
+                    };
+
+                    opt.addEventListener("mouseenter", positionStartSub);
+                    opt.addEventListener("mouseleave", () => {
+                        nested.style.display = "none";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("overflow-y");
+                    });
                 } else {
                     opt.onclick = (e) => { 
                         e.stopPropagation();
@@ -932,7 +1071,7 @@ export function StartMenu({ buttonId, menus = [] }) {
 
 // --- MAIS COMPONENTES CORPORATIVOS ---
 
-export function Select({ label, bind, instance, options = [] }) {
+export function Select({ label, bind, instance, options = [], onChange }) {
     const wrap = createElement("div", "ui-field");
     if (label) wrap.appendChild(createElement("label", "", [label]));
     
@@ -951,6 +1090,8 @@ export function Select({ label, bind, instance, options = [] }) {
         
         select.addEventListener("change", (e) => {
             instance.state[bind] = e.target.value;
+            if (typeof onChange === 'function') onChange(e.target.value, e);
+            else if (typeof onChange === 'string' && typeof instance.runAction === 'function') instance.runAction(onChange, e);
         });
     }
     wrap.appendChild(select);

@@ -1792,9 +1792,8 @@ StartMenu({ buttonId: "btnStart", menus: meusMenus });</code></pre>
             <div class="alert alert-info">
                 <span class="alert-icon">✨</span>
                 <div>
-                    <strong>Recursos Avançados:</strong> Suporta ícones visuais (<code>icon</code>), atalhos de teclado
-                    alinhados à direita (<code>shortcut</code>), submenus aninhados multinível (<code>items</code>),
-                    desabilitação condicional (<code>disabled</code>) e injeção automática do contexto da instância da
+                    <strong>Recursos Avançados &amp; Smart Viewport Collision:</strong> Suporta ícones visuais (<code>icon</code>), atalhos de teclado
+                    alinhados à direita (<code>shortcut</code>), submenus aninhados multinível com <strong>inversão automática de lado (Smart Flip)</strong> para nunca transbordar a tela, <strong>ajuste vertical inteligente com rolagem automática</strong> para listas extensas, desabilitação condicional (<code>disabled</code>) e injeção automática do contexto da instância da
                     janela <code>(instance, event)</code> nas ações.
                 </div>
             </div>
@@ -2298,7 +2297,7 @@ EventBus.on("laf:change", (lafName) => {
 });</code></pre>
             </div>
 
-            <h3>Catálogo dos 20 Look and Feels Disponíveis</h3>
+            <h3>Catálogo dos 34 Look and Feels Disponíveis</h3>
             <table>
                 <thead>
                     <tr>
@@ -2310,23 +2309,64 @@ EventBus.on("laf:change", (lafName) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>Modernos</strong></td>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
                         <td><code>"default"</code></td>
                         <td>Padrão Moderno</td>
                         <td>Design padrão suave e limpo do DesktopEngine.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos</strong></td>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
                         <td><code>"macos"</code></td>
                         <td>macOS (Aqua Modern)</td>
-                        <td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de
-                            12px.</td>
+                        <td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de 12px.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos</strong></td>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
                         <td><code>"win11"</code></td>
                         <td>Windows 11 (Fluent)</td>
                         <td>Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
+                        <td><code>"material3"</code></td>
+                        <td>Material You / M3 (Android)</td>
+                        <td>Superfícies em camadas tonais, cantos de 20px e botões pílula (<em>Pill</em>).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
+                        <td><code>"cupertino"</code></td>
+                        <td>Cupertino (iOS 18)</td>
+                        <td>Vidro fosco translúcido (<em>frosted glass</em> 28px blur), squircle de 20px e sombras suaves.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
+                        <td><code>"oneui"</code></td>
+                        <td>Samsung One UI</td>
+                        <td>Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modernos &amp; Mobile</strong></td>
+                        <td><code>"metro"</code></td>
+                        <td>Windows Metro (Flat)</td>
+                        <td>Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Espacial &amp; Tátil</strong></td>
+                        <td><code>"visionos"</code></td>
+                        <td>Apple VisionOS</td>
+                        <td>Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Espacial &amp; Tátil</strong></td>
+                        <td><code>"neumorphism"</code></td>
+                        <td>Neumorphism (Soft UI)</td>
+                        <td>Superfícies esculpidas em relevo suave com luz e sombra duplas opostas.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Espacial &amp; Tátil</strong></td>
+                        <td><code>"tactical-hud"</code></td>
+                        <td>Tactical HUD (Cyberdeck)</td>
+                        <td>Interface tática militar em âmbar/neon, cantos chanfrados em 45º e estética de ficção científica.</td>
                     </tr>
                     <tr>
                         <td><strong>Java PlaF</strong></td>
@@ -2411,6 +2451,48 @@ EventBus.on("laf:change", (lafName) => {
                         <td><code>"os2-warp"</code></td>
                         <td>OS/2 Warp (IBM)</td>
                         <td>Visual corporativo azul-acinzentado com moldura chanfrada sólida.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"ubuntu"</code></td>
+                        <td>Ubuntu (Yaru)</td>
+                        <td>Barra grafite com acentos em Laranja Ubuntu e botões circulares.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"elementary"</code></td>
+                        <td>Elementary OS (Pantheon)</td>
+                        <td>Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"pop-cosmic"</code></td>
+                        <td>Pop!_OS (COSMIC)</td>
+                        <td>Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"i3wm"</code></td>
+                        <td>i3wm / Sway (Tiling)</td>
+                        <td>Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"xfce"</code></td>
+                        <td>XFCE (Greybird)</td>
+                        <td>Gradiente suave azul-acinzentado, botões leves e cantos de 4px.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"enlightenment"</code></td>
+                        <td>Enlightenment (E25)</td>
+                        <td>Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UNIX / Linux</strong></td>
+                        <td><code>"windowmaker"</code></td>
+                        <td>Window Maker (X11)</td>
+                        <td>Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta.</td>
                     </tr>
                     <tr>
                         <td><strong>UNIX / Linux</strong></td>
