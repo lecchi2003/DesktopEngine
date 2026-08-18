@@ -214,6 +214,31 @@
                                     }
                                 ]
                             },
+                            {
+                                label: "💾 Configurações do Ambiente (JSON)",
+                                items: [
+                                    {
+                                        label: "📤 Exportar Configuração (JSON)",
+                                        action: () => {
+                                            const jsonStr = Desktop.exportConfig(true);
+                                            navigator.clipboard?.writeText(jsonStr);
+                                            console.log("Configuração Exportada:\n", jsonStr);
+                                            Desktop.notify("Configuração copiada para a Área de Transferência e console!", "success");
+                                        }
+                                    },
+                                    {
+                                        label: "📥 Carregar Configuração (Prompt)",
+                                        action: () => {
+                                            const input = prompt("Cole aqui o JSON de configuração do Desktop:", Desktop.exportConfig(true));
+                                            if (input) {
+                                                const loaded = Desktop.loadConfig(input);
+                                                if (loaded) Desktop.notify("Configurações aplicadas com sucesso!", "success");
+                                                else Desktop.notify("Erro ao analisar JSON de configuração.", "error");
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
                             { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
                         ]
                     },
@@ -907,13 +932,14 @@
             }
         });
 
-        // --- 2. FLOAT BUTTON GLOBAL (FAB COM SPEED DIAL DE AÇÕES RÁPIDAS) ---
+        // --- 2. FLOAT BUTTON GLOBAL (FAB COM SPEED DIAL DE AÇÕES RÁPIDAS & ARRASTÁVEL) ---
         const quickActionsFab = FloatButton({
             icon: "⚡",
             activeIcon: "✕",
-            tooltip: "Ações Rápidas do Desktop",
+            tooltip: "Ações Rápidas do Desktop (Arrastável)",
             position: "bottom-right",
             variant: "primary",
+            draggable: true,
             actions: [
                 {
                     icon: "✨",

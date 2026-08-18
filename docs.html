@@ -340,9 +340,9 @@
             <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
-            <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
             <a href="#look-and-feel">Look and Feel (34 Skins)</a>
             <a href="#temas-paletas">Temas e Paletas de Cores</a>
+            <a href="#config-export-load">Exportar &amp; Carregar Configurações (JSON)</a>
             <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
             <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
@@ -1910,6 +1910,12 @@ dock.setBadge(1);</code></pre>
                         <td>Formato: <code>"circle"</code> (redondo), <code>"rounded"</code> (squircle), <code>"square"</code> (quadrado).</td>
                     </tr>
                     <tr>
+                        <td><code>draggable</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>false</code></td>
+                        <td>Permite que o usuário arraste livremente o botão pelo Desktop ou dentro da janela (com suporte a Touch/Mouse e sem conflito com o clique).</td>
+                    </tr>
+                    <tr>
                         <td><code>actions</code></td>
                         <td><code>Array</code></td>
                         <td><code>[]</code></td>
@@ -1921,12 +1927,13 @@ dock.setBadge(1);</code></pre>
             <div class="code-box">
                 <pre><code>import { FloatButton } from './ui.js';
 
-// Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial
+// Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial & Arrastável
 FloatButton({
     icon: "⚡",
     tooltip: "Navegação Rápida",
     position: "bottom-right",
     variant: "primary",
+    draggable: true, // Habilita movimentação livre por arrasto
     actions: [
         {
             icon: "📊",
@@ -2890,6 +2897,43 @@ Desktop.setTheme("sunset");</code></pre>
                     </tr>
                 </tbody>
             </table>
+
+            <!-- SEÇÃO: EXPORTAR E CARREGAR CONFIGURAÇÕES -->
+            <h2 id="config-export-load">Exportar &amp; Carregar Configurações do Ambiente (JSON)</h2>
+            <p>O framework fornece métodos nativos e convenientes para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string <code>JSON</code> (ideal para salvar em banco de dados, perfil do usuário ou arquivos de configuração) e recarregá-lo instantaneamente:</p>
+
+            <div class="code-box">
+                <pre><code>import { Desktop } from './desktop.js';
+
+// 1. Extrair configuração atual como String JSON formatada
+const jsonConfig = Desktop.exportConfig(true);
+console.log(jsonConfig);
+/* Exemplo de saída gerada:
+{
+  "theme": "dark",
+  "lookAndFeel": "aqua-frosted",
+  "taskbarPosition": "bottom",
+  "menubarPosition": "top",
+  "menubarMode": "separate",
+  "responsiveMode": "auto",
+  "showDesktopButton": true
+}
+*/
+
+// 2. Extrair configuração como Objeto JavaScript puro
+const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+
+// 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
+Desktop.loadConfig(jsonConfig);
+
+// Também aceita objeto diretamente e controla se deve persistir no localStorage:
+Desktop.loadConfig({
+    theme: "midnight",
+    lookAndFeel: "fluent-acrylic",
+    taskbarPosition: "left",
+    menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
+}, true);</code></pre>
+            </div>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
             <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção

@@ -729,7 +729,7 @@ dock.restoreFromTray(); // Restaura da bandeja
 ```
 
 #### `FloatButton` (Floating Action Button / Speed Dial)
-Botão de ação rápida flutuante com menu em cascata (Speed Dial) para Desktop ou Janelas:
+Botão de ação rápida flutuante com menu em cascata (Speed Dial) para Desktop ou Janelas, com suporte opcional a movimentação livre por arrasto (`draggable: true`):
 ```javascript
 import { FloatButton } from './ui.js';
 
@@ -740,6 +740,7 @@ FloatButton({
     position: "bottom-right",
     variant: "primary",
     shape: "circle", // 'circle', 'rounded', 'square'
+    draggable: true, // Habilita arrastar e soltar livremente pela tela
     actions: [
         {
             icon: "✨",
@@ -1383,6 +1384,45 @@ Ao alternar de Look & Feel, tanto as janelas quanto os botões da Taskbar (**Bot
 - **Aqua Frosted (`aqua-frosted` / `macos`):** Transforma os controles em cápsulas de vidro fosco minimalistas.
 - **Retro 3D (`retro-3d` / `win98`):** Adota bordas chanfradas 3D outset autênticas com textos em negrito.
 - **Luna Classic (`luna-blue` / `winxp`):** Adota relevo clássico e gradientes azuis/verdes.
+
+---
+
+## 💾 Exportar & Carregar Configurações do Ambiente (JSON)
+
+O framework disponibiliza métodos nativos para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string `JSON` (para salvar em banco de dados, perfil de usuário ou arquivos) e recarregá-lo instantaneamente:
+
+```javascript
+import { Desktop } from './desktop.js';
+
+// 1. Extrair configuração atual como String JSON formatada
+const jsonConfig = Desktop.exportConfig(true);
+console.log(jsonConfig);
+/* Exemplo de saída gerada:
+{
+  "theme": "dark",
+  "lookAndFeel": "aqua-frosted",
+  "taskbarPosition": "bottom",
+  "menubarPosition": "top",
+  "menubarMode": "separate",
+  "responsiveMode": "auto",
+  "showDesktopButton": true
+}
+*/
+
+// 2. Extrair configuração como Objeto JavaScript puro
+const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+
+// 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
+Desktop.loadConfig(jsonConfig);
+
+// Também aceita objeto diretamente e controla se deve persistir no localStorage:
+Desktop.loadConfig({
+    theme: "midnight",
+    lookAndFeel: "fluent-acrylic",
+    taskbarPosition: "left",
+    menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
+}, true);
+```
 
 ---
 

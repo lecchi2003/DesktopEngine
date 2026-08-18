@@ -56,11 +56,18 @@ export const Desktop = {
         // Carrega Posição / Modo do MenuBar persistido ou padrão
         try {
             const savedMenuBarMode = localStorage.getItem("desktop_engine_menubar_mode");
-            const savedMenuBarPos = localStorage.getItem("desktop_engine_menubar_pos") || this.options.menubarPosition || "top";
+            const savedMenuBarPos = localStorage.getItem("desktop_engine_menubar_pos");
+            
             if (savedMenuBarMode === "startmenu") {
                 this.setMenuBarPosition("none", false);
-            } else {
+            } else if (savedMenuBarPos && savedMenuBarPos !== "none") {
                 this.setMenuBarPosition(savedMenuBarPos, false);
+            } else {
+                this.setMenuBarPosition(this.options.menubarPosition || "top", false);
+                try {
+                    localStorage.setItem("desktop_engine_menubar_mode", "separate");
+                    localStorage.setItem("desktop_engine_menubar_pos", this.options.menubarPosition || "top");
+                } catch (e) { }
             }
         } catch (e) {
             this.setMenuBarPosition(this.options.menubarPosition || "top", false);
@@ -966,6 +973,24 @@ export const Desktop = {
         }
     },
 
+    setTheme(themeName, persist = true) {
+        const theme = themeName || 'light';
+        this.currentTheme = theme;
+        if (!theme || theme === 'light') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        if (persist) {
+            try { localStorage.setItem("desktop_engine_theme", theme); } catch (e) { }
+        }
+        EventBus.emit("theme:change", theme);
+    },
+
+    getTheme() {
+        return this.currentTheme || document.documentElement.getAttribute('data-theme') || 'light';
+    },
+
     setLookAndFeel(lafName, persist = true) {
         const laf = lafName || 'default';
         this.currentLaF = laf;
@@ -986,6 +1011,77 @@ export const Desktop = {
 
     getLookAndFeel() {
         return this.currentLaF || document.documentElement.getAttribute('data-laf') || 'default';
+    },
+
+    /**
+     * Exporta as configurações atuais do ambiente (Look and Feel, Tema, Menubar, Taskbar, Modo Mobile, etc.)
+     * @param {boolean} asJson - Se true retorna string JSON formatada; se false retorna objeto puro.
+     * @returns {Object|string}
+     */
+    exportConfig(asJson = false) {
+        const config = {
+            theme: this.getTheme(),
+            lookAndFeel: this.getLookAndFeel(),
+            taskbarPosition: this.getTaskbarPosition(),
+            menubarPosition: this.getMenuBarPosition(),
+            menubarMode: this.getMenuBarMode(),
+            responsiveMode: this.options?.responsiveMode || (this.isMobile() ? 'mobile' : 'desktop'),
+            showDesktopButton: this.options?.showDesktopButton !== false
+        };
+
+        return asJson ? JSON.stringify(config, null, 2) : config;
+    },
+
+    /**
+     * Importa e aplica configurações do ambiente a partir de um objeto ou string JSON.
+     * @param {Object|string} config - Objeto com as propriedades ou string JSON gerada por exportConfig.
+     * @param {boolean} persist - Se deve persistir no localStorage. Padrão: true.
+     * @returns {Object} Configuração aplicada.
+     */
+    loadConfig(config, persist = true) {
+        if (!config) return null;
+        let cfg = config;
+        if (typeof config === 'string') {
+            try {
+                cfg = JSON.parse(config);
+            } catch (err) {
+                console.error("Erro ao analisar JSON de configuração no loadConfig:", err);
+                return null;
+            }
+        }
+
+        if (cfg.theme !== undefined) {
+            this.setTheme(cfg.theme, persist);
+        }
+
+        if (cfg.lookAndFeel !== undefined) {
+            this.setLookAndFeel(cfg.lookAndFeel, persist);
+        }
+
+        if (cfg.taskbarPosition !== undefined) {
+            this.setTaskbarPosition(cfg.taskbarPosition, persist);
+        }
+
+        if (cfg.menubarMode !== undefined) {
+            this.setMenuBarMode(cfg.menubarMode, persist);
+        } else if (cfg.menubarPosition !== undefined) {
+            this.setMenuBarPosition(cfg.menubarPosition, persist);
+        }
+
+        if (cfg.responsiveMode !== undefined) {
+            this.setMobileMode(cfg.responsiveMode, persist);
+        }
+
+        if (cfg.showDesktopButton !== undefined) {
+            this.options.showDesktopButton = !!cfg.showDesktopButton;
+            const desktopBtn = document.getElementById(this.options.showDesktopButtonId || "showDesktop");
+            if (desktopBtn) {
+                desktopBtn.style.display = this.options.showDesktopButton ? "" : "none";
+            }
+        }
+
+        EventBus.emit("desktop:configloaded", cfg);
+        return cfg;
     },
 
     updateStartButton(lafName) {
