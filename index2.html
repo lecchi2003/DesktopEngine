@@ -9,7 +9,8 @@
 </head>
 
 <body>
-    <div id="app">
+    <div id="app" data-menubar="none">
+        <div id="menubar"></div>
         <div id="desktop">
             <div id="windows"></div>
         </div>
@@ -26,7 +27,7 @@
         import { Desktop } from './desktop.js';
         import {
             StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
-            Form, Input, Textarea, Select, Checkbox, Toggle, Button,
+            Form, Input, Textarea, Select, Checkbox, Toggle, Button, MenuBar,
             Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
             Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
             Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton
@@ -37,6 +38,7 @@
             windowsContainerId: "windows",
             taskbarContainerId: "taskWindows",
             taskbarPosition: "bottom", // Pode ser 'top', 'bottom', 'left', 'right'
+            menubarPosition: "none",   // Inicia integrado ao menu iniciar
             startButtonId: "startBtn",
             showDesktopButton: true
         });
@@ -49,26 +51,24 @@
 
         document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
 
-        // --- MENU INICIAR (TASKBAR / ESTILO WINDOWS) ---
-        StartMenu({
-            buttonId: "startBtn",
-            menus: [
-                {
-                    label: "📐 Exemplos de Telas",
-                    items: [
-                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
-                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
-                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
-                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
-                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
-                        "separator",
-                        { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                        "separator",
-                        { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
-                        { label: "🪟 Layout Windows (index2.html) [Atual]", action: () => Desktop.openScreen("hub_arquiteturas") },
-                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
-                    ]
-                },
+        // --- ESTRUTURA GLOBAL DE MENUS ---
+        const globalSystemMenus = [
+            {
+                label: "📐 Exemplos de Telas",
+                items: [
+                    { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
+                    { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
+                    { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
+                    { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
+                    { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
+                    "separator",
+                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
+                    "separator",
+                    { label: "🖥️ Layout macOS (index.html)", action: () => window.location.href = 'index.html' },
+                    { label: "🪟 Layout Windows (index2.html) [Atual]", action: () => Desktop.openScreen("hub_arquiteturas") },
+                    { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                ]
+            },
                 "separator",
                 {
                     label: "Módulos",
@@ -105,6 +105,35 @@
                             items: [
                                 { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
                                 {
+                                    label: "📱 Modo Responsivo",
+                                    items: [
+                                        { label: "📱 Forçar Modo Mobile (Empilhado)", action: () => Desktop.setMobileMode("mobile") },
+                                        { label: "🖥️ Forçar Modo Desktop (Flutuante)", action: () => Desktop.setMobileMode("desktop") },
+                                        { label: "🔄 Detecção Automática (Viewport)", action: () => Desktop.setMobileMode("auto") }
+                                    ]
+                                },
+                                {
+                                    label: "📌 Posição da Barra de Tarefas",
+                                    items: [
+                                        { label: "⬇️ Rodapé (Padrão)", action: () => Desktop.setTaskbarPosition("bottom") },
+                                        { label: "⬆️ Topo", action: () => Desktop.setTaskbarPosition("top") },
+                                        { label: "⬅️ Esquerda", action: () => Desktop.setTaskbarPosition("left") },
+                                        { label: "➡️ Direita", action: () => Desktop.setTaskbarPosition("right") }
+                                    ]
+                                },
+                                {
+                                    label: "🧭 Exibição do MenuBar",
+                                    items: [
+                                        { label: "🪟 Barra Separada (Global)", action: () => Desktop.setMenuBarMode("separate") },
+                                        { label: "🔘 Integrado ao Menu Iniciar", action: () => Desktop.setMenuBarMode("startmenu") },
+                                        "separator",
+                                        { label: "⬆️ Posicionar no Topo", action: () => Desktop.setMenuBarPosition("top") },
+                                        { label: "⬇️ Posicionar no Rodapé", action: () => Desktop.setMenuBarPosition("bottom") },
+                                        { label: "⬅️ Posicionar na Esquerda", action: () => Desktop.setMenuBarPosition("left") },
+                                        { label: "➡️ Posicionar na Direita", action: () => Desktop.setMenuBarPosition("right") }
+                                    ]
+                                },
+                                {
                                     label: "Paleta de Cores",
                                     items: [
                                         { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
@@ -112,7 +141,7 @@
                                         { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
                                         { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
                                         { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                        { label: "Alto Contraste (Windows Classic)", action: () => Desktop.setTheme("contrast") }
+                                        { label: "Alto Contraste", action: () => Desktop.setTheme("contrast") }
                                     ]
                                 },
                                 {
@@ -186,15 +215,26 @@
                                         }
                                     ]
                                 },
-                                { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
                             ]
                         },
                         "separator",
                         { label: "Sobre (Lazy Load)", screen: "sobre" }
                     ]
                 }
-            ]
-        });
+            ];
+
+            // Instancia o Menu Iniciar
+            StartMenu({
+                buttonId: "startBtn",
+                menus: globalSystemMenus
+            });
+
+            // Instancia a Barra de Menus Global
+            MenuBar({
+                containerId: "menubar",
+                position: "none",
+                menus: globalSystemMenus
+            });
 
         document.getElementById("desktop").addEventListener("contextmenu", (e) => {
             e.preventDefault();
@@ -351,8 +391,28 @@
                 volume: 50,
                 tema: Desktop.getTheme ? Desktop.getTheme() : "light",
                 laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
+                taskbarPos: Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom",
+                menubarPos: Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "none",
                 pais: ["Brasil"],
                 menuLateral: false
+            },
+            onMount() {
+                this.state.tema = Desktop.getTheme ? Desktop.getTheme() : "light";
+                this.state.laf = Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default";
+                this.state.taskbarPos = Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom";
+                this.state.menubarPos = Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "none";
+
+                this._unsubEvents = [
+                    EventBus.on("theme:change", (t) => { this.state.tema = t; }),
+                    EventBus.on("laf:change", (l) => { this.state.laf = l; }),
+                    EventBus.on("taskbar:positionchange", (p) => { this.state.taskbarPos = p; }),
+                    EventBus.on("menubar:positionchange", (m) => { this.state.menubarPos = m; })
+                ];
+            },
+            onDestroy() {
+                if (this._unsubEvents) {
+                    this._unsubEvents.forEach(unsub => unsub && unsub());
+                }
             },
             actions: {
                 nextStep: [async (ctx) => {
@@ -399,16 +459,24 @@
                 }]
             },
             view() {
-                // Aplica o tema globalmente no Desktop Engine
-                if (Desktop && typeof Desktop.setTheme === 'function') {
+                // Aplica o tema se tiver sido modificado pelo select da tela
+                if (Desktop && typeof Desktop.setTheme === 'function' && Desktop.getTheme() !== this.state.tema) {
                     Desktop.setTheme(this.state.tema);
-                } else {
-                    document.documentElement.setAttribute('data-theme', this.state.tema);
                 }
 
-                // Aplica o Look and Feel globalmente no Desktop Engine
-                if (Desktop && typeof Desktop.setLookAndFeel === 'function') {
+                // Aplica o Look and Feel se tiver sido modificado pelo select da tela
+                if (Desktop && typeof Desktop.setLookAndFeel === 'function' && Desktop.getLookAndFeel() !== this.state.laf) {
                     Desktop.setLookAndFeel(this.state.laf);
+                }
+
+                // Aplica a posição da Barra de Tarefas se tiver sido modificada pelo select
+                if (Desktop && typeof Desktop.setTaskbarPosition === 'function' && Desktop.getTaskbarPosition() !== this.state.taskbarPos) {
+                    Desktop.setTaskbarPosition(this.state.taskbarPos);
+                }
+
+                // Aplica a posição / modo do MenuBar se tiver sido modificada pelo select
+                if (Desktop && typeof Desktop.setMenuBarPosition === 'function' && Desktop.getMenuBarPosition() !== this.state.menubarPos) {
+                    Desktop.setMenuBarPosition(this.state.menubarPos);
                 }
 
                 return createElement("div", "", [
@@ -477,6 +545,27 @@
                                                     { label: "⚙️ Breeze Plasma (Glass Glow)", value: "breeze-plasma" },
                                                     { label: "📟 Turbo TUI (DOS Console)", value: "turbo-tui" },
                                                     { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" }
+                                                ]
+                                            }),
+                                            Grid({
+                                                columns: 2, children: [
+                                                    Select({
+                                                        label: "📌 Posição da Barra de Tarefas", bind: "taskbarPos", instance: this, options: [
+                                                            { label: "⬇️ Rodapé (Padrão)", value: "bottom" },
+                                                            { label: "⬆️ Topo", value: "top" },
+                                                            { label: "⬅️ Esquerda", value: "left" },
+                                                            { label: "➡️ Direita", value: "right" }
+                                                        ]
+                                                    }),
+                                                    Select({
+                                                        label: "🧭 Exibição / Posição do MenuBar", bind: "menubarPos", instance: this, options: [
+                                                            { label: "🔘 Apenas no Menu Iniciar (Padrão)", value: "none" },
+                                                            { label: "⬆️ Topo (Barra Separada)", value: "top" },
+                                                            { label: "⬇️ Rodapé (Barra Separada)", value: "bottom" },
+                                                            { label: "⬅️ Esquerda (Barra Separada)", value: "left" },
+                                                            { label: "➡️ Direita (Barra Separada)", value: "right" }
+                                                        ]
+                                                    })
                                                 ]
                                             }),
                                             RadioGroup({

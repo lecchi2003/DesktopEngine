@@ -1,6 +1,6 @@
 // desktop.js
 import { EventBus, Framework } from './core.js';
-import { bindContextMenu, MenuBar } from './ui.js';
+import { bindContextMenu, MenuBar, DockWidget, FloatButton } from './ui.js';
 
 export const Desktop = {
     windowsEl: null,
@@ -43,6 +43,27 @@ export const Desktop = {
             this.setLookAndFeel(savedLaF, false);
         } catch (e) {
             this.setLookAndFeel(this.options.defaultLaF, false);
+        }
+
+        // Carrega Posição da Taskbar persistida ou padrão
+        try {
+            const savedTaskbar = localStorage.getItem("desktop_engine_taskbar_pos") || this.options.taskbarPosition || "bottom";
+            this.setTaskbarPosition(savedTaskbar, false);
+        } catch (e) {
+            this.setTaskbarPosition(this.options.taskbarPosition || "bottom", false);
+        }
+
+        // Carrega Posição / Modo do MenuBar persistido ou padrão
+        try {
+            const savedMenuBarMode = localStorage.getItem("desktop_engine_menubar_mode");
+            const savedMenuBarPos = localStorage.getItem("desktop_engine_menubar_pos") || this.options.menubarPosition || "top";
+            if (savedMenuBarMode === "startmenu") {
+                this.setMenuBarPosition("none", false);
+            } else {
+                this.setMenuBarPosition(savedMenuBarPos, false);
+            }
+        } catch (e) {
+            this.setMenuBarPosition(this.options.menubarPosition || "top", false);
         }
 
         this.windowsEl = document.getElementById(this.options.windowsContainerId);
@@ -1082,6 +1103,73 @@ export const Desktop = {
         }
     },
 
+    setTaskbarPosition(pos, persist = true) {
+        if (!["top", "bottom", "left", "right"].includes(pos)) return;
+        this.options.taskbarPosition = pos;
+        const app = document.getElementById("app");
+        if (app) app.dataset.taskbar = pos;
+        this.updateStartButton();
+        if (persist) {
+            try { localStorage.setItem("desktop_engine_taskbar_pos", pos); } catch (e) { }
+        }
+        EventBus.emit("taskbar:positionchange", pos);
+    },
+
+    getTaskbarPosition() {
+        const app = document.getElementById("app");
+        return this.options?.taskbarPosition || app?.dataset.taskbar || "bottom";
+    },
+
+    setMenuBarPosition(pos, persist = true) {
+        if (!["top", "bottom", "left", "right", "none"].includes(pos)) return;
+        this.options.menubarPosition = pos;
+        const app = document.getElementById("app");
+        if (app) app.dataset.menubar = pos;
+        const globalMenuBar = document.getElementById("menubar") || document.querySelector("#app > .ui-menubar");
+        if (globalMenuBar) {
+            globalMenuBar.dataset.position = pos;
+            if (pos === "none") {
+                globalMenuBar.style.display = "none";
+            } else {
+                globalMenuBar.style.display = "";
+            }
+        }
+        if (persist) {
+            try { localStorage.setItem("desktop_engine_menubar_pos", pos); } catch (e) { }
+        }
+        EventBus.emit("menubar:positionchange", pos);
+    },
+
+    getMenuBarPosition() {
+        const app = document.getElementById("app");
+        const globalMenuBar = document.getElementById("menubar") || document.querySelector("#app > .ui-menubar");
+        return this.options?.menubarPosition || app?.dataset.menubar || globalMenuBar?.dataset.position || "top";
+    },
+
+    setMenuBarMode(mode, persist = true) {
+        // mode: "separate" (exibe barra separada) | "startmenu" (exibe apenas no botão/menu iniciar)
+        if (mode === "startmenu" || mode === "hidden" || mode === "none") {
+            this.setMenuBarPosition("none", persist);
+            if (persist) {
+                try { localStorage.setItem("desktop_engine_menubar_mode", "startmenu"); } catch (e) { }
+            }
+        } else {
+            let savedPos = "top";
+            try { savedPos = localStorage.getItem("desktop_engine_menubar_pos") || "top"; } catch (e) { }
+            const targetPos = savedPos === "none" ? "top" : savedPos;
+            this.setMenuBarPosition(targetPos, persist);
+            if (persist) {
+                try { localStorage.setItem("desktop_engine_menubar_mode", "separate"); } catch (e) { }
+            }
+        }
+        EventBus.emit("menubar:modechange", mode);
+    },
+
+    getMenuBarMode() {
+        const pos = this.getMenuBarPosition();
+        return pos === "none" ? "startmenu" : "separate";
+    },
+
     setMobileMode(mode, persist = true) {
         if (mode === "auto") {
             this.options.responsiveMode = "auto";
@@ -1115,6 +1203,12 @@ export const Desktop = {
             app.classList.toggle("mobile-mode", isMob);
         }
         document.documentElement.classList.toggle("mobile-mode", isMob);
+
+        const currentMenuBarPos = this.getMenuBarPosition();
+        const globalMenuBar = document.getElementById("menubar") || document.querySelector("#app > .ui-menubar");
+        if (globalMenuBar && currentMenuBarPos === "none") {
+            globalMenuBar.style.display = "none";
+        }
     },
 
     getAvailableLookAndFeels() {
@@ -1333,6 +1427,15 @@ export const Desktop = {
                 resolve(null);
             }
         });
+    },
+
+    // --- Helpers Programáticos de Widgets Globais ---
+    createDockWidget(options = {}) {
+        return DockWidget(options);
+    },
+
+    createFloatButton(options = {}) {
+        return FloatButton(options);
     }
 };
 

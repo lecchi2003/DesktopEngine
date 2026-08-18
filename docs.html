@@ -333,13 +333,15 @@
             <a href="#breadcrumbs-stepper">Breadcrumbs &amp; Stepper</a>
             <a href="#carousel">Carousel Magnético</a>
             <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
+            <a href="#dock-widget">DockWidget (Collapsible Tray &amp; Messenger)</a>
+            <a href="#float-button">FloatButton (FAB &amp; Speed Dial)</a>
 
             <div class="nav-header">Sistema Global & Arquitetura</div>
             <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
             <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
-            <a href="#look-and-feel">Look and Feel (20 Skins)</a>
+            <a href="#look-and-feel">Look and Feel (34 Skins)</a>
             <a href="#temas-paletas">Temas e Paletas de Cores</a>
             <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
@@ -348,7 +350,7 @@
 
         <!-- Main Content -->
         <main class="content">
-            <h1 id="intro">DesktopEngine V0.6 - Manual de Referência</h1>
+            <h1 id="intro">DesktopEngine V1.0 - Manual de Referência</h1>
             <p class="lead">O <strong>DesktopEngine</strong> é um micro-framework em Vanilla JavaScript voltado para
                 criar interfaces do tipo "Desktop in Browser" (janelas flutuantes, arrastáveis e redimensionáveis).
                 Totalmente sem passos de compilação (zero Webpack, zero Node em runtime) e alimentado por reatividade
@@ -369,18 +371,17 @@
                 navegador, módulos locais não podem ser abertos diretamente via protocolo <code>file:///</code>.</p>
             <p>Para executar localmente:</p>
             <ul>
-                <li><strong>Opção 1 (Windows):</strong> Dê um duplo clique no arquivo <code>server.bat</code> na pasta
+                <li><strong>No Windows:</strong> Dê um duplo clique no arquivo <code>server.bat</code> na pasta
                     raiz. Ele abrirá um servidor local na porta <code>8000</code>.</li>
-                <li><strong>Opção 2 (Terminal):</strong> Execute <code>npx serve .</code> ou
+                <li><strong>Via Terminal:</strong> Execute <code>npx serve .</code> ou
                     <code>python -m http.server 8000</code> e acesse <code>http://localhost:8000</code>.
                 </li>
             </ul>
             <p>Páginas de demonstração incluídas:</p>
             <ul>
-                <li><code>index.html</code>: Layout moderno com <strong>MenuBar superior</strong> (estilo macOS) e
+                <li><code>index.html</code>: Layout moderno com <strong>MenuBar superior</strong> e
                     taskbar de janelas.</li>
-                <li><code>index2.html</code>: Layout clássico com <strong>Menu Iniciar na Taskbar</strong> (estilo
-                    Windows).</li>
+                <li><code>index2.html</code>: Layout clássico com <strong>Menu Iniciar na Taskbar</strong>.</li>
             </ul>
 
             <!-- SEÇÃO 2: INIT -->
@@ -399,7 +400,12 @@ Desktop.init({
     showDesktopButton: true              // Exibe o botão de minimizar tudo
 });
 
-// Métodos utilitários globais:
+// Métodos utilitários globais de posicionamento e controle:
+Desktop.setTaskbarPosition("right");     // Altera a barra de tarefas ("bottom", "top", "left", "right")
+Desktop.getTaskbarPosition();            // Retorna a posição ativa da barra de tarefas
+Desktop.setMenuBarPosition("top");       // Altera o MenuBar ("top", "bottom", "left", "right")
+Desktop.getMenuBarPosition();            // Retorna a posição ativa do MenuBar
+
 Desktop.showDesktop();                   // Alterna entre minimizar todas ou restaurá-las
 Desktop.arrangeWindows();                // Organiza todas as janelas abertas em grade organizada
 Desktop.notify("Olá mundo!", "success"); // Dispara um toast global ("success", "danger", "info")</code></pre>
@@ -1739,6 +1745,205 @@ Tooltip({
 })</code></pre>
             </div>
 
+            <!-- SEÇÃO: DOCK WIDGET -->
+            <h2 id="dock-widget">DockWidget (Collapsible Bottom Tray &amp; Messenger)</h2>
+            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong>.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>title</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"Mensagens"</code></td>
+                        <td>Título exibido na barra superior do widget.</td>
+                    </tr>
+                    <tr>
+                        <td><code>icon</code></td>
+                        <td><code>String | Node</code></td>
+                        <td><code>"💬"</code></td>
+                        <td>Ícone ou emoji exibido ao lado do título.</td>
+                    </tr>
+                    <tr>
+                        <td><code>badge</code></td>
+                        <td><code>Number | String</code></td>
+                        <td><code>null</code></td>
+                        <td>Contador de notificações/eventos não lidos.</td>
+                    </tr>
+                    <tr>
+                        <td><code>badgeVariant</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"danger"</code></td>
+                        <td>Variante de cor da badge: <code>"danger"</code>, <code>"primary"</code>, <code>"success"</code>, <code>"warning"</code>, <code>"info"</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>position</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"bottom-right"</code></td>
+                        <td>Posicionamento: <code>"bottom-right"</code>, <code>"bottom-left"</code>, <code>"top-right"</code>, <code>"top-left"</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>width</code> / <code>height</code></td>
+                        <td><code>String | Number</code></td>
+                        <td><code>"320px"</code> / <code>"380px"</code></td>
+                        <td>Largura e altura máxima do corpo expansível.</td>
+                    </tr>
+                    <tr>
+                        <td><code>headerActions</code></td>
+                        <td><code>Array</code></td>
+                        <td><code>[]</code></td>
+                        <td>Botões de ação no cabeçalho: <code>[{ icon, title, action: (dockApi, event) => {} }]</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>allowMinimizeToTray</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>true</code></td>
+                        <td>Habilita o botão para minimizar para a barra de tarefas (ao lado do relógio).</td>
+                    </tr>
+                    <tr>
+                        <td><code>trayTooltip</code></td>
+                        <td><code>String</code></td>
+                        <td><code>null</code></td>
+                        <td>Tooltip exibido no ícone minimizado na barra de tarefas.</td>
+                    </tr>
+                    <tr>
+                        <td><code>onExpand</code> / <code>onCollapse</code> / <code>onToggle</code></td>
+                        <td><code>Function</code></td>
+                        <td><code>null</code></td>
+                        <td>Callbacks disparados ao abrir, fechar ou alternar o dock.</td>
+                    </tr>
+                    <tr>
+                        <td><code>onMinimizeToTray</code> / <code>onRestoreFromTray</code></td>
+                        <td><code>Function</code></td>
+                        <td><code>null</code></td>
+                        <td>Callbacks disparados ao minimizar para o cantinho da barra de tarefas ou restaurar.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+                <pre><code>import { DockWidget, Toast } from './ui.js';
+
+// Exemplo: Dock com minimização para o cantinho da Taskbar (System Tray)
+const dock = DockWidget({
+    title: "Mensagens do Sistema",
+    icon: "💬",
+    badge: 2,
+    badgeVariant: "danger",
+    position: "bottom-right",
+    allowMinimizeToTray: true, // Adiciona o botão de minimizar para a barra de tarefas
+    headerActions: [
+        {
+            icon: "🧹",
+            title: "Limpar",
+            action: (dockApi) => {
+                dockApi.setContent([]);
+                dockApi.setBadge(0);
+            }
+        }
+    ],
+    content: [
+        "Servidor sincronizado com sucesso.",
+        "Relatório financeiro gerado em segundo plano."
+    ],
+    onExpand: (dockApi) => {
+        dockApi.setBadge(0); // Zera contador ao abrir
+    }
+});
+
+// Ações via código:
+dock.minimizeToTray();   // Minimiza para o canto do relógio na taskbar
+dock.restoreFromTray();  // Restaura e abre o dock
+dock.addItem("📩 Novo e-mail recebido!", true); // true = insere no topo
+dock.setBadge(1);</code></pre>
+            </div>
+
+            <!-- SEÇÃO: FLOAT BUTTON -->
+            <h2 id="float-button">FloatButton (Floating Action Button / Speed Dial)</h2>
+            <p>Botão de Ação Flutuante (FAB) com suporte a menu em cascata (<em>Speed Dial</em>) para ações rápidas de navegação, atalhos de janelas e utilitários. Suporta posicionamento no Desktop ou dentro de Janelas específicas.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Propriedade</th>
+                        <th>Tipo</th>
+                        <th>Padrão</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>icon</code> / <code>activeIcon</code></td>
+                        <td><code>String | Node</code></td>
+                        <td><code>"⚡"</code> / <code>"✕"</code></td>
+                        <td>Ícone padrão e ícone exibido quando o Speed Dial estiver aberto.</td>
+                    </tr>
+                    <tr>
+                        <td><code>tooltip</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"Ações Rápidas"</code></td>
+                        <td>Texto da dica de contexto ao passar o mouse.</td>
+                    </tr>
+                    <tr>
+                        <td><code>position</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"bottom-right"</code></td>
+                        <td>Posicionamento: <code>"bottom-right"</code>, <code>"bottom-left"</code>, <code>"top-right"</code>, <code>"top-left"</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>variant</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"primary"</code></td>
+                        <td>Estilo visual: <code>"primary"</code>, <code>"success"</code>, <code>"danger"</code>, <code>"info"</code>, <code>"surface"</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>shape</code></td>
+                        <td><code>String</code></td>
+                        <td><code>"circle"</code></td>
+                        <td>Formato: <code>"circle"</code> (redondo), <code>"rounded"</code> (squircle), <code>"square"</code> (quadrado).</td>
+                    </tr>
+                    <tr>
+                        <td><code>actions</code></td>
+                        <td><code>Array</code></td>
+                        <td><code>[]</code></td>
+                        <td>Lista de ações no Speed Dial: <code>[{ icon, label, variant, action: (fabApi, event) => {} }]</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+                <pre><code>import { FloatButton } from './ui.js';
+
+// Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial
+FloatButton({
+    icon: "⚡",
+    tooltip: "Navegação Rápida",
+    position: "bottom-right",
+    variant: "primary",
+    actions: [
+        {
+            icon: "📊",
+            label: "Abrir Relatórios",
+            variant: "success",
+            action: () => Desktop.openScreen("background_reports")
+        },
+        {
+            icon: "✨",
+            label: "Showcase UI",
+            variant: "primary",
+            action: () => Desktop.openScreen("showcase")
+        }
+    ]
+});</code></pre>
+            </div>
+
             <hr>
 
             <!-- SEÇÃO: MENUS GLOBAIS -->
@@ -1779,8 +1984,13 @@ MenuBar({
     menus: meusMenus
 });
 
-// Ou no StartMenu:
-StartMenu({ buttonId: "btnStart", menus: meusMenus });</code></pre>
+// Ou no StartMenu (Menu Iniciar na Barra de Tarefas):
+StartMenu({ buttonId: "btnStart", menus: meusMenus });
+
+// Alternando dinamicamente onde o MenuBar deve ficar:
+Desktop.setMenuBarMode("separate");  // Exibe como barra de menus separada no desktop
+Desktop.setMenuBarMode("startmenu"); // Oculta a barra separada e mantém os menus apenas no botão Iniciar
+Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "none"</code></pre>
             </div>
 
             <!-- SEÇÃO: WINDOW MENUBAR -->
@@ -2260,7 +2470,7 @@ export default {
                 </li>
             </ul>
 
-            <h2 id="look-and-feel">Sistema de Look and Feel (L&amp;F / OS Skins)</h2>
+            <h2 id="look-and-feel">Sistema de Look and Feel (L&amp;F / Design Systems)</h2>
             <p>O DesktopEngine possui um subsistema nativo e modular de <strong>Look and Feel (L&amp;F)</strong> que
                 permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela,
                 tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
@@ -2268,10 +2478,10 @@ export default {
             <div class="alert alert-tip">
                 <span class="alert-icon">💡</span>
                 <div>
-                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça do SO via atributo
+                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça visual via atributo
                     <code>data-laf</code>) é independente da <em>Paleta de Cores</em> (cores e tons via atributo
                     <code>data-theme</code>). Você pode combinar livremente qualquer Look and Feel com qualquer Tema
-                    (ex: macOS no tema Midnight Cyber, Windows 98 em Alto Contraste, ou Java Metal no tema Slate Dark).
+                    (ex: Aqua Frosted no tema Midnight Cyber, Retro 3D em Alto Contraste, ou Steel Metal no tema Slate Dark).
                 </div>
             </div>
 
@@ -2280,32 +2490,32 @@ export default {
                 <pre><code>import { Desktop } from './desktop.js';
 
 // 1. Aplicar um Look and Feel nativo (atualiza janelas, taskbar e botão Iniciar automaticamente)
-Desktop.setLookAndFeel("win7"); // Transforma o botão Iniciar no clássico Aero Orb circular azul sem vazamento de texto!
+Desktop.setLookAndFeel("aero-glass"); // Transforma o botão Iniciar em um Orb translúcido e ativa Aero Peek
 
 // 2. Voltar ao Look and Feel padrão
 Desktop.setLookAndFeel("default");
 
 // 3. Obter o Look and Feel ativo no momento
-const lafAtual = Desktop.getLookAndFeel(); // Ex: "win7"
+const lafAtual = Desktop.getLookAndFeel(); // Ex: "aero-glass"
 
 // 4. Customizar ou Registrar ícone/rótulo do Botão Iniciar para um Look and Feel
-Desktop.setStartButtonConfig("win7", {
+Desktop.setStartButtonConfig("aero-glass", {
     icon: `&lt;svg ...&gt;&lt;/svg&gt;`, // Ícone SVG vetorial ou emoji
     label: "",               // Rótulo de texto (deixe vazio para botões circulares/orbs)
     showLabel: false,        // Oculta o texto para manter o formato circular perfeito
-    tooltip: "Iniciar (Windows 7 Aero)"
+    tooltip: "Menu Principal (Aero Glass)"
 });
 
 // 5. Customizar ou Registrar ícone do Botão "Mostrar Área de Trabalho"
-Desktop.setShowDesktopButtonConfig("win7", {
+Desktop.setShowDesktopButtonConfig("aero-glass", {
     icon: "",                // Vazio para ativar a barra de vidro Aero Peek pura via CSS
     label: "",
     tooltip: "Espiar Área de Trabalho (Aero Peek)"
 });
 
 // 6. Consultar as configurações ativas
-const startConfig = Desktop.getStartButtonConfig("win7");
-const showDeskConfig = Desktop.getShowDesktopButtonConfig("win7");
+const startConfig = Desktop.getStartButtonConfig("aero-glass");
+const showDeskConfig = Desktop.getShowDesktopButtonConfig("aero-glass");
 
 // 7. Forçar atualização de todos os botões na taskbar
 Desktop.updateStartButton();
@@ -2317,7 +2527,7 @@ EventBus.on("laf:change", (lafName) => {
             </div>
 
             <h3>Catálogo dos 34 Look and Feels Disponíveis</h3>
-            <p>O framework oferece 34 sistemas conceituais de design de interface (Skins de Look and Feel), com suporte a retrocompatibilidade de aliases legados.</p>
+            <p>O framework oferece 34 sistemas conceituais de design de interface (Skins de Look and Feel) integrados nativamente.</p>
             <table>
                 <thead>
                     <tr>
@@ -2336,43 +2546,43 @@ EventBus.on("laf:change", (lafName) => {
                     </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
-                        <td><code>"aqua-frosted"</code> (alias: <code>"macos"</code>)</td>
+                        <td><code>"aqua-frosted"</code></td>
                         <td>Aqua Frosted (Vidro Fosco)</td>
                         <td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de 12px.</td>
                     </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
-                        <td><code>"fluent-acrylic"</code> (alias: <code>"win11"</code>)</td>
+                        <td><code>"fluent-acrylic"</code></td>
                         <td>Fluent Acrylic</td>
                         <td>Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho.</td>
                     </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
-                        <td><code>"material-tonal"</code> (alias: <code>"material3"</code>)</td>
+                        <td><code>"material-tonal"</code></td>
                         <td>Material Tonal</td>
                         <td>Superfícies em camadas tonais, cantos de 20px e botões pílula (<em>Pill</em>).</td>
                     </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
-                        <td><code>"cupertino-touch"</code> (alias: <code>"cupertino"</code>)</td>
+                        <td><code>"cupertino-touch"</code></td>
                         <td>Cupertino Touch</td>
                         <td>Vidro fosco translúcido (<em>frosted glass</em> 28px blur), squircle de 20px e sombras suaves.</td>
                     </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
-                        <td><code>"one-touch"</code> (alias: <code>"oneui"</code>)</td>
+                        <td><code>"one-touch"</code></td>
                         <td>One Touch</td>
                         <td>Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico.</td>
                     </tr>
                     <tr>
                         <td><strong>Modernos &amp; Translúcidos</strong></td>
-                        <td><code>"flat-tiles"</code> (alias: <code>"metro"</code>)</td>
+                        <td><code>"flat-tiles"</code></td>
                         <td>Flat Tiles</td>
                         <td>Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste.</td>
                     </tr>
                     <tr>
                         <td><strong>Espacial &amp; Tátil</strong></td>
-                        <td><code>"spatial-glass"</code> (alias: <code>"visionos"</code>)</td>
+                        <td><code>"spatial-glass"</code></td>
                         <td>Spatial Glass</td>
                         <td>Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas.</td>
                     </tr>
@@ -2390,157 +2600,157 @@ EventBus.on("laf:change", (lafName) => {
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"steel-metal"</code> (alias: <code>"java-metal"</code>)</td>
+                        <td><code>"steel-metal"</code></td>
                         <td>Steel Metal</td>
                         <td>Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo.</td>
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"ocean-metal"</code> (alias: <code>"java-ocean"</code>)</td>
+                        <td><code>"ocean-metal"</code></td>
                         <td>Ocean Metal</td>
                         <td>Gradiente metálico azul acetinado e chanfros suaves Swing.</td>
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"nimbus-vector"</code> (alias: <code>"java-nimbus"</code>)</td>
+                        <td><code>"nimbus-vector"</code></td>
                         <td>Nimbus Vector</td>
                         <td>Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar.</td>
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"flatlaf-ide"</code> (alias: <code>"java-flatlaf"</code>)</td>
+                        <td><code>"flatlaf-ide"</code></td>
                         <td>Modern IDE (Studio)</td>
-                        <td>Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo.</td>
+                        <td>Estilo moderno de IDE profissional, compacto e limpo.</td>
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"modena-soft"</code> (alias: <code>"javafx-modena"</code>)</td>
+                        <td><code>"modena-soft"</code></td>
                         <td>Modena Soft</td>
-                        <td>Estética neutra cinza, limpa e moderna do JavaFX 8+.</td>
+                        <td>Estética neutra cinza, limpa e moderna.</td>
                     </tr>
                     <tr>
                         <td><strong>Swing &amp; Java</strong></td>
-                        <td><code>"caspian-dark"</code> (alias: <code>"javafx-caspian"</code>)</td>
+                        <td><code>"caspian-dark"</code></td>
                         <td>Caspian Dark</td>
-                        <td>Vidro escuro azulado elegante do JavaFX 2.</td>
+                        <td>Vidro escuro azulado elegante.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"yellow-tab"</code> (alias: <code>"beos"</code>)</td>
+                        <td><code>"yellow-tab"</code></td>
                         <td>Yellow Tab</td>
                         <td>A famosa <strong>aba amarela</strong> no topo esquerdo da janela com botões chanfrados.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"retro-3d"</code> (alias: <code>"win98"</code>)</td>
+                        <td><code>"retro-3d"</code></td>
                         <td>Retro 3D (Chanfrado)</td>
                         <td>Bordas 3D chanfradas <em>outset/inset</em>, botões clássicos cinza e barra azul.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"luna-blue"</code> (alias: <code>"winxp"</code>)</td>
+                        <td><code>"luna-blue"</code></td>
                         <td>Luna Classic</td>
                         <td>Barra azul royal brilhante e botão de fechar vermelho luminoso.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"aero-glass"</code> (alias: <code>"win7"</code>)</td>
+                        <td><code>"aero-glass"</code></td>
                         <td>Aero Glass</td>
                         <td>Vidro translúcido com reflexos de iluminação e botões com brilho suave.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"next-dark"</code> (alias: <code>"nextstep"</code>)</td>
+                        <td><code>"next-dark"</code></td>
                         <td>Dark Slate Cube</td>
                         <td>Estética monocromática em tons de cinza puro e preto com relevos 3D profundos.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"workbench-boing"</code> (alias: <code>"amiga"</code>)</td>
+                        <td><code>"workbench-boing"</code></td>
                         <td>Workbench Retro</td>
                         <td>Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"platinum-classic"</code> (alias: <code>"mac-classic"</code>)</td>
+                        <td><code>"platinum-classic"</code></td>
                         <td>Platinum Classic</td>
                         <td>Pinstripes horizontais na barra, botão de fechar quadrado à esquerda.</td>
                     </tr>
                     <tr>
                         <td><strong>Retrô &amp; Clássicos 3D</strong></td>
-                        <td><code>"warp-enterprise"</code> (alias: <code>"os2-warp"</code>)</td>
+                        <td><code>"warp-enterprise"</code></td>
                         <td>Warp Enterprise</td>
                         <td>Visual corporativo azul-acinzentado com moldura chanfrada sólida.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"aubergine-orange"</code> (alias: <code>"ubuntu"</code>)</td>
+                        <td><code>"aubergine-orange"</code></td>
                         <td>Aubergine Orange</td>
                         <td>Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"pantheon-pure"</code> (alias: <code>"elementary"</code>)</td>
+                        <td><code>"pantheon-pure"</code></td>
                         <td>Pantheon Pure</td>
                         <td>Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"cosmic-teal"</code> (alias: <code>"pop-cosmic"</code>)</td>
+                        <td><code>"cosmic-teal"</code></td>
                         <td>Cosmic Teal</td>
                         <td>Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"tiling-grid"</code> (alias: <code>"i3wm"</code>)</td>
+                        <td><code>"tiling-grid"</code></td>
                         <td>Tiling Grid</td>
                         <td>Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"greybird-lite"</code> (alias: <code>"xfce"</code>)</td>
+                        <td><code>"greybird-lite"</code></td>
                         <td>Greybird Lite</td>
                         <td>Gradiente suave azul-acinzentado, botões leves e cantos de 4px.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"e-fusion"</code> (alias: <code>"enlightenment"</code>)</td>
+                        <td><code>"e-fusion"</code></td>
                         <td>Fusion Neon</td>
                         <td>Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"x11-box"</code> (alias: <code>"windowmaker"</code>)</td>
+                        <td><code>"x11-box"</code></td>
                         <td>X11 Dark Box</td>
                         <td>Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"motif-panel"</code> (alias: <code>"cde-motif"</code>)</td>
+                        <td><code>"motif-panel"</code></td>
                         <td>Motif Panel</td>
                         <td>Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"adwaita-slate"</code> (alias: <code>"gnome"</code>)</td>
+                        <td><code>"adwaita-slate"</code></td>
                         <td>Adwaita Slate</td>
                         <td>Headerbar espaçosa de 42px com botão de fechar circular minimalista e alto contraste.</td>
                     </tr>
                     <tr>
                         <td><strong>Desktops Unix &amp; Abertos</strong></td>
-                        <td><code>"breeze-plasma"</code> (alias: <code>"kde"</code>)</td>
+                        <td><code>"breeze-plasma"</code></td>
                         <td>Breeze Plasma</td>
                         <td>Linhas nítidas, acentos vetoriais azuis e cantos de 4px.</td>
                     </tr>
                     <tr>
                         <td><strong>Console &amp; Sci-Fi</strong></td>
-                        <td><code>"turbo-tui"</code> (alias: <code>"turbovision"</code>)</td>
+                        <td><code>"turbo-tui"</code></td>
                         <td>DOS TUI Console</td>
                         <td>Visual de modo texto azul DOS com bordas em caracteres duplos e monospace.</td>
                     </tr>
                     <tr>
                         <td><strong>Console &amp; Sci-Fi</strong></td>
-                        <td><code>"cyberpunk-neon"</code> (alias: <code>"cyberpunk"</code>)</td>
+                        <td><code>"cyberpunk-neon"</code></td>
                         <td>Cyber Neon HUD</td>
                         <td>Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon.</td>
                     </tr>

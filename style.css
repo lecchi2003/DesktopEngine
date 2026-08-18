@@ -1,4 +1,4 @@
-﻿/* style.css */
+/* style.css */
 * {
     box-sizing: border-box;
 }
@@ -335,11 +335,86 @@ select {
     inset: 0;
 }
 
-#app[data-taskbar="left"],
-#app[data-taskbar="right"],
+/* Quando Menubar está à Esquerda ou à Direita */
 #app[data-menubar="left"],
 #app[data-menubar="right"] {
     flex-direction: row;
+}
+
+/* Quando a Taskbar é Lateral (left / right) e o Menubar é Horizontal (top / bottom ou ausente):
+   Usamos CSS Grid no #app para garantir que o #menubar ocupe 100% da largura superior/inferior
+   e a #taskbar lateral se posicione na coluna correta ao lado do #desktop */
+#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) {
+    display: grid !important;
+    grid-template-columns: 68px 1fr;
+    grid-template-rows: auto 1fr;
+    flex-direction: unset !important;
+}
+
+#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) > #menubar,
+#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) > .ui-menubar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100% !important;
+}
+
+#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) > #taskbar {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) > #desktop {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) {
+    display: grid !important;
+    grid-template-columns: 1fr 68px;
+    grid-template-rows: auto 1fr;
+    flex-direction: unset !important;
+}
+
+#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) > #menubar,
+#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) > .ui-menubar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100% !important;
+}
+
+#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) > #desktop {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) > #taskbar {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Quando não há menubar (como no index2.html), o grid se adapta naturalmente */
+#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar)) {
+    grid-template-rows: 1fr !important;
+}
+#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar)) > #taskbar,
+#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar)) > #desktop {
+    grid-row: 1 !important;
+}
+
+#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar)) {
+    grid-template-rows: 1fr !important;
+}
+#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar)) > #taskbar,
+#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar)) > #desktop {
+    grid-row: 1 !important;
 }
 
 /* --- Menu Bar (Layouts: Top, Bottom, Left, Right) --- */
@@ -518,6 +593,13 @@ select {
     height: 100%;
     padding: 4px 2px;
     align-items: stretch;
+}
+
+/* App MenuBar Oculto / Integrado ao Menu Iniciar: */
+#app[data-menubar="none"] > #menubar,
+#app[data-menubar="none"] > .ui-menubar,
+#app > .ui-menubar[data-position="none"] {
+    display: none !important;
 }
 
 .menubar-item {
@@ -822,7 +904,7 @@ select {
 /* StartMenu na Esquerda (Taskbar: Left) */
 #app[data-taskbar="left"]>.ui-start-menu {
     top: 5px !important;
-    left: 65px !important;
+    left: 74px !important;
     bottom: auto !important;
 }
 
@@ -836,7 +918,7 @@ select {
 /* StartMenu na Direita (Taskbar: Right) */
 #app[data-taskbar="right"]>.ui-start-menu {
     top: 5px !important;
-    right: 65px !important;
+    right: 74px !important;
     bottom: auto !important;
 }
 
@@ -1224,9 +1306,12 @@ select {
     border-top: none;
     border-bottom: none;
     flex-direction: column;
-    width: 60px;
+    width: 68px;
     height: 100%;
-    padding: 5px 2px;
+    padding: 6px 3px;
+    flex: 0 0 68px;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 #app[data-taskbar="right"] #taskbar {
@@ -1235,9 +1320,12 @@ select {
     border-top: none;
     border-bottom: none;
     flex-direction: column;
-    width: 60px;
+    width: 68px;
     height: 100%;
-    padding: 5px 2px;
+    padding: 6px 3px;
+    flex: 0 0 68px;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .taskStart {
@@ -1305,7 +1393,43 @@ select {
 #app[data-taskbar="left"] .taskStart,
 #app[data-taskbar="right"] .taskStart {
     width: 100%;
+    min-height: 32px;
+    height: auto;
+    padding: 4px 2px;
+    flex-direction: column;
+    gap: 3px;
+    text-align: center;
+}
+
+#app[data-taskbar="left"] .taskStart .task-start-label,
+#app[data-taskbar="right"] .taskStart .task-start-label {
+    font-size: 10px;
+    line-height: 1.1;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#app[data-taskbar="left"] .taskShowDesktop,
+#app[data-taskbar="right"] .taskShowDesktop {
+    width: 100%;
+    height: 28px;
     padding: 0;
+}
+
+#app[data-taskbar="left"] .clock,
+#app[data-taskbar="right"] .clock {
+    margin-left: 0;
+    margin-top: auto;
+    padding: 4px 0;
+    font-size: 11px;
+    text-align: center;
+    width: 100%;
 }
 
 .taskStart:hover {
@@ -1338,6 +1462,20 @@ select {
 #app[data-taskbar="right"] .taskWindows {
     flex-direction: column;
     width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    align-items: center;
+}
+
+#app[data-taskbar="left"] .taskButton,
+#app[data-taskbar="right"] .taskButton {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 0 4px;
+    font-size: 11px;
+    text-align: center;
 }
 
 .taskButton {
@@ -1379,13 +1517,41 @@ select {
     color: var(--text-primary);
 }
 
-/* --- UI Primitives (ui.js styles) --- */
-.ui-row {
+/* --- UI Primitives & Layout Helpers (Framework native) --- */
+.ui-row, .flex-row {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 12px;
 }
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.p-5 { padding: 24px; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-secondary { color: var(--text-secondary, #94a3b8); }
 
 .ui-col {
     flex: 1;
@@ -7004,15 +7170,21 @@ h2 {
 
 /* 1. Mídia Query para Smartphones e Tablets (<= 768px) */
 @media (max-width: 768px) {
-    /* MenuBar Mobile */
-    #menubar,
-    .ui-menubar:not(.window-menubar) {
+    /* MenuBar Mobile (Apenas quando não estiver integrado ao Menu Iniciar) */
+    #app:not([data-menubar="none"]) > #menubar:not([data-position="none"]),
+    #app:not([data-menubar="none"]) > .ui-menubar:not(.window-menubar):not([data-position="none"]) {
         display: flex !important;
         align-items: center !important;
         padding: 0 12px !important;
         height: 48px !important;
         flex: 0 0 48px !important;
         overflow: hidden !important;
+    }
+
+    #app[data-menubar="none"] > #menubar,
+    #app[data-menubar="none"] > .ui-menubar,
+    #app > .ui-menubar[data-position="none"] {
+        display: none !important;
     }
 
     #menubar .menubar-mobile-hamburger,
@@ -7279,14 +7451,20 @@ h2 {
 }
 
 /* 2. Forçar Modo Mobile Manual via Classe #app.mobile-mode */
-#app.mobile-mode #menubar,
-#app.mobile-mode .ui-menubar:not(.window-menubar) {
+#app.mobile-mode:not([data-menubar="none"]) > #menubar:not([data-position="none"]),
+#app.mobile-mode:not([data-menubar="none"]) > .ui-menubar:not(.window-menubar):not([data-position="none"]) {
     display: flex !important;
     align-items: center !important;
     padding: 0 12px !important;
     height: 48px !important;
     flex: 0 0 48px !important;
     overflow: hidden !important;
+}
+
+#app.mobile-mode[data-menubar="none"] > #menubar,
+#app.mobile-mode[data-menubar="none"] > .ui-menubar,
+#app.mobile-mode > .ui-menubar[data-position="none"] {
+    display: none !important;
 }
 
 #app.mobile-mode #menubar .menubar-mobile-hamburger,
@@ -7703,3 +7881,466 @@ h2 {
     height: 24px !important;
     box-shadow: 0 0 6px rgba(0, 255, 204, 0.3) !important;
 }
+
+/* ==========================================================================
+   DOCK WIDGET (COLLAPSIBLE TRAY / EVENT MESSENGER)
+   ========================================================================== */
+.ui-dock-widget {
+    position: fixed;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    background: var(--win-bg, rgba(30, 41, 59, 0.95));
+    border: 1px solid var(--win-border, rgba(255, 255, 255, 0.15));
+    box-shadow: var(--win-shadow, 0 12px 32px rgba(0, 0, 0, 0.35));
+    backdrop-filter: var(--win-blur, blur(16px));
+    -webkit-backdrop-filter: var(--win-blur, blur(16px));
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+    font-family: inherit;
+    color: var(--text-primary, #ffffff);
+    box-sizing: border-box;
+}
+
+/* Posições */
+.ui-dock-widget.pos-bottom-right {
+    bottom: 48px;
+    right: 20px;
+    border-radius: 10px 10px 0 0;
+}
+#app[data-taskbar="top"] .ui-dock-widget.pos-bottom-right {
+    bottom: 12px;
+}
+#app[data-taskbar="right"] .ui-dock-widget.pos-bottom-right {
+    right: 76px;
+    bottom: 12px;
+}
+
+.ui-dock-widget.pos-bottom-left {
+    bottom: 48px;
+    left: 20px;
+    border-radius: 10px 10px 0 0;
+}
+#app[data-taskbar="top"] .ui-dock-widget.pos-bottom-left {
+    bottom: 12px;
+}
+#app[data-taskbar="left"] .ui-dock-widget.pos-bottom-left {
+    left: 76px;
+    bottom: 12px;
+}
+
+.ui-dock-widget.pos-top-right {
+    top: 48px;
+    right: 20px;
+    border-radius: 0 0 10px 10px;
+}
+
+.ui-dock-widget.pos-top-left {
+    top: 48px;
+    left: 20px;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Modo Local (Dentro de uma Janela) */
+.ui-dock-widget.is-local {
+    position: absolute;
+    z-index: 100;
+}
+.ui-dock-widget.is-local.pos-bottom-right {
+    bottom: 0 !important;
+    right: 12px !important;
+    left: auto !important;
+    top: auto !important;
+}
+.ui-dock-widget.is-local.pos-bottom-left {
+    bottom: 0 !important;
+    left: 12px !important;
+    right: auto !important;
+    top: auto !important;
+}
+.ui-dock-widget.is-local.pos-top-right {
+    top: 0 !important;
+    right: 12px !important;
+    left: auto !important;
+    bottom: auto !important;
+}
+.ui-dock-widget.is-local.pos-top-left {
+    top: 0 !important;
+    left: 12px !important;
+    right: auto !important;
+    bottom: auto !important;
+}
+
+/* Header */
+.ui-dock-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    min-height: 40px;
+    cursor: pointer;
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+    user-select: none;
+    border-radius: inherit;
+    gap: 8px;
+    border-bottom: 1px solid transparent;
+}
+.ui-dock-widget.expanded .ui-dock-header {
+    border-bottom: 1px solid var(--win-border, rgba(255, 255, 255, 0.1));
+}
+
+.ui-dock-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ui-dock-icon {
+    font-size: 16px;
+}
+
+.ui-dock-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 9px;
+    color: #ffffff;
+    line-height: 1;
+}
+.ui-dock-badge.badge-danger { background: #ef4444; }
+.ui-dock-badge.badge-primary { background: #3b82f6; }
+.ui-dock-badge.badge-success { background: #10b981; }
+.ui-dock-badge.badge-warning { background: #f59e0b; color: #000; }
+.ui-dock-badge.badge-info { background: #06b6d4; }
+
+.ui-dock-header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ui-dock-action-btn,
+.ui-dock-chevron-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 13px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.ui-dock-action-btn:hover,
+.ui-dock-chevron-btn:hover {
+    background: var(--menu-hover, rgba(255, 255, 255, 0.1));
+    color: var(--text-primary, #ffffff);
+}
+
+/* Ícone de Bandeja na Barra de Tarefas (Minimizado no Canto do Relógio) */
+.ui-dock-tray-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 6px;
+    margin: 0 2px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--text-primary, #ffffff);
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    user-select: none;
+    outline: none;
+}
+.ui-dock-tray-icon:hover {
+    background: var(--btn-hover, rgba(255, 255, 255, 0.12));
+    border-color: var(--win-border, rgba(255, 255, 255, 0.2));
+    transform: translateY(-1px);
+}
+.ui-dock-tray-icon:active {
+    transform: scale(0.95);
+}
+
+.ui-dock-tray-icon-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-dock-tray-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 7px;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.ui-dock-tray-badge.badge-danger { background: #ef4444; }
+.ui-dock-tray-badge.badge-primary { background: #3b82f6; }
+.ui-dock-tray-badge.badge-success { background: #10b981; }
+.ui-dock-tray-badge.badge-warning { background: #f59e0b; color: #000; }
+.ui-dock-tray-badge.badge-info { background: #06b6d4; }
+
+#app[data-taskbar="left"] .ui-dock-tray-icon,
+#app[data-taskbar="right"] .ui-dock-tray-icon {
+    width: 100%;
+    height: 32px;
+    margin: 4px 0;
+}
+
+/* Corpo / Body */
+.ui-dock-body {
+    display: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--win-bg, rgba(15, 23, 42, 0.85));
+}
+.ui-dock-widget.expanded .ui-dock-body {
+    display: flex;
+}
+
+.ui-dock-text-item {
+    padding: 8px 10px;
+    background: var(--surface, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--win-border, rgba(255, 255, 255, 0.08));
+    border-radius: 6px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    transition: background 0.15s;
+}
+.ui-dock-text-item:hover {
+    background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+}
+
+/* ==========================================================================
+   FLOAT BUTTON (FAB / SPEED DIAL)
+   ========================================================================== */
+.ui-float-button-wrap {
+    position: fixed;
+    z-index: 100001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Posicionamentos */
+.ui-float-button-wrap.pos-bottom-right {
+    bottom: 60px;
+    right: 360px;
+}
+#app[data-taskbar="top"] .ui-float-button-wrap.pos-bottom-right {
+    bottom: 24px;
+    right: 360px;
+}
+#app[data-taskbar="right"] .ui-float-button-wrap.pos-bottom-right {
+    right: 420px;
+    bottom: 24px;
+}
+
+.ui-float-button-wrap.pos-bottom-left {
+    bottom: 60px;
+    left: 24px;
+}
+#app[data-taskbar="top"] .ui-float-button-wrap.pos-bottom-left {
+    bottom: 24px;
+}
+#app[data-taskbar="left"] .ui-float-button-wrap.pos-bottom-left {
+    left: 80px;
+    bottom: 24px;
+}
+
+.ui-float-button-wrap.pos-top-right {
+    top: 50px;
+    right: 24px;
+}
+
+.ui-float-button-wrap.pos-top-left {
+    top: 50px;
+    left: 24px;
+}
+
+.ui-float-button-wrap.is-local {
+    position: absolute;
+    z-index: 100;
+}
+.ui-float-button-wrap.is-local.pos-bottom-right {
+    bottom: 16px !important;
+    right: 16px !important;
+    left: auto !important;
+    top: auto !important;
+}
+.ui-float-button-wrap.is-local.pos-bottom-left {
+    bottom: 16px !important;
+    left: 16px !important;
+    right: auto !important;
+    top: auto !important;
+}
+.ui-float-button-wrap.is-local.pos-top-right {
+    top: 16px !important;
+    right: 16px !important;
+    left: auto !important;
+    bottom: auto !important;
+}
+.ui-float-button-wrap.is-local.pos-top-left {
+    top: 16px !important;
+    left: 16px !important;
+    right: auto !important;
+    bottom: auto !important;
+}
+
+/* Botão Principal FAB */
+.ui-float-btn {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, background 0.15s ease;
+    user-select: none;
+}
+.ui-float-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+.ui-float-btn:active {
+    transform: scale(0.96);
+}
+
+.ui-float-btn.shape-circle { border-radius: 50%; }
+.ui-float-btn.shape-rounded { border-radius: 12px; }
+.ui-float-btn.shape-square { border-radius: 4px; }
+
+.ui-float-btn.variant-primary { background: var(--btn-primary, #3b82f6); color: var(--btn-primary-text, #ffffff); }
+.ui-float-btn.variant-success { background: #10b981; color: #ffffff; }
+.ui-float-btn.variant-danger { background: #ef4444; color: #ffffff; }
+.ui-float-btn.variant-info { background: #06b6d4; color: #ffffff; }
+.ui-float-btn.variant-surface { background: var(--bg-secondary, #334155); color: var(--text-primary, #ffffff); border: 1px solid var(--win-border); }
+
+.ui-float-btn-icon {
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.ui-float-btn-icon-active {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.ui-float-button-wrap.open .ui-float-btn-icon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+}
+.ui-float-button-wrap.open .ui-float-btn-icon-active {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+/* Speed Dial Menu */
+.ui-float-dial {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ui-float-dial.dial-up {
+    bottom: calc(100% + 12px);
+    right: 0;
+    align-items: flex-end;
+    transform: translateY(16px);
+}
+.ui-float-dial.dial-down {
+    top: calc(100% + 12px);
+    right: 0;
+    align-items: flex-end;
+    transform: translateY(-16px);
+}
+
+.ui-float-button-wrap.open .ui-float-dial {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ui-float-dial-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ui-float-dial-label {
+    background: var(--win-bg, rgba(15, 23, 42, 0.95));
+    border: 1px solid var(--win-border, rgba(255, 255, 255, 0.15));
+    color: var(--text-primary, #ffffff);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.ui-float-dial-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.ui-float-dial-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+.ui-float-dial-btn.variant-primary { background: var(--btn-primary, #3b82f6); color: #ffffff; }
+.ui-float-dial-btn.variant-success { background: #10b981; color: #ffffff; }
+.ui-float-dial-btn.variant-danger { background: #ef4444; color: #ffffff; }
+.ui-float-dial-btn.variant-info { background: #06b6d4; color: #ffffff; }
+.ui-float-dial-btn.variant-surface { background: var(--bg-secondary, #334155); color: var(--text-primary, #ffffff); border: 1px solid var(--win-border); }
