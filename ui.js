@@ -612,6 +612,36 @@ export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal"
     const contentEl = drawer.querySelector(".drawer-content");
 
     menus.forEach(menu => {
+        if (menu === "separator") {
+            contentEl.appendChild(createElement("div", "drawer-sep", []));
+            return;
+        }
+
+        // Se o item do topo não tem subitems, renderiza como ação direta no primeiro nível
+        if (!menu.items || menu.items.length === 0) {
+            const directOpt = createElement("div", "drawer-option", [
+                menu.icon ? createElement("span", "drawer-opt-icon", [menu.icon]) : null,
+                createElement("span", "drawer-opt-label", [menu.label || ""])
+            ].filter(Boolean));
+
+            if (menu.disabled) directOpt.classList.add("disabled");
+            directOpt.onclick = (ev) => {
+                if (menu.disabled) return;
+                ev.stopPropagation();
+                closeDrawer();
+                if (menu.screen) {
+                    const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                    if (d && typeof d.openScreen === 'function') {
+                        d.openScreen(menu.screen, menu.props);
+                    }
+                } else if (menu.action) {
+                    menu.action(windowInstance, ev);
+                }
+            };
+            contentEl.appendChild(directOpt);
+            return;
+        }
+
         const catHeader = createElement("div", "drawer-cat-header", [
             menu.icon ? createElement("span", "drawer-cat-icon", [menu.icon]) : null,
             createElement("span", "drawer-cat-title", [menu.label || ""]),
@@ -661,6 +691,11 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
 
     const app = document.getElementById("app");
     const isGlobalBar = app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")));
+
+    // Registra globalmente os menus no Desktop se for a barra de menus global
+    if (isGlobalBar && typeof Desktop !== 'undefined' && typeof Desktop.registerMenuBarMenus === 'function') {
+        Desktop.registerMenuBarMenus(menus);
+    }
 
     let effectivePosition = position;
     if (!effectivePosition) {
@@ -780,8 +815,8 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
 
     // --- Menus Padrão Desktop & Itens da Barra ---
     function buildMenu(items, isSub = false) {
-        const containerClass = isSub ? "dropdown sub-dropdown" : "dropdown menubar-dropdown";
-        const container = createElement("div", containerClass, []);
+        const container = createElement("div", isSub ? "dropdown sub-dropdown" : "dropdown menubar-dropdown", []);
+        container.style.display = "none";
         container.style.flexDirection = "column";
 
         items.forEach(subItem => {
@@ -819,6 +854,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                     
                     const positionSub = () => {
                         nested.style.display = "flex";
+                        nested.style.flexDirection = "column";
                         nested.classList.remove("open-left", "open-top");
                         nested.style.removeProperty("left");
                         nested.style.removeProperty("right");
@@ -981,19 +1017,51 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             isMenuOpen = false;
         }
     });
+
+    if (isGlobalBar) {
+        import('./core.js').then(({ EventBus }) => {
+            EventBus.on("menubar:positionchange", (pos) => {
+                bar.dataset.position = pos;
+                if (pos === "none") {
+                    bar.style.display = "none";
+                } else {
+                    bar.style.display = "";
+                }
+            });
+        });
+    }
+
     return bar;
 }
 
-export function StartMenu({ buttonId, menus = [] }) {
-    const btn = document.getElementById(buttonId);
-    if (!btn) return;
+export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
+    let btn = document.getElementById(buttonId);
 
-    const menuEl = createElement("div", "ui-start-menu", []);
+    // Registra a configuração inicial no Desktop
+    if (typeof Desktop !== 'undefined' && typeof Desktop.registerStartMenu === 'function') {
+        Desktop.registerStartMenu({ buttonId, menus });
+    }
+
+    let menuEl = document.querySelector(".ui-start-menu");
+    if (!menuEl) {
+        menuEl = createElement("div", "ui-start-menu", []);
+        const app = document.getElementById("app") || document.body;
+        app.appendChild(menuEl);
+    }
+
+    const closeStartMenu = () => {
+        menuEl.classList.remove("show");
+        menuEl.querySelectorAll(".dropdown, .sub-dropdown").forEach(d => {
+            d.style.display = "none";
+        });
+    };
     
     function buildMenu(items, isSub = false) {
-        const container = createElement("div", isSub ? "dropdown sub-dropdown" : "menu-container", []);
-        container.style.display = isSub ? "none" : "flex";
-        container.style.flexDirection = "column";
+        const container = isSub ? createElement("div", "dropdown sub-dropdown", []) : menuEl;
+        if (isSub) {
+            container.style.display = "none";
+            container.style.flexDirection = "column";
+        }
         
         items.forEach(subItem => {
             if (subItem === "separator") {
@@ -1086,7 +1154,7 @@ export function StartMenu({ buttonId, menus = [] }) {
                         } else if (subItem.action) {
                             subItem.action();
                         }
-                        menuEl.classList.remove("show");
+                        closeStartMenu();
                     };
                 }
                 container.appendChild(opt);
@@ -1095,30 +1163,115 @@ export function StartMenu({ buttonId, menus = [] }) {
         return container;
     }
 
-    menuEl.appendChild(buildMenu(menus));
-    document.getElementById("app").appendChild(menuEl);
+    const renderMenuContent = () => {
+        menuEl.innerHTML = "";
+        const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
+            ? Desktop.getEffectiveStartMenus()
+            : menus;
 
-    btn.onclick = (e) => {
+        if (currentEffectiveMenus && currentEffectiveMenus.length > 0) {
+            buildMenu(currentEffectiveMenus, false);
+            // Garantir que todos submenus fiquem ocultos ao montar
+            menuEl.querySelectorAll(".dropdown, .sub-dropdown").forEach(d => {
+                d.style.display = "none";
+            });
+        }
+    };
+
+    renderMenuContent();
+
+    const handleButtonClick = (e) => {
         e.stopPropagation();
+        const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
+            ? Desktop.getEffectiveStartMenus()
+            : menus;
+
+        if (!currentEffectiveMenus || currentEffectiveMenus.length === 0) {
+            return;
+        }
+
         const app = document.getElementById("app");
         const isMobile = (Desktop && typeof Desktop.isMobile === 'function' && Desktop.isMobile()) ||
                          app?.classList.contains("mobile-mode") ||
                          window.innerWidth <= 768;
         if (isMobile) {
-            menuEl.classList.remove("show");
+            closeStartMenu();
             openMobileMenuDrawer({
-                menus,
+                menus: currentEffectiveMenus,
                 title: "Início",
                 icon: "☰"
             });
             return;
         }
-        menuEl.classList.toggle("show");
+        if (menuEl.classList.contains("show")) {
+            closeStartMenu();
+        } else {
+            // Posicionamento dinâmico ancorado ao botão que disparou
+            const btnEl = e.currentTarget || e.target;
+            const btnRect = btnEl ? btnEl.getBoundingClientRect() : null;
+            const tbPos = app?.dataset?.taskbar || (Desktop && typeof Desktop.getTaskbarPosition === 'function' ? Desktop.getTaskbarPosition() : 'bottom');
+            
+            // Limpa propriedades anteriores
+            menuEl.style.removeProperty("top");
+            menuEl.style.removeProperty("bottom");
+            menuEl.style.removeProperty("left");
+            menuEl.style.removeProperty("right");
+
+            if (btnRect) {
+                const pad = 4;
+                if (tbPos === "left") {
+                    menuEl.style.setProperty("top", `${Math.max(4, btnRect.top)}px`, "important");
+                    menuEl.style.setProperty("left", `${btnRect.right + pad}px`, "important");
+                    menuEl.style.setProperty("bottom", "auto", "important");
+                    menuEl.style.setProperty("right", "auto", "important");
+                } else if (tbPos === "right") {
+                    menuEl.style.setProperty("top", `${Math.max(4, btnRect.top)}px`, "important");
+                    menuEl.style.setProperty("right", `${(window.innerWidth - btnRect.left) + pad}px`, "important");
+                    menuEl.style.setProperty("left", "auto", "important");
+                    menuEl.style.setProperty("bottom", "auto", "important");
+                } else if (tbPos === "top") {
+                    menuEl.style.setProperty("top", `${btnRect.bottom + pad}px`, "important");
+                    menuEl.style.setProperty("left", `${Math.max(4, btnRect.left)}px`, "important");
+                    menuEl.style.setProperty("bottom", "auto", "important");
+                    menuEl.style.setProperty("right", "auto", "important");
+                } else {
+                    // bottom
+                    menuEl.style.setProperty("bottom", `${(window.innerHeight - btnRect.top) + pad}px`, "important");
+                    menuEl.style.setProperty("left", `${Math.max(4, btnRect.left)}px`, "important");
+                    menuEl.style.setProperty("top", "auto", "important");
+                    menuEl.style.setProperty("right", "auto", "important");
+                }
+            }
+
+            menuEl.classList.add("show");
+        }
     };
 
+    const attachButtonListener = () => {
+        const targetIds = [buttonId, "startBtn", "taskStartBtn"].filter(Boolean);
+        for (const id of targetIds) {
+            const el = document.getElementById(id);
+            if (el && !el._startMenuBound) {
+                el.onclick = handleButtonClick;
+                el._startMenuBound = true;
+            }
+        }
+    };
+
+    attachButtonListener();
+
+    // Sincroniza dinamicamente quando o Desktop emite sincronização de menus
+    import('./core.js').then(({ EventBus }) => {
+        EventBus.on("startmenu:sync", (data) => {
+            renderMenuContent();
+            attachButtonListener();
+        });
+    });
+
     document.addEventListener("click", e => {
-        if (!menuEl.contains(e.target) && e.target !== btn) {
-            menuEl.classList.remove("show");
+        const currentBtn = document.getElementById(buttonId) || document.querySelector('.taskStart[data-role="start-button"]');
+        if (!menuEl.contains(e.target) && (!currentBtn || e.target !== currentBtn && !currentBtn.contains(e.target))) {
+            closeStartMenu();
         }
     });
     
@@ -2263,7 +2416,6 @@ export function DockWidget({
     return dock;
 }
 
-// --- FLOAT BUTTON (FAB / SPEED DIAL / QUICK ACTIONS) ---
 export function FloatButton({
     icon = "⚡",
     activeIcon = "✕",
@@ -2273,6 +2425,7 @@ export function FloatButton({
     size = "52px",
     shape = "circle",          // 'circle', 'square', 'rounded'
     actions = [],              // [{ icon, label, variant, action: (btn, e) => {} }]
+    draggable = false,         // Booleano para permitir arrastar o botão livremente pela tela
     onClick = null,
     instance = null,
     targetContainer = null
@@ -2280,7 +2433,7 @@ export function FloatButton({
     const isLocal = !!instance && !targetContainer;
     let target = targetContainer || (instance?.element) || document.getElementById("app") || document.body;
 
-    const wrap = createElement("div", `ui-float-button-wrap pos-${position} ${isLocal ? 'is-local' : 'is-global'}`);
+    const wrap = createElement("div", `ui-float-button-wrap pos-${position} ${isLocal ? 'is-local' : 'is-global'} ${draggable ? 'is-draggable' : ''}`);
     
     // Contêiner de ações em cascata (Speed Dial)
     const dial = createElement("div", `ui-float-dial dial-${position.startsWith('top') ? 'down' : 'up'}`);
@@ -2327,8 +2480,98 @@ export function FloatButton({
     mainBtn.appendChild(iconSpan);
     if (actions.length > 0) mainBtn.appendChild(activeIconSpan);
 
+    let isDragging = false;
+    let dragThresholdPassed = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+
+    if (draggable) {
+        const onPointerDown = (e) => {
+            if (e.button !== undefined && e.button !== 0) return; // apenas clique primário
+            isDragging = true;
+            dragThresholdPassed = false;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+            const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+            
+            startX = clientX;
+            startY = clientY;
+
+            const rect = wrap.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            const onPointerMove = (moveEvent) => {
+                if (!isDragging) return;
+                const curX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientX : 0);
+                const curY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientY : 0);
+                
+                const deltaX = curX - startX;
+                const deltaY = curY - startY;
+
+                if (!dragThresholdPassed && (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4)) {
+                    dragThresholdPassed = true;
+                    wrap.classList.add("dragging");
+                    // Limpa posicionamentos fixos de classe
+                    wrap.style.setProperty("bottom", "auto", "important");
+                    wrap.style.setProperty("right", "auto", "important");
+                }
+
+                if (dragThresholdPassed) {
+                    const parentRect = target === document.body || target === document.getElementById("app") 
+                        ? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
+                        : target.getBoundingClientRect();
+
+                    let newLeft = initialLeft + deltaX;
+                    let newTop = initialTop + deltaY;
+
+                    // Confinar dentro dos limites da tela ou contêiner
+                    const maxLeft = parentRect.left + parentRect.width - wrap.offsetWidth;
+                    const maxTop = parentRect.top + parentRect.height - wrap.offsetHeight;
+
+                    newLeft = Math.max(parentRect.left, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(parentRect.top, Math.min(newTop, maxTop));
+
+                    wrap.style.setProperty("left", `${newLeft}px`, "important");
+                    wrap.style.setProperty("top", `${newTop}px`, "important");
+
+                    // Ajusta direção do dial dinamicamente se estiver muito no topo da tela
+                    if (newTop < 180) {
+                        dial.classList.remove("dial-up");
+                        dial.classList.add("dial-down");
+                    } else {
+                        dial.classList.remove("dial-down");
+                        dial.classList.add("dial-up");
+                    }
+                }
+            };
+
+            const onPointerUp = () => {
+                isDragging = false;
+                wrap.classList.remove("dragging");
+                window.removeEventListener("mousemove", onPointerMove);
+                window.removeEventListener("mouseup", onPointerUp);
+                window.removeEventListener("touchmove", onPointerMove);
+                window.removeEventListener("touchend", onPointerUp);
+            };
+
+            window.addEventListener("mousemove", onPointerMove, { passive: false });
+            window.addEventListener("mouseup", onPointerUp);
+            window.addEventListener("touchmove", onPointerMove, { passive: false });
+            window.addEventListener("touchend", onPointerUp);
+        };
+
+        mainBtn.addEventListener("mousedown", onPointerDown);
+        mainBtn.addEventListener("touchstart", onPointerDown, { passive: true });
+    }
+
     mainBtn.onclick = (e) => {
         e.stopPropagation();
+        if (dragThresholdPassed) {
+            dragThresholdPassed = false;
+            return; // se foi arrasto, não dispara o clique/abertura
+        }
+
         if (actions.length > 0) {
             wrap.classList.toggle("open");
         }
@@ -2354,6 +2597,12 @@ export function FloatButton({
         close: () => wrap.classList.remove("open"),
         toggle: () => wrap.classList.toggle("open"),
         isOpen: () => wrap.classList.contains("open"),
+        setPosition: (x, y) => {
+            wrap.style.setProperty("left", `${x}px`, "important");
+            wrap.style.setProperty("top", `${y}px`, "important");
+            wrap.style.setProperty("bottom", "auto", "important");
+            wrap.style.setProperty("right", "auto", "important");
+        },
         destroy: () => wrap.remove()
     };
 

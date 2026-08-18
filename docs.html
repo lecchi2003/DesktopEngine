@@ -340,9 +340,9 @@
             <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
-            <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
             <a href="#look-and-feel">Look and Feel (34 Skins)</a>
             <a href="#temas-paletas">Temas e Paletas de Cores</a>
+            <a href="#config-export-load">Exportar &amp; Carregar Configurações (JSON)</a>
             <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
             <a href="#contextmenu">ContextMenu &amp; bindContextMenu</a>
@@ -1910,6 +1910,12 @@ dock.setBadge(1);</code></pre>
                         <td>Formato: <code>"circle"</code> (redondo), <code>"rounded"</code> (squircle), <code>"square"</code> (quadrado).</td>
                     </tr>
                     <tr>
+                        <td><code>draggable</code></td>
+                        <td><code>Boolean</code></td>
+                        <td><code>false</code></td>
+                        <td>Permite que o usuário arraste livremente o botão pelo Desktop ou dentro da janela (com suporte a Touch/Mouse e sem conflito com o clique).</td>
+                    </tr>
+                    <tr>
                         <td><code>actions</code></td>
                         <td><code>Array</code></td>
                         <td><code>[]</code></td>
@@ -1921,12 +1927,13 @@ dock.setBadge(1);</code></pre>
             <div class="code-box">
                 <pre><code>import { FloatButton } from './ui.js';
 
-// Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial
+// Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial & Arrastável
 FloatButton({
     icon: "⚡",
     tooltip: "Navegação Rápida",
     position: "bottom-right",
     variant: "primary",
+    draggable: true, // Habilita movimentação livre por arrasto
     actions: [
         {
             icon: "📊",
@@ -1948,22 +1955,22 @@ FloatButton({
 
             <!-- SEÇÃO: MENUS GLOBAIS -->
             <h2 id="menus-globais">Menus Globais (MenuBar e StartMenu)</h2>
-            <p>O framework suporta os dois paradigmas clássicos de sistemas operacionais:</p>
+            <p>O framework suporta os dois paradigmas clássicos de sistemas operacionais, com total integração e acoplamento dinâmico:</p>
             <ul>
                 <li><strong>StartMenu (Estilo Windows):</strong> Menu inicial ancorado no botão da taskbar.</li>
-                <li><strong>MenuBar (Estilo macOS / Desktop Pro):</strong> Barra de menus fixa no topo com submenus em
-                    cascata (hover).</li>
+                <li><strong>MenuBar (Estilo macOS / Desktop Pro):</strong> Barra de menus fixa no topo (ou laterais/rodapé) com submenus em cascata (hover).</li>
+                <li><strong>Acoplamento Dinâmico Inteligente:</strong> Ao alternar o modo do MenuBar para <code>"startmenu"</code>, caso não haja um Menu Iniciar previamente definido, o framework <strong>cria dinamicamente o botão Iniciar</strong> na barra de tarefas para alocá-lo. Ao desacoplar (<code>"separate"</code>), o botão é removido. Caso já exista um Menu Iniciar configurado, ambos os menus são <strong>mesclados automaticamente no primeiro nível</strong>. Se o botão Iniciar não possuir itens acoplados a ele, ele não é exibido. Funciona de forma 100% idêntica e responsiva em <strong>Desktop</strong> (popups em cascata) e <strong>Mobile</strong> (Drawer deslizante).</li>
             </ul>
 
             <div class="code-box">
                 <pre><code>import { MenuBar, StartMenu } from './ui.js';
 
-// Exemplo de estrutura de menu reutilizável
-const meusMenus = [
+// Exemplo 1: Estrutura do MenuBar
+const menusBarra = [
     {
         label: "Arquivo",
         items: [
-            { label: "Nova Janela", action: () => Desktop.open(MinhaJanelaInstance) },
+            { label: "Nova Janela", action: () => Desktop.openScreen("editor") },
             "separator",
             { label: "Sair", action: () => alert("Saindo...") }
         ]
@@ -1977,19 +1984,30 @@ const meusMenus = [
     }
 ];
 
+// Exemplo 2: Estrutura do StartMenu
+const menusIniciar = [
+    {
+        label: "Aplicativos",
+        items: [
+            { label: "📊 Painel de Controle", screen: "dashboard" },
+            { label: "📝 Editor de Texto", screen: "editor" }
+        ]
+    }
+];
+
 // Invocando no MenuBar com posição customizável ("top", "bottom", "left", "right"):
 MenuBar({
     containerId: "menubar",
-    position: "top", // Posição do MenuBar. Se Taskbar também estiver no topo, a Taskbar fica acima e o MenuBar logo abaixo!
-    menus: meusMenus
+    position: "top", // Se Taskbar também estiver no topo, a Taskbar fica acima e o MenuBar logo abaixo!
+    menus: menusBarra
 });
 
-// Ou no StartMenu (Menu Iniciar na Barra de Tarefas):
-StartMenu({ buttonId: "btnStart", menus: meusMenus });
+// StartMenu nativo na Barra de Tarefas (opcional):
+StartMenu({ buttonId: "startBtn", menus: menusIniciar });
 
 // Alternando dinamicamente onde o MenuBar deve ficar:
-Desktop.setMenuBarMode("separate");  // Exibe como barra de menus separada no desktop
-Desktop.setMenuBarMode("startmenu"); // Oculta a barra separada e mantém os menus apenas no botão Iniciar
+Desktop.setMenuBarMode("startmenu"); // Mescla menusBarra com menusIniciar no primeiro nível do Menu Iniciar (ou cria o botão Iniciar caso não exista)
+Desktop.setMenuBarMode("separate");  // Desacopla: restaura o Menu Iniciar original e reexibe a barra separada
 Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "none"</code></pre>
             </div>
 
@@ -2879,6 +2897,43 @@ Desktop.setTheme("sunset");</code></pre>
                     </tr>
                 </tbody>
             </table>
+
+            <!-- SEÇÃO: EXPORTAR E CARREGAR CONFIGURAÇÕES -->
+            <h2 id="config-export-load">Exportar &amp; Carregar Configurações do Ambiente (JSON)</h2>
+            <p>O framework fornece métodos nativos e convenientes para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string <code>JSON</code> (ideal para salvar em banco de dados, perfil do usuário ou arquivos de configuração) e recarregá-lo instantaneamente:</p>
+
+            <div class="code-box">
+                <pre><code>import { Desktop } from './desktop.js';
+
+// 1. Extrair configuração atual como String JSON formatada
+const jsonConfig = Desktop.exportConfig(true);
+console.log(jsonConfig);
+/* Exemplo de saída gerada:
+{
+  "theme": "dark",
+  "lookAndFeel": "aqua-frosted",
+  "taskbarPosition": "bottom",
+  "menubarPosition": "top",
+  "menubarMode": "separate",
+  "responsiveMode": "auto",
+  "showDesktopButton": true
+}
+*/
+
+// 2. Extrair configuração como Objeto JavaScript puro
+const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+
+// 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
+Desktop.loadConfig(jsonConfig);
+
+// Também aceita objeto diretamente e controla se deve persistir no localStorage:
+Desktop.loadConfig({
+    theme: "midnight",
+    lookAndFeel: "fluent-acrylic",
+    taskbarPosition: "left",
+    menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
+}, true);</code></pre>
+            </div>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
             <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção
