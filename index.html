@@ -15,7 +15,8 @@
             <div id="windows"></div>
         </div>
         <div id="taskbar">
-            <button class="taskStart" id="showDesktop">Desktop</button>
+            <button class="taskStart" id="startBtn">Iniciar</button>
+            <button class="taskShowDesktop" id="showDesktop" title="Mostrar Área de Trabalho">🖥️</button>
             <div class="taskWindows" id="taskWindows"></div>
             <div class="clock" id="clock"></div>
         </div>
@@ -25,7 +26,7 @@
         import { Framework } from './core.js';
         import { Desktop } from './desktop.js';
         import {
-            MenuBar, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
+            MenuBar, StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
             Form, Input, Textarea, Select, Checkbox, Toggle, Button,
             Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
             Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
@@ -36,7 +37,8 @@
         Desktop.init({
             windowsContainerId: "windows",
             taskbarContainerId: "taskWindows",
-            taskbarPosition: "bottom", // Pode ser 'top', 'bottom', 'left', 'right'
+            taskbarPosition: "right", // Pode ser 'top', 'bottom', 'left', 'right'
+            startButtonId: "startBtn",
             showDesktopButton: true
         });
 
@@ -48,158 +50,167 @@
 
         document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
 
+        // --- ESTRUTURA GLOBAL DA ÁRVORE DE MENUS ---
+        const globalSystemMenus = [
+            {
+                label: "📐 Exemplos de Telas",
+                items: [
+                    { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
+                    { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
+                    { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
+                    { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
+                    { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
+                    "separator",
+                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
+                    "separator",
+                    { label: "🖥️ Layout macOS (index.html) [Atual]", action: () => Desktop.openScreen("hub_arquiteturas") },
+                    { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
+                    { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
+                ]
+            },
+            {
+                label: "Módulos",
+                items: [
+                    { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
+                    "separator",
+                    { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
+                    { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
+                    { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
+                    { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
+                    { label: "Editor de Documentos (Window MenuBar)", screen: "editor" },
+                    { label: "Painel de Controle (Lazy)", screen: "dashboard" },
+                    { label: "Listagem Avançada (DataGrid) (Lazy)", screen: "datagrid" },
+                    { label: "Navegador Web (Window MenuBar)", screen: "browser" },
+                    { label: "Formulários e Cadastros", screen: "forms" },
+                    { label: "Gerenciador de Tarefas", screen: "tasks" },
+                    { label: "Showcase de Componentes", screen: "showcase" }
+                ]
+            },
+            {
+                label: "Exibir",
+                items: [
+                    { label: "📱 Alternar Modo Mobile / Desktop", action: () => Desktop.toggleMobileMode() },
+                    "separator",
+                    { label: "Organizar Janelas em Grade", action: () => Desktop.arrangeWindows() },
+                    { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+                ]
+            },
+            {
+                label: "Sistema",
+                items: [
+                    {
+                        label: "Preferências",
+                        items: [
+                            { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
+                            {
+                                label: "📱 Modo Responsivo",
+                                items: [
+                                    { label: "📱 Forçar Modo Mobile (Empilhado)", action: () => Desktop.setMobileMode("mobile") },
+                                    { label: "🖥️ Forçar Modo Desktop (Flutuante)", action: () => Desktop.setMobileMode("desktop") },
+                                    { label: "🔄 Detecção Automática (Viewport)", action: () => Desktop.setMobileMode("auto") }
+                                ]
+                            },
+                            {
+                                label: "Paleta de Cores",
+                                items: [
+                                    { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
+                                    { label: "Slate Dark", action: () => Desktop.setTheme("dark") },
+                                    { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
+                                    { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
+                                    { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
+                                    { label: "Alto Contraste (Windows Classic)", action: () => Desktop.setTheme("contrast") }
+                                ]
+                            },
+                            {
+                                label: "Look and Feel (Skins de Interface)",
+                                items: [
+                                    {
+                                        label: "📱 & 💻 Modernos & Translúcidos",
+                                        items: [
+                                            { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
+                                            { label: "🍎 Aqua Frosted (Vidro Fosco)", action: () => Desktop.setLookAndFeel("aqua-frosted") },
+                                            { label: "🪟 Fluent Acrylic (Acrílico)", action: () => Desktop.setLookAndFeel("fluent-acrylic") },
+                                            { label: "🤖 Material Tonal (Dynamic)", action: () => Desktop.setLookAndFeel("material-tonal") },
+                                            { label: "🍏 Cupertino Touch (Fluid)", action: () => Desktop.setLookAndFeel("cupertino-touch") },
+                                            { label: "🌌 One Touch (Curvas)", action: () => Desktop.setLookAndFeel("one-touch") },
+                                            { label: "🔲 Flat Tiles (Modern UI)", action: () => Desktop.setLookAndFeel("flat-tiles") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🥽 & 🫧 Espacial & Tátil",
+                                        items: [
+                                            { label: "🥽 Spatial Glass (Imersivo)", action: () => Desktop.setLookAndFeel("spatial-glass") },
+                                            { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
+                                            { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
+                                        ]
+                                    },
+                                    {
+                                        label: "☕ Ecossistema Swing & Java",
+                                        items: [
+                                            { label: "☕ Steel Metal (Classic Swing)", action: () => Desktop.setLookAndFeel("steel-metal") },
+                                            { label: "🌊 Ocean Metal (Steel Blue)", action: () => Desktop.setLookAndFeel("ocean-metal") },
+                                            { label: "✨ Nimbus Vector (Vibrant)", action: () => Desktop.setLookAndFeel("nimbus-vector") },
+                                            { label: "🎨 Modern IDE (Studio Dark/Light)", action: () => Desktop.setLookAndFeel("flatlaf-ide") },
+                                            { label: "🌿 Modena Soft (Enterprise)", action: () => Desktop.setLookAndFeel("modena-soft") },
+                                            { label: "🔷 Caspian Slate (Dark Blue)", action: () => Desktop.setLookAndFeel("caspian-dark") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🕹️ Clássicos & Retro 3D",
+                                        items: [
+                                            { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
+                                            { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
+                                            { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
+                                            { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
+                                            { label: "⬛ Dark Slate Cube (Workstation)", action: () => Desktop.setLookAndFeel("next-dark") },
+                                            { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
+                                            { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
+                                            { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
+                                        ]
+                                    },
+                                    {
+                                        label: "🐧 Desktops Unix & Abertos",
+                                        items: [
+                                            { label: "🟠 Aubergine Orange (Humanist)", action: () => Desktop.setLookAndFeel("aubergine-orange") },
+                                            { label: "🕊️ Pantheon Pure (Light Minimal)", action: () => Desktop.setLookAndFeel("pantheon-pure") },
+                                            { label: "🚀 Cosmic Teal (Modern Desktop)", action: () => Desktop.setLookAndFeel("cosmic-teal") },
+                                            { label: "🪟 Tiling Grid (Minimal Tiling)", action: () => Desktop.setLookAndFeel("tiling-grid") },
+                                            { label: "🐭 Greybird Lite (Lightweight)", action: () => Desktop.setLookAndFeel("greybird-lite") },
+                                            { label: "🌌 Fusion Neon (Compositor)", action: () => Desktop.setLookAndFeel("e-fusion") },
+                                            { label: "⬛ X11 Dark Box (NeXT-Style)", action: () => Desktop.setLookAndFeel("x11-box") },
+                                            { label: "🟣 Motif Panel (UNIX CDE)", action: () => Desktop.setLookAndFeel("motif-panel") },
+                                            { label: "🐧 Adwaita Slate (Clean Flat)", action: () => Desktop.setLookAndFeel("adwaita-slate") },
+                                            { label: "⚙️ Breeze Plasma (Glass Glow)", action: () => Desktop.setLookAndFeel("breeze-plasma") }
+                                        ]
+                                    },
+                                    {
+                                        label: "💻 Console & Sci-Fi",
+                                        items: [
+                                            { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
+                                            { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
+                                        ]
+                                    }
+                                ]
+                            },
+                            { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
+                        ]
+                    },
+                    "separator",
+                    { label: "Sobre (Lazy Load)", screen: "sobre" }
+                ]
+            }
+        ];
+
+        // --- MENU INICIAR (TASKBAR) ---
+        StartMenu({
+            buttonId: "startBtn",
+            menus: globalSystemMenus
+        });
+
         // --- MENU BAR (TOPO) ---
         MenuBar({
             containerId: "menubar",
-            menus: [
-                {
-                    label: "📐 Exemplos de Telas",
-                    items: [
-                        { label: "⚡ 1. Criação Direta (Inline)", action: () => window.location.href = 'index-direct.html' },
-                        { label: "📦 2. Lazy Loading Modular", action: () => window.location.href = 'index-lazy.html' },
-                        { label: "🏭 3. Factory / Geradores", action: () => window.location.href = 'index-factory.html' },
-                        { label: "🏛️ 4. Classes ES6 (OOP)", action: () => window.location.href = 'index-class.html' },
-                        { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
-                        "separator",
-                        { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                        "separator",
-                        { label: "🖥️ Layout macOS (index.html) [Atual]", action: () => Desktop.openScreen("hub_arquiteturas") },
-                        { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
-                        { label: "📚 Documentação Oficial", action: () => window.location.href = 'docs.html' }
-                    ]
-                },
-                {
-                    label: "Módulos",
-                    items: [
-                        { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
-                        "separator",
-                        { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
-                        { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
-                        { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
-                        { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
-                        { label: "Editor de Documentos (Window MenuBar)", screen: "editor" },
-                        { label: "Painel de Controle (Lazy)", screen: "dashboard" },
-                        { label: "Listagem Avançada (DataGrid) (Lazy)", screen: "datagrid" },
-                        { label: "Navegador Web (Window MenuBar)", screen: "browser" },
-                        { label: "Formulários e Cadastros", screen: "forms" },
-                        { label: "Gerenciador de Tarefas", screen: "tasks" },
-                        { label: "Showcase de Componentes", screen: "showcase" }
-                    ]
-                },
-                {
-                    label: "Exibir",
-                    items: [
-                        { label: "📱 Alternar Modo Mobile / Desktop", action: () => Desktop.toggleMobileMode() },
-                        "separator",
-                        { label: "Organizar Janelas em Grade", action: () => Desktop.arrangeWindows() },
-                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
-                    ]
-                },
-                {
-                    label: "Sistema",
-                    items: [
-                        {
-                            label: "Preferências",
-                            items: [
-                                { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
-                                {
-                                    label: "📱 Modo Responsivo",
-                                    items: [
-                                        { label: "📱 Forçar Modo Mobile (Empilhado)", action: () => Desktop.setMobileMode("mobile") },
-                                        { label: "🖥️ Forçar Modo Desktop (Flutuante)", action: () => Desktop.setMobileMode("desktop") },
-                                        { label: "🔄 Detecção Automática (Viewport)", action: () => Desktop.setMobileMode("auto") }
-                                    ]
-                                },
-                                {
-                                    label: "Paleta de Cores",
-                                    items: [
-                                        { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
-                                        { label: "Slate Dark", action: () => Desktop.setTheme("dark") },
-                                        { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
-                                        { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
-                                        { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                        { label: "Alto Contraste (Windows Classic)", action: () => Desktop.setTheme("contrast") }
-                                    ]
-                                },
-                                {
-                                    label: "Look and Feel (Aparência do SO)",
-                                    items: [
-                                        {
-                                            label: "📱 & 💻 Modernos & Mobile",
-                                            items: [
-                                                { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
-                                                { label: "🍎 macOS (Aqua Modern)", action: () => Desktop.setLookAndFeel("macos") },
-                                                { label: "🪟 Windows 11 (Fluent)", action: () => Desktop.setLookAndFeel("win11") },
-                                                { label: "🤖 Material You (Android M3)", action: () => Desktop.setLookAndFeel("material3") },
-                                                { label: "🍏 Cupertino (iOS 18)", action: () => Desktop.setLookAndFeel("cupertino") },
-                                                { label: "🌌 Samsung One UI", action: () => Desktop.setLookAndFeel("oneui") },
-                                                { label: "🪟 Windows Metro (Flat)", action: () => Desktop.setLookAndFeel("metro") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🥽 & 🫧 Espacial & Tátil",
-                                            items: [
-                                                { label: "🥽 Apple VisionOS", action: () => Desktop.setLookAndFeel("visionos") },
-                                                { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
-                                                { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
-                                            ]
-                                        },
-                                        {
-                                            label: "☕ Ecossistema Java",
-                                            items: [
-                                                { label: "☕ Java Metal (Steel Classic)", action: () => Desktop.setLookAndFeel("java-metal") },
-                                                { label: "🌊 Java Ocean (Metal 2.0)", action: () => Desktop.setLookAndFeel("java-ocean") },
-                                                { label: "✨ Java Nimbus", action: () => Desktop.setLookAndFeel("java-nimbus") },
-                                                { label: "🎨 FlatLaf (IDE IntelliJ)", action: () => Desktop.setLookAndFeel("java-flatlaf") },
-                                                { label: "🌿 JavaFX Modena", action: () => Desktop.setLookAndFeel("javafx-modena") },
-                                                { label: "🔷 JavaFX Caspian", action: () => Desktop.setLookAndFeel("javafx-caspian") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🕹️ Clássicos & Retrô",
-                                            items: [
-                                                { label: "🟡 BeOS / Haiku OS", action: () => Desktop.setLookAndFeel("beos") },
-                                                { label: "🕹️ Windows 98 (Classic 3D)", action: () => Desktop.setLookAndFeel("win98") },
-                                                { label: "🔵 Windows XP (Luna)", action: () => Desktop.setLookAndFeel("winxp") },
-                                                { label: "🪟 Windows 7 (Aero Glass)", action: () => Desktop.setLookAndFeel("win7") },
-                                                { label: "⬛ NeXTSTEP / OpenStep", action: () => Desktop.setLookAndFeel("nextstep") },
-                                                { label: "💾 AmigaOS (Workbench)", action: () => Desktop.setLookAndFeel("amiga") },
-                                                { label: "🍏 Mac OS System 7", action: () => Desktop.setLookAndFeel("mac-classic") },
-                                                { label: "🟦 OS/2 Warp (IBM)", action: () => Desktop.setLookAndFeel("os2-warp") }
-                                            ]
-                                        },
-                                        {
-                                            label: "🐧 UNIX & Linux",
-                                            items: [
-                                                { label: "🟠 Ubuntu (Yaru)", action: () => Desktop.setLookAndFeel("ubuntu") },
-                                                { label: "🕊️ Elementary OS (Pantheon)", action: () => Desktop.setLookAndFeel("elementary") },
-                                                { label: "🚀 Pop!_OS (COSMIC)", action: () => Desktop.setLookAndFeel("pop-cosmic") },
-                                                { label: "🪟 i3wm / Sway (Tiling)", action: () => Desktop.setLookAndFeel("i3wm") },
-                                                { label: "🐭 XFCE (Greybird)", action: () => Desktop.setLookAndFeel("xfce") },
-                                                { label: "🌌 Enlightenment (E25)", action: () => Desktop.setLookAndFeel("enlightenment") },
-                                                { label: "⬛ Window Maker (X11)", action: () => Desktop.setLookAndFeel("windowmaker") },
-                                                { label: "🟣 CDE / Motif (Solaris)", action: () => Desktop.setLookAndFeel("cde-motif") },
-                                                { label: "🐧 GNOME (Adwaita)", action: () => Desktop.setLookAndFeel("gnome") },
-                                                { label: "⚙️ KDE (Breeze)", action: () => Desktop.setLookAndFeel("kde") }
-                                            ]
-                                        },
-                                        {
-                                            label: "💻 TUI & Sci-Fi",
-                                            items: [
-                                                { label: "📟 Turbo Vision (DOS TUI)", action: () => Desktop.setLookAndFeel("turbovision") },
-                                                { label: "⚡ Cyberpunk HUD", action: () => Desktop.setLookAndFeel("cyberpunk") }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
-                            ]
-                        },
-                        "separator",
-                        { label: "Sobre (Lazy Load)", screen: "sobre" }
-                    ]
-                }
-            ]
+            menus: globalSystemMenus
         });
 
         document.getElementById("desktop").addEventListener("contextmenu", (e) => {
@@ -464,29 +475,29 @@
                                     Card({
                                         title: "Aparência e Look & Feel do Sistema", children: [
                                             Select({
-                                                label: "Look and Feel (Skin do SO)", bind: "laf", instance: this, options: [
+                                                label: "Look and Feel (Design do Sistema)", bind: "laf", instance: this, options: [
                                                     { label: "✨ Padrão (DesktopEngine Modern)", value: "default" },
-                                                    { label: "🍎 macOS (Aqua Modern - Semáforo Esq.)", value: "macos" },
-                                                    { label: "🪟 Windows 11 (Fluent Design)", value: "win11" },
-                                                    { label: "☕ Java Metal (Steel Classic)", value: "java-metal" },
-                                                    { label: "🌊 Java Ocean (Metal 2.0)", value: "java-ocean" },
-                                                    { label: "✨ Java Nimbus (Vetor & Ouro)", value: "java-nimbus" },
-                                                    { label: "🎨 FlatLaf (IDE IntelliJ/NetBeans)", value: "java-flatlaf" },
-                                                    { label: "🌿 JavaFX Modena (Modern Neutral)", value: "javafx-modena" },
-                                                    { label: "🔷 JavaFX Caspian (Dark Blue Glass)", value: "javafx-caspian" },
-                                                    { label: "🟡 BeOS / Haiku (Aba Amarela Topo)", value: "beos" },
-                                                    { label: "🕹️ Windows 98 (Classic 3D Outset)", value: "win98" },
-                                                    { label: "🔵 Windows XP (Luna Blue & Red)", value: "winxp" },
-                                                    { label: "🪟 Windows 7 (Aero Glass Translúcido)", value: "win7" },
-                                                    { label: "⬛ NeXTSTEP / OpenStep (3D Monocromático)", value: "nextstep" },
-                                                    { label: "💾 AmigaOS (Workbench 4-Cores)", value: "amiga" },
-                                                    { label: "🍏 Mac OS System 7 (Pinstripes Retrô)", value: "mac-classic" },
-                                                    { label: "🟦 OS/2 Warp (IBM Corporate 3D)", value: "os2-warp" },
-                                                    { label: "🟣 CDE / Motif (Solaris UNIX)", value: "cde-motif" },
-                                                    { label: "🐧 GNOME (Adwaita Headerbar)", value: "gnome" },
-                                                    { label: "⚙️ KDE (Breeze Vector Accent)", value: "kde" },
-                                                    { label: "📟 Turbo Vision (DOS TUI Monospace)", value: "turbovision" },
-                                                    { label: "⚡ Cyberpunk HUD (Neon Chamfered)", value: "cyberpunk" }
+                                                    { label: "🍎 Aqua Frosted (Vidro Fosco)", value: "aqua-frosted" },
+                                                    { label: "🪟 Fluent Acrylic (Acrílico Moderno)", value: "fluent-acrylic" },
+                                                    { label: "☕ Steel Metal (Classic Swing)", value: "steel-metal" },
+                                                    { label: "🌊 Ocean Metal (Steel Blue)", value: "ocean-metal" },
+                                                    { label: "✨ Nimbus Vector (Vibrant)", value: "nimbus-vector" },
+                                                    { label: "🎨 FlatLaf IDE (Studio Dark/Light)", value: "flatlaf-ide" },
+                                                    { label: "🌿 Modena Soft (Enterprise)", value: "modena-soft" },
+                                                    { label: "🔷 Caspian Slate (Dark Blue)", value: "caspian-dark" },
+                                                    { label: "🟡 Yellow Tab (Media Style)", value: "yellow-tab" },
+                                                    { label: "🕹️ Retro 3D (Chanfrado)", value: "retro-3d" },
+                                                    { label: "🔵 Luna Blue (Azul & Verde)", value: "luna-blue" },
+                                                    { label: "🪟 Aero Glass (Translúcido)", value: "aero-glass" },
+                                                    { label: "⬛ Next Dark (Step Style)", value: "next-dark" },
+                                                    { label: "💾 Workbench Boing (Retro Cores)", value: "workbench-boing" },
+                                                    { label: "🍏 Platinum Classic (Monocromático)", value: "platinum-classic" },
+                                                    { label: "🟦 Warp Enterprise (Cobalt)", value: "warp-enterprise" },
+                                                    { label: "🟣 Motif Panel (UNIX CDE)", value: "motif-panel" },
+                                                    { label: "🐧 Adwaita Slate (Clean Flat)", value: "adwaita-slate" },
+                                                    { label: "⚙️ Breeze Plasma (Glass Glow)", value: "breeze-plasma" },
+                                                    { label: "📟 Turbo TUI (DOS Console)", value: "turbo-tui" },
+                                                    { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" }
                                                 ]
                                             }),
                                             RadioGroup({

@@ -534,6 +534,115 @@ export function bindContextMenu(element, items = []) {
     }, { passive: true });
 }
 
+// --- Mobile Hamburger & Drawer Engine Compartilhado ---
+export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal", icon = "📱", windowInstance = null } = {}) {
+    document.querySelectorAll(".menubar-mobile-drawer-backdrop").forEach(d => d.remove());
+    
+    const backdrop = createElement("div", "menubar-mobile-drawer-backdrop", []);
+    const drawer = createElement("div", "menubar-mobile-drawer", [
+        createElement("div", "drawer-header", [
+            createElement("div", "drawer-title", [`${icon} ${title}`]),
+            createElement("button", "drawer-close-btn", ["✕"])
+        ]),
+        createElement("div", "drawer-content", [])
+    ]);
+
+    const closeDrawer = () => {
+        drawer.classList.remove("open");
+        backdrop.classList.remove("show");
+        setTimeout(() => backdrop.remove(), 250);
+    };
+
+    drawer.querySelector(".drawer-close-btn").onclick = closeDrawer;
+    backdrop.onclick = (e) => {
+        if (e.target === backdrop) closeDrawer();
+    };
+
+    const buildMobileItems = (items, closeFn) => {
+        const list = createElement("div", "drawer-item-list", []);
+        items.forEach(subItem => {
+            if (subItem === "separator") {
+                list.appendChild(createElement("div", "drawer-sep", []));
+            } else {
+                const optChildren = [];
+                if (subItem.icon) optChildren.push(createElement("span", "drawer-opt-icon", [subItem.icon]));
+                optChildren.push(createElement("span", "drawer-opt-label", [subItem.label || ""]));
+                if (subItem.items && subItem.items.length > 0) {
+                    optChildren.push(createElement("span", "drawer-accordion-arrow", ["▼"]));
+                }
+
+                const opt = createElement("div", "drawer-option", optChildren);
+                if (subItem.disabled) opt.classList.add("disabled");
+
+                if (subItem.items && subItem.items.length > 0) {
+                    opt.classList.add("drawer-has-sub");
+                    const subList = buildMobileItems(subItem.items, closeFn);
+                    subList.style.display = "none";
+
+                    opt.onclick = (ev) => {
+                        ev.stopPropagation();
+                        const isOpen = subList.style.display === "flex";
+                        subList.style.display = isOpen ? "none" : "flex";
+                        opt.classList.toggle("expanded", !isOpen);
+                    };
+
+                    const group = createElement("div", "drawer-group", [opt, subList]);
+                    list.appendChild(group);
+                } else {
+                    opt.onclick = (ev) => {
+                        if (subItem.disabled) return;
+                        ev.stopPropagation();
+                        if (closeFn) closeFn();
+                        if (subItem.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(subItem.screen, subItem.props);
+                            }
+                        } else if (subItem.action) {
+                            subItem.action(windowInstance, ev);
+                        }
+                    };
+                    list.appendChild(opt);
+                }
+            }
+        });
+        return list;
+    };
+
+    const contentEl = drawer.querySelector(".drawer-content");
+
+    menus.forEach(menu => {
+        const catHeader = createElement("div", "drawer-cat-header", [
+            menu.icon ? createElement("span", "drawer-cat-icon", [menu.icon]) : null,
+            createElement("span", "drawer-cat-title", [menu.label || ""]),
+            menu.items && menu.items.length > 0 ? createElement("span", "drawer-accordion-arrow", ["▼"]) : null
+        ].filter(Boolean));
+
+        const group = createElement("div", "drawer-category-group", [catHeader]);
+
+        if (menu.items && menu.items.length > 0) {
+            const subList = buildMobileItems(menu.items, closeDrawer);
+            subList.style.display = "none";
+
+            catHeader.onclick = () => {
+                const isOpen = subList.style.display === "flex";
+                subList.style.display = isOpen ? "none" : "flex";
+                catHeader.classList.toggle("expanded", !isOpen);
+            };
+            group.appendChild(subList);
+        }
+        contentEl.appendChild(group);
+    });
+
+    backdrop.appendChild(drawer);
+    document.body.appendChild(backdrop);
+
+    requestAnimationFrame(() => {
+        backdrop.classList.add("show");
+        drawer.classList.add("open");
+    });
+}
+
 export function MenuBar({ containerId, element, position = "top", menus = [], windowInstance = null } = {}) {
     let bar;
     if (element && (element.nodeType || element instanceof HTMLElement)) {
@@ -557,56 +666,7 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
         app.dataset.menubar = position;
     }
 
-    // --- Mobile Hamburger & Drawer para a Barra Global ou de Janela ---
-    const buildMobileItems = (items, closeFn) => {
-        const list = createElement("div", "drawer-item-list", []);
-        items.forEach(subItem => {
-            if (subItem === "separator") {
-                list.appendChild(createElement("div", "drawer-sep", []));
-            } else {
-                const optChildren = [];
-                if (subItem.icon) optChildren.push(createElement("span", "drawer-opt-icon", [subItem.icon]));
-                optChildren.push(createElement("span", "drawer-opt-label", [subItem.label || ""]));
-                if (subItem.items && subItem.items.length > 0) {
-                    optChildren.push(createElement("span", "drawer-accordion-arrow", ["▼"]));
-                }
-
-                const opt = createElement("div", "drawer-option", optChildren);
-
-                if (subItem.items && subItem.items.length > 0) {
-                    opt.classList.add("drawer-has-sub");
-                    const subList = buildMobileItems(subItem.items, closeFn);
-                    subList.style.display = "none";
-
-                    opt.onclick = (ev) => {
-                        ev.stopPropagation();
-                        const isOpen = subList.style.display === "flex";
-                        subList.style.display = isOpen ? "none" : "flex";
-                        opt.classList.toggle("expanded", !isOpen);
-                    };
-
-                    const group = createElement("div", "drawer-group", [opt, subList]);
-                    list.appendChild(group);
-                } else {
-                    opt.onclick = (ev) => {
-                        ev.stopPropagation();
-                        if (closeFn) closeFn();
-                        if (subItem.screen) {
-                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
-                            if (d && typeof d.openScreen === 'function') {
-                                d.openScreen(subItem.screen, subItem.props);
-                            }
-                        } else if (subItem.action) {
-                            subItem.action(windowInstance, ev);
-                        }
-                    };
-                    list.appendChild(opt);
-                }
-            }
-        });
-        return list;
-    };
-
+    // --- Mobile Hamburger & Drawer para Menus Globais, Janelas e StartMenu ---
     if (isGlobalBar) {
         const hamburger = createElement("button", "menubar-mobile-hamburger", ["☰"]);
         hamburger.setAttribute("aria-label", "Abrir Menu");
@@ -614,63 +674,11 @@ export function MenuBar({ containerId, element, position = "top", menus = [], wi
 
         hamburger.onclick = (e) => {
             e.stopPropagation();
-            openMobileDrawer();
-        };
-
-        const openMobileDrawer = () => {
-            document.querySelectorAll(".menubar-mobile-drawer-backdrop").forEach(d => d.remove());
-            
-            const backdrop = createElement("div", "menubar-mobile-drawer-backdrop", []);
-            const drawer = createElement("div", "menubar-mobile-drawer", [
-                createElement("div", "drawer-header", [
-                    createElement("div", "drawer-title", ["📱 Menu Principal"]),
-                    createElement("button", "drawer-close-btn", ["✕"])
-                ]),
-                createElement("div", "drawer-content", [])
-            ]);
-
-            const closeDrawer = () => {
-                drawer.classList.remove("open");
-                backdrop.classList.remove("show");
-                setTimeout(() => backdrop.remove(), 250);
-            };
-
-            drawer.querySelector(".drawer-close-btn").onclick = closeDrawer;
-            backdrop.onclick = (e) => {
-                if (e.target === backdrop) closeDrawer();
-            };
-
-            const contentEl = drawer.querySelector(".drawer-content");
-
-            menus.forEach(menu => {
-                const catHeader = createElement("div", "drawer-cat-header", [
-                    menu.icon ? createElement("span", "drawer-cat-icon", [menu.icon]) : null,
-                    createElement("span", "drawer-cat-title", [menu.label || ""]),
-                    menu.items && menu.items.length > 0 ? createElement("span", "drawer-accordion-arrow", ["▼"]) : null
-                ].filter(Boolean));
-
-                const group = createElement("div", "drawer-category-group", [catHeader]);
-
-                if (menu.items && menu.items.length > 0) {
-                    const subList = buildMobileItems(menu.items, closeDrawer);
-                    subList.style.display = "none";
-
-                    catHeader.onclick = () => {
-                        const isOpen = subList.style.display === "flex";
-                        subList.style.display = isOpen ? "none" : "flex";
-                        catHeader.classList.toggle("expanded", !isOpen);
-                    };
-                    group.appendChild(subList);
-                }
-                contentEl.appendChild(group);
-            });
-
-            backdrop.appendChild(drawer);
-            document.body.appendChild(backdrop);
-
-            requestAnimationFrame(() => {
-                backdrop.classList.add("show");
-                drawer.classList.add("open");
+            openMobileMenuDrawer({
+                menus,
+                title: "📱 Menu Principal",
+                icon: "📱",
+                windowInstance
             });
         };
     } else {
@@ -969,23 +977,42 @@ export function StartMenu({ buttonId, menus = [] }) {
     
     function buildMenu(items, isSub = false) {
         const container = createElement("div", isSub ? "dropdown sub-dropdown" : "menu-container", []);
-        if (!isSub) {
-            container.style.display = "flex";
-            container.style.flexDirection = "column";
-        }
+        container.style.display = isSub ? "none" : "flex";
+        container.style.flexDirection = "column";
+        
         items.forEach(subItem => {
             if (subItem === "separator") {
                 container.appendChild(createElement("div", "menuSep", []));
             } else {
-                const opt = createElement("div", "menuOption", [subItem.label]);
+                const optChildren = [];
+                const leftPart = createElement("div", "menuOption-left", []);
+                if (subItem.icon) {
+                    leftPart.appendChild(createElement("span", "menuOption-icon", [subItem.icon]));
+                }
+                leftPart.appendChild(createElement("span", "menuOption-label", [subItem.label || ""]));
+                optChildren.push(leftPart);
+
+                if (subItem.shortcut) {
+                    optChildren.push(createElement("span", "menuShortcut", [subItem.shortcut]));
+                }
+
+                if (subItem.items && subItem.items.length > 0) {
+                    optChildren.push(createElement("span", "submenu-arrow", ["▶"]));
+                }
+
+                const opt = createElement("div", "menuOption", optChildren);
+                if (subItem.disabled) {
+                    opt.classList.add("disabled");
+                }
+
                 if (subItem.items && subItem.items.length > 0) {
                     opt.classList.add("has-submenu");
-                    opt.appendChild(createElement("span", "submenu-arrow", ["▶"]));
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
                     
                     const positionStartSub = () => {
                         nested.style.display = "flex";
+                        nested.style.flexDirection = "column";
                         nested.classList.remove("open-left", "open-top");
                         nested.style.removeProperty("left");
                         nested.style.removeProperty("right");
@@ -1034,6 +1061,7 @@ export function StartMenu({ buttonId, menus = [] }) {
                     });
                 } else {
                     opt.onclick = (e) => { 
+                        if (subItem.disabled) return;
                         e.stopPropagation();
                         if (subItem.screen) {
                             const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
@@ -1057,6 +1085,19 @@ export function StartMenu({ buttonId, menus = [] }) {
 
     btn.onclick = (e) => {
         e.stopPropagation();
+        const app = document.getElementById("app");
+        const isMobile = (Desktop && typeof Desktop.isMobile === 'function' && Desktop.isMobile()) ||
+                         app?.classList.contains("mobile-mode") ||
+                         window.innerWidth <= 768;
+        if (isMobile) {
+            menuEl.classList.remove("show");
+            openMobileMenuDrawer({
+                menus,
+                title: "Início",
+                icon: "☰"
+            });
+            return;
+        }
         menuEl.classList.toggle("show");
     };
 

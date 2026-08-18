@@ -12,13 +12,15 @@ export const Desktop = {
     currentTheme: "light",
     currentLaF: "default",
     isMobileActive: false,
-    
+
     init(options = {}) {
         this.windows = {}; // Reseta referências ativas ao inicializar
         this.options = {
             windowsContainerId: "windows",
             taskbarContainerId: "taskWindows",
             taskbarPosition: "bottom",
+            startButtonId: "startBtn",
+            showDesktopButtonId: "showDesktop",
             showDesktopButton: true,
             defaultTheme: "light",
             defaultLaF: "default",
@@ -26,7 +28,7 @@ export const Desktop = {
             mobileBreakpoint: 768,
             ...options
         };
-        
+
         // Carrega tema persistido ou padrão
         try {
             const savedTheme = localStorage.getItem("desktop_engine_theme") || this.options.defaultTheme;
@@ -42,21 +44,24 @@ export const Desktop = {
         } catch (e) {
             this.setLookAndFeel(this.options.defaultLaF, false);
         }
-        
+
         this.windowsEl = document.getElementById(this.options.windowsContainerId);
         this.tasksEl = document.getElementById(this.options.taskbarContainerId);
-        
+
         const app = document.getElementById("app");
         if (app) app.dataset.taskbar = this.options.taskbarPosition;
-        
-        const desktopBtn = document.getElementById("showDesktop");
+
+        const desktopBtn = document.getElementById(this.options.showDesktopButtonId || "showDesktop");
         if (desktopBtn && !this.options.showDesktopButton) {
             desktopBtn.style.display = "none";
         }
-        
+
+        // Atualiza estilo e ícone do botão Iniciar de acordo com o Look and Feel
+        this.updateStartButton();
+
         // Configura modo responsivo
         this.setMobileMode(this.options.responsiveMode || "auto", false);
-        
+
         window.addEventListener("resize", () => {
             this.checkResponsiveMode();
             if (!this.isMobile()) {
@@ -68,14 +73,14 @@ export const Desktop = {
                 });
             }
         });
-        
+
         document.addEventListener('mousedown', (e) => {
             const winEl = e.target.closest('.window');
             if (winEl) {
                 this.focusWindow(winEl);
             }
         });
-        
+
         // --- UX da Taskbar ---
         // Scroll via Mouse Wheel
         this.tasksEl.addEventListener('wheel', (e) => {
@@ -84,12 +89,12 @@ export const Desktop = {
                 this.tasksEl.scrollLeft += e.deltaY;
             }
         });
-        
+
         // Drag-to-scroll
         let isDown = false;
         let startX;
         let scrollLeft;
-        
+
         this.tasksEl.addEventListener('mousedown', (e) => {
             // Não ativa o arrastar se clicou especificamente para fechar/minimizar algo, ou fora do container
             isDown = true;
@@ -112,20 +117,20 @@ export const Desktop = {
             const walk = (x - startX) * 1.5; // Velocidade do scroll
             this.tasksEl.scrollLeft = scrollLeft - walk;
         });
-        
+
         this.setupNotifyContainer();
     },
-    
+
     arrangeWindows() {
         const visible = [...document.querySelectorAll(".window:not(.minimized):not(.maximized)")];
         if (visible.length === 0) return;
-        
+
         const cols = Math.ceil(Math.sqrt(visible.length));
         const rows = Math.ceil(visible.length / cols);
-        
+
         const w = this.windowsEl.clientWidth / cols;
         const h = this.windowsEl.clientHeight / rows;
-        
+
         visible.forEach((win, i) => {
             const col = i % cols;
             const row = Math.floor(i / cols);
@@ -136,23 +141,23 @@ export const Desktop = {
             this.focusWindow(win); // Bring to front naturally
         });
     },
-    
+
     setupNotifyContainer() {
         this.notifyContainer = document.createElement("div");
         this.notifyContainer.className = "desktop-notifications";
         document.body.appendChild(this.notifyContainer);
     },
-    
+
     notify(message, type = "info") {
         const toast = document.createElement("div");
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
-        
+
         this.notifyContainer.appendChild(toast);
-        
+
         // Animação de entrada
         requestAnimationFrame(() => toast.classList.add("show"));
-        
+
         setTimeout(() => {
             toast.classList.remove("show");
             setTimeout(() => toast.remove(), 300);
@@ -198,12 +203,12 @@ export const Desktop = {
         w.dataset.id = instance.id;
         instance.windowEl = w;
         this.windows[instance.id] = instance;
-        
+
         const offset = (this.nextId * 27) % 160;
         w.style.left = (45 + offset) + "px";
         w.style.top = (35 + ((this.nextId * 19) % 100)) + "px";
         w.style.zIndex = ++this.zCounter;
-        
+
         if (config.width) w.style.width = config.width + "px";
         if (config.height) w.style.height = config.height + "px";
 
@@ -304,7 +309,7 @@ export const Desktop = {
         // --- Menus Dinâmicos Baseados nas Propriedades ---
         const buildMenu = (forTaskbar = false) => {
             const menu = [];
-            if (maximizable) menu.push({ label: "Restaurar / Maximizar", action: () => { if(w.classList.contains("minimized")) this.restoreWindow(w); else this.maximizeWindow(w); } });
+            if (maximizable) menu.push({ label: "Restaurar / Maximizar", action: () => { if (w.classList.contains("minimized")) this.restoreWindow(w); else this.maximizeWindow(w); } });
             if (minimizable) menu.push({ label: "Minimizar", action: () => this.minimizeWindow(w) });
             if (menu.length > 0) menu.push("separator");
             menu.push({ label: "Fechar Janela", action: () => this.closeWindow(instance, w, task) });
@@ -318,7 +323,7 @@ export const Desktop = {
 
         // Bind events
         task.addEventListener("click", () => this.toggleWindow(w));
-        
+
         const closeBtn = w.querySelector(".close");
         if (closeBtn) closeBtn.onclick = () => this.closeWindow(instance, w, task);
         if (minimizable) w.querySelector(".minimize").onclick = () => this.minimizeWindow(w);
@@ -326,9 +331,9 @@ export const Desktop = {
 
         this.setupDrag(w, w.querySelector(".titlebar"));
         if (resizable) this.setupResize(w);
-        
+
         this.nextId++;
-        
+
         // Trigger onMount
         if (typeof instance.onMount === 'function') {
             try { instance.onMount(); } catch (e) { console.error("Erro no hook onMount:", e); }
@@ -340,10 +345,10 @@ export const Desktop = {
             setTimeout(() => {
                 try {
                     w.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } catch (e) {}
+                } catch (e) { }
             }, 80);
         }
-        
+
         return w;
     },
 
@@ -365,7 +370,7 @@ export const Desktop = {
 
     focusWindow(w) {
         if (!w || !document.body.contains(w)) return;
-        
+
         const currentId = w.dataset.id;
         if (this.activeWindowId && this.activeWindowId !== currentId) {
             const prevInstance = this.windows[this.activeWindowId];
@@ -376,7 +381,7 @@ export const Desktop = {
 
         this.activeWindowId = currentId;
         w.style.zIndex = ++this.zCounter;
-        
+
         const task = document.querySelector(`[data-window="${currentId}"]`);
         document.querySelectorAll(".taskButton").forEach(x => x.classList.remove("active"));
         if (task) task.classList.add("active");
@@ -429,9 +434,9 @@ export const Desktop = {
             w.classList.remove("maximized");
             if (w.dataset.oldStyle) {
                 const old = JSON.parse(w.dataset.oldStyle);
-                w.style.left = old.left; 
-                w.style.top = old.top; 
-                w.style.width = old.width; 
+                w.style.left = old.left;
+                w.style.top = old.top;
+                w.style.width = old.width;
                 w.style.height = old.height;
             }
         } else {
@@ -541,7 +546,7 @@ export const Desktop = {
 
             const inst = this.windows[w.dataset.id];
             if (inst && typeof inst.onMove === 'function') {
-                try { inst.onMove(newLeft, newTop); } catch (err) {}
+                try { inst.onMove(newLeft, newTop); } catch (err) { }
             }
         });
         const stopDrag = () => drag = null;
@@ -553,13 +558,13 @@ export const Desktop = {
         w.querySelectorAll(".resizeHandle").forEach(handle => {
             handle.addEventListener("pointerdown", e => {
                 if (this.isMobile() || w.classList.contains("maximized")) return;
-                e.preventDefault(); 
-                e.stopPropagation(); 
+                e.preventDefault();
+                e.stopPropagation();
                 this.focusWindow(w);
-                
+
                 const dir = handle.dataset.dir;
                 const start = {
-                    x: e.clientX, y: e.clientY, 
+                    x: e.clientX, y: e.clientY,
                     left: w.offsetLeft, top: w.offsetTop,
                     width: w.offsetWidth, height: w.offsetHeight
                 };
@@ -570,7 +575,7 @@ export const Desktop = {
                     let { x, y, left, top, width, height } = start;
                     const dx = ev.clientX - x, dy = ev.clientY - y;
                     const minW = 280, minH = 180;
-                    
+
                     const containerEl = w.parentElement || this.windowsEl;
                     if (dir.includes("e")) width = Math.max(minW, start.width + dx);
                     if (dir.includes("s")) height = Math.max(minH, start.height + dy);
@@ -582,30 +587,30 @@ export const Desktop = {
                         height = Math.max(minH, start.height - dy);
                         top = start.top + (start.height - height);
                     }
-                    
+
                     if (left < 0) { width += left; left = 0; }
                     if (top < 0) { height += top; top = 0; }
-                    
+
                     if (left + width > containerEl.clientWidth) width = containerEl.clientWidth - left;
                     if (top + height > containerEl.clientHeight) height = containerEl.clientHeight - top;
-                    
-                    w.style.left = left + "px"; 
+
+                    w.style.left = left + "px";
                     w.style.top = top + "px";
-                    w.style.width = Math.max(minW, width) + "px"; 
+                    w.style.width = Math.max(minW, width) + "px";
                     w.style.height = Math.max(minH, height) + "px";
 
                     const inst = this.windows[w.dataset.id];
                     if (inst && typeof inst.onResize === 'function') {
-                        try { inst.onResize(parseInt(w.style.width), parseInt(w.style.height)); } catch (err) {}
+                        try { inst.onResize(parseInt(w.style.width), parseInt(w.style.height)); } catch (err) { }
                     }
                 };
-                
+
                 const up = () => {
                     handle.removeEventListener("pointermove", move);
                     handle.removeEventListener("pointerup", up);
                     handle.removeEventListener("pointercancel", up);
                 };
-                
+
                 handle.addEventListener("pointermove", move);
                 handle.addEventListener("pointerup", up);
                 handle.addEventListener("pointercancel", up);
@@ -618,7 +623,7 @@ export const Desktop = {
         this.currentTheme = themeName;
         document.documentElement.setAttribute('data-theme', themeName);
         if (persist) {
-            try { localStorage.setItem("desktop_engine_theme", themeName); } catch (e) {}
+            try { localStorage.setItem("desktop_engine_theme", themeName); } catch (e) { }
         }
         EventBus.emit("theme:change", themeName);
     },
@@ -641,7 +646,7 @@ export const Desktop = {
             styleEl.id = "custom-palettes";
             document.head.appendChild(styleEl);
         }
-        
+
         let cssRules = `[data-theme="${name}"] {\n`;
         for (const [key, value] of Object.entries(cssTokens)) {
             const varName = key.startsWith("--") ? key : `--${key}`;
@@ -651,22 +656,411 @@ export const Desktop = {
         styleEl.appendChild(document.createTextNode(cssRules));
     },
 
-    // --- Sistema de Look and Feel (L&F / OS Skin) ---
+    // --- Sistema de Look and Feel (L&F / Skins de Interface) ---
+    lafStartButtons: {
+        'default': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`,
+            label: "Desktop",
+            showLabel: true,
+            tooltip: "Menu Principal DesktopEngine"
+        },
+        'aero-glass': {
+            icon: `<svg viewBox="0 0 24 24" width="20" height="20"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5" fill="#f25022"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" fill="#7fba00"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" fill="#00a4ef"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" fill="#ffb900"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Menu Principal (Aero Glass)"
+        },
+        'fluent-acrylic': {
+            icon: `<svg viewBox="0 0 24 24" width="18" height="18"><rect x="4" y="4" width="7" height="7" rx="1.2" fill="#0078d4"/><rect x="13" y="4" width="7" height="7" rx="1.2" fill="#0078d4"/><rect x="4" y="13" width="7" height="7" rx="1.2" fill="#0078d4"/><rect x="13" y="13" width="7" height="7" rx="1.2" fill="#0078d4"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Menu Iniciar (Fluent Acrylic)"
+        },
+        'luna-blue': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16"><rect x="3" y="3" width="8" height="8" rx="2" fill="#eb3c00"/><rect x="13" y="3" width="8" height="8" rx="2" fill="#58b947"/><rect x="3" y="13" width="8" height="8" rx="2" fill="#0080ff"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#ffb800"/></svg>`,
+            label: "iniciar",
+            showLabel: true,
+            tooltip: "Menu Iniciar (Luna Classic)"
+        },
+        'retro-3d': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16"><rect x="3" y="3" width="8" height="8" fill="#000080"/><rect x="13" y="3" width="8" height="8" fill="#800000"/><rect x="3" y="13" width="8" height="8" fill="#008000"/><rect x="13" y="13" width="8" height="8" fill="#808000"/></svg>`,
+            label: "Iniciar",
+            showLabel: true,
+            tooltip: "Menu Iniciar (Retro 3D)"
+        },
+        'flat-tiles': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="8.5" height="8.5"/><rect x="12.5" y="3" width="8.5" height="8.5"/><rect x="3" y="12.5" width="8.5" height="8.5"/><rect x="12.5" y="12.5" width="8.5" height="8.5"/></svg>`,
+            label: "Iniciar",
+            showLabel: true,
+            tooltip: "Menu Iniciar (Flat Tiles)"
+        },
+        'aqua-frosted': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 3a4 4 0 00-4 4 4 4 0 004 4h2V9H7a2 2 0 112-2v2h6V7a4 4 0 10-4 4h2v2h-2a4 4 0 104 4v-2h-2v-2h2a2 2 0 11-2 2v-2H9v2a4 4 0 004 4 4 4 0 004-4 4 4 0 00-4-4h-2v-2h2a4 4 0 004-4 4 4 0 00-4-4 4 4 0 00-4 4v2H9V7a4 4 0 00-4-4zm4 8h2v2h-2v-2z"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Menu Principal (Aqua Frosted)"
+        },
+        'platinum-classic': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 3a4 4 0 00-4 4 4 4 0 004 4h2V9H7a2 2 0 112-2v2h6V7a4 4 0 10-4 4h2v2h-2a4 4 0 104 4v-2h-2v-2h2a2 2 0 11-2 2v-2H9v2a4 4 0 004 4 4 4 0 004-4 4 4 0 00-4-4h-2v-2h2a4 4 0 004-4 4 4 0 00-4-4 4 4 0 00-4 4v2H9V7a4 4 0 00-4-4zm4 8h2v2h-2v-2z"/></svg>`,
+            label: "Finder",
+            showLabel: true,
+            tooltip: "Menu Sistema (Platinum Classic)"
+        },
+        'material-tonal': {
+            icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="6" cy="6" r="2.5"/><circle cx="12" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="12" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/></svg>`,
+            label: "Apps",
+            showLabel: false,
+            tooltip: "Aplicativos (Material Tonal)"
+        },
+        'cupertino-touch': {
+            icon: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12" stroke-linecap="round"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Início (Cupertino Touch)"
+        },
+        'one-touch': {
+            icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Início (One Touch)"
+        },
+        'spatial-glass': {
+            icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Home View (Spatial Glass)"
+        },
+        'neumorphism': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><circle cx="12" cy="12" r="4"/></svg>`,
+            label: "Menu",
+            showLabel: true,
+            tooltip: "Menu Tátil (Soft UI)"
+        },
+        'tactical-hud': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>`,
+            label: "[SYS]",
+            showLabel: true,
+            tooltip: "Interface Tática (HUD)"
+        },
+        'steel-metal': {
+            icon: `☕`,
+            label: "Swing",
+            showLabel: true,
+            tooltip: "Steel Metal Menu"
+        },
+        'ocean-metal': {
+            icon: `☕`,
+            label: "Swing",
+            showLabel: true,
+            tooltip: "Ocean Metal Menu"
+        },
+        'nimbus-vector': {
+            icon: `☕`,
+            label: "Swing",
+            showLabel: true,
+            tooltip: "Nimbus Vector Menu"
+        },
+        'flatlaf-ide': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 17V7h10v3H10v2h5v3h-5v2z"/></svg>`,
+            label: "Studio",
+            showLabel: true,
+            tooltip: "Modern IDE Menu"
+        },
+        'modena-soft': {
+            icon: `🌿`,
+            label: "App",
+            showLabel: true,
+            tooltip: "Modena Soft Menu"
+        },
+        'caspian-dark': {
+            icon: `🔷`,
+            label: "App",
+            showLabel: true,
+            tooltip: "Caspian Dark Menu"
+        },
+        'yellow-tab': {
+            icon: `<span style="font-weight:900;color:#0033cc;background:#f5d000;padding:1px 4px;border-radius:2px;font-size:11px;line-height:1;">OS</span>`,
+            label: "Menu",
+            showLabel: false,
+            tooltip: "Yellow Tab Deskbar"
+        },
+        'workbench-boing': {
+            icon: `<span style="font-size:14px;line-height:1;">🔴</span>`,
+            label: "Desk",
+            showLabel: true,
+            tooltip: "Workbench Retro Menu"
+        },
+        'next-dark': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5.2 8.3 12 12.1l6.8-3.8L12 4.2zm-7 5.7v7.2L11 20.6v-7.2L5 9.9zm14 0l-6 3.5v7.2l6-3.5V9.9z"/></svg>`,
+            label: "Root",
+            showLabel: true,
+            tooltip: "Dark Slate Root Menu"
+        },
+        'warp-enterprise': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#0055aa"/><path d="M7 12a5 5 0 0110 0 5 5 0 01-10 0z" fill="#ffffff"/></svg>`,
+            label: "Warp",
+            showLabel: true,
+            tooltip: "Warp Enterprise Desktop"
+        },
+        'aubergine-orange': {
+            icon: `<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#e95420"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#ffffff" stroke-width="2.5"/><circle cx="5.5" cy="12" r="1.5" fill="#ffffff"/><circle cx="15.2" cy="6.4" r="1.5" fill="#ffffff"/><circle cx="15.2" cy="17.6" r="1.5" fill="#ffffff"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Mostrar Aplicativos (Aubergine Orange)"
+        },
+        'adwaita-slate': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14.5 2a3 3 0 00-2.8 2 2.5 2.5 0 00-3.2 1.3 2 2 0 00-2.5 1.5 1.8 1.8 0 00-1.8 1.8c0 3.2 2.8 8.4 5.3 11.4 1 1.2 2.5 2 4 2 2.5 0 4.5-2.2 4.5-5.5 0-4.5-1.5-11.5-3.5-14.5z"/></svg>`,
+            label: "Atividades",
+            showLabel: true,
+            tooltip: "Atividades (Adwaita Slate)"
+        },
+        'breeze-plasma': {
+            icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#1d99f3"/><path d="M8 7v10h2.5V13l3.5 4H17l-4.5-5.2L16.8 7h-2.9L10.5 11V7H8z" fill="#fff"/></svg>`,
+            label: "",
+            showLabel: false,
+            tooltip: "Lançador de Aplicativos (Breeze Plasma)"
+        },
+        'pantheon-pure': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 109 9c0-4.5-3.5-7-6-7s-4 2-4 4 2 3.5 4 3.5 3-1 3-2.5"/></svg>`,
+            label: "Aplicativos",
+            showLabel: true,
+            tooltip: "Aplicativos (Pantheon Pure)"
+        },
+        'cosmic-teal': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="9" fill="#48b9c7"/><path d="M12 6l2.5 5.5H9.5L12 6zm0 12l-2-4h4l-2 4z" fill="#fff"/></svg>`,
+            label: "Aplicativos",
+            showLabel: true,
+            tooltip: "Aplicativos (Cosmic Teal)"
+        },
+        'tiling-grid': {
+            icon: `>_`,
+            label: "[1:main]",
+            showLabel: true,
+            tooltip: "Espaço de Trabalho (Tiling Grid)"
+        },
+        'greybird-lite': {
+            icon: `🐭`,
+            label: "Aplicativos",
+            showLabel: true,
+            tooltip: "Menu de Aplicativos (Greybird Lite)"
+        },
+        'e-fusion': {
+            icon: `🌌`,
+            label: "E25",
+            showLabel: true,
+            tooltip: "Menu Fusion Neon"
+        },
+        'x11-box': {
+            icon: `⬛`,
+            label: "Clip",
+            showLabel: true,
+            tooltip: "X11 Dock Box"
+        },
+        'motif-panel': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12,4 20,18 4,18"/></svg>`,
+            label: "Painel",
+            showLabel: true,
+            tooltip: "Painel Frontal (Motif)"
+        },
+        'turbo-tui': {
+            icon: `≡`,
+            label: "Menu",
+            showLabel: true,
+            tooltip: "Menu Principal TUI [Alt+F10]"
+        },
+        'cyberpunk-neon': {
+            icon: `⚡`,
+            label: "SYS.NET",
+            showLabel: true,
+            tooltip: "Interface Neural (Cyberdeck)"
+        }
+    },
+
+    lafShowDesktopButtons: {
+        'default': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+            label: "",
+            tooltip: "Mostrar Área de Trabalho"
+        },
+        'aero-glass': {
+            icon: ``,
+            label: "",
+            tooltip: "Espiar / Mostrar Área de Trabalho (Aero Peek)"
+        },
+        'fluent-acrylic': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="17" x2="12" y2="20"/></svg>`,
+            label: "",
+            tooltip: "Mostrar Área de Trabalho (Fluent)"
+        },
+        'luna-blue': {
+            icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3 4h18v11H3V4zm2 2v7h14V6H5zm3 12h8v2H8v-2z"/></svg>`,
+            label: "",
+            tooltip: "Mostrar Área de Trabalho (Luna)"
+        },
+        'retro-3d': {
+            icon: `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M2 3h20v12H2V3zm2 2v8h16V5H4zm4 12h8v2H8v-2z"/></svg>`,
+            label: "",
+            tooltip: "Mostrar Área de Trabalho (Retro 3D)"
+        },
+        'flat-tiles': {
+            icon: `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="3" y="3" width="18" height="14" fill="none" stroke="currentColor" stroke-width="2"/><line x1="9" y1="20" x2="15" y2="20" stroke="currentColor" stroke-width="2"/></svg>`,
+            label: "",
+            tooltip: "Mostrar Desktop (Tiles)"
+        },
+        'aqua-frosted': {
+            icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
+            label: "",
+            tooltip: "Exposé / Mostrar Mesa"
+        },
+        'platinum-classic': {
+            icon: `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="2" y="2" width="20" height="14" fill="none" stroke="currentColor" stroke-width="2"/><rect x="5" y="5" width="14" height="8"/><line x1="8" y1="19" x2="16" y2="19" stroke="currentColor" stroke-width="2"/></svg>`,
+            label: "",
+            tooltip: "Mesa (Desktop)"
+        },
+        'aubergine-orange': {
+            icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>`,
+            label: "",
+            tooltip: "Alternar Áreas de Trabalho"
+        },
+        'adwaita-slate': {
+            icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3"/></svg>`,
+            label: "",
+            tooltip: "Espaço de Trabalho"
+        },
+        'breeze-plasma': {
+            icon: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M7 12h10"/></svg>`,
+            label: "",
+            tooltip: "Área de Trabalho Virtual"
+        },
+        'turbo-tui': {
+            icon: `[■]`,
+            label: "",
+            tooltip: "Desktop [Alt+F3]"
+        },
+        'cyberpunk-neon': {
+            icon: `<span style="font-size:10px;font-weight:900;letter-spacing:1px;">[GRID]</span>`,
+            label: "",
+            tooltip: "Minimizar / Matriz"
+        }
+    },
+
     setLookAndFeel(lafName, persist = true) {
-        this.currentLaF = lafName;
-        if (!lafName || lafName === 'default') {
+        const laf = lafName || 'default';
+        this.currentLaF = laf;
+        if (!laf || laf === 'default') {
             document.documentElement.removeAttribute('data-laf');
         } else {
-            document.documentElement.setAttribute('data-laf', lafName);
+            document.documentElement.setAttribute('data-laf', laf);
         }
         if (persist) {
-            try { localStorage.setItem("desktop_engine_laf", lafName); } catch (e) {}
+            try { localStorage.setItem("desktop_engine_laf", laf); } catch (e) { }
         }
-        EventBus.emit("laf:change", lafName);
+
+        // Atualiza os botões Iniciar e Mostrar Área de Trabalho
+        this.updateStartButton(laf);
+
+        EventBus.emit("laf:change", laf);
     },
 
     getLookAndFeel() {
         return this.currentLaF || document.documentElement.getAttribute('data-laf') || 'default';
+    },
+
+    updateStartButton(lafName) {
+        const laf = lafName || this.getLookAndFeel();
+        const startConfig = this.getStartButtonConfig(laf);
+
+        const targetIds = [this.options?.startButtonId, "startBtn", "taskStartBtn"].filter(Boolean);
+        const candidates = new Set();
+
+        targetIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) candidates.add(el);
+        });
+
+        document.querySelectorAll('.taskStart:not(#showDesktop):not(.taskShowDesktop), [data-role="start-button"]').forEach(el => {
+            candidates.add(el);
+        });
+
+        candidates.forEach(btn => {
+            if (!btn) return;
+
+            let innerHtml = '';
+            if (startConfig.icon) {
+                innerHtml += `<span class="task-start-icon">${startConfig.icon}</span>`;
+            }
+            if (startConfig.showLabel && startConfig.label) {
+                innerHtml += `<span class="task-start-label">${startConfig.label}</span>`;
+            }
+
+            btn.innerHTML = innerHtml;
+            if (startConfig.tooltip) {
+                btn.title = startConfig.tooltip;
+            }
+            btn.setAttribute('data-laf-start', laf);
+        });
+
+        // Atualiza os botões Mostrar Área de Trabalho
+        const showDeskCandidates = new Set();
+        const showDeskId = this.options?.showDesktopButtonId || "showDesktop";
+        const primaryShowDesk = document.getElementById(showDeskId);
+        if (primaryShowDesk) showDeskCandidates.add(primaryShowDesk);
+        document.querySelectorAll('.taskShowDesktop').forEach(el => showDeskCandidates.add(el));
+
+        const showDeskConfig = this.getShowDesktopButtonConfig(laf);
+        showDeskCandidates.forEach(btn => {
+            if (!btn) return;
+            if (!btn.classList.contains("taskShowDesktop")) {
+                btn.classList.add("taskShowDesktop");
+            }
+            let innerHtml = '';
+            if (showDeskConfig.icon) {
+                innerHtml += `<span class="task-show-desktop-icon">${showDeskConfig.icon}</span>`;
+            }
+            if (showDeskConfig.label) {
+                innerHtml += `<span class="task-show-desktop-label">${showDeskConfig.label}</span>`;
+            }
+            btn.innerHTML = innerHtml;
+            btn.title = showDeskConfig.tooltip || "Mostrar Área de Trabalho";
+            btn.setAttribute('data-laf-showdesktop', laf);
+        });
+    },
+
+    setStartButtonConfig(lafName, config) {
+        if (!this.lafStartButtons) this.lafStartButtons = {};
+        this.lafStartButtons[lafName] = {
+            ...(this.lafStartButtons[lafName] || {}),
+            ...config
+        };
+        this.updateStartButton();
+    },
+
+    getStartButtonConfig(lafName) {
+        const laf = lafName || this.getLookAndFeel();
+        return this.lafStartButtons?.[laf] || this.lafStartButtons?.['default'] || {
+            icon: "🖥️",
+            label: "Desktop",
+            showLabel: true,
+            tooltip: "Menu Principal"
+        };
+    },
+
+    setShowDesktopButtonConfig(lafName, config) {
+        if (!this.lafShowDesktopButtons) this.lafShowDesktopButtons = {};
+        this.lafShowDesktopButtons[lafName] = {
+            ...(this.lafShowDesktopButtons[lafName] || {}),
+            ...config
+        };
+        this.updateStartButton();
+    },
+
+    getShowDesktopButtonConfig(lafName) {
+        const laf = lafName || this.getLookAndFeel();
+        return this.lafShowDesktopButtons?.[laf] || this.lafShowDesktopButtons?.['default'] || {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+            label: "",
+            tooltip: "Mostrar Área de Trabalho"
+        };
     },
 
     // --- Modo Mobile & Responsividade ---
@@ -702,7 +1096,7 @@ export const Desktop = {
         if (persist) {
             try {
                 localStorage.setItem("desktop_engine_responsive", this.options.responsiveMode);
-            } catch (e) {}
+            } catch (e) { }
         }
         EventBus.emit("desktop:modechange", { isMobile: this.isMobile(), mode: this.options.responsiveMode });
     },
@@ -726,52 +1120,52 @@ export const Desktop = {
     getAvailableLookAndFeels() {
         return [
             // Modernos & Mobile Design Systems
-            { id: "default", label: "Padrão / Moderno", category: "Modernos & Mobile", icon: "✨", desc: "Design padrão limpo e elegante do DesktopEngine" },
-            { id: "macos", label: "macOS (Aqua Modern)", category: "Modernos & Mobile", icon: "🍎", desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
-            { id: "win11", label: "Windows 11 (Fluent)", category: "Modernos & Mobile", icon: "🪟", desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
-            { id: "material3", label: "Material You / M3", category: "Modernos & Mobile", icon: "🤖", desc: "Superfícies em camadas tonais, cantos de 20px e botões pílula (Android)" },
-            { id: "cupertino", label: "Cupertino (iOS 18)", category: "Modernos & Mobile", icon: "🍏", desc: "Vidro fosco ultra-translúcido, squircle de 20px e sombras suaves (Apple)" },
-            { id: "oneui", label: "Samsung One UI", category: "Modernos & Mobile", icon: "🌌", desc: "Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico" },
-            { id: "metro", label: "Windows Metro (Flat)", category: "Modernos & Mobile", icon: "🪟", desc: "Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste" },
+            { id: "default",         label: "Padrão / Moderno",               category: "Modernos & Mobile",  icon: "✨",  desc: "Design padrão limpo e elegante do DesktopEngine" },
+            { id: "aqua-frosted",    label: "Aqua Frosted (Vidro Fosco)",     category: "Modernos & Mobile",  icon: "🍎",  desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
+            { id: "fluent-acrylic",  label: "Fluent Acrylic (Acrílico)",      category: "Modernos & Mobile",  icon: "🪟",  desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },
+            { id: "material-tonal",  label: "Material Tonal (Dynamic)",       category: "Modernos & Mobile",  icon: "🤖",  desc: "Superfícies em camadas tonais, cantos de 20px e botões pílula" },
+            { id: "cupertino-touch", label: "Cupertino Touch (Fluid)",         category: "Modernos & Mobile",  icon: "🍏",  desc: "Vidro fosco ultra-translúcido, squircle de 20px e sombras suaves" },
+            { id: "one-touch",       label: "One Touch (Curvas)",              category: "Modernos & Mobile",  icon: "🌌",  desc: "Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico" },
+            { id: "flat-tiles",      label: "Flat Tiles (Modern UI)",          category: "Modernos & Mobile",  icon: "🔲",  desc: "Design 100% plano, cantos retos (0px), tipografia marcante" },
 
             // Computação Espacial & Tátil
-            { id: "visionos", label: "Apple VisionOS", category: "Espacial & Tátil", icon: "🥽", desc: "Vidro espacial hiper-translúcido, bordas com reflexo de luz e sombras volumétricas" },
-            { id: "neumorphism", label: "Neumorphism (Soft UI)", category: "Espacial & Tátil", icon: "🫧", desc: "Superfícies esculpidas em relevo suave com luz e sombra duplas opostas" },
-            { id: "tactical-hud", label: "Tactical HUD (Cyberdeck)", category: "Espacial & Tátil", icon: "⚡", desc: "Interface tática militar em âmbar/neon, cantos em 45º e linhas de mira" },
-            
-            // Java Ecosystem
-            { id: "java-metal", label: "Java Metal (Steel)", category: "Java PlaF", icon: "☕", desc: "Clássico Java Swing com tons de aço e texturas de relevo" },
-            { id: "java-ocean", label: "Java Ocean (Metal 2.0)", category: "Java PlaF", icon: "🌊", desc: "Gradiente azul acetinado e contornos chanfrados Swing" },
-            { id: "java-nimbus", label: "Java Nimbus", category: "Java PlaF", icon: "✨", desc: "Superfícies acetinadas, cantos 4px e foco dourado/laranja" },
-            { id: "java-flatlaf", label: "FlatLaf (JetBrains/IDE)", category: "Java PlaF", icon: "🎨", desc: "Estilo IDE moderno, compacto, minimalista e profissional" },
-            { id: "javafx-modena", label: "JavaFX Modena", category: "Java PlaF", icon: "🌿", desc: "Estética neutra cinza, limpa e moderna do JavaFX 8+" },
-            { id: "javafx-caspian", label: "JavaFX Caspian", category: "Java PlaF", icon: "🔷", desc: "Vidro escuro azulado elegante do JavaFX 2" },
+            { id: "spatial-glass",   label: "Spatial Glass (Imersivo)",        category: "Espacial & Tátil",   icon: "🥽",  desc: "Vidro espacial hiper-translúcido, bordas com reflexo de luz" },
+            { id: "neumorphism",     label: "Neumorphism (Soft UI)",           category: "Espacial & Tátil",   icon: "🫧",  desc: "Superfícies esculpidas em relevo suave com luz e sombra opostas" },
+            { id: "tactical-hud",   label: "Tactical HUD (Cyberdeck)",        category: "Espacial & Tátil",   icon: "⚡",  desc: "Interface tática em âmbar/neon, cantos em 45º e linhas de mira" },
+
+            // Ecossistema Java & Swing
+            { id: "steel-metal",     label: "Steel Metal (Classic Swing)",     category: "Java PlaF",          icon: "☕",  desc: "Clássico Swing com tons de aço e texturas de relevo" },
+            { id: "ocean-metal",     label: "Ocean Metal (Steel Blue)",        category: "Java PlaF",          icon: "🌊",  desc: "Gradiente azul acetinado e contornos chanfrados" },
+            { id: "nimbus-vector",   label: "Nimbus Vector (Vibrant)",         category: "Java PlaF",          icon: "✨",  desc: "Superfícies acetinadas, cantos 4px e foco dourado/laranja" },
+            { id: "flatlaf-ide",     label: "FlatLaf IDE (Studio Dark/Light)", category: "Java PlaF",          icon: "🎨",  desc: "Estilo IDE moderno, compacto, minimalista e profissional" },
+            { id: "modena-soft",     label: "Modena Soft (Enterprise)",        category: "Java PlaF",          icon: "🌿",  desc: "Estética neutra cinza, limpa e moderna" },
+            { id: "caspian-dark",    label: "Caspian Slate (Dark Blue)",       category: "Java PlaF",          icon: "🔷",  desc: "Vidro escuro azulado elegante" },
 
             // Retrô & Clássicos
-            { id: "beos", label: "BeOS / Haiku", category: "Retrô & Clássicos", icon: "🟡", desc: "A famosa aba amarela no topo esquerdo da janela" },
-            { id: "win98", label: "Windows 98 (Classic 3D)", category: "Retrô & Clássicos", icon: "🕹️", desc: "Bordas 3D chanfradas outset/inset e botões clássicos cinza" },
-            { id: "winxp", label: "Windows XP (Luna)", category: "Retrô & Clássicos", icon: "🔵", desc: "Barra azul brilhante e botão fechar vermelho luminoso" },
-            { id: "win7", label: "Windows 7 (Aero Glass)", category: "Retrô & Clássicos", icon: "🪟", desc: "Vidro translúcido, reflexos luminosos e botões com brilho" },
-            { id: "nextstep", label: "NeXTSTEP / OpenStep", category: "Retrô & Clássicos", icon: "⬛", desc: "Tons de cinza puro e preto com relevos chanfrados profundos" },
-            { id: "amiga", label: "AmigaOS (Workbench)", category: "Retrô & Clássicos", icon: "💾", desc: "Azul royal, listras pinstripe e acentos âmbar retrô" },
-            { id: "mac-classic", label: "Mac OS System 7 / Platinum", category: "Retrô & Clássicos", icon: "🍏", desc: "Pinstripes horizontais, botão fechar quadrado à esquerda" },
-            { id: "os2-warp", label: "OS/2 Warp (IBM)", category: "Retrô & Clássicos", icon: "🟦", desc: "Estética corporativa azul-acinzentada com chanfros sólidos" },
+            { id: "yellow-tab",      label: "Yellow Tab (Media Style)",        category: "Retrô & Clássicos",  icon: "🟡",  desc: "A famosa aba amarela no topo esquerdo da janela" },
+            { id: "retro-3d",        label: "Retro 3D (Chanfrado)",            category: "Retrô & Clássicos",  icon: "🕹️", desc: "Bordas 3D chanfradas outset/inset e botões clássicos cinza" },
+            { id: "luna-blue",       label: "Luna Blue (Azul & Verde)",        category: "Retrô & Clássicos",  icon: "🔵",  desc: "Barra azul brilhante e botão fechar vermelho luminoso" },
+            { id: "aero-glass",      label: "Aero Glass (Translúcido)",        category: "Retrô & Clássicos",  icon: "🪟",  desc: "Vidro translúcido, reflexos luminosos e botões com brilho" },
+            { id: "next-dark",       label: "Next Dark (Step Style)",          category: "Retrô & Clássicos",  icon: "⬛",  desc: "Tons de cinza puro e preto com relevos chanfrados profundos" },
+            { id: "workbench-boing", label: "Workbench Boing (Retro Cores)",   category: "Retrô & Clássicos",  icon: "💾",  desc: "Azul royal, listras pinstripe e acentos âmbar retrô" },
+            { id: "platinum-classic",label: "Platinum Classic (Monocromático)",category: "Retrô & Clássicos",  icon: "🍏",  desc: "Pinstripes horizontais, botão fechar quadrado à esquerda" },
+            { id: "warp-enterprise", label: "Warp Enterprise (Cobalt)",        category: "Retrô & Clássicos",  icon: "🟦",  desc: "Estética corporativa azul-acinzentada com chanfros sólidos" },
 
-            // UNIX / Linux
-            { id: "ubuntu", label: "Ubuntu (Yaru)", category: "UNIX / Linux", icon: "🟠", desc: "Barra grafite com acentos em Laranja Ubuntu e botões circulares" },
-            { id: "elementary", label: "Elementary OS (Pantheon)", category: "UNIX / Linux", icon: "🕊️", desc: "Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px" },
-            { id: "pop-cosmic", label: "Pop!_OS (COSMIC)", category: "UNIX / Linux", icon: "🚀", desc: "Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76)" },
-            { id: "i3wm", label: "i3wm / Sway (Tiling)", category: "UNIX / Linux", icon: "🪟", desc: "Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px" },
-            { id: "xfce", label: "XFCE (Greybird)", category: "UNIX / Linux", icon: "🐭", desc: "Gradiente suave azul-acinzentado, botões leves e cantos de 4px" },
-            { id: "enlightenment", label: "Enlightenment (E25)", category: "UNIX / Linux", icon: "🌌", desc: "Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi" },
-            { id: "windowmaker", label: "Window Maker (X11)", category: "UNIX / Linux", icon: "⬛", desc: "Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta" },
-            { id: "cde-motif", label: "CDE / Motif (Solaris)", category: "UNIX / Linux", icon: "🟣", desc: "Workstation UNIX dos anos 90 com relevos sólidos" },
-            { id: "gnome", label: "GNOME (Adwaita)", category: "UNIX / Linux", icon: "🐧", desc: "Headerbar alta de 42px e botão fechar circular minimalista" },
-            { id: "kde", label: "KDE (Breeze)", category: "UNIX / Linux", icon: "⚙️", desc: "Linhas nítidas, acentos vetoriais e cantos de 4px" },
+            // Desktops Abertos & Compositors
+            { id: "aubergine-orange",label: "Aubergine Orange (Humanist)",     category: "Unix Abertos",       icon: "🟠",  desc: "Barra grafite com acentos em laranja e botões circulares" },
+            { id: "pantheon-pure",   label: "Pantheon Pure (Light Minimal)",   category: "Unix Abertos",       icon: "🕊️", desc: "Fechar à esquerda, maximizar à direita, título centralizado" },
+            { id: "cosmic-teal",     label: "Cosmic Teal (Modern Desktop)",    category: "Unix Abertos",       icon: "🚀",  desc: "Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar" },
+            { id: "tiling-grid",     label: "Tiling Grid (Minimal Tiling)",    category: "Unix Abertos",       icon: "🪟",  desc: "Borda ativa fina de 1px, barra monoespacada e cantos 0px" },
+            { id: "greybird-lite",   label: "Greybird Lite (Lightweight)",     category: "Unix Abertos",       icon: "🐭",  desc: "Gradiente suave azul-acinzentado, botões leves e cantos de 4px" },
+            { id: "e-fusion",        label: "E-Fusion (Glow Style)",           category: "Unix Abertos",       icon: "🌌",  desc: "Visual futurista em titânio escuro, relevos luminosos" },
+            { id: "x11-box",         label: "X11 Dark Box (NeXT-Style)",       category: "Unix Abertos",       icon: "⬛",  desc: "Gradiente diagonal clássico chanfrado preto/cinza" },
+            { id: "motif-panel",     label: "Motif Panel (UNIX CDE)",          category: "Unix Abertos",       icon: "🟣",  desc: "Workstation UNIX dos anos 90 com relevos sólidos" },
+            { id: "adwaita-slate",   label: "Adwaita Slate (Clean Flat)",      category: "Unix Abertos",       icon: "🐧",  desc: "Headerbar alta de 42px e botão fechar circular minimalista" },
+            { id: "breeze-plasma",   label: "Breeze Plasma (Glass Glow)",      category: "Unix Abertos",       icon: "⚙️", desc: "Linhas nítidas, acentos vetoriais e cantos de 4px" },
 
             // TUI & Sci-Fi
-            { id: "turbovision", label: "Turbo Vision (DOS TUI)", category: "TUI & Sci-Fi", icon: "📟", desc: "Visual de modo texto azul DOS com bordas em caracteres duplos" },
-            { id: "cyberpunk", label: "Cyberpunk HUD", category: "TUI & Sci-Fi", icon: "⚡", desc: "Bordas chanfradas 45º, linhas de grade e acentos neon" }
+            { id: "turbo-tui",       label: "Turbo TUI (DOS Console)",         category: "TUI & Sci-Fi",       icon: "📟",  desc: "Visual de modo texto azul DOS com bordas em caracteres duplos" },
+            { id: "cyberpunk-neon",  label: "Cyberpunk Neon (Matrix HUD)",     category: "TUI & Sci-Fi",       icon: "⚡",  desc: "Bordas chanfradas 45º, linhas de grade e acentos neon" }
         ];
     },
 
@@ -895,7 +1289,7 @@ export const Desktop = {
                     // Se foi informado parentInstance, centraliza sobre o pai e anexa overlay de bloqueio
                     if (parentInstance && parentInstance.windowEl && document.body.contains(parentInstance.windowEl)) {
                         const pEl = parentInstance.windowEl;
-                        
+
                         const isContained = (config.contained || config.insideParent || config.containedInParent);
 
                         if (!isContained) {
