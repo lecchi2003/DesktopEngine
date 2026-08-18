@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V0.6 - Ultimate Showcase</title>
-    <link rel="stylesheet" href="./style.css?v=11">
+    <link rel="stylesheet" href="./style.css?v=14">
 </head>
 
 <body>
@@ -73,9 +73,11 @@
                     items: [
                         { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
                         "separator",
+                        { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
+                        { label: "Editor de Documentos (Window MenuBar)", screen: "editor" },
                         { label: "Painel de Controle (Lazy)", screen: "dashboard" },
                         { label: "Listagem Avançada (DataGrid) (Lazy)", screen: "datagrid" },
-                        { label: "Navegador Web", screen: "browser" },
+                        { label: "Navegador Web (Window MenuBar)", screen: "browser" },
                         { label: "Formulários e Cadastros", screen: "forms" },
                         { label: "Gerenciador de Tarefas", screen: "tasks" },
                         { label: "Showcase de Componentes", screen: "showcase" }
@@ -175,6 +177,8 @@
                 items: [
                     { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
                     "separator",
+                    { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
+                    { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
                     { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
                     "separator",
                     { label: "Abrir Painel (Lazy)", screen: "dashboard" },
@@ -215,39 +219,7 @@
         }
 
         // 2. Telas Modulares são carregadas sob demanda da pasta ./screens/
-        // (DashboardScreen, DataGridScreen e SobreScreen estão em /screens)
-
-        const BrowserScreen = {
-            title: "Navegador Corporativo",
-            icon: "🌐",
-            width: 800,
-            height: 600,
-            singleInstance: true,
-            state: { urlInput: "https://en.wikipedia.org/wiki/Main_Page", currentUrl: "https://en.wikipedia.org/wiki/Main_Page" },
-            actions: {
-                ir: [async (ctx) => {
-                    let target = ctx.state.urlInput;
-                    if (!target.startsWith("http")) target = "https://" + target;
-                    ctx.state.currentUrl = target;
-                    ctx.instance.setStatus("Carregando " + target + "...");
-                }]
-            },
-            view() {
-                return createElement("div", "flex-col", [
-                    Row({
-                        style: "margin-bottom: 8px;", children: [
-                            Col({
-                                style: "flex: 1;", children: [
-                                    Input({ bind: "urlInput", instance: this, placeholder: "Digite a URL..." })
-                                ]
-                            }),
-                            Button({ text: "Ir", onClick: "ir", instance: this })
-                        ]
-                    }),
-                    WebView({ bindUrl: "currentUrl", instance: this, height: "calc(100% - 40px)" })
-                ]);
-            }
-        };
+        // (EditorScreen, BrowserScreen, DashboardScreen, DataGridScreen e SobreScreen estão em /screens)
 
         const TaskScreen = {
             title: "Gerenciador de Tarefas",
@@ -649,15 +621,10 @@
                                 ]
                             }),
                             Card({
-                                title: "🪟 Layouts Alternativos & Docs",
+                                title: "✨ MenuBar em Janelas (Novo)",
                                 children: [
-                                    Row({
-                                        style: "gap: 8px; flex-wrap: wrap;",
-                                        children: [
-                                            Button({ text: "Layout Windows (index2.html)", onClick: () => window.location.href = 'index2.html', variant: "secondary" }),
-                                            Button({ text: "Documentação Oficial", onClick: () => window.location.href = 'docs.html', variant: "secondary" })
-                                        ]
-                                    })
+                                    createElement("p", "text-secondary", ["Cada janela pode ter sua própria barra de menus em cascata com atalhos, ícones e ações reativas."]),
+                                    Button({ text: "Abrir Editor com MenuBar ↗", onClick: () => Desktop.openScreen("editor"), variant: "success" })
                                 ]
                             })
                         ]
@@ -672,12 +639,14 @@
             "hub_arquiteturas": () => HubArquiteturasScreen,
 
             // 1. Telas com Lazy Loading nativo (Arquivos isolados em /screens)
+            "crud_api": () => import('./screens/ProductsCrudScreen.js'),
+            "editor": () => import('./screens/EditorScreen.js'),
+            "browser": () => import('./screens/BrowserScreen.js'),
             "dashboard": () => import('./screens/DashboardScreen.js'),
             "datagrid": () => import('./screens/DataGridScreen.js'),
             "sobre": () => import('./screens/SobreScreen.js'),
 
             // 2. Telas Registradas Diretamente (Objetos ou inline)
-            "browser": () => BrowserScreen,
             "tasks": () => TaskScreen,
             "forms": () => FormsScreen,
             "showcase": () => ComponentShowcaseScreen
@@ -686,7 +655,7 @@
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
             Desktop.openScreen("hub_arquiteturas");
-            setTimeout(() => Desktop.openScreen("dashboard"), 150);
+            setTimeout(() => Desktop.openScreen("editor"), 150);
         }, 100);
 
     </script>

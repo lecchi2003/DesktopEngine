@@ -338,7 +338,7 @@ select {
 
 /* --- Menu Bar (Layouts: Top, Bottom, Left, Right) --- */
 #menubar,
-.ui-menubar {
+#app > .ui-menubar {
     order: 10;
     background: var(--bg-secondary);
     color: var(--text-primary);
@@ -357,9 +357,111 @@ select {
     border-bottom: 1px solid var(--win-border);
 }
 
-/* MenuBar no Topo: order 10 (abaixo da taskbar se taskbar for order 5) */
-#app[data-menubar="top"] .ui-menubar,
-.ui-menubar[data-position="top"] {
+/* --- Window Internal Component Ordering & Window MenuBar --- */
+.window > .titlebar {
+    order: 1 !important;
+}
+
+.window > .window-menubar,
+.window > .ui-menubar.window-menubar,
+.window-menubar {
+    order: 2 !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    flex: 0 0 28px !important;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--win-border);
+    padding: 0 4px;
+    z-index: 500;
+    width: 100% !important;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    position: relative;
+}
+
+.window > .windowBody {
+    order: 3 !important;
+}
+
+.window > .statusbar {
+    order: 4 !important;
+}
+
+.window-menubar .menubar-item {
+    font-size: 12px;
+    padding: 0 8px;
+    height: 100%;
+    gap: 4px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    border-radius: 3px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    transition: background 0.1s ease;
+}
+
+.window-menubar .menubar-item:hover,
+.window-menubar .menubar-item.active {
+    background: var(--menu-hover);
+}
+
+.window-menubar .menubar-item-icon {
+    font-size: 13px;
+}
+
+.window-menubar .dropdown.menubar-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    bottom: auto !important;
+    left: 0 !important;
+    right: auto !important;
+    display: none;
+    flex-direction: column;
+    z-index: 100000 !important;
+    min-width: 200px;
+    background: var(--menu-bg);
+    color: var(--menu-text);
+    border: 1px solid var(--menu-border);
+    box-shadow: var(--win-shadow);
+    padding: 4px 0;
+    border-radius: 0 0 6px 6px;
+    backdrop-filter: var(--win-blur);
+    -webkit-backdrop-filter: var(--win-blur);
+}
+
+.window-menubar .menubar-item.active > .dropdown.menubar-dropdown {
+    display: flex !important;
+}
+
+.window-menubar .dropdown.sub-dropdown {
+    position: absolute !important;
+    top: 0 !important;
+    left: 100% !important;
+    bottom: auto !important;
+    right: auto !important;
+    display: none;
+    flex-direction: column;
+    z-index: 100001 !important;
+    min-width: 190px;
+    background: var(--menu-bg);
+    color: var(--menu-text);
+    border: 1px solid var(--menu-border);
+    box-shadow: var(--win-shadow);
+    padding: 4px 0;
+    border-radius: 6px;
+    backdrop-filter: var(--win-blur);
+    -webkit-backdrop-filter: var(--win-blur);
+}
+
+/* App MenuBar no Topo: order 10 (abaixo da taskbar se taskbar for order 5) */
+#app[data-menubar="top"] > #menubar,
+#app[data-menubar="top"] > .ui-menubar,
+#app > .ui-menubar[data-position="top"] {
     order: 10;
     border-bottom: 1px solid var(--win-border);
     border-top: none;
@@ -369,9 +471,10 @@ select {
     flex-direction: row;
 }
 
-/* MenuBar no Rodapé: order 80 (acima da taskbar se taskbar for order 90) */
-#app[data-menubar="bottom"] .ui-menubar,
-.ui-menubar[data-position="bottom"] {
+/* App MenuBar no Rodapé: order 80 (acima da taskbar se taskbar for order 90) */
+#app[data-menubar="bottom"] > #menubar,
+#app[data-menubar="bottom"] > .ui-menubar,
+#app > .ui-menubar[data-position="bottom"] {
     order: 80;
     border-top: 1px solid var(--win-border);
     border-bottom: none;
@@ -381,9 +484,10 @@ select {
     flex-direction: row;
 }
 
-/* MenuBar na Esquerda: order 10 */
-#app[data-menubar="left"] .ui-menubar,
-.ui-menubar[data-position="left"] {
+/* App MenuBar na Esquerda: order 10 */
+#app[data-menubar="left"] > #menubar,
+#app[data-menubar="left"] > .ui-menubar,
+#app > .ui-menubar[data-position="left"] {
     order: 10;
     border-right: 1px solid var(--win-border);
     border-top: none;
@@ -395,9 +499,10 @@ select {
     align-items: stretch;
 }
 
-/* MenuBar na Direita: order 80 */
-#app[data-menubar="right"] .ui-menubar,
-.ui-menubar[data-position="right"] {
+/* App MenuBar na Direita: order 80 */
+#app[data-menubar="right"] > #menubar,
+#app[data-menubar="right"] > .ui-menubar,
+#app > .ui-menubar[data-position="right"] {
     order: 80;
     border-left: 1px solid var(--win-border);
     border-top: none;
@@ -530,12 +635,16 @@ select {
 }
 
 .menuOption {
-    padding: 8px 14px;
+    padding: 6px 12px;
     white-space: nowrap;
     font-size: 13px;
     cursor: pointer;
     color: var(--menu-text);
     transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
 }
 
 .menuOption:hover {
@@ -544,15 +653,45 @@ select {
 }
 
 .menuOption.has-submenu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     position: relative;
+}
+
+.menuOption-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menuOption-icon {
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+}
+
+.menuOption-label {
+    flex: 1;
+}
+
+.menuShortcut {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-left: auto;
+    padding-left: 12px;
+    font-family: inherit;
+}
+
+.menuOption.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .submenu-arrow {
     font-size: 10px;
     opacity: 0.6;
+    margin-left: 6px;
 }
 
 .menuSep {
@@ -798,7 +937,7 @@ select {
     box-shadow: var(--win-shadow);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     min-width: 280px;
     min-height: 180px;
     transition: transform 0.2s ease, opacity 0.2s ease;
@@ -838,6 +977,8 @@ select {
     align-items: center;
     user-select: none;
     touch-action: none;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 .titleIcon {
@@ -903,6 +1044,8 @@ select {
     display: flex;
     align-items: center;
     box-sizing: border-box;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .window.maximized {
@@ -2505,13 +2648,155 @@ h2 {
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
+   REGRAS GLOBAIS DE ALTO CONTRASTE PARA TODOS OS TEMAS CLAROS
+   -------------------------------------------------------------------------- */
+[data-laf="java-metal"],
+[data-laf="java-ocean"],
+[data-laf="java-nimbus"],
+[data-laf="javafx-modena"],
+[data-laf="beos"],
+[data-laf="win98"],
+[data-laf="winxp"],
+[data-laf="win7"],
+[data-laf="mac-classic"],
+[data-laf="os2-warp"],
+[data-laf="cde-motif"],
+[data-laf="gnome"],
+[data-laf="kde"] {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --menu-text: #111827;
+    --input-bg: #ffffff;
+    --input-border: #9ca3af;
+    --input-text: #111827;
+}
+
+[data-laf="java-metal"] .windowBody,
+[data-laf="java-ocean"] .windowBody,
+[data-laf="java-nimbus"] .windowBody,
+[data-laf="javafx-modena"] .windowBody,
+[data-laf="beos"] .windowBody,
+[data-laf="win98"] .windowBody,
+[data-laf="winxp"] .windowBody,
+[data-laf="win7"] .windowBody,
+[data-laf="mac-classic"] .windowBody,
+[data-laf="os2-warp"] .windowBody,
+[data-laf="cde-motif"] .windowBody,
+[data-laf="gnome"] .windowBody,
+[data-laf="kde"] .windowBody {
+    color: #111827 !important;
+}
+
+[data-laf="java-metal"] .windowBody p, [data-laf="java-metal"] .windowBody h1, [data-laf="java-metal"] .windowBody h2, [data-laf="java-metal"] .windowBody h3, [data-laf="java-metal"] .windowBody h4, [data-laf="java-metal"] .windowBody span, [data-laf="java-metal"] .windowBody label, [data-laf="java-metal"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="java-ocean"] .windowBody p, [data-laf="java-ocean"] .windowBody h1, [data-laf="java-ocean"] .windowBody h2, [data-laf="java-ocean"] .windowBody h3, [data-laf="java-ocean"] .windowBody h4, [data-laf="java-ocean"] .windowBody span, [data-laf="java-ocean"] .windowBody label, [data-laf="java-ocean"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="java-nimbus"] .windowBody p, [data-laf="java-nimbus"] .windowBody h1, [data-laf="java-nimbus"] .windowBody h2, [data-laf="java-nimbus"] .windowBody h3, [data-laf="java-nimbus"] .windowBody h4, [data-laf="java-nimbus"] .windowBody span, [data-laf="java-nimbus"] .windowBody label, [data-laf="java-nimbus"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="javafx-modena"] .windowBody p, [data-laf="javafx-modena"] .windowBody h1, [data-laf="javafx-modena"] .windowBody h2, [data-laf="javafx-modena"] .windowBody h3, [data-laf="javafx-modena"] .windowBody h4, [data-laf="javafx-modena"] .windowBody span, [data-laf="javafx-modena"] .windowBody label, [data-laf="javafx-modena"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="beos"] .windowBody p, [data-laf="beos"] .windowBody h1, [data-laf="beos"] .windowBody h2, [data-laf="beos"] .windowBody h3, [data-laf="beos"] .windowBody h4, [data-laf="beos"] .windowBody span, [data-laf="beos"] .windowBody label, [data-laf="beos"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="win98"] .windowBody p, [data-laf="win98"] .windowBody h1, [data-laf="win98"] .windowBody h2, [data-laf="win98"] .windowBody h3, [data-laf="win98"] .windowBody h4, [data-laf="win98"] .windowBody span, [data-laf="win98"] .windowBody label, [data-laf="win98"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="winxp"] .windowBody p, [data-laf="winxp"] .windowBody h1, [data-laf="winxp"] .windowBody h2, [data-laf="winxp"] .windowBody h3, [data-laf="winxp"] .windowBody h4, [data-laf="winxp"] .windowBody span, [data-laf="winxp"] .windowBody label, [data-laf="winxp"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="win7"] .windowBody p, [data-laf="win7"] .windowBody h1, [data-laf="win7"] .windowBody h2, [data-laf="win7"] .windowBody h3, [data-laf="win7"] .windowBody h4, [data-laf="win7"] .windowBody span, [data-laf="win7"] .windowBody label, [data-laf="win7"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="mac-classic"] .windowBody p, [data-laf="mac-classic"] .windowBody h1, [data-laf="mac-classic"] .windowBody h2, [data-laf="mac-classic"] .windowBody h3, [data-laf="mac-classic"] .windowBody h4, [data-laf="mac-classic"] .windowBody span, [data-laf="mac-classic"] .windowBody label, [data-laf="mac-classic"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="os2-warp"] .windowBody p, [data-laf="os2-warp"] .windowBody h1, [data-laf="os2-warp"] .windowBody h2, [data-laf="os2-warp"] .windowBody h3, [data-laf="os2-warp"] .windowBody h4, [data-laf="os2-warp"] .windowBody span, [data-laf="os2-warp"] .windowBody label, [data-laf="os2-warp"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="cde-motif"] .windowBody p, [data-laf="cde-motif"] .windowBody h1, [data-laf="cde-motif"] .windowBody h2, [data-laf="cde-motif"] .windowBody h3, [data-laf="cde-motif"] .windowBody h4, [data-laf="cde-motif"] .windowBody span, [data-laf="cde-motif"] .windowBody label, [data-laf="cde-motif"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="gnome"] .windowBody p, [data-laf="gnome"] .windowBody h1, [data-laf="gnome"] .windowBody h2, [data-laf="gnome"] .windowBody h3, [data-laf="gnome"] .windowBody h4, [data-laf="gnome"] .windowBody span, [data-laf="gnome"] .windowBody label, [data-laf="gnome"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="kde"] .windowBody p, [data-laf="kde"] .windowBody h1, [data-laf="kde"] .windowBody h2, [data-laf="kde"] .windowBody h3, [data-laf="kde"] .windowBody h4, [data-laf="kde"] .windowBody span, [data-laf="kde"] .windowBody label, [data-laf="kde"] .windowBody div:not(.ui-btn):not(.tag):not(.badge) {
+    color: #111827 !important;
+}
+
+[data-laf="java-metal"] .ui-card,
+[data-laf="java-ocean"] .ui-card,
+[data-laf="java-nimbus"] .ui-card,
+[data-laf="javafx-modena"] .ui-card,
+[data-laf="beos"] .ui-card,
+[data-laf="win98"] .ui-card,
+[data-laf="winxp"] .ui-card,
+[data-laf="win7"] .ui-card,
+[data-laf="mac-classic"] .ui-card,
+[data-laf="os2-warp"] .ui-card,
+[data-laf="cde-motif"] .ui-card,
+[data-laf="gnome"] .ui-card,
+[data-laf="kde"] .ui-card {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #111827 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+[data-laf="java-metal"] .ui-card-title,
+[data-laf="java-ocean"] .ui-card-title,
+[data-laf="java-nimbus"] .ui-card-title,
+[data-laf="javafx-modena"] .ui-card-title,
+[data-laf="beos"] .ui-card-title,
+[data-laf="win98"] .ui-card-title,
+[data-laf="winxp"] .ui-card-title,
+[data-laf="win7"] .ui-card-title,
+[data-laf="mac-classic"] .ui-card-title,
+[data-laf="os2-warp"] .ui-card-title,
+[data-laf="cde-motif"] .ui-card-title,
+[data-laf="gnome"] .ui-card-title,
+[data-laf="kde"] .ui-card-title {
+    color: #111827 !important;
+    font-weight: 700;
+}
+
+[data-laf="java-metal"] input, [data-laf="java-metal"] textarea, [data-laf="java-metal"] select, [data-laf="java-metal"] .filter-input,
+[data-laf="java-ocean"] input, [data-laf="java-ocean"] textarea, [data-laf="java-ocean"] select, [data-laf="java-ocean"] .filter-input,
+[data-laf="java-nimbus"] input, [data-laf="java-nimbus"] textarea, [data-laf="java-nimbus"] select, [data-laf="java-nimbus"] .filter-input,
+[data-laf="javafx-modena"] input, [data-laf="javafx-modena"] textarea, [data-laf="javafx-modena"] select, [data-laf="javafx-modena"] .filter-input,
+[data-laf="beos"] input, [data-laf="beos"] textarea, [data-laf="beos"] select, [data-laf="beos"] .filter-input,
+[data-laf="win98"] input, [data-laf="win98"] textarea, [data-laf="win98"] select, [data-laf="win98"] .filter-input,
+[data-laf="winxp"] input, [data-laf="winxp"] textarea, [data-laf="winxp"] select, [data-laf="winxp"] .filter-input,
+[data-laf="win7"] input, [data-laf="win7"] textarea, [data-laf="win7"] select, [data-laf="win7"] .filter-input,
+[data-laf="mac-classic"] input, [data-laf="mac-classic"] textarea, [data-laf="mac-classic"] select, [data-laf="mac-classic"] .filter-input,
+[data-laf="os2-warp"] input, [data-laf="os2-warp"] textarea, [data-laf="os2-warp"] select, [data-laf="os2-warp"] .filter-input,
+[data-laf="cde-motif"] input, [data-laf="cde-motif"] textarea, [data-laf="cde-motif"] select, [data-laf="cde-motif"] .filter-input,
+[data-laf="gnome"] input, [data-laf="gnome"] textarea, [data-laf="gnome"] select, [data-laf="gnome"] .filter-input,
+[data-laf="kde"] input, [data-laf="kde"] textarea, [data-laf="kde"] select, [data-laf="kde"] .filter-input {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1px solid #9ca3af !important;
+}
+
+[data-laf="java-metal"] .ui-table th, [data-laf="java-metal"] .ui-table td, [data-laf="java-metal"] .ui-datagrid th, [data-laf="java-metal"] .ui-datagrid td,
+[data-laf="java-ocean"] .ui-table th, [data-laf="java-ocean"] .ui-table td, [data-laf="java-ocean"] .ui-datagrid th, [data-laf="java-ocean"] .ui-datagrid td,
+[data-laf="java-nimbus"] .ui-table th, [data-laf="java-nimbus"] .ui-table td, [data-laf="java-nimbus"] .ui-datagrid th, [data-laf="java-nimbus"] .ui-datagrid td,
+[data-laf="javafx-modena"] .ui-table th, [data-laf="javafx-modena"] .ui-table td, [data-laf="javafx-modena"] .ui-datagrid th, [data-laf="javafx-modena"] .ui-datagrid td,
+[data-laf="beos"] .ui-table th, [data-laf="beos"] .ui-table td, [data-laf="beos"] .ui-datagrid th, [data-laf="beos"] .ui-datagrid td,
+[data-laf="win98"] .ui-table th, [data-laf="win98"] .ui-table td, [data-laf="win98"] .ui-datagrid th, [data-laf="win98"] .ui-datagrid td,
+[data-laf="winxp"] .ui-table th, [data-laf="winxp"] .ui-table td, [data-laf="winxp"] .ui-datagrid th, [data-laf="winxp"] .ui-datagrid td,
+[data-laf="win7"] .ui-table th, [data-laf="win7"] .ui-table td, [data-laf="win7"] .ui-datagrid th, [data-laf="win7"] .ui-datagrid td,
+[data-laf="mac-classic"] .ui-table th, [data-laf="mac-classic"] .ui-table td, [data-laf="mac-classic"] .ui-datagrid th, [data-laf="mac-classic"] .ui-datagrid td,
+[data-laf="os2-warp"] .ui-table th, [data-laf="os2-warp"] .ui-table td, [data-laf="os2-warp"] .ui-datagrid th, [data-laf="os2-warp"] .ui-datagrid td,
+[data-laf="cde-motif"] .ui-table th, [data-laf="cde-motif"] .ui-table td, [data-laf="cde-motif"] .ui-datagrid th, [data-laf="cde-motif"] .ui-datagrid td,
+[data-laf="gnome"] .ui-table th, [data-laf="gnome"] .ui-table td, [data-laf="gnome"] .ui-datagrid th, [data-laf="gnome"] .ui-datagrid td,
+[data-laf="kde"] .ui-table th, [data-laf="kde"] .ui-table td, [data-laf="kde"] .ui-datagrid th, [data-laf="kde"] .ui-datagrid td {
+    color: #111827 !important;
+}
+
+[data-laf="java-metal"] .statusbar,
+[data-laf="java-ocean"] .statusbar,
+[data-laf="java-nimbus"] .statusbar,
+[data-laf="javafx-modena"] .statusbar,
+[data-laf="beos"] .statusbar,
+[data-laf="win98"] .statusbar,
+[data-laf="winxp"] .statusbar,
+[data-laf="win7"] .statusbar,
+[data-laf="mac-classic"] .statusbar,
+[data-laf="os2-warp"] .statusbar,
+[data-laf="cde-motif"] .statusbar,
+[data-laf="gnome"] .statusbar,
+[data-laf="kde"] .statusbar {
+    color: #111827 !important;
+}
+
+/* --------------------------------------------------------------------------
    1. MODERNOS: macOS (Aqua Modern)
    -------------------------------------------------------------------------- */
 [data-laf="macos"] .window {
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.22);
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28), 0 0 1px rgba(0, 0, 0, 0.4);
-    overflow: hidden;
+    overflow: visible;
 }
 
 [data-laf="macos"] .titlebar {

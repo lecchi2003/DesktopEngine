@@ -54,11 +54,13 @@ EventBus.init();
 // --- Core Engine ---
 export const Framework = {
     createWindow(config, instanceId, desktopManager) {
+        let isSilentStateUpdate = false;
+
         // Objeto de estado reativo via Proxy
         let state = new Proxy({ ...config.state }, {
             set(target, prop, value) {
                 target[prop] = value;
-                if (instance.update) {
+                if (instance.update && !isSilentStateUpdate) {
                     instance.update();
                 }
                 return true;
@@ -71,6 +73,22 @@ export const Framework = {
             config,
             el: null, // Elemento raiz (conteúdo da janela)
             windowEl: null, // Elemento físico da janela (container)
+            
+            _setSilentState(prop, value) {
+                isSilentStateUpdate = true;
+                this.state[prop] = value;
+                isSilentStateUpdate = false;
+
+                // Sincroniza outros campos da mesma janela vinculados à mesma propriedade sem recriar o DOM
+                if (this.el) {
+                    const boundEls = this.el.querySelectorAll(`[data-bind="${prop}"]`);
+                    boundEls.forEach(el => {
+                        if (el !== document.activeElement && el.value !== undefined && el.value !== value) {
+                            el.value = value;
+                        }
+                    });
+                }
+            },
             
             async runAction(actionName, eventPayload = null) {
                 const actionChain = config.actions?.[actionName];
@@ -170,6 +188,52 @@ export const Framework = {
                 }
             },
             
+            setMenuBar(menus) {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.setWindowMenuBar === 'function') {
+                    dm.setWindowMenuBar(this, menus);
+                }
+            },
+
+            getMenuBar() {
+                return this.windowEl ? this.windowEl.querySelector('.window-menubar') : null;
+            },
+
+            close() {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.closeWindow === 'function') {
+                    dm.closeWindow(this, this.windowEl, this.taskEl);
+                }
+            },
+
+            minimize() {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.minimizeWindow === 'function' && this.windowEl) {
+                    dm.minimizeWindow(this.windowEl);
+                }
+            },
+
+            maximize() {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.maximizeWindow === 'function' && this.windowEl) {
+                    dm.maximizeWindow(this.windowEl);
+                }
+            },
+
+            restore() {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.restoreWindow === 'function' && this.windowEl) {
+                    dm.restoreWindow(this.windowEl);
+                }
+            },
+
+            focus() {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.focusWindow === 'function' && this.windowEl) {
+                    dm.focusWindow(this.windowEl);
+                }
+            },
+            
             // Ciclo de vida
             onMount() {
                 if (config.onMount) {
@@ -183,6 +247,15 @@ export const Framework = {
                 }
             }
         };
+
+        // Vincula e delega métodos personalizados do config para a instância
+        if (config && typeof config === 'object') {
+            for (const [key, val] of Object.entries(config)) {
+                if (typeof val === 'function' && !(key in instance)) {
+                    instance[key] = val.bind(instance);
+                }
+            }
+        }
 
         return instance;
     }

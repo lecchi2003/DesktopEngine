@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <title>Desktop Engine V0.6 - Padrão 2: Screen Registry & Lazy Loading</title>
-    <link rel="stylesheet" href="./style.css?v=11">
+    <link rel="stylesheet" href="./style.css?v=14">
 </head>
 
 <body>
@@ -53,6 +53,7 @@
 
         Desktop.registerScreens({
             // 1. Módulos sob demanda (Lazy Loading via ES Dynamic Import):
+            "editor":    () => import('./screens/EditorScreen.js'),
             "dashboard": () => import('./screens/DashboardScreen.js'),
             "datagrid":  () => import('./screens/DataGridScreen.js'),
             "forms":     () => import('./screens/FormsScreen.js'),

@@ -542,7 +542,7 @@ Tooltip({
 
 ### 6. Menus Globais e ContextMenu
 
-#### `MenuBar` & `StartMenu`
+#### `MenuBar` & `StartMenu` (Menus Globais)
 ```javascript
 const estruturaMenus = [
     {
@@ -566,6 +566,135 @@ MenuBar({
 StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
 ```
 
+#### `MenuBar em Janelas (Window MenuBar)`
+Além da barra de menus global do Desktop, qualquer janela pode possuir sua **própria barra de menus dedicada (Window MenuBar)** posicionada imediatamente abaixo da titlebar, exatamente como nos aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).
+
+Suporta ícones visuais (`icon`), atalhos de teclado alinhados à direita (`shortcut`), submenus aninhados multinível (`items`), desabilitação condicional (`disabled`) e injeção automática do contexto da instância da janela `(instance, event)` nas ações.
+
+##### 1. Declaração Declarativa na Configuração da Tela
+```javascript
+// screens/EditorScreen.js
+import { Toast, Modal, createElement } from '../ui.js';
+
+export default {
+    title: "Editor de Documentos",
+    icon: "📝",
+    width: 800,
+    height: 500,
+    state: { conteudo: "Texto inicial..." },
+    menubar: [
+        {
+            label: "Arquivo",
+            icon: "📁",
+            items: [
+                {
+                    label: "Novo Documento",
+                    icon: "📄",
+                    shortcut: "Ctrl+N",
+                    action: (instance) => {
+                        instance.state.conteudo = "";
+                        instance.setStatus("Novo documento criado.");
+                        Toast({ message: "Novo documento iniciado!", type: "info" });
+                    }
+                },
+                {
+                    label: "Salvar",
+                    icon: "💾",
+                    shortcut: "Ctrl+S",
+                    action: (instance) => {
+                        instance.setStatus("Salvo às " + new Date().toLocaleTimeString());
+                        Toast({ message: "Documento salvo!", type: "success" });
+                    }
+                },
+                "separator",
+                {
+                    label: "Fechar Janela",
+                    icon: "❌",
+                    shortcut: "Alt+F4",
+                    action: (instance) => instance.close()
+                }
+            ]
+        },
+        {
+            label: "Editar",
+            icon: "✏️",
+            items: [
+                {
+                    label: "Inserir Data e Hora",
+                    icon: "🕒",
+                    action: (instance) => {
+                        instance.state.conteudo += `\n[${new Date().toLocaleString()}]`;
+                    }
+                },
+                {
+                    label: "Limpar",
+                    icon: "🗑️",
+                    action: (instance) => {
+                        instance.state.conteudo = "";
+                    }
+                }
+            ]
+        },
+        {
+            label: "Janela",
+            icon: "🗖",
+            items: [
+                { label: "Maximizar", action: (instance) => instance.maximize() },
+                { label: "Minimizar", action: (instance) => instance.minimize() }
+            ]
+        }
+    ],
+    view() {
+        return createElement("div", "flex-col", [
+            // seu conteúdo aqui...
+        ]);
+    }
+};
+```
+
+##### 2. Manipulação Dinâmica em Tempo de Execução via API da Instância
+```javascript
+// Dentro de qualquer view() ou action:
+// 1. Atualizar com novos menus
+this.setMenuBar([
+    {
+        label: "Modo Foco",
+        icon: "🎯",
+        items: [
+            { label: "Restaurar Menus Padrão", action: (inst) => inst.setMenuBar(inst.config.menubar) }
+        ]
+    }
+]);
+
+// 2. Ocultar o MenuBar da janela
+this.setMenuBar(null);
+
+// 3. Obter o elemento DOM do MenuBar da janela
+const mbEl = this.getMenuBar();
+```
+
+##### 3. Propriedades dos Itens do Menu
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `label` | `String` | Texto exibido na opção do menu. |
+| `icon` | `String` | Ícone / emoji exibido à esquerda (ex: `"💾"`, `"📁"`). |
+| `shortcut` | `String` | Dica de atalho de teclado exibida à direita (ex: `"Ctrl+S"`, `"Alt+F4"`). |
+| `action` | `Function` | Função executada ao clicar: `(instance, event) => { ... }`. |
+| `screen` | `String` | ID de tela registrada no `Desktop.registerScreens` para abrir automaticamente. |
+| `props` | `Object` | Props iniciais passadas para a tela quando `screen` for informada. |
+| `items` | `Array` | Submenus em cascata (suporta separadores `"separator"` e novos níveis). |
+| `disabled` | `Boolean \| Function` | Desabilita visual e funcionalmente a opção se for `true` ou `(instance) => boolean`. |
+
+##### 4. Métodos de Controle Auxiliares da Janela
+Toda instância de janela expõe métodos diretos e convenientes para controle:
+- `instance.setMenuBar(menus)`: Atualiza ou remove a barra de menus da janela.
+- `instance.getMenuBar()`: Retorna o elemento HTML da barra de menus da janela.
+- `instance.close()`: Fecha e destrói a janela atual.
+- `instance.minimize()`: Minimiza a janela para a taskbar.
+- `instance.maximize()`: Alterna entre maximizada e restaurada.
+- `instance.restore()`: Restaura a janela se estiver minimizada.
+- `instance.focus()`: Traz a janela para o primeiro plano.
+
 #### `ContextMenu` & `bindContextMenu`
 ```javascript
 bindContextMenu(meuElemento, [
@@ -573,6 +702,109 @@ bindContextMenu(meuElemento, [
     { label: "Excluir", action: () => meuElemento.remove() }
 ]);
 ```
+
+---
+
+## 🌐 Integração com APIs REST & Backend
+
+O **DesktopEngine** é 100% agnóstico a backends e linguagens de servidor. Toda janela ou componente do framework pode se comunicar de forma assíncrona com APIs RESTful (Node.js, Python, Java, Go, PHP, C#/.NET, etc.) utilizando a Web API padrão `fetch()`, autenticação por cabeçalhos (Bearer JWT, Basic Auth, API Key) e reatividade automática.
+
+### 1. Padrão Arquitetural: Estado Reativo para Consumo de APIs
+Recomenda-se centralizar o estado de comunicação (dados, indicador de carregamento, erros e paginação) no `state` da janela:
+
+```javascript
+import { createElement, Table, Button, Spinner, Toast, Modal } from './ui.js';
+
+export default {
+    title: "Gestão Corporativa (Consumo de API)",
+    icon: "🌐",
+    width: 880,
+    height: 560,
+    state: {
+        items: [],
+        isLoading: false,
+        authToken: "Basic " + btoa("usuario:senha123"), // Ou Bearer JWT
+        searchQuery: "",
+        apiUrl: "https://api.empresa.com/v1"
+    },
+
+    onMount() {
+        // Disparado assim que a janela é criada e anexada ao DOM
+        this.fetchData();
+    },
+
+    async fetchData() {
+        this.state.isLoading = true;
+        this.setStatus("Carregando dados da API...");
+
+        try {
+            const url = `${this.state.apiUrl}/recursos?q=${encodeURIComponent(this.state.searchQuery)}`;
+            const res = await fetch(url, {
+                headers: {
+                    "Authorization": this.state.authToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}: Falha na requisição`);
+
+            const json = await res.json();
+            this.state.items = json.data || json;
+            this.setStatus(`${this.state.items.length} registros carregados.`);
+        } catch (err) {
+            console.error("Erro na API:", err);
+            this.setStatus("Erro na conexão com a API.");
+            Toast({ message: "Erro ao comunicar com o servidor: " + err.message, type: "error" });
+        } finally {
+            this.state.isLoading = false;
+        }
+    },
+
+    async createItem(dados) {
+        try {
+            const res = await fetch(`${this.state.apiUrl}/recursos`, {
+                method: "POST",
+                headers: {
+                    "Authorization": this.state.authToken,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dados)
+            });
+
+            if (!res.ok) throw new Error("Erro no cadastro");
+            Toast({ message: "Item criado com sucesso!", type: "success" });
+            this.fetchData(); // Recarrega a listagem
+        } catch (err) {
+            Toast({ message: err.message, type: "error" });
+        }
+    },
+
+    view() {
+        if (this.state.isLoading) {
+            return createElement("div", "flex-center", [
+                Spinner({ size: "32px" }),
+                createElement("p", "", ["Consultando servidor remoto..."])
+            ]);
+        }
+
+        return createElement("div", "flex-col", [
+            Table({
+                columns: [
+                    { label: "ID", key: "id" },
+                    { label: "Título", key: "title" },
+                    { label: "Status", key: "status" }
+                ],
+                data: this.state.items
+            })
+        ]);
+    }
+};
+```
+
+### 2. Boas Práticas na Integração com Serviços
+- **Preservação de Foco na Digitação:** Ao vincular campos de busca ou filtros a inputs, o DesktopEngine utiliza `instance._setSilentState()` para atualizar o estado sem destruir os elementos DOM ativos durante a digitação.
+- **Orquestração com Actions & Middlewares:** Para fluxos com validações encadeadas, use `actions: { salvar: [validarForm, enviarApi, logAuditoria] }`.
+- **Tratamento de Autenticação 401:** Intercepte respostas de status `401 Unauthorized` para abrir dinamicamente um `Modal()` de login ou renovação de token sem fechar a janela do usuário.
 
 ---
 

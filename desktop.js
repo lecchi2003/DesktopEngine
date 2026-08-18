@@ -1,6 +1,6 @@
 // desktop.js
 import { EventBus, Framework } from './core.js';
-import { bindContextMenu } from './ui.js';
+import { bindContextMenu, MenuBar } from './ui.js';
 
 export const Desktop = {
     windowsEl: null,
@@ -221,6 +221,7 @@ export const Desktop = {
                     <div class="winBtn close" title="Fechar">×</div>
                 </div>
             </div>
+            <div class="window-menubar ui-menubar" style="display: none;"></div>
             <div class="windowBody"></div>
             <div class="statusbar"></div>
             ${resizable ? `
@@ -243,6 +244,21 @@ export const Desktop = {
 
         const statusbarEl = w.querySelector(".statusbar");
         if (statusbarEl) statusbarEl.textContent = config.status || "Pronto";
+
+        // --- Injeção de Métodos de Controle na Instância (Antes do Render) ---
+        instance.setMenuBar = (menus) => this.setWindowMenuBar(instance, menus);
+        instance.getMenuBar = () => instance.windowEl ? instance.windowEl.querySelector(".window-menubar") : null;
+        instance.close = () => this.closeWindow(instance, w, task);
+        instance.minimize = () => this.minimizeWindow(w);
+        instance.maximize = () => this.maximizeWindow(w);
+        instance.restore = () => this.restoreWindow(w);
+        instance.focus = () => this.focusWindow(w);
+
+        // --- Inicializa Window MenuBar se configurado na tela ---
+        const windowMenus = config.menubar || config.menus || config.menu;
+        if (windowMenus && Array.isArray(windowMenus) && windowMenus.length > 0) {
+            this.setWindowMenuBar(instance, windowMenus);
+        }
 
         // Renderiza conteúdo
         const bodyEl = w.querySelector(".windowBody");
@@ -287,7 +303,7 @@ export const Desktop = {
         w.querySelector(".close").onclick = () => this.closeWindow(instance, w, task);
         if (minimizable) w.querySelector(".minimize").onclick = () => this.minimizeWindow(w);
         if (maximizable) w.querySelector(".maximize").onclick = () => this.maximizeWindow(w);
-        
+
         this.setupDrag(w, w.querySelector(".titlebar"));
         if (resizable) this.setupResize(w);
         
@@ -298,6 +314,31 @@ export const Desktop = {
         this.focusWindow(w);
         
         return w;
+    },
+
+    setWindowMenuBar(instance, menus) {
+        if (!instance || !instance.windowEl) return;
+        const w = instance.windowEl;
+        let mbEl = w.querySelector(".window-menubar");
+        if (!menus || (Array.isArray(menus) && menus.length === 0)) {
+            if (mbEl) {
+                mbEl.innerHTML = "";
+                mbEl.style.display = "none";
+            }
+            return;
+        }
+        if (!mbEl) {
+            mbEl = document.createElement("div");
+            mbEl.className = "window-menubar ui-menubar";
+            const titlebar = w.querySelector(".titlebar");
+            if (titlebar && titlebar.nextSibling) {
+                w.insertBefore(mbEl, titlebar.nextSibling);
+            } else {
+                w.prepend(mbEl);
+            }
+        }
+        mbEl.style.display = "flex";
+        MenuBar({ element: mbEl, menus, windowInstance: instance });
     },
 
     focusWindow(w) {

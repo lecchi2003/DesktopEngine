@@ -138,7 +138,11 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
         inp.dataset.bind = bind;
         inp.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
         inp.addEventListener("input", (e) => {
-            instance.state[bind] = e.target.value;
+            if (typeof instance._setSilentState === 'function') {
+                instance._setSilentState(bind, e.target.value);
+            } else {
+                instance.state[bind] = e.target.value;
+            }
         });
     }
     wrap.appendChild(inp);
@@ -160,7 +164,11 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
         txt.dataset.bind = bind;
         txt.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
         txt.addEventListener("input", (e) => {
-            instance.state[bind] = e.target.value;
+            if (typeof instance._setSilentState === 'function') {
+                instance._setSilentState(bind, e.target.value);
+            } else {
+                instance.state[bind] = e.target.value;
+            }
         });
     }
     wrap.appendChild(txt);
@@ -342,16 +350,25 @@ export function bindContextMenu(element, items = []) {
     });
 }
 
-export function MenuBar({ containerId, position = "top", menus = [] }) {
-    const bar = document.getElementById(containerId);
-    if (!bar) return;
+export function MenuBar({ containerId, element, position = "top", menus = [], windowInstance = null } = {}) {
+    let bar;
+    if (element && (element.nodeType || element instanceof HTMLElement)) {
+        bar = element;
+    } else if (containerId) {
+        bar = document.getElementById(containerId);
+    } else {
+        bar = createElement("div", "ui-menubar", []);
+    }
+    if (!bar) return null;
     
     bar.innerHTML = "";
-    bar.className = "ui-menubar";
+    if (!bar.classList.contains("ui-menubar")) {
+        bar.classList.add("ui-menubar");
+    }
     bar.dataset.position = position;
 
     const app = document.getElementById("app");
-    if (app) {
+    if (app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")))) {
         app.dataset.menubar = position;
     }
 
@@ -364,17 +381,42 @@ export function MenuBar({ containerId, position = "top", menus = [] }) {
             if (subItem === "separator") {
                 container.appendChild(createElement("div", "menuSep", []));
             } else {
-                const opt = createElement("div", "menuOption", [subItem.label]);
+                const optChildren = [];
+                const leftPart = createElement("div", "menuOption-left", []);
+                
+                if (subItem.icon) {
+                    leftPart.appendChild(createElement("span", "menuOption-icon", [subItem.icon]));
+                }
+                leftPart.appendChild(createElement("span", "menuOption-label", [subItem.label || ""]));
+                optChildren.push(leftPart);
+
+                if (subItem.shortcut) {
+                    optChildren.push(createElement("span", "menuShortcut", [subItem.shortcut]));
+                }
+
+                if (subItem.items && subItem.items.length > 0) {
+                    optChildren.push(createElement("span", "submenu-arrow", ["▶"]));
+                }
+
+                const opt = createElement("div", "menuOption", optChildren);
+
+                const isDisabled = typeof subItem.disabled === 'function' ? subItem.disabled(windowInstance) : !!subItem.disabled;
+                if (isDisabled) {
+                    opt.classList.add("disabled");
+                }
+
                 if (subItem.items && subItem.items.length > 0) {
                     opt.classList.add("has-submenu");
-                    opt.appendChild(createElement("span", "submenu-arrow", ["▶"]));
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
                     
-                    opt.addEventListener("mouseenter", () => nested.style.display = "flex");
+                    opt.addEventListener("mouseenter", () => {
+                        if (!isDisabled) nested.style.display = "flex";
+                    });
                     opt.addEventListener("mouseleave", () => nested.style.display = "none");
                 } else {
                     opt.onclick = (e) => { 
+                        if (isDisabled) return;
                         e.stopPropagation(); 
                         if (subItem.screen) {
                             const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
@@ -382,9 +424,9 @@ export function MenuBar({ containerId, position = "top", menus = [] }) {
                                 d.openScreen(subItem.screen, subItem.props);
                             }
                         } else if (subItem.action) {
-                            subItem.action();
+                            subItem.action(windowInstance, e);
                         }
-                        document.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                        bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
                     };
                 }
                 container.appendChild(opt);
@@ -396,7 +438,13 @@ export function MenuBar({ containerId, position = "top", menus = [] }) {
     let isMenuOpen = false;
 
     menus.forEach(menu => {
-        const item = createElement("div", "menubar-item", [menu.label]);
+        const itemChildren = [];
+        if (menu.icon) {
+            itemChildren.push(createElement("span", "menubar-item-icon", [menu.icon]));
+        }
+        itemChildren.push(createElement("span", "menubar-item-label", [menu.label || ""]));
+        
+        const item = createElement("div", "menubar-item", itemChildren);
         if (menu.items && menu.items.length > 0) {
             const dropdown = buildMenu(menu.items);
             item.appendChild(dropdown);
@@ -411,7 +459,7 @@ export function MenuBar({ containerId, position = "top", menus = [] }) {
                 item.classList.remove("active");
                 isMenuOpen = false;
             } else {
-                document.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
                 item.classList.add("active");
                 isMenuOpen = true;
             }
@@ -419,7 +467,7 @@ export function MenuBar({ containerId, position = "top", menus = [] }) {
 
         item.onmouseenter = () => {
             if (isMenuOpen && !item.classList.contains("active")) {
-                document.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+                bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
                 item.classList.add("active");
             }
         };
@@ -428,8 +476,8 @@ export function MenuBar({ containerId, position = "top", menus = [] }) {
     });
     
     document.addEventListener("mousedown", e => {
-        if (!e.target.closest(".menubar-item")) {
-            document.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
+        if (!bar.contains(e.target)) {
+            bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
             isMenuOpen = false;
         }
     });
@@ -1232,7 +1280,11 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
         } else {
             inp.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
             inp.addEventListener("input", (e) => {
-                instance.state[bind] = e.target.value;
+                if (typeof instance._setSilentState === 'function') {
+                    instance._setSilentState(bind, e.target.value);
+                } else {
+                    instance.state[bind] = e.target.value;
+                }
             });
         }
     }
