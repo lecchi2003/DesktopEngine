@@ -1098,25 +1098,44 @@ async gerarRelatorioAsync(lotes = 10) {
 O DesktopEngine possui um subsistema nativo e modular de **Look and Feel (L&F)** que permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela, tipografia, cantos e molduras do ambiente desktop em tempo de execução.
 
 > [!TIP]
-> **Ortogonalidade:** O *Look and Feel* (estrutura da carcaça do SO via atributo `data-laf`) é independente da *Paleta de Cores* (cores e tons via atributo `data-theme`). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: macOS no tema Midnight Cyber, Windows 98 em Alto Contraste, ou Java Metal no tema Slate Dark).
+> **Ortogonalidade:** O *Look and Feel* (estrutura da carcaça visual via atributo `data-laf`) é independente da *Paleta de Cores* (cores e tons via atributo `data-theme`). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: Aqua Frosted no tema Midnight Cyber, Retro 3D em Alto Contraste, ou Steel Metal no tema Slate Dark).
 
-### API de Look and Feel no `Desktop`
+### API de Look and Feel no `Desktop` & Botões Dinâmicos da Barra
 ```javascript
 import { Desktop } from './desktop.js';
 
-// 1. Aplicar um Look and Feel nativo
-Desktop.setLookAndFeel("macos"); // ou "win11", "win98", "beos", "java-metal", etc.
+// 1. Aplicar um Look and Feel nativo pelo identificador conceitual (ou alias legado)
+Desktop.setLookAndFeel("aero-glass"); // Transforma o botão Iniciar em um Orb circular translúcido Aero e o Mostrar Área de Trabalho em Aero Peek!
 
 // 2. Voltar ao Look and Feel padrão
 Desktop.setLookAndFeel("default");
 
 // 3. Obter o Look and Feel ativo no momento
-const lafAtual = Desktop.getLookAndFeel(); // Ex: "macos"
+const lafAtual = Desktop.getLookAndFeel(); // Ex: "aero-glass"
 
-// 4. Obter catálogo completo com metadados (id, label, icon, category, desc)
-const catalogo = Desktop.getAvailableLookAndFeels();
+// 4. Customizar ou Registrar ícone/rótulo do Botão Iniciar para um Look and Feel
+Desktop.setStartButtonConfig("aero-glass", {
+    icon: `<svg ...></svg>`, // Ícone SVG vetorial ou emoji
+    label: "",               // Rótulo de texto (deixe vazio para botões circulares/orbs)
+    showLabel: false,        // Oculta o texto para manter o formato circular perfeito
+    tooltip: "Menu Principal (Aero Glass)"
+});
 
-// 5. Escutar eventos de alteração de Look and Feel
+// 5. Customizar ou Registrar botão "Mostrar Área de Trabalho"
+Desktop.setShowDesktopButtonConfig("aero-glass", {
+    icon: "",                // Vazio para ativar a barra de vidro Aero Peek pura via CSS
+    label: "",
+    tooltip: "Espiar / Mostrar Área de Trabalho (Aero Peek)"
+});
+
+// 6. Consultar a configuração do botão Iniciar do tema atual
+const startConfig = Desktop.getStartButtonConfig("aero-glass");
+const showDeskConfig = Desktop.getShowDesktopButtonConfig("aero-glass");
+
+// 7. Forçar atualização de todos os botões Iniciar na taskbar
+Desktop.updateStartButton();
+
+// 8. Escutar eventos de alteração de Look and Feel
 EventBus.on("laf:change", (lafName) => {
     console.log("Look and Feel alterado para:", lafName);
 });
@@ -1124,44 +1143,44 @@ EventBus.on("laf:change", (lafName) => {
 
 ### Catálogo dos 34 Look and Feels Disponíveis
 
-| Categoria | Identificador | Nome / Sistema | Destaques Estruturais e Visuais |
+| Categoria | Identificador | Nome Conceitual | Destaques Estruturais e Visuais |
 | :--- | :--- | :--- | :--- |
-| **Modernos & Mobile** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
-| **Modernos & Mobile** | `"macos"` | macOS (Aqua Modern) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
-| **Modernos & Mobile** | `"win11"` | Windows 11 (Fluent) | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
-| **Modernos & Mobile** | `"material3"` | Material You / M3 (Android) | Superfícies em camadas tonais, cantos de 20px e botões pílula (*Pill*). |
-| **Modernos & Mobile** | `"cupertino"` | Cupertino (iOS 18) | Vidro fosco translúcido (*frosted glass* 28px blur), squircle de 20px e sombras suaves. |
-| **Modernos & Mobile** | `"oneui"` | Samsung One UI | Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico. |
-| **Modernos & Mobile** | `"metro"` | Windows Metro (Flat) | Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste. |
-| **Espacial & Tátil** | `"visionos"` | Apple VisionOS | Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas. |
+| **Modernos & Translúcidos** | `"default"` | Padrão Moderno | Design padrão suave e limpo do DesktopEngine. |
+| **Modernos & Translúcidos** | `"aqua-frosted"` *(alias: `"macos"`)* | Aqua Frosted (Vidro Fosco) | Botões semáforo (🔴 🟡 🟢) à **esquerda**, título centralizado e cantos de 12px. |
+| **Modernos & Translúcidos** | `"fluent-acrylic"` *(alias: `"win11"`)* | Fluent Acrylic | Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho. |
+| **Modernos & Translúcidos** | `"material-tonal"` *(alias: `"material3"`)* | Material Tonal | Superfícies em camadas tonais, cantos de 20px e botões pílula (*Pill*). |
+| **Modernos & Translúcidos** | `"cupertino-touch"` *(alias: `"cupertino"`)* | Cupertino Touch | Vidro fosco translúcido (*frosted glass* 28px blur), squircle de 20px e sombras suaves. |
+| **Modernos & Translúcidos** | `"one-touch"` *(alias: `"oneui"`)* | One Touch | Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico. |
+| **Modernos & Translúcidos** | `"flat-tiles"` *(alias: `"metro"`)* | Flat Tiles | Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste. |
+| **Espacial & Tátil** | `"spatial-glass"` *(alias: `"visionos"`)* | Spatial Glass | Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas. |
 | **Espacial & Tátil** | `"neumorphism"` | Neumorphism (Soft UI) | Superfícies esculpidas em relevo suave com luz e sombra duplas opostas. |
 | **Espacial & Tátil** | `"tactical-hud"` | Tactical HUD (Cyberdeck) | Interface tática militar em âmbar/neon, cantos chanfrados em 45º e estética de ficção científica. |
-| **Java PlaF** | `"java-metal"` | Java Metal (Steel Classic) | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
-| **Java PlaF** | `"java-ocean"` | Java Ocean (Metal 2.0) | Gradiente metálico azul acetinado e chanfros suaves Swing. |
-| **Java PlaF** | `"java-nimbus"` | Java Nimbus | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
-| **Java PlaF** | `"java-flatlaf"` | FlatLaf (IDE IntelliJ) | Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo. |
-| **Java PlaF** | `"javafx-modena"` | JavaFX Modena | Estética neutra cinza, limpa e moderna do JavaFX 8+. |
-| **Java PlaF** | `"javafx-caspian"` | JavaFX Caspian | Vidro escuro azulado elegante do JavaFX 2. |
-| **Retrô & Clássicos** | `"beos"` | BeOS / Haiku OS | A famosa **aba amarela** no topo esquerdo da janela com botões chanfrados. |
-| **Retrô & Clássicos** | `"win98"` | Windows 98 (Classic 3D) | Bordas 3D chanfradas *outset/inset*, botões clássicos cinza e barra azul. |
-| **Retrô & Clássicos** | `"winxp"` | Windows XP (Luna) | Barra azul royal brilhante e botão de fechar vermelho luminoso. |
-| **Retrô & Clássicos** | `"win7"` | Windows 7 (Aero Glass) | Vidro translúcido com reflexos de iluminação e botões com brilho suave. |
-| **Retrô & Clássicos** | `"nextstep"` | NeXTSTEP / OpenStep | Estética monocromática em tons de cinza puro e preto com relevos 3D profundos. |
-| **Retrô & Clássicos** | `"amiga"` | AmigaOS (Workbench) | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
-| **Retrô & Clássicos** | `"mac-classic"` | Mac OS System 7 / Platinum | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
-| **Retrô & Clássicos** | `"os2-warp"` | OS/2 Warp (IBM) | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
-| **UNIX / Linux** | `"ubuntu"` | Ubuntu (Yaru) | Barra grafite com acentos em Laranja Ubuntu e botões circulares. |
-| **UNIX / Linux** | `"elementary"` | Elementary OS (Pantheon) | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
-| **UNIX / Linux** | `"pop-cosmic"` | Pop!_OS (COSMIC) | Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76). |
-| **UNIX / Linux** | `"i3wm"` | i3wm / Sway (Tiling) | Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px. |
-| **UNIX / Linux** | `"xfce"` | XFCE (Greybird) | Gradiente suave azul-acinzentado, botões leves e cantos de 4px. |
-| **UNIX / Linux** | `"enlightenment"` | Enlightenment (E25) | Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi. |
-| **UNIX / Linux** | `"windowmaker"` | Window Maker (X11) | Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta. |
-| **UNIX / Linux** | `"cde-motif"` | CDE / Motif (Solaris) | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
-| **UNIX / Linux** | `"gnome"` | GNOME (Adwaita) | Headerbar espaçosa de 42px com botão de fechar circular minimalista. |
-| **UNIX / Linux** | `"kde"` | KDE (Breeze) | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
-| **TUI & Sci-Fi** | `"turbovision"` | Turbo Vision (DOS TUI) | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
-| **TUI & Sci-Fi** | `"cyberpunk"` | Cyberpunk HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
+| **Swing & Java** | `"steel-metal"` *(alias: `"java-metal"`)* | Steel Metal | Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo. |
+| **Swing & Java** | `"ocean-metal"` *(alias: `"java-ocean"`)* | Ocean Metal | Gradiente metálico azul acetinado e chanfros suaves Swing. |
+| **Swing & Java** | `"nimbus-vector"` *(alias: `"java-nimbus"`)* | Nimbus Vector | Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar. |
+| **Swing & Java** | `"flatlaf-ide"` *(alias: `"java-flatlaf"`)* | Modern IDE (Studio) | Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo. |
+| **Swing & Java** | `"modena-soft"` *(alias: `"javafx-modena"`)* | Modena Soft | Estética neutra cinza, limpa e moderna do JavaFX 8+. |
+| **Swing & Java** | `"caspian-dark"` *(alias: `"javafx-caspian"`)* | Caspian Dark | Vidro escuro azulado elegante do JavaFX 2. |
+| **Retrô & Clássicos 3D** | `"yellow-tab"` *(alias: `"beos"`)* | Yellow Tab | A famosa **aba amarela** no topo esquerdo da janela com botões chanfrados. |
+| **Retrô & Clássicos 3D** | `"retro-3d"` *(alias: `"win98"`)* | Retro 3D (Chanfrado) | Bordas 3D chanfradas *outset/inset*, botões clássicos cinza e barra azul. |
+| **Retrô & Clássicos 3D** | `"luna-blue"` *(alias: `"winxp"`)* | Luna Classic | Barra azul royal brilhante e botão de fechar vermelho luminoso. |
+| **Retrô & Clássicos 3D** | `"aero-glass"` *(alias: `"win7"`)* | Aero Glass | Vidro translúcido com reflexos de iluminação e botões com brilho suave. |
+| **Retrô & Clássicos 3D** | `"next-dark"` *(alias: `"nextstep"`)* | Dark Slate Cube | Estética monocromática em tons de cinza puro e preto com relevos 3D profundos. |
+| **Retrô & Clássicos 3D** | `"workbench-boing"` *(alias: `"amiga"`)* | Workbench Retro | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
+| **Retrô & Clássicos 3D** | `"platinum-classic"` *(alias: `"mac-classic"`)* | Platinum Classic | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
+| **Retrô & Clássicos 3D** | `"warp-enterprise"` *(alias: `"os2-warp"`)* | Warp Enterprise | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
+| **Desktops Unix & Abertos** | `"aubergine-orange"` *(alias: `"ubuntu"`)* | Aubergine Orange | Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste. |
+| **Desktops Unix & Abertos** | `"pantheon-pure"` *(alias: `"elementary"`)* | Pantheon Pure | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
+| **Desktops Unix & Abertos** | `"cosmic-teal"` *(alias: `"pop-cosmic"`)* | Cosmic Teal | Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar. |
+| **Desktops Unix & Abertos** | `"tiling-grid"` *(alias: `"i3wm"`)* | Tiling Grid | Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px. |
+| **Desktops Unix & Abertos** | `"greybird-lite"` *(alias: `"xfce"`)* | Greybird Lite | Gradiente suave azul-acinzentado, botões leves e cantos de 4px. |
+| **Desktops Unix & Abertos** | `"e-fusion"` *(alias: `"enlightenment"`)* | Fusion Neon | Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi. |
+| **Desktops Unix & Abertos** | `"x11-box"` *(alias: `"windowmaker"`)* | X11 Dark Box | Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta. |
+| **Desktops Unix & Abertos** | `"motif-panel"` *(alias: `"cde-motif"`)* | Motif Panel | Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo. |
+| **Desktops Unix & Abertos** | `"adwaita-slate"` *(alias: `"gnome"`)* | Adwaita Slate | Headerbar espaçosa de 42px com botão de fechar circular minimalista e alto contraste. |
+| **Desktops Unix & Abertos** | `"breeze-plasma"` *(alias: `"kde"`)* | Breeze Plasma | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
+| **Console & Sci-Fi** | `"turbo-tui"` *(alias: `"turbovision"`)* | DOS TUI Console | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
+| **Console & Sci-Fi** | `"cyberpunk-neon"` *(alias: `"cyberpunk"`)* | Cyber Neon HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
 
 ---
 
@@ -1174,7 +1193,7 @@ O DesktopEngine possui um motor completo de alternância de paletas com persist�
 import { Desktop } from './desktop.js';
 
 // 1. Alterar tema
-Desktop.setTheme("dark"); // "light", "dark", "midnight", "emerald", "nord"
+Desktop.setTheme("dark"); // "light", "dark", "midnight", "emerald", "nord", "contrast"
 
 // 2. Alternar entre Light e Dark rapidamente
 Desktop.toggleTheme();
@@ -1204,7 +1223,7 @@ Desktop.registerPalette("synthwave", {
 - **`midnight` (Cyber Navy):** Tons de azul escuro profundo com roxo.
 - **`emerald` (Fintech):** Tons verdes esmeralda para dashboards e finanças.
 - **`nord` (Frost):** Paleta fria e minimalista inspirada no design ártico.
-- **`contrast` (Alto Contraste):** O visual clássico retrô Windows de acessibilidade (fundo preto absoluto, bordas ciano/amarelo e barra magenta).
+- **`contrast` (Alto Contraste):** O visual clássico retrô de acessibilidade (fundo preto absoluto, bordas ciano/amarelo e barra magenta).
 
 ---
 
@@ -1217,8 +1236,10 @@ O **DesktopEngine** oferece suporte híbrido responsivo nativo: opera como **Des
 - **Auto-Scroll na Criação:** Ao abrir qualquer tela (ex: `Desktop.openScreen()` ou `Desktop.createWindow()`), o desktop rola suavemente para baixo garantindo foco visual imediato na nova janela aberta.
 - **Ajustes de Interação:** Handles de redimensionamento livre e arrastar de coordenadas absolutas são desativados de forma transparente no mobile para não interferir na rolagem da página.
 
-### 2. MenuBar Mobile (Global & Window MenuBars com Hamburger & Accordion)
-Em visualizações móveis, tanto a barra superior global quanto os **Window MenuBars** dentro de janelas (ex: Editor, Navegador) transformam-se em botões compactos **Hamburger (☰)**. Ao serem tocados, abrem uma **Drawer Lateral / Bottom Sheet deslizante** contendo toda a hierarquia de menus em formato de sanfona (*Accordion*) com áreas de toque confortáveis (mínimo de 44px de altura) e fechamento automático ao selecionar uma ação.
+### 2. MenuBar & Menu Iniciar Mobile (Drawer Lateral Deslizante & Sanfona)
+Em visualizações móveis:
+- Tanto a barra superior global quanto os **Window MenuBars** dentro de janelas transformam-se em botões compactos **Hamburger (☰)** com contraste alto garantido em todos os temas.
+- O **Botão Iniciar na Barra de Tarefas** converte-se automaticamente em um **Launcher Hambúrguer Mobile** compacto. Ao ser tocado, abre a **Drawer Lateral / Bottom Sheet deslizante** com suporte a toque touch, grupos em sanfona (*Accordion*) e fechamento automático ao disparar uma ação.
 
 ### 3. Menu de Contexto Mobile (Bottom Sheet / Action Sheet & Long-Press)
 O `ContextMenu` detecta o ambiente touch/mobile e abre uma **Bottom Sheet (Folha Inferior deslizante)** com fundo escurecido (*backdrop*), opções táteis com ícones e botão de *Cancelar*. O método `bindContextMenu` inclui suporte automático a **toque prolongado (long-press de 450ms)** com vibração tátil (haptic feedback) em smartphones e tablets.
@@ -1246,8 +1267,21 @@ Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneame
 
 ---
 
+## 🎭 Look and Feel (34 Skins Conceituais & Botões Adaptativos)
+
+O **DesktopEngine** suporta **34 Look and Feels conceituais**, com estética detalhada e controles adaptativos para cada estilo: **Aero Glass**, **Fluent Acrylic**, **Luna Classic**, **Retro 3D**, **Aqua Frosted**, **Spatial Glass**, **Neumorphism**, **Material Tonal**, **Aubergine Orange**, **DOS TUI**, **Cyber Neon HUD**, **Steel Metal**, **Modern IDE (Studio)**, entre outros.
+
+Ao alternar de Look & Feel, tanto as janelas quanto os botões da Taskbar (**Botão Iniciar** e **Mostrar Área de Trabalho**) transformam automaticamente sua geometria, ícones e comportamento visual:
+- **Aero Glass (`aero-glass` / `win7`):** Transforma o botão Iniciar em um **Orb circular translúcido (36px)** e o botão Mostrar Área de Trabalho na clássica **faixa de vidro Aero Peek** no canto da tela.
+- **Aqua Frosted (`aqua-frosted` / `macos`):** Transforma os controles em cápsulas de vidro fosco minimalistas.
+- **Retro 3D (`retro-3d` / `win98`):** Adota bordas chanfradas 3D outset autênticas com textos em negrito.
+- **Luna Classic (`luna-blue` / `winxp`):** Adota relevo clássico e gradientes azuis/verdes.
+
+---
+
 ## 📖 Visualizando a Documentação Interativa
 
 Para navegar pelo manual visual com menu lateral expansível e tabelas de consulta rápida:
 👉 Abra o arquivo **`docs.html`** no seu navegador.
+
 

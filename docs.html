@@ -2275,85 +2275,105 @@ export default {
                 </div>
             </div>
 
-            <h3>API do Desktop para Look and Feel</h3>
+            <h3>API do Desktop para Look and Feel &amp; Botão Iniciar Dinâmico</h3>
             <div class="code-box">
                 <pre><code>import { Desktop } from './desktop.js';
 
-// 1. Aplicar um Look and Feel nativo
-Desktop.setLookAndFeel("macos"); // ou "win11", "win98", "beos", "java-metal", etc.
+// 1. Aplicar um Look and Feel nativo (atualiza janelas, taskbar e botão Iniciar automaticamente)
+Desktop.setLookAndFeel("win7"); // Transforma o botão Iniciar no clássico Aero Orb circular azul sem vazamento de texto!
 
 // 2. Voltar ao Look and Feel padrão
 Desktop.setLookAndFeel("default");
 
 // 3. Obter o Look and Feel ativo no momento
-const lafAtual = Desktop.getLookAndFeel(); // Ex: "macos"
+const lafAtual = Desktop.getLookAndFeel(); // Ex: "win7"
 
-// 4. Obter catálogo completo com metadados (id, label, icon, category, desc)
-const catalogo = Desktop.getAvailableLookAndFeels();
+// 4. Customizar ou Registrar ícone/rótulo do Botão Iniciar para um Look and Feel
+Desktop.setStartButtonConfig("win7", {
+    icon: `&lt;svg ...&gt;&lt;/svg&gt;`, // Ícone SVG vetorial ou emoji
+    label: "",               // Rótulo de texto (deixe vazio para botões circulares/orbs)
+    showLabel: false,        // Oculta o texto para manter o formato circular perfeito
+    tooltip: "Iniciar (Windows 7 Aero)"
+});
 
-// 5. Escutar eventos de alteração de Look and Feel
+// 5. Customizar ou Registrar ícone do Botão "Mostrar Área de Trabalho"
+Desktop.setShowDesktopButtonConfig("win7", {
+    icon: "",                // Vazio para ativar a barra de vidro Aero Peek pura via CSS
+    label: "",
+    tooltip: "Espiar Área de Trabalho (Aero Peek)"
+});
+
+// 6. Consultar as configurações ativas
+const startConfig = Desktop.getStartButtonConfig("win7");
+const showDeskConfig = Desktop.getShowDesktopButtonConfig("win7");
+
+// 7. Forçar atualização de todos os botões na taskbar
+Desktop.updateStartButton();
+
+// 8. Escutar eventos de alteração de Look and Feel
 EventBus.on("laf:change", (lafName) => {
     console.log("Look and Feel alterado para:", lafName);
 });</code></pre>
             </div>
 
             <h3>Catálogo dos 34 Look and Feels Disponíveis</h3>
+            <p>O framework oferece 34 sistemas conceituais de design de interface (Skins de Look and Feel), com suporte a retrocompatibilidade de aliases legados.</p>
             <table>
                 <thead>
                     <tr>
                         <th>Categoria</th>
                         <th>Identificador</th>
-                        <th>Nome / Sistema</th>
+                        <th>Nome Conceitual</th>
                         <th>Destaques Estruturais e Visuais</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
                         <td><code>"default"</code></td>
                         <td>Padrão Moderno</td>
                         <td>Design padrão suave e limpo do DesktopEngine.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
-                        <td><code>"macos"</code></td>
-                        <td>macOS (Aqua Modern)</td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
+                        <td><code>"aqua-frosted"</code> (alias: <code>"macos"</code>)</td>
+                        <td>Aqua Frosted (Vidro Fosco)</td>
                         <td>Botões semáforo (🔴 🟡 🟢) à <strong>esquerda</strong>, título centralizado e cantos de 12px.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
-                        <td><code>"win11"</code></td>
-                        <td>Windows 11 (Fluent)</td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
+                        <td><code>"fluent-acrylic"</code> (alias: <code>"win11"</code>)</td>
+                        <td>Fluent Acrylic</td>
                         <td>Cantos arredondados de 8px, controles refinados e botão fechar com hover vermelho.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
-                        <td><code>"material3"</code></td>
-                        <td>Material You / M3 (Android)</td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
+                        <td><code>"material-tonal"</code> (alias: <code>"material3"</code>)</td>
+                        <td>Material Tonal</td>
                         <td>Superfícies em camadas tonais, cantos de 20px e botões pílula (<em>Pill</em>).</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
-                        <td><code>"cupertino"</code></td>
-                        <td>Cupertino (iOS 18)</td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
+                        <td><code>"cupertino-touch"</code> (alias: <code>"cupertino"</code>)</td>
+                        <td>Cupertino Touch</td>
                         <td>Vidro fosco translúcido (<em>frosted glass</em> 28px blur), squircle de 20px e sombras suaves.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
-                        <td><code>"oneui"</code></td>
-                        <td>Samsung One UI</td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
+                        <td><code>"one-touch"</code> (alias: <code>"oneui"</code>)</td>
+                        <td>One Touch</td>
                         <td>Cantos ultra arredondados de 24px, cabeçalhos amplos e foco ergonômico.</td>
                     </tr>
                     <tr>
-                        <td><strong>Modernos &amp; Mobile</strong></td>
-                        <td><code>"metro"</code></td>
-                        <td>Windows Metro (Flat)</td>
+                        <td><strong>Modernos &amp; Translúcidos</strong></td>
+                        <td><code>"flat-tiles"</code> (alias: <code>"metro"</code>)</td>
+                        <td>Flat Tiles</td>
                         <td>Design 100% plano, cantos retos (0px), tipografia marcante e alto contraste.</td>
                     </tr>
                     <tr>
                         <td><strong>Espacial &amp; Tátil</strong></td>
-                        <td><code>"visionos"</code></td>
-                        <td>Apple VisionOS</td>
+                        <td><code>"spatial-glass"</code> (alias: <code>"visionos"</code>)</td>
+                        <td>Spatial Glass</td>
                         <td>Vidro espacial hiper-translúcido (35px blur), reflexos especulares finos e sombras volumétricas.</td>
                     </tr>
                     <tr>
@@ -2369,159 +2389,159 @@ EventBus.on("laf:change", (lafName) => {
                         <td>Interface tática militar em âmbar/neon, cantos chanfrados em 45º e estética de ficção científica.</td>
                     </tr>
                     <tr>
-                        <td><strong>Java PlaF</strong></td>
-                        <td><code>"java-metal"</code></td>
-                        <td>Java Metal (Steel Classic)</td>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"steel-metal"</code> (alias: <code>"java-metal"</code>)</td>
+                        <td>Steel Metal</td>
                         <td>Visual clássico Java Swing com tons azul-aço, texturas e contornos de relevo.</td>
                     </tr>
                     <tr>
-                        <td><strong>Java PlaF</strong></td>
-                        <td><code>"java-ocean"</code></td>
-                        <td>Java Ocean (Metal 2.0)</td>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"ocean-metal"</code> (alias: <code>"java-ocean"</code>)</td>
+                        <td>Ocean Metal</td>
                         <td>Gradiente metálico azul acetinado e chanfros suaves Swing.</td>
                     </tr>
                     <tr>
-                        <td><strong>Java PlaF</strong></td>
-                        <td><code>"java-nimbus"</code></td>
-                        <td>Java Nimbus</td>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"nimbus-vector"</code> (alias: <code>"java-nimbus"</code>)</td>
+                        <td>Nimbus Vector</td>
                         <td>Superfícies acetinadas, cantos de 4px e foco luminoso em ouro/âmbar.</td>
                     </tr>
                     <tr>
-                        <td><strong>Java PlaF</strong></td>
-                        <td><code>"java-flatlaf"</code></td>
-                        <td>FlatLaf (IDE IntelliJ)</td>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"flatlaf-ide"</code> (alias: <code>"java-flatlaf"</code>)</td>
+                        <td>Modern IDE (Studio)</td>
                         <td>Estilo moderno de IDE profissional JetBrains/NetBeans, compacto e limpo.</td>
                     </tr>
                     <tr>
-                        <td><strong>Java PlaF</strong></td>
-                        <td><code>"javafx-modena"</code></td>
-                        <td>JavaFX Modena</td>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"modena-soft"</code> (alias: <code>"javafx-modena"</code>)</td>
+                        <td>Modena Soft</td>
                         <td>Estética neutra cinza, limpa e moderna do JavaFX 8+.</td>
                     </tr>
                     <tr>
-                        <td><strong>Java PlaF</strong></td>
-                        <td><code>"javafx-caspian"</code></td>
-                        <td>JavaFX Caspian</td>
+                        <td><strong>Swing &amp; Java</strong></td>
+                        <td><code>"caspian-dark"</code> (alias: <code>"javafx-caspian"</code>)</td>
+                        <td>Caspian Dark</td>
                         <td>Vidro escuro azulado elegante do JavaFX 2.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"beos"</code></td>
-                        <td>BeOS / Haiku OS</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"yellow-tab"</code> (alias: <code>"beos"</code>)</td>
+                        <td>Yellow Tab</td>
                         <td>A famosa <strong>aba amarela</strong> no topo esquerdo da janela com botões chanfrados.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"win98"</code></td>
-                        <td>Windows 98 (Classic 3D)</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"retro-3d"</code> (alias: <code>"win98"</code>)</td>
+                        <td>Retro 3D (Chanfrado)</td>
                         <td>Bordas 3D chanfradas <em>outset/inset</em>, botões clássicos cinza e barra azul.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"winxp"</code></td>
-                        <td>Windows XP (Luna)</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"luna-blue"</code> (alias: <code>"winxp"</code>)</td>
+                        <td>Luna Classic</td>
                         <td>Barra azul royal brilhante e botão de fechar vermelho luminoso.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"win7"</code></td>
-                        <td>Windows 7 (Aero Glass)</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"aero-glass"</code> (alias: <code>"win7"</code>)</td>
+                        <td>Aero Glass</td>
                         <td>Vidro translúcido com reflexos de iluminação e botões com brilho suave.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"nextstep"</code></td>
-                        <td>NeXTSTEP / OpenStep</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"next-dark"</code> (alias: <code>"nextstep"</code>)</td>
+                        <td>Dark Slate Cube</td>
                         <td>Estética monocromática em tons de cinza puro e preto com relevos 3D profundos.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"amiga"</code></td>
-                        <td>AmigaOS (Workbench)</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"workbench-boing"</code> (alias: <code>"amiga"</code>)</td>
+                        <td>Workbench Retro</td>
                         <td>Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"mac-classic"</code></td>
-                        <td>Mac OS System 7 / Platinum</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"platinum-classic"</code> (alias: <code>"mac-classic"</code>)</td>
+                        <td>Platinum Classic</td>
                         <td>Pinstripes horizontais na barra, botão de fechar quadrado à esquerda.</td>
                     </tr>
                     <tr>
-                        <td><strong>Retrô &amp; Clássicos</strong></td>
-                        <td><code>"os2-warp"</code></td>
-                        <td>OS/2 Warp (IBM)</td>
+                        <td><strong>Retrô &amp; Clássicos 3D</strong></td>
+                        <td><code>"warp-enterprise"</code> (alias: <code>"os2-warp"</code>)</td>
+                        <td>Warp Enterprise</td>
                         <td>Visual corporativo azul-acinzentado com moldura chanfrada sólida.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"ubuntu"</code></td>
-                        <td>Ubuntu (Yaru)</td>
-                        <td>Barra grafite com acentos em Laranja Ubuntu e botões circulares.</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"aubergine-orange"</code> (alias: <code>"ubuntu"</code>)</td>
+                        <td>Aubergine Orange</td>
+                        <td>Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"elementary"</code></td>
-                        <td>Elementary OS (Pantheon)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"pantheon-pure"</code> (alias: <code>"elementary"</code>)</td>
+                        <td>Pantheon Pure</td>
                         <td>Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"pop-cosmic"</code></td>
-                        <td>Pop!_OS (COSMIC)</td>
-                        <td>Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar (System76).</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"cosmic-teal"</code> (alias: <code>"pop-cosmic"</code>)</td>
+                        <td>Cosmic Teal</td>
+                        <td>Tema escuro moderno com acentos em Teal/Ciano e Laranja Solar.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"i3wm"</code></td>
-                        <td>i3wm / Sway (Tiling)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"tiling-grid"</code> (alias: <code>"i3wm"</code>)</td>
+                        <td>Tiling Grid</td>
                         <td>Borda ativa fina de 1px, barra monoespacada ultra-compacta e cantos 0px.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"xfce"</code></td>
-                        <td>XFCE (Greybird)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"greybird-lite"</code> (alias: <code>"xfce"</code>)</td>
+                        <td>Greybird Lite</td>
                         <td>Gradiente suave azul-acinzentado, botões leves e cantos de 4px.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"enlightenment"</code></td>
-                        <td>Enlightenment (E25)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"e-fusion"</code> (alias: <code>"enlightenment"</code>)</td>
+                        <td>Fusion Neon</td>
                         <td>Visual futurista em titânio escuro, relevos luminosos e curvas sci-fi.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"windowmaker"</code></td>
-                        <td>Window Maker (X11)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"x11-box"</code> (alias: <code>"windowmaker"</code>)</td>
+                        <td>X11 Dark Box</td>
                         <td>Gradiente diagonal clássico chanfrado preto/cinza e botões 3D com X e seta.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"cde-motif"</code></td>
-                        <td>CDE / Motif (Solaris)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"motif-panel"</code> (alias: <code>"cde-motif"</code>)</td>
+                        <td>Motif Panel</td>
                         <td>Ambiente de workstation UNIX dos anos 90 com bordas sólidas e relevo.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"gnome"</code></td>
-                        <td>GNOME (Adwaita)</td>
-                        <td>Headerbar espaçosa de 42px com botão de fechar circular minimalista.</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"adwaita-slate"</code> (alias: <code>"gnome"</code>)</td>
+                        <td>Adwaita Slate</td>
+                        <td>Headerbar espaçosa de 42px com botão de fechar circular minimalista e alto contraste.</td>
                     </tr>
                     <tr>
-                        <td><strong>UNIX / Linux</strong></td>
-                        <td><code>"kde"</code></td>
-                        <td>KDE (Breeze)</td>
+                        <td><strong>Desktops Unix &amp; Abertos</strong></td>
+                        <td><code>"breeze-plasma"</code> (alias: <code>"kde"</code>)</td>
+                        <td>Breeze Plasma</td>
                         <td>Linhas nítidas, acentos vetoriais azuis e cantos de 4px.</td>
                     </tr>
                     <tr>
-                        <td><strong>TUI &amp; Sci-Fi</strong></td>
-                        <td><code>"turbovision"</code></td>
-                        <td>Turbo Vision (DOS TUI)</td>
+                        <td><strong>Console &amp; Sci-Fi</strong></td>
+                        <td><code>"turbo-tui"</code> (alias: <code>"turbovision"</code>)</td>
+                        <td>DOS TUI Console</td>
                         <td>Visual de modo texto azul DOS com bordas em caracteres duplos e monospace.</td>
                     </tr>
                     <tr>
-                        <td><strong>TUI &amp; Sci-Fi</strong></td>
-                        <td><code>"cyberpunk"</code></td>
-                        <td>Cyberpunk HUD</td>
+                        <td><strong>Console &amp; Sci-Fi</strong></td>
+                        <td><code>"cyberpunk-neon"</code> (alias: <code>"cyberpunk"</code>)</td>
+                        <td>Cyber Neon HUD</td>
                         <td>Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon.</td>
                     </tr>
                 </tbody>

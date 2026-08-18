@@ -1,4 +1,4 @@
-/* style.css */
+﻿/* style.css */
 * {
     box-sizing: border-box;
 }
@@ -548,6 +548,7 @@ select {
 .dropdown {
     position: absolute;
     display: none;
+    flex-direction: column;
     min-width: 205px;
     background: var(--menu-bg);
     color: var(--menu-text);
@@ -777,6 +778,7 @@ select {
     left: 100%;
     margin-top: -4px;
     display: none;
+    flex-direction: column !important;
     border-radius: 6px;
     z-index: 400002;
     min-width: 210px;
@@ -1239,8 +1241,12 @@ select {
 }
 
 .taskStart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     height: 28px;
-    padding: 0 12px;
+    padding: 0 10px;
     border: 1px solid var(--win-border);
     border-radius: 3px;
     background: var(--btn-bg);
@@ -1249,7 +1255,51 @@ select {
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.15s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.taskStart .task-start-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.taskStart .task-start-icon svg {
+    display: block;
+}
+
+.taskStart .task-start-label {
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.taskShowDesktop {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid var(--win-border);
+    border-radius: 3px;
+    background: var(--btn-bg);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.taskShowDesktop:hover {
+    background: var(--btn-hover);
 }
 
 #app[data-taskbar="left"] .taskStart,
@@ -2746,19 +2796,19 @@ h2 {
 /* --------------------------------------------------------------------------
    REGRAS GLOBAIS DE ALTO CONTRASTE PARA TODOS OS TEMAS CLAROS
    -------------------------------------------------------------------------- */
-[data-laf="java-metal"],
-[data-laf="java-ocean"],
-[data-laf="java-nimbus"],
-[data-laf="javafx-modena"],
-[data-laf="beos"],
-[data-laf="win98"],
-[data-laf="winxp"],
-[data-laf="win7"],
-[data-laf="mac-classic"],
-[data-laf="os2-warp"],
-[data-laf="cde-motif"],
-[data-laf="gnome"],
-[data-laf="kde"] {
+[data-laf="steel-metal"],
+[data-laf="ocean-metal"],
+[data-laf="nimbus-vector"],
+[data-laf="modena-soft"],
+[data-laf="yellow-tab"],
+[data-laf="retro-3d"],
+[data-laf="luna-blue"],
+[data-laf="aero-glass"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"],
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"] {
     --text-primary: #111827;
     --text-secondary: #4b5563;
     --menu-text: #111827;
@@ -2767,135 +2817,135 @@ h2 {
     --input-text: #111827;
 }
 
-[data-laf="java-metal"] .windowBody,
-[data-laf="java-ocean"] .windowBody,
-[data-laf="java-nimbus"] .windowBody,
-[data-laf="javafx-modena"] .windowBody,
-[data-laf="beos"] .windowBody,
-[data-laf="win98"] .windowBody,
-[data-laf="winxp"] .windowBody,
-[data-laf="win7"] .windowBody,
-[data-laf="mac-classic"] .windowBody,
-[data-laf="os2-warp"] .windowBody,
-[data-laf="cde-motif"] .windowBody,
-[data-laf="gnome"] .windowBody,
-[data-laf="kde"] .windowBody {
+[data-laf="steel-metal"] .windowBody,
+[data-laf="ocean-metal"] .windowBody,
+[data-laf="nimbus-vector"] .windowBody,
+[data-laf="modena-soft"] .windowBody,
+[data-laf="yellow-tab"] .windowBody,
+[data-laf="retro-3d"] .windowBody,
+[data-laf="luna-blue"] .windowBody,
+[data-laf="aero-glass"] .windowBody,
+[data-laf="platinum-classic"] .windowBody,
+[data-laf="warp-enterprise"] .windowBody,
+[data-laf="motif-panel"] .windowBody,
+[data-laf="adwaita-slate"] .windowBody,
+[data-laf="breeze-plasma"] .windowBody {
     color: #111827 !important;
 }
 
-[data-laf="java-metal"] .windowBody p, [data-laf="java-metal"] .windowBody h1, [data-laf="java-metal"] .windowBody h2, [data-laf="java-metal"] .windowBody h3, [data-laf="java-metal"] .windowBody h4, [data-laf="java-metal"] .windowBody span, [data-laf="java-metal"] .windowBody label, [data-laf="java-metal"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="java-ocean"] .windowBody p, [data-laf="java-ocean"] .windowBody h1, [data-laf="java-ocean"] .windowBody h2, [data-laf="java-ocean"] .windowBody h3, [data-laf="java-ocean"] .windowBody h4, [data-laf="java-ocean"] .windowBody span, [data-laf="java-ocean"] .windowBody label, [data-laf="java-ocean"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="java-nimbus"] .windowBody p, [data-laf="java-nimbus"] .windowBody h1, [data-laf="java-nimbus"] .windowBody h2, [data-laf="java-nimbus"] .windowBody h3, [data-laf="java-nimbus"] .windowBody h4, [data-laf="java-nimbus"] .windowBody span, [data-laf="java-nimbus"] .windowBody label, [data-laf="java-nimbus"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="javafx-modena"] .windowBody p, [data-laf="javafx-modena"] .windowBody h1, [data-laf="javafx-modena"] .windowBody h2, [data-laf="javafx-modena"] .windowBody h3, [data-laf="javafx-modena"] .windowBody h4, [data-laf="javafx-modena"] .windowBody span, [data-laf="javafx-modena"] .windowBody label, [data-laf="javafx-modena"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="beos"] .windowBody p, [data-laf="beos"] .windowBody h1, [data-laf="beos"] .windowBody h2, [data-laf="beos"] .windowBody h3, [data-laf="beos"] .windowBody h4, [data-laf="beos"] .windowBody span, [data-laf="beos"] .windowBody label, [data-laf="beos"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="win98"] .windowBody p, [data-laf="win98"] .windowBody h1, [data-laf="win98"] .windowBody h2, [data-laf="win98"] .windowBody h3, [data-laf="win98"] .windowBody h4, [data-laf="win98"] .windowBody span, [data-laf="win98"] .windowBody label, [data-laf="win98"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="winxp"] .windowBody p, [data-laf="winxp"] .windowBody h1, [data-laf="winxp"] .windowBody h2, [data-laf="winxp"] .windowBody h3, [data-laf="winxp"] .windowBody h4, [data-laf="winxp"] .windowBody span, [data-laf="winxp"] .windowBody label, [data-laf="winxp"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="win7"] .windowBody p, [data-laf="win7"] .windowBody h1, [data-laf="win7"] .windowBody h2, [data-laf="win7"] .windowBody h3, [data-laf="win7"] .windowBody h4, [data-laf="win7"] .windowBody span, [data-laf="win7"] .windowBody label, [data-laf="win7"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="mac-classic"] .windowBody p, [data-laf="mac-classic"] .windowBody h1, [data-laf="mac-classic"] .windowBody h2, [data-laf="mac-classic"] .windowBody h3, [data-laf="mac-classic"] .windowBody h4, [data-laf="mac-classic"] .windowBody span, [data-laf="mac-classic"] .windowBody label, [data-laf="mac-classic"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="os2-warp"] .windowBody p, [data-laf="os2-warp"] .windowBody h1, [data-laf="os2-warp"] .windowBody h2, [data-laf="os2-warp"] .windowBody h3, [data-laf="os2-warp"] .windowBody h4, [data-laf="os2-warp"] .windowBody span, [data-laf="os2-warp"] .windowBody label, [data-laf="os2-warp"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="cde-motif"] .windowBody p, [data-laf="cde-motif"] .windowBody h1, [data-laf="cde-motif"] .windowBody h2, [data-laf="cde-motif"] .windowBody h3, [data-laf="cde-motif"] .windowBody h4, [data-laf="cde-motif"] .windowBody span, [data-laf="cde-motif"] .windowBody label, [data-laf="cde-motif"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="gnome"] .windowBody p, [data-laf="gnome"] .windowBody h1, [data-laf="gnome"] .windowBody h2, [data-laf="gnome"] .windowBody h3, [data-laf="gnome"] .windowBody h4, [data-laf="gnome"] .windowBody span, [data-laf="gnome"] .windowBody label, [data-laf="gnome"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="kde"] .windowBody p, [data-laf="kde"] .windowBody h1, [data-laf="kde"] .windowBody h2, [data-laf="kde"] .windowBody h3, [data-laf="kde"] .windowBody h4, [data-laf="kde"] .windowBody span, [data-laf="kde"] .windowBody label, [data-laf="kde"] .windowBody div:not(.ui-btn):not(.tag):not(.badge) {
+[data-laf="steel-metal"] .windowBody p, [data-laf="steel-metal"] .windowBody h1, [data-laf="steel-metal"] .windowBody h2, [data-laf="steel-metal"] .windowBody h3, [data-laf="steel-metal"] .windowBody h4, [data-laf="steel-metal"] .windowBody span, [data-laf="steel-metal"] .windowBody label, [data-laf="steel-metal"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="ocean-metal"] .windowBody p, [data-laf="ocean-metal"] .windowBody h1, [data-laf="ocean-metal"] .windowBody h2, [data-laf="ocean-metal"] .windowBody h3, [data-laf="ocean-metal"] .windowBody h4, [data-laf="ocean-metal"] .windowBody span, [data-laf="ocean-metal"] .windowBody label, [data-laf="ocean-metal"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="nimbus-vector"] .windowBody p, [data-laf="nimbus-vector"] .windowBody h1, [data-laf="nimbus-vector"] .windowBody h2, [data-laf="nimbus-vector"] .windowBody h3, [data-laf="nimbus-vector"] .windowBody h4, [data-laf="nimbus-vector"] .windowBody span, [data-laf="nimbus-vector"] .windowBody label, [data-laf="nimbus-vector"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="modena-soft"] .windowBody p, [data-laf="modena-soft"] .windowBody h1, [data-laf="modena-soft"] .windowBody h2, [data-laf="modena-soft"] .windowBody h3, [data-laf="modena-soft"] .windowBody h4, [data-laf="modena-soft"] .windowBody span, [data-laf="modena-soft"] .windowBody label, [data-laf="modena-soft"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="yellow-tab"] .windowBody p, [data-laf="yellow-tab"] .windowBody h1, [data-laf="yellow-tab"] .windowBody h2, [data-laf="yellow-tab"] .windowBody h3, [data-laf="yellow-tab"] .windowBody h4, [data-laf="yellow-tab"] .windowBody span, [data-laf="yellow-tab"] .windowBody label, [data-laf="yellow-tab"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="retro-3d"] .windowBody p, [data-laf="retro-3d"] .windowBody h1, [data-laf="retro-3d"] .windowBody h2, [data-laf="retro-3d"] .windowBody h3, [data-laf="retro-3d"] .windowBody h4, [data-laf="retro-3d"] .windowBody span, [data-laf="retro-3d"] .windowBody label, [data-laf="retro-3d"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="luna-blue"] .windowBody p, [data-laf="luna-blue"] .windowBody h1, [data-laf="luna-blue"] .windowBody h2, [data-laf="luna-blue"] .windowBody h3, [data-laf="luna-blue"] .windowBody h4, [data-laf="luna-blue"] .windowBody span, [data-laf="luna-blue"] .windowBody label, [data-laf="luna-blue"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="aero-glass"] .windowBody p, [data-laf="aero-glass"] .windowBody h1, [data-laf="aero-glass"] .windowBody h2, [data-laf="aero-glass"] .windowBody h3, [data-laf="aero-glass"] .windowBody h4, [data-laf="aero-glass"] .windowBody span, [data-laf="aero-glass"] .windowBody label, [data-laf="aero-glass"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="platinum-classic"] .windowBody p, [data-laf="platinum-classic"] .windowBody h1, [data-laf="platinum-classic"] .windowBody h2, [data-laf="platinum-classic"] .windowBody h3, [data-laf="platinum-classic"] .windowBody h4, [data-laf="platinum-classic"] .windowBody span, [data-laf="platinum-classic"] .windowBody label, [data-laf="platinum-classic"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="warp-enterprise"] .windowBody p, [data-laf="warp-enterprise"] .windowBody h1, [data-laf="warp-enterprise"] .windowBody h2, [data-laf="warp-enterprise"] .windowBody h3, [data-laf="warp-enterprise"] .windowBody h4, [data-laf="warp-enterprise"] .windowBody span, [data-laf="warp-enterprise"] .windowBody label, [data-laf="warp-enterprise"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="motif-panel"] .windowBody p, [data-laf="motif-panel"] .windowBody h1, [data-laf="motif-panel"] .windowBody h2, [data-laf="motif-panel"] .windowBody h3, [data-laf="motif-panel"] .windowBody h4, [data-laf="motif-panel"] .windowBody span, [data-laf="motif-panel"] .windowBody label, [data-laf="motif-panel"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="adwaita-slate"] .windowBody p, [data-laf="adwaita-slate"] .windowBody h1, [data-laf="adwaita-slate"] .windowBody h2, [data-laf="adwaita-slate"] .windowBody h3, [data-laf="adwaita-slate"] .windowBody h4, [data-laf="adwaita-slate"] .windowBody span, [data-laf="adwaita-slate"] .windowBody label, [data-laf="adwaita-slate"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
+[data-laf="breeze-plasma"] .windowBody p, [data-laf="breeze-plasma"] .windowBody h1, [data-laf="breeze-plasma"] .windowBody h2, [data-laf="breeze-plasma"] .windowBody h3, [data-laf="breeze-plasma"] .windowBody h4, [data-laf="breeze-plasma"] .windowBody span, [data-laf="breeze-plasma"] .windowBody label, [data-laf="breeze-plasma"] .windowBody div:not(.ui-btn):not(.tag):not(.badge) {
     color: #111827 !important;
 }
 
-[data-laf="java-metal"] .ui-card,
-[data-laf="java-ocean"] .ui-card,
-[data-laf="java-nimbus"] .ui-card,
-[data-laf="javafx-modena"] .ui-card,
-[data-laf="beos"] .ui-card,
-[data-laf="win98"] .ui-card,
-[data-laf="winxp"] .ui-card,
-[data-laf="win7"] .ui-card,
-[data-laf="mac-classic"] .ui-card,
-[data-laf="os2-warp"] .ui-card,
-[data-laf="cde-motif"] .ui-card,
-[data-laf="gnome"] .ui-card,
-[data-laf="kde"] .ui-card {
+[data-laf="steel-metal"] .ui-card,
+[data-laf="ocean-metal"] .ui-card,
+[data-laf="nimbus-vector"] .ui-card,
+[data-laf="modena-soft"] .ui-card,
+[data-laf="yellow-tab"] .ui-card,
+[data-laf="retro-3d"] .ui-card,
+[data-laf="luna-blue"] .ui-card,
+[data-laf="aero-glass"] .ui-card,
+[data-laf="platinum-classic"] .ui-card,
+[data-laf="warp-enterprise"] .ui-card,
+[data-laf="motif-panel"] .ui-card,
+[data-laf="adwaita-slate"] .ui-card,
+[data-laf="breeze-plasma"] .ui-card {
     background: rgba(255, 255, 255, 0.75) !important;
     border: 1px solid rgba(0, 0, 0, 0.15) !important;
     color: #111827 !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-[data-laf="java-metal"] .ui-card-title,
-[data-laf="java-ocean"] .ui-card-title,
-[data-laf="java-nimbus"] .ui-card-title,
-[data-laf="javafx-modena"] .ui-card-title,
-[data-laf="beos"] .ui-card-title,
-[data-laf="win98"] .ui-card-title,
-[data-laf="winxp"] .ui-card-title,
-[data-laf="win7"] .ui-card-title,
-[data-laf="mac-classic"] .ui-card-title,
-[data-laf="os2-warp"] .ui-card-title,
-[data-laf="cde-motif"] .ui-card-title,
-[data-laf="gnome"] .ui-card-title,
-[data-laf="kde"] .ui-card-title {
+[data-laf="steel-metal"] .ui-card-title,
+[data-laf="ocean-metal"] .ui-card-title,
+[data-laf="nimbus-vector"] .ui-card-title,
+[data-laf="modena-soft"] .ui-card-title,
+[data-laf="yellow-tab"] .ui-card-title,
+[data-laf="retro-3d"] .ui-card-title,
+[data-laf="luna-blue"] .ui-card-title,
+[data-laf="aero-glass"] .ui-card-title,
+[data-laf="platinum-classic"] .ui-card-title,
+[data-laf="warp-enterprise"] .ui-card-title,
+[data-laf="motif-panel"] .ui-card-title,
+[data-laf="adwaita-slate"] .ui-card-title,
+[data-laf="breeze-plasma"] .ui-card-title {
     color: #111827 !important;
     font-weight: 700;
 }
 
-[data-laf="java-metal"] input, [data-laf="java-metal"] textarea, [data-laf="java-metal"] select, [data-laf="java-metal"] .filter-input,
-[data-laf="java-ocean"] input, [data-laf="java-ocean"] textarea, [data-laf="java-ocean"] select, [data-laf="java-ocean"] .filter-input,
-[data-laf="java-nimbus"] input, [data-laf="java-nimbus"] textarea, [data-laf="java-nimbus"] select, [data-laf="java-nimbus"] .filter-input,
-[data-laf="javafx-modena"] input, [data-laf="javafx-modena"] textarea, [data-laf="javafx-modena"] select, [data-laf="javafx-modena"] .filter-input,
-[data-laf="beos"] input, [data-laf="beos"] textarea, [data-laf="beos"] select, [data-laf="beos"] .filter-input,
-[data-laf="win98"] input, [data-laf="win98"] textarea, [data-laf="win98"] select, [data-laf="win98"] .filter-input,
-[data-laf="winxp"] input, [data-laf="winxp"] textarea, [data-laf="winxp"] select, [data-laf="winxp"] .filter-input,
-[data-laf="win7"] input, [data-laf="win7"] textarea, [data-laf="win7"] select, [data-laf="win7"] .filter-input,
-[data-laf="mac-classic"] input, [data-laf="mac-classic"] textarea, [data-laf="mac-classic"] select, [data-laf="mac-classic"] .filter-input,
-[data-laf="os2-warp"] input, [data-laf="os2-warp"] textarea, [data-laf="os2-warp"] select, [data-laf="os2-warp"] .filter-input,
-[data-laf="cde-motif"] input, [data-laf="cde-motif"] textarea, [data-laf="cde-motif"] select, [data-laf="cde-motif"] .filter-input,
-[data-laf="gnome"] input, [data-laf="gnome"] textarea, [data-laf="gnome"] select, [data-laf="gnome"] .filter-input,
-[data-laf="kde"] input, [data-laf="kde"] textarea, [data-laf="kde"] select, [data-laf="kde"] .filter-input {
+[data-laf="steel-metal"] input, [data-laf="steel-metal"] textarea, [data-laf="steel-metal"] select, [data-laf="steel-metal"] .filter-input,
+[data-laf="ocean-metal"] input, [data-laf="ocean-metal"] textarea, [data-laf="ocean-metal"] select, [data-laf="ocean-metal"] .filter-input,
+[data-laf="nimbus-vector"] input, [data-laf="nimbus-vector"] textarea, [data-laf="nimbus-vector"] select, [data-laf="nimbus-vector"] .filter-input,
+[data-laf="modena-soft"] input, [data-laf="modena-soft"] textarea, [data-laf="modena-soft"] select, [data-laf="modena-soft"] .filter-input,
+[data-laf="yellow-tab"] input, [data-laf="yellow-tab"] textarea, [data-laf="yellow-tab"] select, [data-laf="yellow-tab"] .filter-input,
+[data-laf="retro-3d"] input, [data-laf="retro-3d"] textarea, [data-laf="retro-3d"] select, [data-laf="retro-3d"] .filter-input,
+[data-laf="luna-blue"] input, [data-laf="luna-blue"] textarea, [data-laf="luna-blue"] select, [data-laf="luna-blue"] .filter-input,
+[data-laf="aero-glass"] input, [data-laf="aero-glass"] textarea, [data-laf="aero-glass"] select, [data-laf="aero-glass"] .filter-input,
+[data-laf="platinum-classic"] input, [data-laf="platinum-classic"] textarea, [data-laf="platinum-classic"] select, [data-laf="platinum-classic"] .filter-input,
+[data-laf="warp-enterprise"] input, [data-laf="warp-enterprise"] textarea, [data-laf="warp-enterprise"] select, [data-laf="warp-enterprise"] .filter-input,
+[data-laf="motif-panel"] input, [data-laf="motif-panel"] textarea, [data-laf="motif-panel"] select, [data-laf="motif-panel"] .filter-input,
+[data-laf="adwaita-slate"] input, [data-laf="adwaita-slate"] textarea, [data-laf="adwaita-slate"] select, [data-laf="adwaita-slate"] .filter-input,
+[data-laf="breeze-plasma"] input, [data-laf="breeze-plasma"] textarea, [data-laf="breeze-plasma"] select, [data-laf="breeze-plasma"] .filter-input {
     background: #ffffff !important;
     color: #111827 !important;
     border: 1px solid #9ca3af !important;
 }
 
-[data-laf="java-metal"] .ui-table th, [data-laf="java-metal"] .ui-table td, [data-laf="java-metal"] .ui-datagrid th, [data-laf="java-metal"] .ui-datagrid td,
-[data-laf="java-ocean"] .ui-table th, [data-laf="java-ocean"] .ui-table td, [data-laf="java-ocean"] .ui-datagrid th, [data-laf="java-ocean"] .ui-datagrid td,
-[data-laf="java-nimbus"] .ui-table th, [data-laf="java-nimbus"] .ui-table td, [data-laf="java-nimbus"] .ui-datagrid th, [data-laf="java-nimbus"] .ui-datagrid td,
-[data-laf="javafx-modena"] .ui-table th, [data-laf="javafx-modena"] .ui-table td, [data-laf="javafx-modena"] .ui-datagrid th, [data-laf="javafx-modena"] .ui-datagrid td,
-[data-laf="beos"] .ui-table th, [data-laf="beos"] .ui-table td, [data-laf="beos"] .ui-datagrid th, [data-laf="beos"] .ui-datagrid td,
-[data-laf="win98"] .ui-table th, [data-laf="win98"] .ui-table td, [data-laf="win98"] .ui-datagrid th, [data-laf="win98"] .ui-datagrid td,
-[data-laf="winxp"] .ui-table th, [data-laf="winxp"] .ui-table td, [data-laf="winxp"] .ui-datagrid th, [data-laf="winxp"] .ui-datagrid td,
-[data-laf="win7"] .ui-table th, [data-laf="win7"] .ui-table td, [data-laf="win7"] .ui-datagrid th, [data-laf="win7"] .ui-datagrid td,
-[data-laf="mac-classic"] .ui-table th, [data-laf="mac-classic"] .ui-table td, [data-laf="mac-classic"] .ui-datagrid th, [data-laf="mac-classic"] .ui-datagrid td,
-[data-laf="os2-warp"] .ui-table th, [data-laf="os2-warp"] .ui-table td, [data-laf="os2-warp"] .ui-datagrid th, [data-laf="os2-warp"] .ui-datagrid td,
-[data-laf="cde-motif"] .ui-table th, [data-laf="cde-motif"] .ui-table td, [data-laf="cde-motif"] .ui-datagrid th, [data-laf="cde-motif"] .ui-datagrid td,
-[data-laf="gnome"] .ui-table th, [data-laf="gnome"] .ui-table td, [data-laf="gnome"] .ui-datagrid th, [data-laf="gnome"] .ui-datagrid td,
-[data-laf="kde"] .ui-table th, [data-laf="kde"] .ui-table td, [data-laf="kde"] .ui-datagrid th, [data-laf="kde"] .ui-datagrid td {
+[data-laf="steel-metal"] .ui-table th, [data-laf="steel-metal"] .ui-table td, [data-laf="steel-metal"] .ui-datagrid th, [data-laf="steel-metal"] .ui-datagrid td,
+[data-laf="ocean-metal"] .ui-table th, [data-laf="ocean-metal"] .ui-table td, [data-laf="ocean-metal"] .ui-datagrid th, [data-laf="ocean-metal"] .ui-datagrid td,
+[data-laf="nimbus-vector"] .ui-table th, [data-laf="nimbus-vector"] .ui-table td, [data-laf="nimbus-vector"] .ui-datagrid th, [data-laf="nimbus-vector"] .ui-datagrid td,
+[data-laf="modena-soft"] .ui-table th, [data-laf="modena-soft"] .ui-table td, [data-laf="modena-soft"] .ui-datagrid th, [data-laf="modena-soft"] .ui-datagrid td,
+[data-laf="yellow-tab"] .ui-table th, [data-laf="yellow-tab"] .ui-table td, [data-laf="yellow-tab"] .ui-datagrid th, [data-laf="yellow-tab"] .ui-datagrid td,
+[data-laf="retro-3d"] .ui-table th, [data-laf="retro-3d"] .ui-table td, [data-laf="retro-3d"] .ui-datagrid th, [data-laf="retro-3d"] .ui-datagrid td,
+[data-laf="luna-blue"] .ui-table th, [data-laf="luna-blue"] .ui-table td, [data-laf="luna-blue"] .ui-datagrid th, [data-laf="luna-blue"] .ui-datagrid td,
+[data-laf="aero-glass"] .ui-table th, [data-laf="aero-glass"] .ui-table td, [data-laf="aero-glass"] .ui-datagrid th, [data-laf="aero-glass"] .ui-datagrid td,
+[data-laf="platinum-classic"] .ui-table th, [data-laf="platinum-classic"] .ui-table td, [data-laf="platinum-classic"] .ui-datagrid th, [data-laf="platinum-classic"] .ui-datagrid td,
+[data-laf="warp-enterprise"] .ui-table th, [data-laf="warp-enterprise"] .ui-table td, [data-laf="warp-enterprise"] .ui-datagrid th, [data-laf="warp-enterprise"] .ui-datagrid td,
+[data-laf="motif-panel"] .ui-table th, [data-laf="motif-panel"] .ui-table td, [data-laf="motif-panel"] .ui-datagrid th, [data-laf="motif-panel"] .ui-datagrid td,
+[data-laf="adwaita-slate"] .ui-table th, [data-laf="adwaita-slate"] .ui-table td, [data-laf="adwaita-slate"] .ui-datagrid th, [data-laf="adwaita-slate"] .ui-datagrid td,
+[data-laf="breeze-plasma"] .ui-table th, [data-laf="breeze-plasma"] .ui-table td, [data-laf="breeze-plasma"] .ui-datagrid th, [data-laf="breeze-plasma"] .ui-datagrid td {
     color: #111827 !important;
 }
 
-[data-laf="java-metal"] .statusbar,
-[data-laf="java-ocean"] .statusbar,
-[data-laf="java-nimbus"] .statusbar,
-[data-laf="javafx-modena"] .statusbar,
-[data-laf="beos"] .statusbar,
-[data-laf="win98"] .statusbar,
-[data-laf="winxp"] .statusbar,
-[data-laf="win7"] .statusbar,
-[data-laf="mac-classic"] .statusbar,
-[data-laf="os2-warp"] .statusbar,
-[data-laf="cde-motif"] .statusbar,
-[data-laf="gnome"] .statusbar,
-[data-laf="kde"] .statusbar {
+[data-laf="steel-metal"] .statusbar,
+[data-laf="ocean-metal"] .statusbar,
+[data-laf="nimbus-vector"] .statusbar,
+[data-laf="modena-soft"] .statusbar,
+[data-laf="yellow-tab"] .statusbar,
+[data-laf="retro-3d"] .statusbar,
+[data-laf="luna-blue"] .statusbar,
+[data-laf="aero-glass"] .statusbar,
+[data-laf="platinum-classic"] .statusbar,
+[data-laf="warp-enterprise"] .statusbar,
+[data-laf="motif-panel"] .statusbar,
+[data-laf="adwaita-slate"] .statusbar,
+[data-laf="breeze-plasma"] .statusbar {
     color: #111827 !important;
 }
 
 /* --------------------------------------------------------------------------
-   1. MODERNOS: macOS (Aqua Modern)
+   1. Aqua-Frosted (Aqua Style)
    -------------------------------------------------------------------------- */
-[data-laf="macos"] .window {
+[data-laf="aqua-frosted"] .window {
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.22);
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28), 0 0 1px rgba(0, 0, 0, 0.4);
     overflow: visible;
 }
 
-[data-laf="macos"] .titlebar {
+[data-laf="aqua-frosted"] .titlebar {
     height: 38px;
     flex: 0 0 38px;
     background: transparent;
@@ -2907,7 +2957,7 @@ h2 {
     color: var(--text-primary);
 }
 
-[data-laf="macos"] .winButtons {
+[data-laf="aqua-frosted"] .winButtons {
     order: -1;
     display: flex;
     align-items: center;
@@ -2915,7 +2965,7 @@ h2 {
     height: 100%;
 }
 
-[data-laf="macos"] .winBtn {
+[data-laf="aqua-frosted"] .winBtn {
     width: 12px;
     height: 12px;
     border-radius: 50%;
@@ -2933,25 +2983,25 @@ h2 {
     transition: transform 0.15s ease, filter 0.15s ease;
 }
 
-[data-laf="macos"] .winBtn.close {
+[data-laf="aqua-frosted"] .winBtn.close {
     background: #ff5f56 !important;
     border: 1px solid #e0443e !important;
     order: 1;
 }
 
-[data-laf="macos"] .winBtn.minimize {
+[data-laf="aqua-frosted"] .winBtn.minimize {
     background: #ffbd2e !important;
     border: 1px solid #dea123 !important;
     order: 2;
 }
 
-[data-laf="macos"] .winBtn.maximize {
+[data-laf="aqua-frosted"] .winBtn.maximize {
     background: #27c93f !important;
     border: 1px solid #1aab29 !important;
     order: 3;
 }
 
-[data-laf="macos"] .winButtons:hover .winBtn.close::after {
+[data-laf="aqua-frosted"] .winButtons:hover .winBtn.close::after {
     content: "×";
     position: absolute;
     inset: 0;
@@ -2967,7 +3017,7 @@ h2 {
     margin-top: -1px;
 }
 
-[data-laf="macos"] .winButtons:hover .winBtn.minimize::after {
+[data-laf="aqua-frosted"] .winButtons:hover .winBtn.minimize::after {
     content: "−";
     position: absolute;
     inset: 0;
@@ -2983,7 +3033,7 @@ h2 {
     margin-top: -1px;
 }
 
-[data-laf="macos"] .winButtons:hover .winBtn.maximize::after {
+[data-laf="aqua-frosted"] .winButtons:hover .winBtn.maximize::after {
     content: "+";
     position: absolute;
     inset: 0;
@@ -2999,11 +3049,11 @@ h2 {
     margin-top: -1px;
 }
 
-[data-laf="macos"] .titleIcon {
+[data-laf="aqua-frosted"] .titleIcon {
     display: none;
 }
 
-[data-laf="macos"] .titleText {
+[data-laf="aqua-frosted"] .titleText {
     text-align: center;
     font-weight: 600;
     font-size: 13px;
@@ -3011,8 +3061,8 @@ h2 {
     margin-right: 50px;
 }
 
-[data-laf="macos"] #menubar,
-[data-laf="macos"] .ui-menubar {
+[data-laf="aqua-frosted"] #menubar,
+[data-laf="aqua-frosted"] .ui-menubar {
     background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
     backdrop-filter: blur(25px) !important;
     -webkit-backdrop-filter: blur(25px) !important;
@@ -3022,20 +3072,20 @@ h2 {
     font-size: 13px;
 }
 
-[data-laf="macos"] .menubar-item {
+[data-laf="aqua-frosted"] .menubar-item {
     border-radius: 4px;
     padding: 0 10px;
     margin: 0 2px;
     color: var(--text-primary) !important;
 }
 
-[data-laf="macos"] .menubar-item:hover,
-[data-laf="macos"] .menubar-item.active {
+[data-laf="aqua-frosted"] .menubar-item:hover,
+[data-laf="aqua-frosted"] .menubar-item.active {
     background: color-mix(in srgb, var(--text-primary) 12%, transparent) !important;
 }
 
-[data-laf="macos"] .dropdown,
-[data-laf="macos"] .ui-start-menu {
+[data-laf="aqua-frosted"] .dropdown,
+[data-laf="aqua-frosted"] .ui-start-menu {
     border-radius: 8px !important;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
     border: 1px solid var(--win-border) !important;
@@ -3046,18 +3096,18 @@ h2 {
     padding: 5px !important;
 }
 
-[data-laf="macos"] .menuOption {
+[data-laf="aqua-frosted"] .menuOption {
     border-radius: 4px;
     padding: 6px 12px;
     color: var(--menu-text) !important;
 }
 
-[data-laf="macos"] .menuOption:hover {
+[data-laf="aqua-frosted"] .menuOption:hover {
     background: #007aff !important;
     color: #ffffff !important;
 }
 
-[data-laf="macos"] #taskbar {
+[data-laf="aqua-frosted"] #taskbar {
     background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
     backdrop-filter: blur(25px) !important;
     -webkit-backdrop-filter: blur(25px) !important;
@@ -3067,20 +3117,30 @@ h2 {
     gap: 6px;
 }
 
-[data-laf="macos"] .taskStart {
+[data-laf="aqua-frosted"] .taskStart {
     border-radius: 6px;
     background: color-mix(in srgb, #007aff 15%, transparent);
     border: 1px solid #007aff;
     color: #007aff !important;
     font-weight: 600;
+    width: 32px;
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-[data-laf="macos"] .taskStart:hover {
+[data-laf="aqua-frosted"] .taskStart .task-start-label {
+    display: none;
+}
+
+[data-laf="aqua-frosted"] .taskStart:hover {
     background: #007aff !important;
     color: #ffffff !important;
 }
 
-[data-laf="macos"] .taskButton {
+[data-laf="aqua-frosted"] .taskButton {
     border-radius: 6px;
     background: color-mix(in srgb, var(--text-primary) 8%, transparent);
     border: 1px solid color-mix(in srgb, var(--text-primary) 15%, transparent);
@@ -3088,11 +3148,11 @@ h2 {
     font-weight: 500;
 }
 
-[data-laf="macos"] .taskButton:hover {
+[data-laf="aqua-frosted"] .taskButton:hover {
     background: color-mix(in srgb, var(--text-primary) 15%, transparent);
 }
 
-[data-laf="macos"] .taskButton.active {
+[data-laf="aqua-frosted"] .taskButton.active {
     background: color-mix(in srgb, #007aff 20%, transparent) !important;
     border-color: #007aff !important;
     color: #007aff !important;
@@ -3100,41 +3160,41 @@ h2 {
     font-weight: 600;
 }
 
-[data-laf="macos"] .clock {
+[data-laf="aqua-frosted"] .clock {
     font-weight: 600;
     font-size: 12px;
     color: var(--text-primary) !important;
 }
 
-[data-laf="macos"] .ui-btn,
-[data-laf="macos"] .filter-input,
-[data-laf="macos"] .ui-card {
+[data-laf="aqua-frosted"] .ui-btn,
+[data-laf="aqua-frosted"] .filter-input,
+[data-laf="aqua-frosted"] .ui-card {
     border-radius: 8px;
 }
 
 /* --------------------------------------------------------------------------
    2. MODERNOS: Windows 11 (Fluent Design)
    -------------------------------------------------------------------------- */
-[data-laf="win11"] .window {
+[data-laf="fluent-acrylic"] .window {
     border-radius: 8px;
     border: 1px solid var(--win-border);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
 }
 
-[data-laf="win11"] .titlebar {
+[data-laf="fluent-acrylic"] .titlebar {
     height: 34px;
     background: transparent;
     border-bottom: 1px solid var(--win-border);
     color: var(--text-primary);
 }
 
-[data-laf="win11"] .titleText {
+[data-laf="fluent-acrylic"] .titleText {
     color: var(--text-primary);
     font-size: 12px;
     font-weight: 500;
 }
 
-[data-laf="win11"] .winBtn {
+[data-laf="fluent-acrylic"] .winBtn {
     width: 44px;
     height: 100%;
     font-size: 12px;
@@ -3146,18 +3206,18 @@ h2 {
     transition: background 0.15s ease, color 0.15s ease;
 }
 
-[data-laf="win11"] .winBtn:hover {
+[data-laf="fluent-acrylic"] .winBtn:hover {
     background: color-mix(in srgb, var(--text-primary) 12%, transparent);
     color: var(--text-primary);
 }
 
-[data-laf="win11"] .winBtn.close:hover {
+[data-laf="fluent-acrylic"] .winBtn.close:hover {
     background: #c42b1c !important;
     color: #ffffff !important;
 }
 
-[data-laf="win11"] #menubar,
-[data-laf="win11"] .ui-menubar {
+[data-laf="fluent-acrylic"] #menubar,
+[data-laf="fluent-acrylic"] .ui-menubar {
     background: color-mix(in srgb, var(--bg-secondary) 85%, transparent) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
@@ -3165,11 +3225,11 @@ h2 {
     color: var(--text-primary) !important;
 }
 
-[data-laf="win11"] .menubar-item {
+[data-laf="fluent-acrylic"] .menubar-item {
     color: var(--text-primary) !important;
 }
 
-[data-laf="win11"] #taskbar {
+[data-laf="fluent-acrylic"] #taskbar {
     background: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
@@ -3179,19 +3239,29 @@ h2 {
     flex: 0 0 40px;
 }
 
-[data-laf="win11"] .taskStart {
+[data-laf="fluent-acrylic"] .taskStart {
     border-radius: 4px;
     background: transparent;
     border: 1px solid transparent;
     color: var(--text-primary) !important;
     font-weight: 600;
+    width: 36px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-[data-laf="win11"] .taskStart:hover {
+[data-laf="fluent-acrylic"] .taskStart .task-start-label {
+    display: none;
+}
+
+[data-laf="fluent-acrylic"] .taskStart:hover {
     background: color-mix(in srgb, var(--text-primary) 10%, transparent);
 }
 
-[data-laf="win11"] .taskButton {
+[data-laf="fluent-acrylic"] .taskButton {
     border-radius: 4px;
     background: transparent;
     border: 1px solid transparent;
@@ -3199,11 +3269,11 @@ h2 {
     height: 32px;
 }
 
-[data-laf="win11"] .taskButton:hover {
+[data-laf="fluent-acrylic"] .taskButton:hover {
     background: color-mix(in srgb, var(--text-primary) 10%, transparent);
 }
 
-[data-laf="win11"] .taskButton.active {
+[data-laf="fluent-acrylic"] .taskButton.active {
     background: color-mix(in srgb, var(--text-primary) 12%, transparent) !important;
     border: 1px solid var(--win-border) !important;
     color: var(--text-primary) !important;
@@ -3211,12 +3281,12 @@ h2 {
     font-weight: 600;
 }
 
-[data-laf="win11"] .clock {
+[data-laf="fluent-acrylic"] .clock {
     color: var(--text-primary) !important;
 }
 
-[data-laf="win11"] .dropdown,
-[data-laf="win11"] .ui-start-menu {
+[data-laf="fluent-acrylic"] .dropdown,
+[data-laf="fluent-acrylic"] .ui-start-menu {
     border-radius: 8px !important;
     border: 1px solid var(--menu-border) !important;
     background: var(--menu-bg) !important;
@@ -3226,27 +3296,27 @@ h2 {
     -webkit-backdrop-filter: blur(20px) !important;
 }
 
-[data-laf="win11"] .menuOption {
+[data-laf="fluent-acrylic"] .menuOption {
     color: var(--menu-text) !important;
 }
 
-[data-laf="win11"] .ui-btn,
-[data-laf="win11"] .filter-input,
-[data-laf="win11"] .ui-card {
+[data-laf="fluent-acrylic"] .ui-btn,
+[data-laf="fluent-acrylic"] .filter-input,
+[data-laf="fluent-acrylic"] .ui-card {
     border-radius: 4px;
 }
 
 /* --------------------------------------------------------------------------
    3. JAVA ECOSYSTEM: Java Metal (Steel Classic)
    -------------------------------------------------------------------------- */
-[data-laf="java-metal"] .window {
+[data-laf="steel-metal"] .window {
     border: 2px solid #6382bf;
     border-radius: 0px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.35);
     background: #d4d0c8;
 }
 
-[data-laf="java-metal"] .titlebar {
+[data-laf="steel-metal"] .titlebar {
     height: 28px;
     background: linear-gradient(180deg, #b0c4de 0%, #7b96c8 50%, #6382bf 100%) !important;
     color: #ffffff !important;
@@ -3257,16 +3327,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="java-metal"] .titleText {
+[data-laf="steel-metal"] .titleText {
     color: #ffffff !important;
 }
 
-[data-laf="java-metal"] .winButtons {
+[data-laf="steel-metal"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="java-metal"] .winBtn {
+[data-laf="steel-metal"] .winBtn {
     width: 20px;
     height: 20px;
     background: linear-gradient(180deg, #ffffff 0%, #b0c4de 100%);
@@ -3280,18 +3350,18 @@ h2 {
     border-radius: 0;
 }
 
-[data-laf="java-metal"] .winBtn:hover {
+[data-laf="steel-metal"] .winBtn:hover {
     background: linear-gradient(180deg, #ffffff 0%, #9cb8d4 100%);
     border-color: #2b4578;
 }
 
-[data-laf="java-metal"] .winBtn.close:hover {
+[data-laf="steel-metal"] .winBtn.close:hover {
     background: #e0443e !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-metal"] #menubar,
-[data-laf="java-metal"] .ui-menubar {
+[data-laf="steel-metal"] #menubar,
+[data-laf="steel-metal"] .ui-menubar {
     background: linear-gradient(180deg, #d4d0c8 0%, #b0c4de 100%) !important;
     color: #000000 !important;
     border-bottom: 2px solid #4a6499 !important;
@@ -3300,17 +3370,17 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="java-metal"] .menubar-item {
+[data-laf="steel-metal"] .menubar-item {
     color: #000000 !important;
 }
 
-[data-laf="java-metal"] .menubar-item:hover,
-[data-laf="java-metal"] .menubar-item.active {
+[data-laf="steel-metal"] .menubar-item:hover,
+[data-laf="steel-metal"] .menubar-item.active {
     background: #6382bf !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-metal"] #taskbar {
+[data-laf="steel-metal"] #taskbar {
     background: linear-gradient(180deg, #d4d0c8 0%, #b0c4de 100%) !important;
     color: #000000 !important;
     border-top: 2px solid #4a6499 !important;
@@ -3318,8 +3388,8 @@ h2 {
     flex: 0 0 32px;
 }
 
-[data-laf="java-metal"] .taskStart,
-[data-laf="java-metal"] .taskButton {
+[data-laf="steel-metal"] .taskStart,
+[data-laf="steel-metal"] .taskButton {
     background: linear-gradient(180deg, #ffffff 0%, #b0c4de 100%) !important;
     border: 1px solid #4a6499 !important;
     color: #000000 !important;
@@ -3329,35 +3399,35 @@ h2 {
     height: 26px;
 }
 
-[data-laf="java-metal"] .taskButton.active {
+[data-laf="steel-metal"] .taskButton.active {
     background: linear-gradient(180deg, #7b96c8 0%, #6382bf 100%) !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-metal"] .clock {
+[data-laf="steel-metal"] .clock {
     border: 1px solid #4a6499;
     background: #ffffff;
     color: #000000 !important;
     padding: 2px 6px;
 }
 
-[data-laf="java-metal"] .dropdown,
-[data-laf="java-metal"] .ui-start-menu {
+[data-laf="steel-metal"] .dropdown,
+[data-laf="steel-metal"] .ui-start-menu {
     background: #d4d0c8 !important;
     color: #000000 !important;
     border: 2px outset #4a6499 !important;
 }
 
-[data-laf="java-metal"] .menuOption {
+[data-laf="steel-metal"] .menuOption {
     color: #000000 !important;
 }
 
-[data-laf="java-metal"] .menuOption:hover {
+[data-laf="steel-metal"] .menuOption:hover {
     background: #6382bf !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-metal"] .ui-btn {
+[data-laf="steel-metal"] .ui-btn {
     background: linear-gradient(180deg, #ffffff 0%, #d4d0c8 100%);
     border: 1px solid #7a8a99;
     border-radius: 0;
@@ -3368,14 +3438,14 @@ h2 {
 /* --------------------------------------------------------------------------
    4. JAVA ECOSYSTEM: Java Ocean (Metal 2.0)
    -------------------------------------------------------------------------- */
-[data-laf="java-ocean"] .window {
+[data-laf="ocean-metal"] .window {
     border: 1px solid #7a8a99;
     border-radius: 2px;
     box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.25);
     background: #eef3f8;
 }
 
-[data-laf="java-ocean"] .titlebar {
+[data-laf="ocean-metal"] .titlebar {
     height: 28px;
     background: linear-gradient(180deg, #d8e5f2 0%, #a8c2dc 50%, #7ca0c4 100%) !important;
     color: #1e3a5f !important;
@@ -3384,16 +3454,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="java-ocean"] .titleText {
+[data-laf="ocean-metal"] .titleText {
     color: #1e3a5f !important;
 }
 
-[data-laf="java-ocean"] .winButtons {
+[data-laf="ocean-metal"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="java-ocean"] .winBtn {
+[data-laf="ocean-metal"] .winBtn {
     width: 20px;
     height: 20px;
     background: linear-gradient(180deg, #f0f6fc 0%, #b8d0e8 100%);
@@ -3407,34 +3477,34 @@ h2 {
     border-radius: 2px;
 }
 
-[data-laf="java-ocean"] .winBtn:hover {
+[data-laf="ocean-metal"] .winBtn:hover {
     background: linear-gradient(180deg, #ffffff 0%, #9cb8d4 100%);
 }
 
-[data-laf="java-ocean"] .winBtn.close:hover {
+[data-laf="ocean-metal"] .winBtn.close:hover {
     background: #dc3545 !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-ocean"] #menubar,
-[data-laf="java-ocean"] .ui-menubar {
+[data-laf="ocean-metal"] #menubar,
+[data-laf="ocean-metal"] .ui-menubar {
     background: linear-gradient(180deg, #eef3f8 0%, #c8d8e8 100%) !important;
     color: #1e3a5f !important;
     border-bottom: 1px solid #7ca0c4 !important;
     font-weight: bold;
 }
 
-[data-laf="java-ocean"] .menubar-item {
+[data-laf="ocean-metal"] .menubar-item {
     color: #1e3a5f !important;
 }
 
-[data-laf="java-ocean"] .menubar-item:hover,
-[data-laf="java-ocean"] .menubar-item.active {
+[data-laf="ocean-metal"] .menubar-item:hover,
+[data-laf="ocean-metal"] .menubar-item.active {
     background: #7ca0c4 !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-ocean"] #taskbar {
+[data-laf="ocean-metal"] #taskbar {
     background: linear-gradient(180deg, #eef3f8 0%, #c8d8e8 100%) !important;
     color: #1e3a5f !important;
     border-top: 1px solid #7ca0c4 !important;
@@ -3442,8 +3512,8 @@ h2 {
     flex: 0 0 32px;
 }
 
-[data-laf="java-ocean"] .taskStart,
-[data-laf="java-ocean"] .taskButton {
+[data-laf="ocean-metal"] .taskStart,
+[data-laf="ocean-metal"] .taskButton {
     background: linear-gradient(180deg, #f0f6fc 0%, #b8d0e8 100%) !important;
     border: 1px solid #7ca0c4 !important;
     color: #1e3a5f !important;
@@ -3451,28 +3521,28 @@ h2 {
     height: 26px;
 }
 
-[data-laf="java-ocean"] .taskButton.active {
+[data-laf="ocean-metal"] .taskButton.active {
     background: linear-gradient(180deg, #7ca0c4 0%, #5a80a8 100%) !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-ocean"] .clock {
+[data-laf="ocean-metal"] .clock {
     color: #1e3a5f !important;
     font-weight: bold;
 }
 
-[data-laf="java-ocean"] .dropdown,
-[data-laf="java-ocean"] .ui-start-menu {
+[data-laf="ocean-metal"] .dropdown,
+[data-laf="ocean-metal"] .ui-start-menu {
     background: #eef3f8 !important;
     color: #1e3a5f !important;
     border: 1px solid #7ca0c4 !important;
 }
 
-[data-laf="java-ocean"] .menuOption {
+[data-laf="ocean-metal"] .menuOption {
     color: #1e3a5f !important;
 }
 
-[data-laf="java-ocean"] .menuOption:hover {
+[data-laf="ocean-metal"] .menuOption:hover {
     background: #7ca0c4 !important;
     color: #ffffff !important;
 }
@@ -3480,14 +3550,14 @@ h2 {
 /* --------------------------------------------------------------------------
    5. JAVA ECOSYSTEM: Java Nimbus
    -------------------------------------------------------------------------- */
-[data-laf="java-nimbus"] .window {
+[data-laf="nimbus-vector"] .window {
     border-radius: 5px;
     border: 1px solid #92979e;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
     background: #d5d8dc;
 }
 
-[data-laf="java-nimbus"] .titlebar {
+[data-laf="nimbus-vector"] .titlebar {
     height: 30px;
     background: linear-gradient(180deg, #e3e6eb 0%, #c4c9d1 50%, #aeb4be 100%) !important;
     color: #222222 !important;
@@ -3496,17 +3566,17 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="java-nimbus"] .titleText {
+[data-laf="nimbus-vector"] .titleText {
     color: #222222 !important;
     font-weight: 600;
 }
 
-[data-laf="java-nimbus"] .winButtons {
+[data-laf="nimbus-vector"] .winButtons {
     align-items: center;
     gap: 3px;
 }
 
-[data-laf="java-nimbus"] .winBtn {
+[data-laf="nimbus-vector"] .winBtn {
     width: 22px;
     height: 20px;
     background: linear-gradient(180deg, #fafafa 0%, #dbe0e6 100%);
@@ -3520,36 +3590,36 @@ h2 {
     border-radius: 3px;
 }
 
-[data-laf="java-nimbus"] .winBtn:hover {
+[data-laf="nimbus-vector"] .winBtn:hover {
     box-shadow: 0 0 5px #e78200 !important;
     border-color: #e78200 !important;
     background: #ffffff;
 }
 
-[data-laf="java-nimbus"] .winBtn.close:hover {
+[data-laf="nimbus-vector"] .winBtn.close:hover {
     box-shadow: 0 0 5px #ff4444 !important;
     border-color: #ff4444 !important;
     color: #ff2222 !important;
 }
 
-[data-laf="java-nimbus"] #menubar,
-[data-laf="java-nimbus"] .ui-menubar {
+[data-laf="nimbus-vector"] #menubar,
+[data-laf="nimbus-vector"] .ui-menubar {
     background: linear-gradient(180deg, #fafafa 0%, #d5d8dc 100%) !important;
     color: #222222 !important;
     border-bottom: 1px solid #92979e !important;
 }
 
-[data-laf="java-nimbus"] .menubar-item {
+[data-laf="nimbus-vector"] .menubar-item {
     color: #222222 !important;
 }
 
-[data-laf="java-nimbus"] .menubar-item:hover,
-[data-laf="java-nimbus"] .menubar-item.active {
+[data-laf="nimbus-vector"] .menubar-item:hover,
+[data-laf="nimbus-vector"] .menubar-item.active {
     background: #e78200 !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-nimbus"] #taskbar {
+[data-laf="nimbus-vector"] #taskbar {
     background: linear-gradient(180deg, #fafafa 0%, #d5d8dc 100%) !important;
     color: #222222 !important;
     border-top: 1px solid #92979e !important;
@@ -3557,8 +3627,8 @@ h2 {
     flex: 0 0 34px;
 }
 
-[data-laf="java-nimbus"] .taskStart,
-[data-laf="java-nimbus"] .taskButton {
+[data-laf="nimbus-vector"] .taskStart,
+[data-laf="nimbus-vector"] .taskButton {
     background: linear-gradient(180deg, #ffffff 0%, #dbe0e6 100%) !important;
     border: 1px solid #a0a6ae !important;
     color: #222222 !important;
@@ -3566,28 +3636,28 @@ h2 {
     height: 26px;
 }
 
-[data-laf="java-nimbus"] .taskButton.active {
+[data-laf="nimbus-vector"] .taskButton.active {
     border-color: #e78200 !important;
     box-shadow: 0 0 6px #e78200 !important;
     font-weight: bold;
 }
 
-[data-laf="java-nimbus"] .clock {
+[data-laf="nimbus-vector"] .clock {
     color: #222222 !important;
 }
 
-[data-laf="java-nimbus"] .dropdown,
-[data-laf="java-nimbus"] .ui-start-menu {
+[data-laf="nimbus-vector"] .dropdown,
+[data-laf="nimbus-vector"] .ui-start-menu {
     background: #f0f2f4 !important;
     color: #222222 !important;
     border: 1px solid #92979e !important;
 }
 
-[data-laf="java-nimbus"] .menuOption {
+[data-laf="nimbus-vector"] .menuOption {
     color: #222222 !important;
 }
 
-[data-laf="java-nimbus"] .menuOption:hover {
+[data-laf="nimbus-vector"] .menuOption:hover {
     background: #e78200 !important;
     color: #ffffff !important;
 }
@@ -3595,13 +3665,13 @@ h2 {
 /* --------------------------------------------------------------------------
    6. JAVA ECOSYSTEM: Java FlatLaf (IDE IntelliJ / NetBeans)
    -------------------------------------------------------------------------- */
-[data-laf="java-flatlaf"] .window {
+[data-laf="flatlaf-ide"] .window {
     border: 1px solid var(--win-border);
     border-radius: 4px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-[data-laf="java-flatlaf"] .titlebar {
+[data-laf="flatlaf-ide"] .titlebar {
     height: 30px;
     background: transparent;
     border-bottom: 1px solid var(--win-border);
@@ -3610,11 +3680,11 @@ h2 {
     color: var(--text-primary);
 }
 
-[data-laf="java-flatlaf"] .titleText {
+[data-laf="flatlaf-ide"] .titleText {
     color: var(--text-primary);
 }
 
-[data-laf="java-flatlaf"] .winBtn {
+[data-laf="flatlaf-ide"] .winBtn {
     width: 36px;
     height: 100%;
     font-size: 12px;
@@ -3626,35 +3696,35 @@ h2 {
     transition: background 0.15s ease;
 }
 
-[data-laf="java-flatlaf"] .winBtn:hover {
+[data-laf="flatlaf-ide"] .winBtn:hover {
     background: color-mix(in srgb, var(--text-primary) 12%, transparent);
 }
 
-[data-laf="java-flatlaf"] .winBtn.close:hover {
+[data-laf="flatlaf-ide"] .winBtn.close:hover {
     background: #e81123 !important;
     color: #ffffff !important;
 }
 
-[data-laf="java-flatlaf"] #menubar,
-[data-laf="java-flatlaf"] .ui-menubar,
-[data-laf="java-flatlaf"] #taskbar {
+[data-laf="flatlaf-ide"] #menubar,
+[data-laf="flatlaf-ide"] .ui-menubar,
+[data-laf="flatlaf-ide"] #taskbar {
     background: var(--bg-secondary) !important;
     border-color: var(--win-border) !important;
     color: var(--text-primary) !important;
 }
 
-[data-laf="java-flatlaf"] .menubar-item,
-[data-laf="java-flatlaf"] .taskButton,
-[data-laf="java-flatlaf"] .taskStart,
-[data-laf="java-flatlaf"] .clock {
+[data-laf="flatlaf-ide"] .menubar-item,
+[data-laf="flatlaf-ide"] .taskButton,
+[data-laf="flatlaf-ide"] .taskStart,
+[data-laf="flatlaf-ide"] .clock {
     color: var(--text-primary) !important;
 }
 
-[data-laf="java-flatlaf"] .taskButton {
+[data-laf="flatlaf-ide"] .taskButton {
     border-radius: 3px;
 }
 
-[data-laf="java-flatlaf"] .taskButton.active {
+[data-laf="flatlaf-ide"] .taskButton.active {
     background: var(--btn-primary) !important;
     color: var(--btn-primary-text) !important;
 }
@@ -3662,14 +3732,14 @@ h2 {
 /* --------------------------------------------------------------------------
    7. JAVA ECOSYSTEM: JavaFX Modena
    -------------------------------------------------------------------------- */
-[data-laf="javafx-modena"] .window {
+[data-laf="modena-soft"] .window {
     border: 1px solid #b5b5b5;
     border-radius: 4px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
     background: #ececec;
 }
 
-[data-laf="javafx-modena"] .titlebar {
+[data-laf="modena-soft"] .titlebar {
     height: 30px;
     background: #e0e0e0;
     border-bottom: 1px solid #c8c8c8;
@@ -3677,17 +3747,17 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="javafx-modena"] .titleText {
+[data-laf="modena-soft"] .titleText {
     color: #222222 !important;
     font-weight: 600;
 }
 
-[data-laf="javafx-modena"] .winButtons {
+[data-laf="modena-soft"] .winButtons {
     align-items: center;
     gap: 3px;
 }
 
-[data-laf="javafx-modena"] .winBtn {
+[data-laf="modena-soft"] .winBtn {
     width: 24px;
     height: 22px;
     background: #dcdcdc;
@@ -3701,30 +3771,30 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="javafx-modena"] .winBtn:hover {
+[data-laf="modena-soft"] .winBtn:hover {
     background: #c8c8c8;
 }
 
-[data-laf="javafx-modena"] .winBtn.close:hover {
+[data-laf="modena-soft"] .winBtn.close:hover {
     background: #d9534f !important;
     color: #ffffff !important;
 }
 
-[data-laf="javafx-modena"] #menubar,
-[data-laf="javafx-modena"] .ui-menubar,
-[data-laf="javafx-modena"] #taskbar {
+[data-laf="modena-soft"] #menubar,
+[data-laf="modena-soft"] .ui-menubar,
+[data-laf="modena-soft"] #taskbar {
     background: #e0e0e0 !important;
     border-color: #c8c8c8 !important;
     color: #222222 !important;
 }
 
-[data-laf="javafx-modena"] .menubar-item,
-[data-laf="javafx-modena"] .clock {
+[data-laf="modena-soft"] .menubar-item,
+[data-laf="modena-soft"] .clock {
     color: #222222 !important;
 }
 
-[data-laf="javafx-modena"] .taskStart,
-[data-laf="javafx-modena"] .taskButton {
+[data-laf="modena-soft"] .taskStart,
+[data-laf="modena-soft"] .taskButton {
     background: #dcdcdc !important;
     border: 1px solid #b8b8b8 !important;
     color: #222222 !important;
@@ -3734,7 +3804,7 @@ h2 {
 /* --------------------------------------------------------------------------
    8. JAVA ECOSYSTEM: JavaFX Caspian
    -------------------------------------------------------------------------- */
-[data-laf="javafx-caspian"] .window {
+[data-laf="caspian-dark"] .window {
     border: 1px solid #1a2733;
     border-radius: 4px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
@@ -3742,7 +3812,7 @@ h2 {
     color: #f0f4f8;
 }
 
-[data-laf="javafx-caspian"] .titlebar {
+[data-laf="caspian-dark"] .titlebar {
     height: 30px;
     background: linear-gradient(180deg, #445668 0%, #2b3948 100%);
     color: #e1ebf5 !important;
@@ -3750,17 +3820,17 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="javafx-caspian"] .titleText {
+[data-laf="caspian-dark"] .titleText {
     color: #e1ebf5 !important;
     font-weight: 600;
 }
 
-[data-laf="javafx-caspian"] .winButtons {
+[data-laf="caspian-dark"] .winButtons {
     align-items: center;
     gap: 3px;
 }
 
-[data-laf="javafx-caspian"] .winBtn {
+[data-laf="caspian-dark"] .winBtn {
     width: 22px;
     height: 22px;
     background: linear-gradient(180deg, #506478 0%, #324354 100%);
@@ -3774,30 +3844,30 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="javafx-caspian"] .winBtn:hover {
+[data-laf="caspian-dark"] .winBtn:hover {
     background: #627b95;
 }
 
-[data-laf="javafx-caspian"] .winBtn.close:hover {
+[data-laf="caspian-dark"] .winBtn.close:hover {
     background: #c9302c !important;
     color: #ffffff !important;
 }
 
-[data-laf="javafx-caspian"] #menubar,
-[data-laf="javafx-caspian"] .ui-menubar,
-[data-laf="javafx-caspian"] #taskbar {
+[data-laf="caspian-dark"] #menubar,
+[data-laf="caspian-dark"] .ui-menubar,
+[data-laf="caspian-dark"] #taskbar {
     background: #293542 !important;
     border-color: #1a2733 !important;
     color: #e1ebf5 !important;
 }
 
-[data-laf="javafx-caspian"] .menubar-item,
-[data-laf="javafx-caspian"] .clock {
+[data-laf="caspian-dark"] .menubar-item,
+[data-laf="caspian-dark"] .clock {
     color: #e1ebf5 !important;
 }
 
-[data-laf="javafx-caspian"] .taskStart,
-[data-laf="javafx-caspian"] .taskButton {
+[data-laf="caspian-dark"] .taskStart,
+[data-laf="caspian-dark"] .taskButton {
     background: linear-gradient(180deg, #506478 0%, #324354 100%) !important;
     border: 1px solid #1a2733 !important;
     color: #e1ebf5 !important;
@@ -3807,14 +3877,14 @@ h2 {
 /* --------------------------------------------------------------------------
    9. RETRÔ: BeOS / Haiku OS
    -------------------------------------------------------------------------- */
-[data-laf="beos"] .window {
+[data-laf="yellow-tab"] .window {
     border: 2px solid #333333;
     border-radius: 0;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.35);
     background: #e0e0e0;
 }
 
-[data-laf="beos"] .titlebar {
+[data-laf="yellow-tab"] .titlebar {
     background: #ffcc00 !important;
     color: #000000 !important;
     height: 26px;
@@ -3829,17 +3899,17 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="beos"] .titleText {
+[data-laf="yellow-tab"] .titleText {
     color: #000000 !important;
 }
 
-[data-laf="beos"] .winButtons {
+[data-laf="yellow-tab"] .winButtons {
     order: -1;
     margin-right: 8px;
     align-items: center;
 }
 
-[data-laf="beos"] .winBtn {
+[data-laf="yellow-tab"] .winBtn {
     width: 16px;
     height: 16px;
     background: #ffe033;
@@ -3855,17 +3925,17 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="beos"] .winBtn:hover {
+[data-laf="yellow-tab"] .winBtn:hover {
     background: #ffffff;
 }
 
-[data-laf="beos"] .winBtn.close:hover {
+[data-laf="yellow-tab"] .winBtn.close:hover {
     background: #ff4444;
     color: #ffffff !important;
 }
 
-[data-laf="beos"] #menubar,
-[data-laf="beos"] .ui-menubar {
+[data-laf="yellow-tab"] #menubar,
+[data-laf="yellow-tab"] .ui-menubar {
     background: #d8d8d8 !important;
     color: #000000 !important;
     border-bottom: 2px solid #333 !important;
@@ -3874,17 +3944,17 @@ h2 {
     font-size: 12px;
 }
 
-[data-laf="beos"] .menubar-item {
+[data-laf="yellow-tab"] .menubar-item {
     color: #000000 !important;
 }
 
-[data-laf="beos"] .menubar-item:hover,
-[data-laf="beos"] .menubar-item.active {
+[data-laf="yellow-tab"] .menubar-item:hover,
+[data-laf="yellow-tab"] .menubar-item.active {
     background: #ffcc00 !important;
     color: #000000 !important;
 }
 
-[data-laf="beos"] #taskbar {
+[data-laf="yellow-tab"] #taskbar {
     background: #dcdcdc !important;
     border-top: 2px solid #333 !important;
     color: #000000 !important;
@@ -3892,7 +3962,7 @@ h2 {
     flex: 0 0 32px;
 }
 
-[data-laf="beos"] .taskStart {
+[data-laf="yellow-tab"] .taskStart {
     background: #ffcc00 !important;
     border: 1px solid #333 !important;
     color: #000000 !important;
@@ -3902,7 +3972,7 @@ h2 {
     height: 26px;
 }
 
-[data-laf="beos"] .taskButton {
+[data-laf="yellow-tab"] .taskButton {
     background: #e4e4e4 !important;
     border: 1px solid #666 !important;
     color: #000000 !important;
@@ -3912,14 +3982,14 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="beos"] .taskButton.active {
+[data-laf="yellow-tab"] .taskButton.active {
     background: #ffcc00 !important;
     border-color: #000000 !important;
     color: #000000 !important;
     font-weight: 900;
 }
 
-[data-laf="beos"] .clock {
+[data-laf="yellow-tab"] .clock {
     background: #ffffff;
     border: 1px solid #333;
     color: #000000 !important;
@@ -3928,18 +3998,18 @@ h2 {
     font-family: monospace;
 }
 
-[data-laf="beos"] .dropdown,
-[data-laf="beos"] .ui-start-menu {
+[data-laf="yellow-tab"] .dropdown,
+[data-laf="yellow-tab"] .ui-start-menu {
     background: #e8e8e8 !important;
     color: #000000 !important;
     border: 1px solid #333 !important;
 }
 
-[data-laf="beos"] .menuOption {
+[data-laf="yellow-tab"] .menuOption {
     color: #000000 !important;
 }
 
-[data-laf="beos"] .menuOption:hover {
+[data-laf="yellow-tab"] .menuOption:hover {
     background: #ffcc00 !important;
     color: #000000 !important;
 }
@@ -3947,14 +4017,14 @@ h2 {
 /* --------------------------------------------------------------------------
    10. RETRÔ: Windows 98 Classic 3D
    -------------------------------------------------------------------------- */
-[data-laf="win98"] .window {
+[data-laf="retro-3d"] .window {
     border: 2px outset #ffffff !important;
     box-shadow: 1px 1px 0px 0px #000000;
     border-radius: 0px !important;
     background: #c0c0c0 !important;
 }
 
-[data-laf="win98"] .titlebar {
+[data-laf="retro-3d"] .titlebar {
     height: 24px;
     background: linear-gradient(90deg, #000080, #1084d0) !important;
     color: #ffffff !important;
@@ -3965,16 +4035,16 @@ h2 {
     border-radius: 0;
 }
 
-[data-laf="win98"] .titleText {
+[data-laf="retro-3d"] .titleText {
     color: #ffffff !important;
 }
 
-[data-laf="win98"] .winButtons {
+[data-laf="retro-3d"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="win98"] .winBtn {
+[data-laf="retro-3d"] .winBtn {
     width: 16px;
     height: 15px;
     background: #c0c0c0 !important;
@@ -3990,13 +4060,13 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="win98"] .winBtn:active {
+[data-laf="retro-3d"] .winBtn:active {
     border-style: inset !important;
     padding: 1px 0 0 1px;
 }
 
-[data-laf="win98"] #menubar,
-[data-laf="win98"] .ui-menubar {
+[data-laf="retro-3d"] #menubar,
+[data-laf="retro-3d"] .ui-menubar {
     background: #c0c0c0 !important;
     color: #000000 !important;
     border-bottom: 1px solid #808080 !important;
@@ -4006,21 +4076,21 @@ h2 {
     flex: 0 0 26px;
 }
 
-[data-laf="win98"] .menubar-item {
+[data-laf="retro-3d"] .menubar-item {
     font-size: 11px;
     border-radius: 0;
     color: #000000 !important;
     padding: 0 8px;
 }
 
-[data-laf="win98"] .menubar-item:hover,
-[data-laf="win98"] .menubar-item.active {
+[data-laf="retro-3d"] .menubar-item:hover,
+[data-laf="retro-3d"] .menubar-item.active {
     background: #000080 !important;
     color: #ffffff !important;
 }
 
-[data-laf="win98"] .dropdown,
-[data-laf="win98"] .ui-start-menu {
+[data-laf="retro-3d"] .dropdown,
+[data-laf="retro-3d"] .ui-start-menu {
     border: 2px outset #ffffff !important;
     background: #c0c0c0 !important;
     color: #000000 !important;
@@ -4029,17 +4099,17 @@ h2 {
     font-family: 'Tahoma', sans-serif;
 }
 
-[data-laf="win98"] .menuOption {
+[data-laf="retro-3d"] .menuOption {
     font-size: 11px;
     color: #000000 !important;
 }
 
-[data-laf="win98"] .menuOption:hover {
+[data-laf="retro-3d"] .menuOption:hover {
     background: #000080 !important;
     color: #ffffff !important;
 }
 
-[data-laf="win98"] #taskbar {
+[data-laf="retro-3d"] #taskbar {
     background: #c0c0c0 !important;
     color: #000000 !important;
     border-top: 2px solid #ffffff !important;
@@ -4049,7 +4119,7 @@ h2 {
     font-family: 'Tahoma', sans-serif;
 }
 
-[data-laf="win98"] .taskStart {
+[data-laf="retro-3d"] .taskStart {
     border: 2px outset #ffffff !important;
     background: #c0c0c0 !important;
     color: #000000 !important;
@@ -4060,12 +4130,12 @@ h2 {
     height: 24px;
 }
 
-[data-laf="win98"] .taskStart:active {
+[data-laf="retro-3d"] .taskStart:active {
     border-style: inset !important;
     padding: 1px 0 0 1px;
 }
 
-[data-laf="win98"] .taskButton {
+[data-laf="retro-3d"] .taskButton {
     border: 2px outset #ffffff !important;
     background: #c0c0c0 !important;
     color: #000000 !important;
@@ -4075,7 +4145,7 @@ h2 {
     height: 24px;
 }
 
-[data-laf="win98"] .taskButton.active {
+[data-laf="retro-3d"] .taskButton.active {
     border-style: inset !important;
     background: #dfdfdf !important;
     color: #000000 !important;
@@ -4083,7 +4153,7 @@ h2 {
     padding: 1px 0 0 1px;
 }
 
-[data-laf="win98"] .clock {
+[data-laf="retro-3d"] .clock {
     border: 2px inset #ffffff !important;
     background: #c0c0c0 !important;
     color: #000000 !important;
@@ -4092,7 +4162,7 @@ h2 {
     padding: 2px 6px;
 }
 
-[data-laf="win98"] .ui-btn {
+[data-laf="retro-3d"] .ui-btn {
     border: 2px outset #ffffff !important;
     background: #c0c0c0 !important;
     color: #000000 !important;
@@ -4103,14 +4173,14 @@ h2 {
 /* --------------------------------------------------------------------------
    11. RETRÔ: Windows XP Luna
    -------------------------------------------------------------------------- */
-[data-laf="winxp"] .window {
+[data-laf="luna-blue"] .window {
     border: 3px solid #0055ea;
     border-radius: 8px 8px 0 0;
     box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.35);
     background: #ece9d8;
 }
 
-[data-laf="winxp"] .titlebar {
+[data-laf="luna-blue"] .titlebar {
     height: 30px;
     background: linear-gradient(180deg, #0058ee 0%, #3593ff 10%, #288eff 30%, #0053ee 70%, #003dd7 100%) !important;
     color: #ffffff !important;
@@ -4121,16 +4191,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="winxp"] .titleText {
+[data-laf="luna-blue"] .titleText {
     color: #ffffff !important;
 }
 
-[data-laf="winxp"] .winButtons {
+[data-laf="luna-blue"] .winButtons {
     align-items: center;
     gap: 3px;
 }
 
-[data-laf="winxp"] .winBtn {
+[data-laf="luna-blue"] .winBtn {
     width: 21px;
     height: 21px;
     border: 1px solid #ffffff;
@@ -4145,34 +4215,34 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="winxp"] .winBtn:hover {
+[data-laf="luna-blue"] .winBtn:hover {
     filter: brightness(1.15);
 }
 
-[data-laf="winxp"] .winBtn.close {
+[data-laf="luna-blue"] .winBtn.close {
     background: linear-gradient(180deg, #ff7a66 0%, #e02800 50%, #c41800 100%) !important;
     border-color: #ffd0c0;
 }
 
-[data-laf="winxp"] #menubar,
-[data-laf="winxp"] .ui-menubar {
+[data-laf="luna-blue"] #menubar,
+[data-laf="luna-blue"] .ui-menubar {
     background: linear-gradient(180deg, #f7f5ed 0%, #ece9d8 100%) !important;
     color: #000000 !important;
     border-bottom: 1px solid #d0ccb8 !important;
     font-family: 'Tahoma', sans-serif;
 }
 
-[data-laf="winxp"] .menubar-item {
+[data-laf="luna-blue"] .menubar-item {
     color: #000000 !important;
 }
 
-[data-laf="winxp"] .menubar-item:hover,
-[data-laf="winxp"] .menubar-item.active {
+[data-laf="luna-blue"] .menubar-item:hover,
+[data-laf="luna-blue"] .menubar-item.active {
     background: #316ac5 !important;
     color: #ffffff !important;
 }
 
-[data-laf="winxp"] #taskbar {
+[data-laf="luna-blue"] #taskbar {
     background: linear-gradient(180deg, #1f2f86 0%, #316ac5 3%, #245ddb 10%, #1941a5 100%) !important;
     color: #ffffff !important;
     border-top: 1px solid #3c82e6 !important;
@@ -4180,7 +4250,7 @@ h2 {
     flex: 0 0 34px;
 }
 
-[data-laf="winxp"] .taskStart {
+[data-laf="luna-blue"] .taskStart {
     background: linear-gradient(180deg, #3c9c37 0%, #4cb848 10%, #2f7e2a 80%, #225a1e 100%) !important;
     border: 1px solid #1e521a !important;
     color: #ffffff !important;
@@ -4193,7 +4263,7 @@ h2 {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-[data-laf="winxp"] .taskButton {
+[data-laf="luna-blue"] .taskButton {
     background: linear-gradient(180deg, #3877d9 0%, #1e52ba 100%) !important;
     color: #ffffff !important;
     border: 1px solid #163e8c !important;
@@ -4203,13 +4273,13 @@ h2 {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-[data-laf="winxp"] .taskButton.active {
+[data-laf="luna-blue"] .taskButton.active {
     background: linear-gradient(180deg, #193c83 0%, #204ca6 100%) !important;
     color: #ffffff !important;
     box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-[data-laf="winxp"] .clock {
+[data-laf="luna-blue"] .clock {
     background: #0f2a6b !important;
     border: 1px solid #08173d !important;
     border-radius: 2px;
@@ -4219,19 +4289,19 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="winxp"] .dropdown,
-[data-laf="winxp"] .ui-start-menu {
+[data-laf="luna-blue"] .dropdown,
+[data-laf="luna-blue"] .ui-start-menu {
     background: #ffffff !important;
     color: #000000 !important;
     border: 1px solid #0055ea !important;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
-[data-laf="winxp"] .menuOption {
+[data-laf="luna-blue"] .menuOption {
     color: #000000 !important;
 }
 
-[data-laf="winxp"] .menuOption:hover {
+[data-laf="luna-blue"] .menuOption:hover {
     background: #316ac5 !important;
     color: #ffffff !important;
 }
@@ -4239,7 +4309,7 @@ h2 {
 /* --------------------------------------------------------------------------
    12. RETRÔ: Windows 7 Aero Glass
    -------------------------------------------------------------------------- */
-[data-laf="win7"] .window {
+[data-laf="aero-glass"] .window {
     border-radius: 8px 8px 0 0;
     border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -4247,7 +4317,7 @@ h2 {
     backdrop-filter: blur(16px);
 }
 
-[data-laf="win7"] .titlebar {
+[data-laf="aero-glass"] .titlebar {
     height: 32px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(200, 225, 255, 0.3) 50%, rgba(160, 200, 245, 0.4) 100%) !important;
     color: #1e395b !important;
@@ -4256,15 +4326,15 @@ h2 {
     font-weight: 600;
 }
 
-[data-laf="win7"] .titleText {
+[data-laf="aero-glass"] .titleText {
     color: #1e395b !important;
 }
 
-[data-laf="win7"] .winButtons {
+[data-laf="aero-glass"] .winButtons {
     align-items: center;
 }
 
-[data-laf="win7"] .winBtn {
+[data-laf="aero-glass"] .winBtn {
     width: 36px;
     height: 22px;
     background: rgba(255, 255, 255, 0.35);
@@ -4278,19 +4348,19 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="win7"] .winBtn:hover {
+[data-laf="aero-glass"] .winBtn:hover {
     background: rgba(255, 255, 255, 0.7);
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
 }
 
-[data-laf="win7"] .winBtn.close:hover {
+[data-laf="aero-glass"] .winBtn.close:hover {
     background: #e81123 !important;
     color: #ffffff !important;
     border-color: #ff6666;
 }
 
-[data-laf="win7"] #menubar,
-[data-laf="win7"] .ui-menubar {
+[data-laf="aero-glass"] #menubar,
+[data-laf="aero-glass"] .ui-menubar {
     background: rgba(220, 235, 252, 0.88) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
@@ -4298,17 +4368,17 @@ h2 {
     color: #1e395b !important;
 }
 
-[data-laf="win7"] .menubar-item {
+[data-laf="aero-glass"] .menubar-item {
     color: #1e395b !important;
 }
 
-[data-laf="win7"] .menubar-item:hover,
-[data-laf="win7"] .menubar-item.active {
+[data-laf="aero-glass"] .menubar-item:hover,
+[data-laf="aero-glass"] .menubar-item.active {
     background: rgba(255, 255, 255, 0.6) !important;
     color: #002244 !important;
 }
 
-[data-laf="win7"] #taskbar {
+[data-laf="aero-glass"] #taskbar {
     background: linear-gradient(180deg, rgba(20, 45, 80, 0.88) 0%, rgba(10, 20, 40, 0.95) 100%) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
@@ -4318,20 +4388,59 @@ h2 {
     flex: 0 0 40px;
 }
 
-[data-laf="win7"] .taskStart {
+[data-laf="aero-glass"] .taskStart {
     background: radial-gradient(circle at 50% 30%, #5dade2 0%, #2471a3 60%, #154360 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
     color: #ffffff !important;
-    box-shadow: 0 0 10px rgba(93, 173, 226, 0.6);
-    font-size: 11px;
-    font-weight: bold;
+    box-shadow: 0 0 12px rgba(93, 173, 226, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
 }
 
-[data-laf="win7"] .taskButton {
+[data-laf="aero-glass"] .taskStart:hover {
+    box-shadow: 0 0 18px rgba(93, 173, 226, 1), inset 0 1px 4px rgba(255, 255, 255, 0.9) !important;
+    transform: scale(1.06);
+}
+
+[data-laf="aero-glass"] .taskStart .task-start-label {
+    display: none !important;
+}
+
+[data-laf="aero-glass"] .taskStart .task-start-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop {
+    width: 14px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    transition: background 0.2s ease;
+}
+
+[data-laf="aero-glass"] .taskShowDesktop:hover {
+    background: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-laf="aero-glass"] .taskButton {
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
     border-radius: 4px;
@@ -4340,7 +4449,7 @@ h2 {
     font-size: 12px;
 }
 
-[data-laf="win7"] .taskButton.active {
+[data-laf="aero-glass"] .taskButton.active {
     background: rgba(255, 255, 255, 0.35) !important;
     border-color: rgba(93, 173, 226, 0.8) !important;
     color: #ffffff !important;
@@ -4348,25 +4457,25 @@ h2 {
     font-weight: 600;
 }
 
-[data-laf="win7"] .clock {
+[data-laf="aero-glass"] .clock {
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
     font-weight: 600;
 }
 
-[data-laf="win7"] .dropdown,
-[data-laf="win7"] .ui-start-menu {
+[data-laf="aero-glass"] .dropdown,
+[data-laf="aero-glass"] .ui-start-menu {
     background: rgba(240, 248, 255, 0.95) !important;
     color: #1e395b !important;
     border: 1px solid rgba(93, 173, 226, 0.6) !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
 }
 
-[data-laf="win7"] .menuOption {
+[data-laf="aero-glass"] .menuOption {
     color: #1e395b !important;
 }
 
-[data-laf="win7"] .menuOption:hover {
+[data-laf="aero-glass"] .menuOption:hover {
     background: #3399ff !important;
     color: #ffffff !important;
 }
@@ -4374,14 +4483,14 @@ h2 {
 /* --------------------------------------------------------------------------
    13. RETRÔ: NeXTSTEP / OpenStep
    -------------------------------------------------------------------------- */
-[data-laf="nextstep"] .window {
+[data-laf="next-dark"] .window {
     border: 2px solid #000000;
     border-radius: 0;
     box-shadow: 4px 4px 0px #000000;
     background: #aeaeae;
 }
 
-[data-laf="nextstep"] .titlebar {
+[data-laf="next-dark"] .titlebar {
     height: 26px;
     background: #555555 !important;
     color: #ffffff !important;
@@ -4392,16 +4501,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="nextstep"] .titleText {
+[data-laf="next-dark"] .titleText {
     color: #ffffff !important;
 }
 
-[data-laf="nextstep"] .winButtons {
+[data-laf="next-dark"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="nextstep"] .winBtn {
+[data-laf="next-dark"] .winBtn {
     width: 18px;
     height: 18px;
     background: #aeaeae;
@@ -4415,13 +4524,13 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="nextstep"] .winBtn:active {
+[data-laf="next-dark"] .winBtn:active {
     border-style: inset;
 }
 
-[data-laf="nextstep"] #menubar,
-[data-laf="nextstep"] .ui-menubar,
-[data-laf="nextstep"] #taskbar {
+[data-laf="next-dark"] #menubar,
+[data-laf="next-dark"] .ui-menubar,
+[data-laf="next-dark"] #taskbar {
     background: #555555 !important;
     color: #ffffff !important;
     border-color: #000000 !important;
@@ -4429,13 +4538,13 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="nextstep"] .menubar-item,
-[data-laf="nextstep"] .clock {
+[data-laf="next-dark"] .menubar-item,
+[data-laf="next-dark"] .clock {
     color: #ffffff !important;
 }
 
-[data-laf="nextstep"] .taskStart,
-[data-laf="nextstep"] .taskButton {
+[data-laf="next-dark"] .taskStart,
+[data-laf="next-dark"] .taskButton {
     background: #aeaeae !important;
     border: 2px outset #ffffff !important;
     color: #000000 !important;
@@ -4448,14 +4557,14 @@ h2 {
 /* --------------------------------------------------------------------------
    14. RETRÔ: AmigaOS (Workbench)
    -------------------------------------------------------------------------- */
-[data-laf="amiga"] .window {
+[data-laf="workbench-boing"] .window {
     border: 2px solid #0055aa;
     border-radius: 0;
     box-shadow: 3px 3px 0 #000000;
     background: #aaaaaa;
 }
 
-[data-laf="amiga"] .titlebar {
+[data-laf="workbench-boing"] .titlebar {
     height: 22px;
     background: #0055aa !important;
     color: #ff8800 !important;
@@ -4466,16 +4575,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="amiga"] .titleText {
+[data-laf="workbench-boing"] .titleText {
     color: #ff8800 !important;
 }
 
-[data-laf="amiga"] .winButtons {
+[data-laf="workbench-boing"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="amiga"] .winBtn {
+[data-laf="workbench-boing"] .winBtn {
     width: 16px;
     height: 16px;
     background: #aaaaaa;
@@ -4489,13 +4598,13 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="amiga"] .winBtn:hover {
+[data-laf="workbench-boing"] .winBtn:hover {
     background: #ffffff;
 }
 
-[data-laf="amiga"] #menubar,
-[data-laf="amiga"] .ui-menubar,
-[data-laf="amiga"] #taskbar {
+[data-laf="workbench-boing"] #menubar,
+[data-laf="workbench-boing"] .ui-menubar,
+[data-laf="workbench-boing"] #taskbar {
     background: #0055aa !important;
     color: #ff8800 !important;
     border-color: #000000 !important;
@@ -4503,13 +4612,13 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="amiga"] .menubar-item,
-[data-laf="amiga"] .clock {
+[data-laf="workbench-boing"] .menubar-item,
+[data-laf="workbench-boing"] .clock {
     color: #ff8800 !important;
 }
 
-[data-laf="amiga"] .taskStart,
-[data-laf="amiga"] .taskButton {
+[data-laf="workbench-boing"] .taskStart,
+[data-laf="workbench-boing"] .taskButton {
     background: #aaaaaa !important;
     border: 1px solid #000000 !important;
     color: #0055aa !important;
@@ -4518,7 +4627,7 @@ h2 {
     height: 24px;
 }
 
-[data-laf="amiga"] .taskButton.active {
+[data-laf="workbench-boing"] .taskButton.active {
     background: #ff8800 !important;
     color: #000000 !important;
 }
@@ -4526,14 +4635,14 @@ h2 {
 /* --------------------------------------------------------------------------
    15. RETRÔ: Mac OS System 7 / Platinum
    -------------------------------------------------------------------------- */
-[data-laf="mac-classic"] .window {
+[data-laf="platinum-classic"] .window {
     border: 1px solid #000000;
     border-radius: 0;
     box-shadow: 2px 2px 0 #000000;
     background: #ffffff;
 }
 
-[data-laf="mac-classic"] .titlebar {
+[data-laf="platinum-classic"] .titlebar {
     height: 22px;
     background: repeating-linear-gradient(180deg, #ffffff 0px, #ffffff 1px, #000000 2px, #000000 2px) !important;
     color: #000000 !important;
@@ -4543,7 +4652,7 @@ h2 {
     padding: 0 6px;
 }
 
-[data-laf="mac-classic"] .titleText {
+[data-laf="platinum-classic"] .titleText {
     background: #ffffff;
     color: #000000 !important;
     padding: 0 8px;
@@ -4551,12 +4660,12 @@ h2 {
     margin: 0 auto;
 }
 
-[data-laf="mac-classic"] .winButtons {
+[data-laf="platinum-classic"] .winButtons {
     order: -1;
     align-items: center;
 }
 
-[data-laf="mac-classic"] .winBtn.close {
+[data-laf="platinum-classic"] .winBtn.close {
     width: 14px;
     height: 14px;
     background: #ffffff;
@@ -4570,13 +4679,13 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="mac-classic"] .winBtn.close:active {
+[data-laf="platinum-classic"] .winBtn.close:active {
     background: #000000;
     color: #ffffff !important;
 }
 
-[data-laf="mac-classic"] #menubar,
-[data-laf="mac-classic"] .ui-menubar {
+[data-laf="platinum-classic"] #menubar,
+[data-laf="platinum-classic"] .ui-menubar {
     background: #ffffff !important;
     border-bottom: 2px solid #000000 !important;
     font-family: 'Chicago', 'Geneva', sans-serif;
@@ -4585,17 +4694,17 @@ h2 {
     color: #000000 !important;
 }
 
-[data-laf="mac-classic"] .menubar-item {
+[data-laf="platinum-classic"] .menubar-item {
     color: #000000 !important;
 }
 
-[data-laf="mac-classic"] .menubar-item:hover,
-[data-laf="mac-classic"] .menubar-item.active {
+[data-laf="platinum-classic"] .menubar-item:hover,
+[data-laf="platinum-classic"] .menubar-item.active {
     background: #000000 !important;
     color: #ffffff !important;
 }
 
-[data-laf="mac-classic"] #taskbar {
+[data-laf="platinum-classic"] #taskbar {
     background: #ffffff !important;
     border-top: 2px solid #000000 !important;
     font-family: 'Chicago', 'Geneva', sans-serif;
@@ -4604,12 +4713,12 @@ h2 {
     color: #000000 !important;
 }
 
-[data-laf="mac-classic"] .clock {
+[data-laf="platinum-classic"] .clock {
     color: #000000 !important;
 }
 
-[data-laf="mac-classic"] .taskStart,
-[data-laf="mac-classic"] .taskButton {
+[data-laf="platinum-classic"] .taskStart,
+[data-laf="platinum-classic"] .taskButton {
     background: #ffffff !important;
     border: 1px solid #000000 !important;
     color: #000000 !important;
@@ -4619,7 +4728,7 @@ h2 {
     height: 22px;
 }
 
-[data-laf="mac-classic"] .taskButton.active {
+[data-laf="platinum-classic"] .taskButton.active {
     background: #000000 !important;
     color: #ffffff !important;
 }
@@ -4627,14 +4736,14 @@ h2 {
 /* --------------------------------------------------------------------------
    16. RETRÔ: OS/2 Warp (IBM)
    -------------------------------------------------------------------------- */
-[data-laf="os2-warp"] .window {
+[data-laf="warp-enterprise"] .window {
     border: 3px solid #6699cc;
     border-radius: 0;
     box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
     background: #c0c0c0;
 }
 
-[data-laf="os2-warp"] .titlebar {
+[data-laf="warp-enterprise"] .titlebar {
     height: 26px;
     background: #336699 !important;
     color: #ffffff !important;
@@ -4643,16 +4752,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="os2-warp"] .titleText {
+[data-laf="warp-enterprise"] .titleText {
     color: #ffffff !important;
 }
 
-[data-laf="os2-warp"] .winButtons {
+[data-laf="warp-enterprise"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="os2-warp"] .winBtn {
+[data-laf="warp-enterprise"] .winBtn {
     width: 18px;
     height: 18px;
     background: #c0c0c0;
@@ -4666,13 +4775,13 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="os2-warp"] .winBtn:hover {
+[data-laf="warp-enterprise"] .winBtn:hover {
     background: #e0e0e0;
 }
 
-[data-laf="os2-warp"] #menubar,
-[data-laf="os2-warp"] .ui-menubar,
-[data-laf="os2-warp"] #taskbar {
+[data-laf="warp-enterprise"] #menubar,
+[data-laf="warp-enterprise"] .ui-menubar,
+[data-laf="warp-enterprise"] #taskbar {
     background: #336699 !important;
     color: #ffffff !important;
     font-family: 'WarpSans', 'Helvetica', sans-serif;
@@ -4680,13 +4789,13 @@ h2 {
     border-color: #6699cc !important;
 }
 
-[data-laf="os2-warp"] .menubar-item,
-[data-laf="os2-warp"] .clock {
+[data-laf="warp-enterprise"] .menubar-item,
+[data-laf="warp-enterprise"] .clock {
     color: #ffffff !important;
 }
 
-[data-laf="os2-warp"] .taskStart,
-[data-laf="os2-warp"] .taskButton {
+[data-laf="warp-enterprise"] .taskStart,
+[data-laf="warp-enterprise"] .taskButton {
     background: #c0c0c0 !important;
     border: 1px outset #ffffff !important;
     color: #000000 !important;
@@ -4698,14 +4807,14 @@ h2 {
 /* --------------------------------------------------------------------------
    17. UNIX / LINUX: CDE / Motif (Solaris)
    -------------------------------------------------------------------------- */
-[data-laf="cde-motif"] .window {
+[data-laf="motif-panel"] .window {
     border: 4px solid #6b7189;
     border-radius: 0;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
     background: #a2a8be;
 }
 
-[data-laf="cde-motif"] .titlebar {
+[data-laf="motif-panel"] .titlebar {
     height: 28px;
     background: #555b73 !important;
     color: #ffffff !important;
@@ -4715,16 +4824,16 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="cde-motif"] .titleText {
+[data-laf="motif-panel"] .titleText {
     color: #ffffff !important;
 }
 
-[data-laf="cde-motif"] .winButtons {
+[data-laf="motif-panel"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="cde-motif"] .winBtn {
+[data-laf="motif-panel"] .winBtn {
     width: 20px;
     height: 20px;
     background: #8990a8;
@@ -4738,12 +4847,12 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="cde-motif"] .winBtn:active {
+[data-laf="motif-panel"] .winBtn:active {
     border-style: inset;
 }
 
-[data-laf="cde-motif"] #menubar,
-[data-laf="cde-motif"] .ui-menubar {
+[data-laf="motif-panel"] #menubar,
+[data-laf="motif-panel"] .ui-menubar {
     background: #555b73 !important;
     color: #ffffff !important;
     border-bottom: 2px solid #3d4153 !important;
@@ -4751,11 +4860,11 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="cde-motif"] .menubar-item {
+[data-laf="motif-panel"] .menubar-item {
     color: #ffffff !important;
 }
 
-[data-laf="cde-motif"] #taskbar {
+[data-laf="motif-panel"] #taskbar {
     background: #555b73 !important;
     color: #ffffff !important;
     border-top: 3px solid #3d4153 !important;
@@ -4763,8 +4872,8 @@ h2 {
     flex: 0 0 36px;
 }
 
-[data-laf="cde-motif"] .taskStart,
-[data-laf="cde-motif"] .taskButton {
+[data-laf="motif-panel"] .taskStart,
+[data-laf="motif-panel"] .taskButton {
     background: #8990a8 !important;
     border: 2px outset #c0c6dc !important;
     color: #ffffff !important;
@@ -4774,13 +4883,13 @@ h2 {
     height: 28px;
 }
 
-[data-laf="cde-motif"] .taskButton.active {
+[data-laf="motif-panel"] .taskButton.active {
     border-style: inset !important;
     background: #6b7189 !important;
     color: #ffffff !important;
 }
 
-[data-laf="cde-motif"] .clock {
+[data-laf="motif-panel"] .clock {
     background: #3d4153;
     border: 2px inset #2a2c38;
     color: #ffffff !important;
@@ -4790,15 +4899,15 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   18. UNIX / LINUX: GNOME (Adwaita)
+   18. Adwaita-Slate (Adwaita Style)
    -------------------------------------------------------------------------- */
-[data-laf="gnome"] .window {
+[data-laf="adwaita-slate"] .window {
     border-radius: 12px;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
     border: 1px solid var(--win-border);
 }
 
-[data-laf="gnome"] .titlebar {
+[data-laf="adwaita-slate"] .titlebar {
     height: 42px;
     background: transparent;
     border-bottom: 1px solid var(--win-border);
@@ -4806,19 +4915,19 @@ h2 {
     color: var(--text-primary);
 }
 
-[data-laf="gnome"] .titleText {
+[data-laf="adwaita-slate"] .titleText {
     text-align: center;
     font-size: 14px;
     font-weight: 700;
     color: var(--text-primary);
 }
 
-[data-laf="gnome"] .winButtons {
+[data-laf="adwaita-slate"] .winButtons {
     align-items: center;
     gap: 4px;
 }
 
-[data-laf="gnome"] .winBtn {
+[data-laf="adwaita-slate"] .winBtn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -4832,18 +4941,18 @@ h2 {
     transition: background 0.15s ease;
 }
 
-[data-laf="gnome"] .winBtn:hover {
+[data-laf="adwaita-slate"] .winBtn:hover {
     background: rgba(128, 128, 128, 0.35);
 }
 
-[data-laf="gnome"] .winBtn.close:hover {
+[data-laf="adwaita-slate"] .winBtn.close:hover {
     background: #e01b24 !important;
     color: #ffffff !important;
 }
 
-[data-laf="gnome"] #menubar,
-[data-laf="gnome"] .ui-menubar,
-[data-laf="gnome"] #taskbar {
+[data-laf="adwaita-slate"] #menubar,
+[data-laf="adwaita-slate"] .ui-menubar,
+[data-laf="adwaita-slate"] #taskbar {
     background: rgba(30, 30, 30, 0.95) !important;
     color: #ffffff !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
@@ -4851,13 +4960,13 @@ h2 {
     font-size: 13px;
 }
 
-[data-laf="gnome"] .menubar-item,
-[data-laf="gnome"] .clock {
+[data-laf="adwaita-slate"] .menubar-item,
+[data-laf="adwaita-slate"] .clock {
     color: #ffffff !important;
 }
 
-[data-laf="gnome"] .taskStart,
-[data-laf="gnome"] .taskButton {
+[data-laf="adwaita-slate"] .taskStart,
+[data-laf="adwaita-slate"] .taskButton {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid transparent !important;
     border-radius: 16px;
@@ -4866,7 +4975,7 @@ h2 {
     height: 28px;
 }
 
-[data-laf="gnome"] .taskButton.active {
+[data-laf="adwaita-slate"] .taskButton.active {
     background: rgba(255, 255, 255, 0.25) !important;
     border-color: rgba(255, 255, 255, 0.4) !important;
     color: #ffffff !important;
@@ -4874,15 +4983,15 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   19. UNIX / LINUX: KDE (Breeze)
+   19. Breeze-Plasma (Breeze Style)
    -------------------------------------------------------------------------- */
-[data-laf="kde"] .window {
+[data-laf="breeze-plasma"] .window {
     border-radius: 4px;
     border: 1px solid rgba(61, 174, 233, 0.35);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-[data-laf="kde"] .titlebar {
+[data-laf="breeze-plasma"] .titlebar {
     height: 32px;
     background: transparent;
     border-bottom: 1px solid rgba(61, 174, 233, 0.2);
@@ -4891,16 +5000,16 @@ h2 {
     color: var(--text-primary);
 }
 
-[data-laf="kde"] .titleText {
+[data-laf="breeze-plasma"] .titleText {
     color: var(--text-primary);
 }
 
-[data-laf="kde"] .winButtons {
+[data-laf="breeze-plasma"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="kde"] .winBtn {
+[data-laf="breeze-plasma"] .winBtn {
     width: 26px;
     height: 26px;
     border-radius: 3px;
@@ -4912,38 +5021,38 @@ h2 {
     transition: background 0.15s ease;
 }
 
-[data-laf="kde"] .winBtn:hover {
+[data-laf="breeze-plasma"] .winBtn:hover {
     background: rgba(61, 174, 233, 0.25);
 }
 
-[data-laf="kde"] .winBtn.close:hover {
+[data-laf="breeze-plasma"] .winBtn.close:hover {
     background: #da4453 !important;
     color: #ffffff !important;
 }
 
-[data-laf="kde"] #menubar,
-[data-laf="kde"] .ui-menubar,
-[data-laf="kde"] #taskbar {
+[data-laf="breeze-plasma"] #menubar,
+[data-laf="breeze-plasma"] .ui-menubar,
+[data-laf="breeze-plasma"] #taskbar {
     background: rgba(35, 38, 41, 0.92) !important;
     color: #eff0f1 !important;
     border-color: rgba(61, 174, 233, 0.3) !important;
     font-family: 'Noto Sans', sans-serif;
 }
 
-[data-laf="kde"] .menubar-item,
-[data-laf="kde"] .clock {
+[data-laf="breeze-plasma"] .menubar-item,
+[data-laf="breeze-plasma"] .clock {
     color: #eff0f1 !important;
 }
 
-[data-laf="kde"] .taskStart,
-[data-laf="kde"] .taskButton {
+[data-laf="breeze-plasma"] .taskStart,
+[data-laf="breeze-plasma"] .taskButton {
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(61, 174, 233, 0.2) !important;
     border-radius: 3px;
     color: #eff0f1 !important;
 }
 
-[data-laf="kde"] .taskButton.active {
+[data-laf="breeze-plasma"] .taskButton.active {
     background: rgba(61, 174, 233, 0.3) !important;
     border-color: #3daee9 !important;
     color: #eff0f1 !important;
@@ -4953,7 +5062,7 @@ h2 {
 /* --------------------------------------------------------------------------
    20. TUI & SCI-FI: Turbo Vision (DOS TUI)
    -------------------------------------------------------------------------- */
-[data-laf="turbovision"] .window {
+[data-laf="turbo-tui"] .window {
     border: 2px solid #ffffff;
     border-radius: 0;
     box-shadow: 8px 8px 0px #000000;
@@ -4962,7 +5071,7 @@ h2 {
     font-family: 'Consolas', 'Courier New', monospace;
 }
 
-[data-laf="turbovision"] .titlebar {
+[data-laf="turbo-tui"] .titlebar {
     height: 24px;
     background: #00aaaa !important;
     color: #000000 !important;
@@ -4972,18 +5081,18 @@ h2 {
     padding: 0 4px;
 }
 
-[data-laf="turbovision"] .titleText {
+[data-laf="turbo-tui"] .titleText {
     text-align: center;
     text-transform: uppercase;
     color: #000000 !important;
 }
 
-[data-laf="turbovision"] .winButtons {
+[data-laf="turbo-tui"] .winButtons {
     align-items: center;
     gap: 2px;
 }
 
-[data-laf="turbovision"] .winBtn {
+[data-laf="turbo-tui"] .winBtn {
     width: 20px;
     height: 20px;
     background: #00aaaa;
@@ -4997,17 +5106,17 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="turbovision"] .winBtn:hover {
+[data-laf="turbo-tui"] .winBtn:hover {
     background: #ffffff;
 }
 
-[data-laf="turbovision"] .windowBody {
+[data-laf="turbo-tui"] .windowBody {
     background: #0000a8 !important;
     color: #ffffff !important;
 }
 
-[data-laf="turbovision"] #menubar,
-[data-laf="turbovision"] .ui-menubar {
+[data-laf="turbo-tui"] #menubar,
+[data-laf="turbo-tui"] .ui-menubar {
     background: #00aaaa !important;
     color: #000000 !important;
     font-family: 'Consolas', monospace;
@@ -5016,17 +5125,17 @@ h2 {
     border-bottom: 2px solid #ffffff !important;
 }
 
-[data-laf="turbovision"] .menubar-item {
+[data-laf="turbo-tui"] .menubar-item {
     color: #000000 !important;
 }
 
-[data-laf="turbovision"] .menubar-item:hover,
-[data-laf="turbovision"] .menubar-item.active {
+[data-laf="turbo-tui"] .menubar-item:hover,
+[data-laf="turbo-tui"] .menubar-item.active {
     background: #000000 !important;
     color: #00aaaa !important;
 }
 
-[data-laf="turbovision"] #taskbar {
+[data-laf="turbo-tui"] #taskbar {
     background: #0000a8 !important;
     color: #ffffff !important;
     border-top: 2px solid #ffffff !important;
@@ -5035,8 +5144,8 @@ h2 {
     flex: 0 0 32px;
 }
 
-[data-laf="turbovision"] .taskStart,
-[data-laf="turbovision"] .taskButton {
+[data-laf="turbo-tui"] .taskStart,
+[data-laf="turbo-tui"] .taskButton {
     background: #00aaaa !important;
     border: 1px solid #ffffff !important;
     color: #000000 !important;
@@ -5047,13 +5156,13 @@ h2 {
     height: 26px;
 }
 
-[data-laf="turbovision"] .taskButton.active {
+[data-laf="turbo-tui"] .taskButton.active {
     background: #ffffff !important;
     color: #000000 !important;
     font-weight: 900;
 }
 
-[data-laf="turbovision"] .clock {
+[data-laf="turbo-tui"] .clock {
     background: #000000;
     color: #00ff00 !important;
     border: 1px solid #00ff00;
@@ -5061,8 +5170,8 @@ h2 {
     padding: 2px 8px;
 }
 
-[data-laf="turbovision"] .dropdown,
-[data-laf="turbovision"] .ui-start-menu {
+[data-laf="turbo-tui"] .dropdown,
+[data-laf="turbo-tui"] .ui-start-menu {
     background: #00aaaa !important;
     color: #000000 !important;
     border: 2px solid #ffffff !important;
@@ -5070,11 +5179,11 @@ h2 {
     font-family: 'Consolas', monospace;
 }
 
-[data-laf="turbovision"] .menuOption {
+[data-laf="turbo-tui"] .menuOption {
     color: #000000 !important;
 }
 
-[data-laf="turbovision"] .menuOption:hover {
+[data-laf="turbo-tui"] .menuOption:hover {
     background: #000000 !important;
     color: #00ffcc !important;
 }
@@ -5082,14 +5191,14 @@ h2 {
 /* --------------------------------------------------------------------------
    21. TUI & SCI-FI: Cyberpunk HUD
    -------------------------------------------------------------------------- */
-[data-laf="cyberpunk"] .window {
+[data-laf="cyberpunk-neon"] .window {
     clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
     border: 1px solid #00ffcc;
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.3), inset 0 0 10px rgba(0, 255, 204, 0.1);
     background: rgba(10, 14, 23, 0.95);
 }
 
-[data-laf="cyberpunk"] .titlebar {
+[data-laf="cyberpunk-neon"] .titlebar {
     height: 34px;
     background: linear-gradient(90deg, #ff0055 0%, #7928ca 50%, #00ffcc 100%) !important;
     color: #ffffff !important;
@@ -5100,17 +5209,17 @@ h2 {
     padding: 0 6px;
 }
 
-[data-laf="cyberpunk"] .titleText {
+[data-laf="cyberpunk-neon"] .titleText {
     color: #ffffff !important;
     text-shadow: 0 0 8px #00ffcc;
 }
 
-[data-laf="cyberpunk"] .winButtons {
+[data-laf="cyberpunk-neon"] .winButtons {
     align-items: center;
     gap: 4px;
 }
 
-[data-laf="cyberpunk"] .winBtn {
+[data-laf="cyberpunk-neon"] .winBtn {
     width: 28px;
     height: 24px;
     background: rgba(0, 0, 0, 0.7);
@@ -5125,21 +5234,21 @@ h2 {
     transition: all 0.15s ease;
 }
 
-[data-laf="cyberpunk"] .winBtn:hover {
+[data-laf="cyberpunk-neon"] .winBtn:hover {
     background: #00ffcc !important;
     color: #000000 !important;
     box-shadow: 0 0 10px #00ffcc;
 }
 
-[data-laf="cyberpunk"] .winBtn.close:hover {
+[data-laf="cyberpunk-neon"] .winBtn.close:hover {
     background: #ff0055 !important;
     border-color: #ff0055 !important;
     color: #ffffff !important;
     box-shadow: 0 0 10px #ff0055;
 }
 
-[data-laf="cyberpunk"] #menubar,
-[data-laf="cyberpunk"] .ui-menubar {
+[data-laf="cyberpunk-neon"] #menubar,
+[data-laf="cyberpunk-neon"] .ui-menubar {
     background: rgba(10, 14, 23, 0.95) !important;
     color: #00ffcc !important;
     border-bottom: 2px solid #00ffcc !important;
@@ -5149,18 +5258,18 @@ h2 {
     font-size: 12px;
 }
 
-[data-laf="cyberpunk"] .menubar-item {
+[data-laf="cyberpunk-neon"] .menubar-item {
     color: #00ffcc !important;
 }
 
-[data-laf="cyberpunk"] .menubar-item:hover,
-[data-laf="cyberpunk"] .menubar-item.active {
+[data-laf="cyberpunk-neon"] .menubar-item:hover,
+[data-laf="cyberpunk-neon"] .menubar-item.active {
     background: rgba(0, 255, 204, 0.15) !important;
     color: #ff0055 !important;
     text-shadow: 0 0 8px #ff0055;
 }
 
-[data-laf="cyberpunk"] #taskbar {
+[data-laf="cyberpunk-neon"] #taskbar {
     background: rgba(10, 14, 23, 0.95) !important;
     color: #00ffcc !important;
     border-top: 2px solid #00ffcc !important;
@@ -5170,7 +5279,7 @@ h2 {
     flex: 0 0 38px;
 }
 
-[data-laf="cyberpunk"] .taskStart {
+[data-laf="cyberpunk-neon"] .taskStart {
     clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
     background: linear-gradient(90deg, #ff0055, #7928ca) !important;
     border: 1px solid #ff0055 !important;
@@ -5182,7 +5291,7 @@ h2 {
     letter-spacing: 1px;
 }
 
-[data-laf="cyberpunk"] .taskButton {
+[data-laf="cyberpunk-neon"] .taskButton {
     clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
     background: rgba(0, 255, 204, 0.1) !important;
     border: 1px solid #00ffcc !important;
@@ -5192,14 +5301,14 @@ h2 {
     height: 30px;
 }
 
-[data-laf="cyberpunk"] .taskButton.active {
+[data-laf="cyberpunk-neon"] .taskButton.active {
     background: #00ffcc !important;
     color: #000000 !important;
     font-weight: bold;
     box-shadow: 0 0 15px #00ffcc;
 }
 
-[data-laf="cyberpunk"] .clock {
+[data-laf="cyberpunk-neon"] .clock {
     color: #ff0055 !important;
     text-shadow: 0 0 10px #ff0055;
     font-family: 'Orbitron', monospace;
@@ -5207,8 +5316,8 @@ h2 {
     font-size: 13px;
 }
 
-[data-laf="cyberpunk"] .dropdown,
-[data-laf="cyberpunk"] .ui-start-menu {
+[data-laf="cyberpunk-neon"] .dropdown,
+[data-laf="cyberpunk-neon"] .ui-start-menu {
     background: rgba(10, 14, 23, 0.98) !important;
     border: 1px solid #00ffcc !important;
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
@@ -5216,11 +5325,11 @@ h2 {
     color: #00ffcc !important;
 }
 
-[data-laf="cyberpunk"] .menuOption {
+[data-laf="cyberpunk-neon"] .menuOption {
     color: #00ffcc !important;
 }
 
-[data-laf="cyberpunk"] .menuOption:hover {
+[data-laf="cyberpunk-neon"] .menuOption:hover {
     background: #00ffcc !important;
     color: #000000 !important;
 }
@@ -5228,7 +5337,7 @@ h2 {
 /* --------------------------------------------------------------------------
    21. MATERIAL YOU / MATERIAL DESIGN 3 (Google / Android)
    -------------------------------------------------------------------------- */
-[data-laf="material3"] .window {
+[data-laf="material-tonal"] .window {
     border-radius: 20px;
     border: 1px solid rgba(103, 80, 164, 0.18);
     background: #fef7ff;
@@ -5236,7 +5345,7 @@ h2 {
     font-family: 'Roboto', -apple-system, sans-serif;
 }
 
-[data-laf="material3"] .titlebar {
+[data-laf="material-tonal"] .titlebar {
     background: #ece6f0;
     border-bottom: 1px solid rgba(103, 80, 164, 0.1);
     color: #1d1b20;
@@ -5245,13 +5354,13 @@ h2 {
     border-radius: 20px 20px 0 0;
 }
 
-[data-laf="material3"] .titleText {
+[data-laf="material-tonal"] .titleText {
     font-weight: 600;
     font-size: 14px;
     color: #1d1b20;
 }
 
-[data-laf="material3"] .winBtn {
+[data-laf="material-tonal"] .winBtn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -5263,66 +5372,66 @@ h2 {
     justify-content: center;
 }
 
-[data-laf="material3"] .winBtn:hover {
+[data-laf="material-tonal"] .winBtn:hover {
     background: rgba(103, 80, 164, 0.12);
     color: #6750a4;
 }
 
-[data-laf="material3"] .winBtn.close:hover {
+[data-laf="material-tonal"] .winBtn.close:hover {
     background: #ba1a1a;
     color: #ffffff;
 }
 
-[data-laf="material3"] .windowBody {
+[data-laf="material-tonal"] .windowBody {
     background: #ffffff;
     color: #1d1b20;
 }
 
-[data-laf="material3"] .ui-btn,
-[data-laf="material3"] .ui-button,
-[data-laf="material3"] .btn {
+[data-laf="material-tonal"] .ui-btn,
+[data-laf="material-tonal"] .ui-button,
+[data-laf="material-tonal"] .btn {
     border-radius: 20px;
     padding: 8px 18px;
     font-weight: 500;
     letter-spacing: 0.1px;
 }
 
-[data-laf="material3"] .ui-card,
-[data-laf="material3"] .card {
+[data-laf="material-tonal"] .ui-card,
+[data-laf="material-tonal"] .card {
     border-radius: 16px;
     background: #f7f2fa;
     border: 1px solid rgba(103, 80, 164, 0.08);
 }
 
-[data-laf="material3"] input,
-[data-laf="material3"] select,
-[data-laf="material3"] textarea {
+[data-laf="material-tonal"] input,
+[data-laf="material-tonal"] select,
+[data-laf="material-tonal"] textarea {
     border-radius: 12px;
     background: #ece6f0;
     border: 1px solid rgba(103, 80, 164, 0.2);
     color: #1d1b20;
 }
 
-[data-laf="material3"] #menubar,
-[data-laf="material3"] .ui-menubar {
+[data-laf="material-tonal"] #menubar,
+[data-laf="material-tonal"] .ui-menubar {
     background: #f3edf7;
     border-bottom: 1px solid rgba(103, 80, 164, 0.12);
     color: #1d1b20;
 }
 
-[data-laf="material3"] #taskbar {
+[data-laf="material-tonal"] #taskbar {
     background: #ece6f0;
     border-top: 1px solid rgba(103, 80, 164, 0.12);
 }
 
-[data-laf="material3"] .taskButton {
+[data-laf="material-tonal"] .taskButton {
     border-radius: 16px;
     background: #e8def8;
     color: #1d192b;
     border: none;
 }
 
-[data-laf="material3"] .taskButton.active {
+[data-laf="material-tonal"] .taskButton.active {
     background: #6750a4;
     color: #ffffff;
 }
@@ -5330,7 +5439,7 @@ h2 {
 /* --------------------------------------------------------------------------
    22. CUPERTINO / iOS 18 (Apple iOS & iPadOS)
    -------------------------------------------------------------------------- */
-[data-laf="cupertino"] .window {
+[data-laf="cupertino-touch"] .window {
     border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     background: rgba(255, 255, 255, 0.82);
@@ -5340,7 +5449,7 @@ h2 {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
 }
 
-[data-laf="cupertino"] .titlebar {
+[data-laf="cupertino-touch"] .titlebar {
     background: rgba(245, 245, 247, 0.75);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -5350,14 +5459,14 @@ h2 {
     border-radius: 22px 22px 0 0;
 }
 
-[data-laf="cupertino"] .titleText {
+[data-laf="cupertino-touch"] .titleText {
     font-weight: 600;
     font-size: 14.5px;
     color: #1d1d1f;
     letter-spacing: -0.2px;
 }
 
-[data-laf="cupertino"] .winBtn {
+[data-laf="cupertino-touch"] .winBtn {
     width: 26px;
     height: 26px;
     border-radius: 50%;
@@ -5366,56 +5475,56 @@ h2 {
     font-size: 13px;
 }
 
-[data-laf="cupertino"] .winBtn:hover {
+[data-laf="cupertino-touch"] .winBtn:hover {
     background: rgba(0, 0, 0, 0.12);
 }
 
-[data-laf="cupertino"] .winBtn.close:hover {
+[data-laf="cupertino-touch"] .winBtn.close:hover {
     background: #ff3b30;
     color: #ffffff;
 }
 
-[data-laf="cupertino"] .windowBody {
+[data-laf="cupertino-touch"] .windowBody {
     background: transparent;
     color: #1d1d1f;
 }
 
-[data-laf="cupertino"] .ui-btn,
-[data-laf="cupertino"] .ui-button,
-[data-laf="cupertino"] .btn {
+[data-laf="cupertino-touch"] .ui-btn,
+[data-laf="cupertino-touch"] .ui-button,
+[data-laf="cupertino-touch"] .btn {
     border-radius: 14px;
     font-weight: 500;
 }
 
-[data-laf="cupertino"] .ui-card,
-[data-laf="cupertino"] .card {
+[data-laf="cupertino-touch"] .ui-card,
+[data-laf="cupertino-touch"] .card {
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.65);
     border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-[data-laf="cupertino"] #menubar,
-[data-laf="cupertino"] .ui-menubar {
+[data-laf="cupertino-touch"] #menubar,
+[data-laf="cupertino-touch"] .ui-menubar {
     background: rgba(255, 255, 255, 0.78);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-[data-laf="cupertino"] #taskbar {
+[data-laf="cupertino-touch"] #taskbar {
     background: rgba(245, 245, 247, 0.85);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-[data-laf="cupertino"] .taskButton {
+[data-laf="cupertino-touch"] .taskButton {
     border-radius: 14px;
     background: rgba(0, 0, 0, 0.05);
     color: #1d1d1f;
     border: none;
 }
 
-[data-laf="cupertino"] .taskButton.active {
+[data-laf="cupertino-touch"] .taskButton.active {
     background: #007aff;
     color: #ffffff;
 }
@@ -5423,14 +5532,14 @@ h2 {
 /* --------------------------------------------------------------------------
    23. SAMSUNG ONE UI
    -------------------------------------------------------------------------- */
-[data-laf="oneui"] .window {
+[data-laf="one-touch"] .window {
     border-radius: 24px;
     border: 1px solid #e2e8f0;
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(13, 110, 253, 0.12);
 }
 
-[data-laf="oneui"] .titlebar {
+[data-laf="one-touch"] .titlebar {
     background: #f8fafc;
     border-bottom: 1px solid #edf2f7;
     color: #0f172a;
@@ -5439,13 +5548,13 @@ h2 {
     border-radius: 24px 24px 0 0;
 }
 
-[data-laf="oneui"] .titleText {
+[data-laf="one-touch"] .titleText {
     font-weight: 700;
     font-size: 15px;
     color: #0381fe;
 }
 
-[data-laf="oneui"] .winBtn {
+[data-laf="one-touch"] .winBtn {
     width: 30px;
     height: 30px;
     border-radius: 10px;
@@ -5453,58 +5562,58 @@ h2 {
     color: #475569;
 }
 
-[data-laf="oneui"] .winBtn:hover {
+[data-laf="one-touch"] .winBtn:hover {
     background: #e2e8f0;
 }
 
-[data-laf="oneui"] .winBtn.close:hover {
+[data-laf="one-touch"] .winBtn.close:hover {
     background: #ef4444;
     color: #ffffff;
 }
 
-[data-laf="oneui"] .ui-card,
-[data-laf="oneui"] .card {
+[data-laf="one-touch"] .ui-card,
+[data-laf="one-touch"] .card {
     border-radius: 20px;
     background: #f8fafc;
     border: 1px solid #edf2f7;
 }
 
-[data-laf="oneui"] .ui-btn,
-[data-laf="oneui"] .ui-button,
-[data-laf="oneui"] .btn {
+[data-laf="one-touch"] .ui-btn,
+[data-laf="one-touch"] .ui-button,
+[data-laf="one-touch"] .btn {
     border-radius: 16px;
     background: #0381fe;
     color: #ffffff;
 }
 
-[data-laf="oneui"] #menubar,
-[data-laf="oneui"] .ui-menubar {
+[data-laf="one-touch"] #menubar,
+[data-laf="one-touch"] .ui-menubar {
     background: #f8fafc;
     border-bottom: 1px solid #edf2f7;
 }
 
-[data-laf="oneui"] #taskbar {
+[data-laf="one-touch"] #taskbar {
     background: #ffffff;
     border-top: 1px solid #edf2f7;
 }
 
-[data-laf="oneui"] .taskButton {
+[data-laf="one-touch"] .taskButton {
     border-radius: 16px;
     background: #f1f5f9;
     color: #1e293b;
     border: 1px solid #e2e8f0;
 }
 
-[data-laf="oneui"] .taskButton.active {
+[data-laf="one-touch"] .taskButton.active {
     background: #0381fe;
     color: #ffffff;
     border-color: #0381fe;
 }
 
 /* --------------------------------------------------------------------------
-   24. WINDOWS PHONE / METRO UI (Flat Modern)
+   24. Flat-Tiles (Tile Style)
    -------------------------------------------------------------------------- */
-[data-laf="metro"] .window {
+[data-laf="flat-tiles"] .window {
     border-radius: 0px !important;
     border: 2px solid #0078d7 !important;
     background: #ffffff !important;
@@ -5512,7 +5621,7 @@ h2 {
     font-family: "Segoe UI", "Open Sans", sans-serif;
 }
 
-[data-laf="metro"] .titlebar {
+[data-laf="flat-tiles"] .titlebar {
     background: #0078d7 !important;
     border-bottom: none !important;
     color: #ffffff !important;
@@ -5521,7 +5630,7 @@ h2 {
     border-radius: 0px !important;
 }
 
-[data-laf="metro"] .titleText {
+[data-laf="flat-tiles"] .titleText {
     font-weight: 300;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -5529,7 +5638,7 @@ h2 {
     color: #ffffff !important;
 }
 
-[data-laf="metro"] .winBtn {
+[data-laf="flat-tiles"] .winBtn {
     width: 32px;
     height: 32px;
     border-radius: 0px !important;
@@ -5538,56 +5647,56 @@ h2 {
     font-size: 15px;
 }
 
-[data-laf="metro"] .winBtn:hover {
+[data-laf="flat-tiles"] .winBtn:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
-[data-laf="metro"] .winBtn.close:hover {
+[data-laf="flat-tiles"] .winBtn.close:hover {
     background: #e81123;
 }
 
-[data-laf="metro"] .ui-btn,
-[data-laf="metro"] .ui-button,
-[data-laf="metro"] .btn,
-[data-laf="metro"] .ui-card,
-[data-laf="metro"] .card,
-[data-laf="metro"] input,
-[data-laf="metro"] select,
-[data-laf="metro"] textarea,
-[data-laf="metro"] .taskButton,
-[data-laf="metro"] .taskStart {
+[data-laf="flat-tiles"] .ui-btn,
+[data-laf="flat-tiles"] .ui-button,
+[data-laf="flat-tiles"] .btn,
+[data-laf="flat-tiles"] .ui-card,
+[data-laf="flat-tiles"] .card,
+[data-laf="flat-tiles"] input,
+[data-laf="flat-tiles"] select,
+[data-laf="flat-tiles"] textarea,
+[data-laf="flat-tiles"] .taskButton,
+[data-laf="flat-tiles"] .taskStart {
     border-radius: 0px !important;
 }
 
-[data-laf="metro"] #menubar,
-[data-laf="metro"] .ui-menubar {
+[data-laf="flat-tiles"] #menubar,
+[data-laf="flat-tiles"] .ui-menubar {
     background: #000000;
     color: #ffffff;
     border-bottom: 2px solid #0078d7;
 }
 
-[data-laf="metro"] .menubar-item {
+[data-laf="flat-tiles"] .menubar-item {
     color: #ffffff !important;
 }
 
-[data-laf="metro"] #taskbar {
+[data-laf="flat-tiles"] #taskbar {
     background: #000000;
     border-top: 2px solid #0078d7;
 }
 
-[data-laf="metro"] .taskStart {
+[data-laf="flat-tiles"] .taskStart {
     background: #0078d7 !important;
     color: #ffffff !important;
     font-weight: bold;
 }
 
-[data-laf="metro"] .taskButton {
+[data-laf="flat-tiles"] .taskButton {
     background: #1f1f1f;
     color: #ffffff;
     border: 1px solid #333333;
 }
 
-[data-laf="metro"] .taskButton.active {
+[data-laf="flat-tiles"] .taskButton.active {
     background: #0078d7;
     border-color: #0078d7;
 }
@@ -5595,7 +5704,7 @@ h2 {
 /* --------------------------------------------------------------------------
    25. APPLE VISIONOS (Spatial Glass)
    -------------------------------------------------------------------------- */
-[data-laf="visionos"] .window {
+[data-laf="spatial-glass"] .window {
     border-radius: 26px !important;
     border: 1px solid rgba(255, 255, 255, 0.45) !important;
     background: rgba(255, 255, 255, 0.32) !important;
@@ -5605,7 +5714,7 @@ h2 {
     color: #0f172a;
 }
 
-[data-laf="visionos"] .titlebar {
+[data-laf="spatial-glass"] .titlebar {
     background: rgba(255, 255, 255, 0.2) !important;
     backdrop-filter: blur(25px) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -5615,14 +5724,14 @@ h2 {
     border-radius: 26px 26px 0 0;
 }
 
-[data-laf="visionos"] .titleText {
+[data-laf="spatial-glass"] .titleText {
     font-weight: 600;
     font-size: 14px;
     color: #0f172a;
     text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
-[data-laf="visionos"] .winBtn {
+[data-laf="spatial-glass"] .winBtn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -5632,18 +5741,18 @@ h2 {
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-[data-laf="visionos"] .winBtn:hover {
+[data-laf="spatial-glass"] .winBtn:hover {
     background: rgba(255, 255, 255, 0.7);
     color: #0f172a;
 }
 
-[data-laf="visionos"] .winBtn.close:hover {
+[data-laf="spatial-glass"] .winBtn.close:hover {
     background: rgba(239, 68, 68, 0.85);
     color: #ffffff;
 }
 
-[data-laf="visionos"] .ui-card,
-[data-laf="visionos"] .card {
+[data-laf="spatial-glass"] .ui-card,
+[data-laf="spatial-glass"] .card {
     border-radius: 20px;
     background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(20px);
@@ -5651,9 +5760,9 @@ h2 {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
-[data-laf="visionos"] .ui-btn,
-[data-laf="visionos"] .ui-button,
-[data-laf="visionos"] .btn {
+[data-laf="spatial-glass"] .ui-btn,
+[data-laf="spatial-glass"] .ui-button,
+[data-laf="spatial-glass"] .btn {
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(15px);
@@ -5662,27 +5771,27 @@ h2 {
     font-weight: 600;
 }
 
-[data-laf="visionos"] #menubar,
-[data-laf="visionos"] .ui-menubar {
+[data-laf="spatial-glass"] #menubar,
+[data-laf="spatial-glass"] .ui-menubar {
     background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(30px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-[data-laf="visionos"] #taskbar {
+[data-laf="spatial-glass"] #taskbar {
     background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(30px);
     border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-[data-laf="visionos"] .taskButton {
+[data-laf="spatial-glass"] .taskButton {
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.45);
     color: #0f172a;
 }
 
-[data-laf="visionos"] .taskButton.active {
+[data-laf="spatial-glass"] .taskButton.active {
     background: rgba(255, 255, 255, 0.75);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
@@ -5914,9 +6023,9 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   28. UBUNTU LINUX (Yaru / Ambiance)
+   28. Aubergine-Orange (Yaru Style)
    -------------------------------------------------------------------------- */
-[data-laf="ubuntu"] .window {
+[data-laf="aubergine-orange"] .window {
     border-radius: 10px;
     border: 1px solid #2e2d29;
     background: #ffffff;
@@ -5924,7 +6033,7 @@ h2 {
     font-family: 'Ubuntu', -apple-system, sans-serif;
 }
 
-[data-laf="ubuntu"] .titlebar {
+[data-laf="aubergine-orange"] .titlebar {
     background: #3c3b37;
     border-bottom: 1px solid #282724;
     color: #dfdbd2;
@@ -5933,13 +6042,13 @@ h2 {
     border-radius: 10px 10px 0 0;
 }
 
-[data-laf="ubuntu"] .titleText {
+[data-laf="aubergine-orange"] .titleText {
     font-weight: 600;
     font-size: 14px;
     color: #ffffff;
 }
 
-[data-laf="ubuntu"] .winBtn {
+[data-laf="aubergine-orange"] .winBtn {
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -5948,73 +6057,73 @@ h2 {
     font-size: 12px;
 }
 
-[data-laf="ubuntu"] .winBtn:hover {
+[data-laf="aubergine-orange"] .winBtn:hover {
     background: #5c5b57;
 }
 
-[data-laf="ubuntu"] .winBtn.close {
+[data-laf="aubergine-orange"] .winBtn.close {
     background: #e95420;
 }
 
-[data-laf="ubuntu"] .winBtn.close:hover {
+[data-laf="aubergine-orange"] .winBtn.close:hover {
     background: #ff6e3b;
 }
 
-[data-laf="ubuntu"] .ui-btn,
-[data-laf="ubuntu"] .ui-button,
-[data-laf="ubuntu"] .btn {
+[data-laf="aubergine-orange"] .ui-btn,
+[data-laf="aubergine-orange"] .ui-button,
+[data-laf="aubergine-orange"] .btn {
     border-radius: 8px;
     background: #e95420;
     color: #ffffff;
     font-weight: 500;
 }
 
-[data-laf="ubuntu"] .ui-btn:hover,
-[data-laf="ubuntu"] .ui-button:hover {
+[data-laf="aubergine-orange"] .ui-btn:hover,
+[data-laf="aubergine-orange"] .ui-button:hover {
     background: #ff6e3b;
 }
 
-[data-laf="ubuntu"] #menubar,
-[data-laf="ubuntu"] .ui-menubar {
+[data-laf="aubergine-orange"] #menubar,
+[data-laf="aubergine-orange"] .ui-menubar {
     background: #2c001e;
     border-bottom: 1px solid #3c3b37;
     color: #ffffff;
 }
 
-[data-laf="ubuntu"] .menubar-item {
+[data-laf="aubergine-orange"] .menubar-item {
     color: #ffffff !important;
 }
 
-[data-laf="ubuntu"] .menubar-item:hover,
-[data-laf="ubuntu"] .menubar-item.active {
+[data-laf="aubergine-orange"] .menubar-item:hover,
+[data-laf="aubergine-orange"] .menubar-item.active {
     background: #e95420 !important;
 }
 
-[data-laf="ubuntu"] #taskbar {
+[data-laf="aubergine-orange"] #taskbar {
     background: #2c001e;
     border-top: 1px solid #3c3b37;
 }
 
-[data-laf="ubuntu"] .taskStart {
+[data-laf="aubergine-orange"] .taskStart {
     background: #e95420 !important;
     color: #ffffff !important;
     font-weight: bold;
 }
 
-[data-laf="ubuntu"] .taskButton {
+[data-laf="aubergine-orange"] .taskButton {
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
     border-radius: 8px;
 }
 
-[data-laf="ubuntu"] .taskButton.active {
+[data-laf="aubergine-orange"] .taskButton.active {
     background: #e95420;
 }
 
 /* --------------------------------------------------------------------------
-   29. ELEMENTARY OS (Pantheon)
+   29. Pantheon-Pure (Minimal Style)
    -------------------------------------------------------------------------- */
-[data-laf="elementary"] .window {
+[data-laf="pantheon-pure"] .window {
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.18);
     background: #ffffff;
@@ -6022,7 +6131,7 @@ h2 {
     font-family: -apple-system, "Open Sans", sans-serif;
 }
 
-[data-laf="elementary"] .titlebar {
+[data-laf="pantheon-pure"] .titlebar {
     background: #ebebeb;
     border-bottom: 1px solid #d4d4d4;
     color: #333333;
@@ -6034,7 +6143,7 @@ h2 {
     position: relative;
 }
 
-[data-laf="elementary"] .titleText {
+[data-laf="pantheon-pure"] .titleText {
     flex: 1;
     text-align: center;
     font-weight: 600;
@@ -6042,7 +6151,7 @@ h2 {
     color: #2e3436;
 }
 
-[data-laf="elementary"] .winBtn {
+[data-laf="pantheon-pure"] .winBtn {
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -6051,58 +6160,58 @@ h2 {
     font-size: 12px;
 }
 
-[data-laf="elementary"] .winBtn.close {
+[data-laf="pantheon-pure"] .winBtn.close {
     order: -1;
     background: #e06c75;
     color: #ffffff;
     margin-right: 8px;
 }
 
-[data-laf="elementary"] .winBtn:hover {
+[data-laf="pantheon-pure"] .winBtn:hover {
     background: #c0c0c0;
 }
 
-[data-laf="elementary"] .winBtn.close:hover {
+[data-laf="pantheon-pure"] .winBtn.close:hover {
     background: #ef4444;
 }
 
-[data-laf="elementary"] .ui-btn,
-[data-laf="elementary"] .ui-button,
-[data-laf="elementary"] .btn {
+[data-laf="pantheon-pure"] .ui-btn,
+[data-laf="pantheon-pure"] .ui-button,
+[data-laf="pantheon-pure"] .btn {
     border-radius: 8px;
     background: #3689e6;
     color: #ffffff;
     font-weight: 600;
 }
 
-[data-laf="elementary"] #menubar,
-[data-laf="elementary"] .ui-menubar {
+[data-laf="pantheon-pure"] #menubar,
+[data-laf="pantheon-pure"] .ui-menubar {
     background: #fafafa;
     border-bottom: 1px solid #e0e0e0;
     color: #2e3436;
 }
 
-[data-laf="elementary"] #taskbar {
+[data-laf="pantheon-pure"] #taskbar {
     background: #ffffff;
     border-top: 1px solid #e0e0e0;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
-[data-laf="elementary"] .taskButton {
+[data-laf="pantheon-pure"] .taskButton {
     border-radius: 10px;
     background: #f0f0f0;
     color: #2e3436;
 }
 
-[data-laf="elementary"] .taskButton.active {
+[data-laf="pantheon-pure"] .taskButton.active {
     background: #3689e6;
     color: #ffffff;
 }
 
 /* --------------------------------------------------------------------------
-   30. POP!_OS (COSMIC Desktop - System76)
+   30. Cosmic-Teal (Teal Desktop)
    -------------------------------------------------------------------------- */
-[data-laf="pop-cosmic"] .window {
+[data-laf="cosmic-teal"] .window {
     border-radius: 12px;
     border: 1px solid #3c3c3c;
     background: #2b2b2b;
@@ -6111,7 +6220,7 @@ h2 {
     font-family: 'Fira Sans', -apple-system, sans-serif;
 }
 
-[data-laf="pop-cosmic"] .titlebar {
+[data-laf="cosmic-teal"] .titlebar {
     background: #202020;
     border-bottom: 1px solid #333333;
     color: #f6f6f6;
@@ -6120,13 +6229,13 @@ h2 {
     border-radius: 12px 12px 0 0;
 }
 
-[data-laf="pop-cosmic"] .titleText {
+[data-laf="cosmic-teal"] .titleText {
     font-weight: 600;
     font-size: 14px;
     color: #48b9c7;
 }
 
-[data-laf="pop-cosmic"] .winBtn {
+[data-laf="cosmic-teal"] .winBtn {
     width: 26px;
     height: 26px;
     border-radius: 50%;
@@ -6134,78 +6243,78 @@ h2 {
     color: #f6f6f6;
 }
 
-[data-laf="pop-cosmic"] .winBtn:hover {
+[data-laf="cosmic-teal"] .winBtn:hover {
     background: #48b9c7;
     color: #000000;
 }
 
-[data-laf="pop-cosmic"] .winBtn.close:hover {
+[data-laf="cosmic-teal"] .winBtn.close:hover {
     background: #f69c55;
     color: #000000;
 }
 
-[data-laf="pop-cosmic"] .windowBody {
+[data-laf="cosmic-teal"] .windowBody {
     background: #2b2b2b;
     color: #f6f6f6;
 }
 
-[data-laf="pop-cosmic"] .ui-card,
-[data-laf="pop-cosmic"] .card {
+[data-laf="cosmic-teal"] .ui-card,
+[data-laf="cosmic-teal"] .card {
     background: #202020;
     border: 1px solid #3c3c3c;
     color: #f6f6f6;
     border-radius: 10px;
 }
 
-[data-laf="pop-cosmic"] .ui-btn,
-[data-laf="pop-cosmic"] .ui-button,
-[data-laf="pop-cosmic"] .btn {
+[data-laf="cosmic-teal"] .ui-btn,
+[data-laf="cosmic-teal"] .ui-button,
+[data-laf="cosmic-teal"] .btn {
     border-radius: 8px;
     background: #48b9c7;
     color: #000000;
     font-weight: 700;
 }
 
-[data-laf="pop-cosmic"] input,
-[data-laf="pop-cosmic"] select,
-[data-laf="pop-cosmic"] textarea {
+[data-laf="cosmic-teal"] input,
+[data-laf="cosmic-teal"] select,
+[data-laf="cosmic-teal"] textarea {
     background: #202020 !important;
     border: 1px solid #48b9c7 !important;
     color: #f6f6f6 !important;
 }
 
-[data-laf="pop-cosmic"] #menubar,
-[data-laf="pop-cosmic"] .ui-menubar {
+[data-laf="cosmic-teal"] #menubar,
+[data-laf="cosmic-teal"] .ui-menubar {
     background: #202020;
     border-bottom: 2px solid #48b9c7;
     color: #f6f6f6;
 }
 
-[data-laf="pop-cosmic"] .menubar-item {
+[data-laf="cosmic-teal"] .menubar-item {
     color: #f6f6f6 !important;
 }
 
-[data-laf="pop-cosmic"] #taskbar {
+[data-laf="cosmic-teal"] #taskbar {
     background: #202020;
     border-top: 2px solid #48b9c7;
 }
 
-[data-laf="pop-cosmic"] .taskButton {
+[data-laf="cosmic-teal"] .taskButton {
     background: #333333;
     color: #f6f6f6;
     border-radius: 8px;
 }
 
-[data-laf="pop-cosmic"] .taskButton.active {
+[data-laf="cosmic-teal"] .taskButton.active {
     background: #48b9c7;
     color: #000000;
     font-weight: bold;
 }
 
 /* --------------------------------------------------------------------------
-   31. i3wm / SWAY (Tiling Window Manager)
+   31. Tiling-Grid (TWM Style)
    -------------------------------------------------------------------------- */
-[data-laf="i3wm"] .window {
+[data-laf="tiling-grid"] .window {
     border-radius: 0px !important;
     border: 2px solid #4c7899 !important;
     background: #0f141c !important;
@@ -6214,11 +6323,11 @@ h2 {
     font-family: 'DejaVu Sans Mono', 'Consolas', monospace !important;
 }
 
-[data-laf="i3wm"] .window.active {
+[data-laf="tiling-grid"] .window.active {
     border-color: #2e9ef4 !important;
 }
 
-[data-laf="i3wm"] .titlebar {
+[data-laf="tiling-grid"] .titlebar {
     background: #285577 !important;
     border-bottom: none !important;
     color: #ffffff !important;
@@ -6229,13 +6338,13 @@ h2 {
     font-size: 12px;
 }
 
-[data-laf="i3wm"] .titleText {
+[data-laf="tiling-grid"] .titleText {
     font-weight: normal;
     font-size: 11.5px;
     letter-spacing: 0.5px;
 }
 
-[data-laf="i3wm"] .winBtn {
+[data-laf="tiling-grid"] .winBtn {
     width: 20px;
     height: 20px;
     border-radius: 0px;
@@ -6244,59 +6353,59 @@ h2 {
     font-size: 11px;
 }
 
-[data-laf="i3wm"] .winBtn:hover {
+[data-laf="tiling-grid"] .winBtn:hover {
     background: #2e9ef4;
     color: #000000;
 }
 
-[data-laf="i3wm"] .winBtn.close:hover {
+[data-laf="tiling-grid"] .winBtn.close:hover {
     background: #900000;
     color: #ffffff;
 }
 
-[data-laf="i3wm"] .windowBody {
+[data-laf="tiling-grid"] .windowBody {
     background: #0f141c;
     color: #ffffff;
 }
 
-[data-laf="i3wm"] .ui-btn,
-[data-laf="i3wm"] .ui-button,
-[data-laf="i3wm"] .btn,
-[data-laf="i3wm"] .ui-card,
-[data-laf="i3wm"] .card,
-[data-laf="i3wm"] input,
-[data-laf="i3wm"] select,
-[data-laf="i3wm"] textarea,
-[data-laf="i3wm"] .taskButton,
-[data-laf="i3wm"] .taskStart {
+[data-laf="tiling-grid"] .ui-btn,
+[data-laf="tiling-grid"] .ui-button,
+[data-laf="tiling-grid"] .btn,
+[data-laf="tiling-grid"] .ui-card,
+[data-laf="tiling-grid"] .card,
+[data-laf="tiling-grid"] input,
+[data-laf="tiling-grid"] select,
+[data-laf="tiling-grid"] textarea,
+[data-laf="tiling-grid"] .taskButton,
+[data-laf="tiling-grid"] .taskStart {
     border-radius: 0px !important;
 }
 
-[data-laf="i3wm"] #menubar,
-[data-laf="i3wm"] .ui-menubar {
+[data-laf="tiling-grid"] #menubar,
+[data-laf="tiling-grid"] .ui-menubar {
     background: #1e1e1e;
     border-bottom: 2px solid #285577;
     color: #ffffff;
     font-family: monospace;
 }
 
-[data-laf="i3wm"] .menubar-item {
+[data-laf="tiling-grid"] .menubar-item {
     color: #ffffff !important;
 }
 
-[data-laf="i3wm"] #taskbar {
+[data-laf="tiling-grid"] #taskbar {
     background: #000000;
     border-top: 1px solid #4c7899;
 }
 
-[data-laf="i3wm"] .taskButton {
+[data-laf="tiling-grid"] .taskButton {
     background: #222222;
     color: #888888;
     border: 1px solid #333333;
     font-family: monospace;
 }
 
-[data-laf="i3wm"] .taskButton.active {
+[data-laf="tiling-grid"] .taskButton.active {
     background: #285577;
     color: #ffffff;
     border-color: #2e9ef4;
@@ -6304,16 +6413,16 @@ h2 {
 }
 
 /* --------------------------------------------------------------------------
-   32. XFCE (Greybird / Xubuntu)
+   32. Greybird-Lite (Grey Theme)
    -------------------------------------------------------------------------- */
-[data-laf="xfce"] .window {
+[data-laf="greybird-lite"] .window {
     border-radius: 4px;
     border: 1px solid #a4abb3;
     background: #ffffff;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
-[data-laf="xfce"] .titlebar {
+[data-laf="greybird-lite"] .titlebar {
     background: linear-gradient(180deg, #dce1e6 0%, #c4cbd4 100%);
     border-bottom: 1px solid #a8b0ba;
     color: #2e3436;
@@ -6322,13 +6431,13 @@ h2 {
     border-radius: 4px 4px 0 0;
 }
 
-[data-laf="xfce"] .titleText {
+[data-laf="greybird-lite"] .titleText {
     font-weight: 600;
     font-size: 13px;
     color: #2c3e50;
 }
 
-[data-laf="xfce"] .winBtn {
+[data-laf="greybird-lite"] .winBtn {
     width: 22px;
     height: 22px;
     border-radius: 3px;
@@ -6338,49 +6447,49 @@ h2 {
     font-size: 11px;
 }
 
-[data-laf="xfce"] .winBtn:hover {
+[data-laf="greybird-lite"] .winBtn:hover {
     background: #398ee7;
     color: #ffffff;
     border-color: #2170c4;
 }
 
-[data-laf="xfce"] .ui-btn,
-[data-laf="xfce"] .ui-button,
-[data-laf="xfce"] .btn {
+[data-laf="greybird-lite"] .ui-btn,
+[data-laf="greybird-lite"] .ui-button,
+[data-laf="greybird-lite"] .btn {
     border-radius: 4px;
     background: #398ee7;
     color: #ffffff;
 }
 
-[data-laf="xfce"] #menubar,
-[data-laf="xfce"] .ui-menubar {
+[data-laf="greybird-lite"] #menubar,
+[data-laf="greybird-lite"] .ui-menubar {
     background: #e4e7eb;
     border-bottom: 1px solid #c4cbd4;
     color: #2c3e50;
 }
 
-[data-laf="xfce"] #taskbar {
+[data-laf="greybird-lite"] #taskbar {
     background: #d4dbe3;
     border-top: 1px solid #b8c0cb;
 }
 
-[data-laf="xfce"] .taskButton {
+[data-laf="greybird-lite"] .taskButton {
     border-radius: 3px;
     background: #e4e7eb;
     border: 1px solid #b8c0cb;
     color: #2c3e50;
 }
 
-[data-laf="xfce"] .taskButton.active {
+[data-laf="greybird-lite"] .taskButton.active {
     background: #ffffff;
     border-color: #398ee7;
     font-weight: bold;
 }
 
 /* --------------------------------------------------------------------------
-   33. ENLIGHTENMENT (E25 Titanium & Glow)
+   33. E-Fusion (Glow Style)
    -------------------------------------------------------------------------- */
-[data-laf="enlightenment"] .window {
+[data-laf="e-fusion"] .window {
     border-radius: 12px;
     border: 1px solid #ffb400;
     background: #141416;
@@ -6388,7 +6497,7 @@ h2 {
     box-shadow: 0 0 25px rgba(255, 180, 0, 0.22);
 }
 
-[data-laf="enlightenment"] .titlebar {
+[data-laf="e-fusion"] .titlebar {
     background: linear-gradient(180deg, #2a2a2e 0%, #17171a 100%);
     border-bottom: 1px solid #ffb400;
     color: #ffb400;
@@ -6397,14 +6506,14 @@ h2 {
     border-radius: 12px 12px 0 0;
 }
 
-[data-laf="enlightenment"] .titleText {
+[data-laf="e-fusion"] .titleText {
     font-weight: bold;
     color: #ffb400;
     text-shadow: 0 0 10px rgba(255, 180, 0, 0.4);
     letter-spacing: 0.8px;
 }
 
-[data-laf="enlightenment"] .winBtn {
+[data-laf="e-fusion"] .winBtn {
     width: 26px;
     height: 26px;
     border-radius: 4px;
@@ -6413,20 +6522,20 @@ h2 {
     color: #ffb400;
 }
 
-[data-laf="enlightenment"] .winBtn:hover {
+[data-laf="e-fusion"] .winBtn:hover {
     background: #ffb400;
     color: #000000;
     box-shadow: 0 0 10px #ffb400;
 }
 
-[data-laf="enlightenment"] .windowBody {
+[data-laf="e-fusion"] .windowBody {
     background: #141416;
     color: #e5e5e5;
 }
 
-[data-laf="enlightenment"] .ui-btn,
-[data-laf="enlightenment"] .ui-button,
-[data-laf="enlightenment"] .btn {
+[data-laf="e-fusion"] .ui-btn,
+[data-laf="e-fusion"] .ui-button,
+[data-laf="e-fusion"] .btn {
     background: #222226;
     border: 1px solid #ffb400;
     color: #ffb400;
@@ -6434,37 +6543,37 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="enlightenment"] .ui-btn:hover,
-[data-laf="enlightenment"] .ui-button:hover {
+[data-laf="e-fusion"] .ui-btn:hover,
+[data-laf="e-fusion"] .ui-button:hover {
     background: #ffb400;
     color: #000000;
     box-shadow: 0 0 12px #ffb400;
 }
 
-[data-laf="enlightenment"] #menubar,
-[data-laf="enlightenment"] .ui-menubar {
+[data-laf="e-fusion"] #menubar,
+[data-laf="e-fusion"] .ui-menubar {
     background: #17171a;
     border-bottom: 1px solid #ffb400;
     color: #ffb400;
 }
 
-[data-laf="enlightenment"] .menubar-item {
+[data-laf="e-fusion"] .menubar-item {
     color: #ffb400 !important;
 }
 
-[data-laf="enlightenment"] #taskbar {
+[data-laf="e-fusion"] #taskbar {
     background: #17171a;
     border-top: 1px solid #ffb400;
 }
 
-[data-laf="enlightenment"] .taskButton {
+[data-laf="e-fusion"] .taskButton {
     background: #242428;
     border: 1px solid rgba(255, 180, 0, 0.4);
     color: #ffb400;
     border-radius: 6px;
 }
 
-[data-laf="enlightenment"] .taskButton.active {
+[data-laf="e-fusion"] .taskButton.active {
     background: #ffb400;
     color: #000000;
     font-weight: bold;
@@ -6474,14 +6583,14 @@ h2 {
 /* --------------------------------------------------------------------------
    34. WINDOW MAKER (GNUstep / Classic X11)
    -------------------------------------------------------------------------- */
-[data-laf="windowmaker"] .window {
+[data-laf="x11-box"] .window {
     border-radius: 0px !important;
     border: 2px solid #5a5a6a !important;
     background: #c0c0c0 !important;
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5) !important;
 }
 
-[data-laf="windowmaker"] .titlebar {
+[data-laf="x11-box"] .titlebar {
     background: linear-gradient(135deg, #1c1c28 0%, #4a4a60 100%) !important;
     border-bottom: 1px solid #202030 !important;
     color: #ffffff !important;
@@ -6490,14 +6599,14 @@ h2 {
     border-radius: 0px !important;
 }
 
-[data-laf="windowmaker"] .titleText {
+[data-laf="x11-box"] .titleText {
     font-weight: bold;
     font-size: 13px;
     color: #ffffff !important;
     text-shadow: 1px 1px 2px #000000;
 }
 
-[data-laf="windowmaker"] .winBtn {
+[data-laf="x11-box"] .winBtn {
     width: 22px;
     height: 22px;
     border-radius: 0px;
@@ -6511,16 +6620,16 @@ h2 {
     font-size: 11px;
 }
 
-[data-laf="windowmaker"] .winBtn:active {
+[data-laf="x11-box"] .winBtn:active {
     border-top: 2px solid #404050;
     border-left: 2px solid #404050;
     border-right: 2px solid #ffffff;
     border-bottom: 2px solid #ffffff;
 }
 
-[data-laf="windowmaker"] .ui-btn,
-[data-laf="windowmaker"] .ui-button,
-[data-laf="windowmaker"] .btn {
+[data-laf="x11-box"] .ui-btn,
+[data-laf="x11-box"] .ui-button,
+[data-laf="x11-box"] .btn {
     border-radius: 0px;
     background: #b0b0c0;
     border-top: 2px solid #ffffff;
@@ -6531,30 +6640,30 @@ h2 {
     font-weight: bold;
 }
 
-[data-laf="windowmaker"] #menubar,
-[data-laf="windowmaker"] .ui-menubar {
+[data-laf="x11-box"] #menubar,
+[data-laf="x11-box"] .ui-menubar {
     background: #2a2a3c;
     border-bottom: 2px solid #5a5a6a;
     color: #ffffff;
 }
 
-[data-laf="windowmaker"] .menubar-item {
+[data-laf="x11-box"] .menubar-item {
     color: #ffffff !important;
 }
 
-[data-laf="windowmaker"] #taskbar {
+[data-laf="x11-box"] #taskbar {
     background: #2a2a3c;
     border-top: 2px solid #5a5a6a;
 }
 
-[data-laf="windowmaker"] .taskButton {
+[data-laf="x11-box"] .taskButton {
     border-radius: 0px;
     background: #3e3e54;
     border: 1px solid #6c6c84;
     color: #ffffff;
 }
 
-[data-laf="windowmaker"] .taskButton.active {
+[data-laf="x11-box"] .taskButton.active {
     background: #606082;
     font-weight: bold;
     border-color: #ffffff;
@@ -6574,7 +6683,7 @@ h2 {
     cursor: pointer;
     padding: 4px 10px;
     border-radius: 6px;
-    color: var(--text-color, #1e293b);
+    color: var(--menu-text, var(--text-primary, #ffffff)) !important;
     align-items: center;
     justify-content: center;
     transition: background 0.2s, transform 0.1s;
@@ -6583,12 +6692,37 @@ h2 {
 
 .menubar-mobile-hamburger:hover,
 .window-menubar-hamburger:hover {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .menubar-mobile-hamburger:active,
 .window-menubar-hamburger:active {
     transform: scale(0.94);
+}
+
+/* Fix de Alto Contraste para Menus Mobile em Temas Escuros (Aubergine-Orange, Adwaita-Slate, etc.) */
+[data-laf="aubergine-orange"] .menubar-mobile-hamburger,
+[data-laf="aubergine-orange"] .menubar-mobile-hamburger,
+[data-laf="adwaita-slate"] .menubar-mobile-hamburger,
+[data-laf="adwaita-slate"] .menubar-mobile-hamburger,
+[data-laf="breeze-plasma"] .menubar-mobile-hamburger,
+[data-laf="breeze-plasma"] .menubar-mobile-hamburger,
+[data-laf="e-fusion"] .menubar-mobile-hamburger,
+[data-laf="e-fusion"] .menubar-mobile-hamburger,
+[data-laf="cosmic-teal"] .menubar-mobile-hamburger,
+[data-laf="cosmic-teal"] .menubar-mobile-hamburger,
+[data-laf="x11-box"] .menubar-mobile-hamburger,
+[data-laf="x11-box"] .menubar-mobile-hamburger {
+    color: #ffffff !important;
+}
+
+[data-laf="aubergine-orange"] .window-menubar-hamburger,
+[data-laf="aubergine-orange"] .window-menubar-hamburger,
+[data-laf="adwaita-slate"] .window-menubar-hamburger,
+[data-laf="adwaita-slate"] .window-menubar-hamburger {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
 }
 
 /* Mobile Drawer (Menu Principal Mobile) */
@@ -7409,8 +7543,18 @@ h2 {
 }
 
 #app.mobile-mode #taskbar .taskStart {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     padding: 6px 12px !important;
-    font-size: 12px !important;
+    font-size: 15px !important;
+    min-width: 44px !important;
+    border-radius: 6px !important;
+    gap: 6px !important;
+}
+
+#app.mobile-mode #taskbar .taskStart .task-start-label {
+    display: none !important;
 }
 
 #app.mobile-mode #taskbar .taskButton {
@@ -7418,4 +7562,144 @@ h2 {
     font-size: 12px !important;
     min-width: 80px !important;
     max-width: 130px !important;
+}
+
+/* ==========================================================================
+   Estilizações de Mostrar Área de Trabalho (.taskShowDesktop) por Look & Feel
+   ========================================================================== */
+
+/* Aero Glass (Faixa de vidro translúcida no canto da taskbar) */
+[data-laf="aero-glass"] .taskShowDesktop,
+[data-laf="aero-glass"] .taskShowDesktop {
+    width: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin-left: 4px !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 2px !important;
+    cursor: pointer !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    transition: background 0.15s ease, box-shadow 0.15s ease !important;
+}
+[data-laf="aero-glass"] .taskShowDesktop:hover,
+[data-laf="aero-glass"] .taskShowDesktop:hover {
+    background: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.85) !important;
+}
+[data-laf="aero-glass"] .taskShowDesktop .task-show-desktop-icon,
+[data-laf="aero-glass"] .taskShowDesktop .task-show-desktop-icon {
+    display: none !important;
+}
+
+/* Fluent Acrylic */
+[data-laf="fluent-acrylic"] .taskShowDesktop,
+[data-laf="fluent-acrylic"] .taskShowDesktop {
+    height: 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    color: var(--text-primary) !important;
+}
+[data-laf="fluent-acrylic"] .taskShowDesktop:hover,
+[data-laf="fluent-acrylic"] .taskShowDesktop:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Luna Blue / Classic */
+[data-laf="luna-blue"] .taskShowDesktop,
+[data-laf="luna-blue"] .taskShowDesktop {
+    height: 26px !important;
+    padding: 0 6px !important;
+    background: linear-gradient(180deg, #3877d9 0%, #1e52ba 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #163e8c !important;
+    border-radius: 3px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+[data-laf="luna-blue"] .taskShowDesktop:active,
+[data-laf="luna-blue"] .taskShowDesktop:active {
+    background: linear-gradient(180deg, #193c83 0%, #204ca6 100%) !important;
+}
+
+/* Retro 3D */
+[data-laf="retro-3d"] .taskShowDesktop,
+[data-laf="retro-3d"] .taskShowDesktop {
+    height: 22px !important;
+    padding: 0 4px !important;
+    background: #c0c0c0 !important;
+    color: #000000 !important;
+    border: 2px outset #ffffff !important;
+    border-radius: 0 !important;
+}
+[data-laf="retro-3d"] .taskShowDesktop:active,
+[data-laf="retro-3d"] .taskShowDesktop:active {
+    border-style: inset !important;
+}
+
+/* Aqua Frosted */
+[data-laf="aqua-frosted"] .taskShowDesktop,
+[data-laf="aqua-frosted"] .taskShowDesktop {
+    height: 26px !important;
+    width: 28px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: var(--text-primary) !important;
+}
+[data-laf="aqua-frosted"] .taskShowDesktop:hover,
+[data-laf="aqua-frosted"] .taskShowDesktop:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Aubergine Orange */
+[data-laf="aubergine-orange"] .taskShowDesktop,
+[data-laf="aubergine-orange"] .taskShowDesktop {
+    height: 26px !important;
+    padding: 0 6px !important;
+    border-radius: 6px !important;
+    background: rgba(233, 84, 32, 0.25) !important;
+    border: 1px solid #e95420 !important;
+    color: #ffffff !important;
+}
+
+/* Adwaita Slate */
+[data-laf="adwaita-slate"] .taskShowDesktop,
+[data-laf="adwaita-slate"] .taskShowDesktop {
+    height: 26px !important;
+    padding: 0 6px !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* DOS TUI / Turbo */
+[data-laf="turbo-tui"] .taskShowDesktop,
+[data-laf="turbo-tui"] .taskShowDesktop {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    border-radius: 0 !important;
+    font-family: 'Courier New', monospace !important;
+    font-weight: bold !important;
+    height: 22px !important;
+}
+
+/* Cyber Neon / Tactical HUD */
+[data-laf="cyberpunk-neon"] .taskShowDesktop,
+[data-laf="cyberpunk-neon"] .taskShowDesktop {
+    background: rgba(0, 255, 204, 0.08) !important;
+    color: #00ffcc !important;
+    border: 1px solid #00ffcc !important;
+    border-radius: 0 !important;
+    font-family: monospace !important;
+    height: 24px !important;
+    box-shadow: 0 0 6px rgba(0, 255, 204, 0.3) !important;
 }
