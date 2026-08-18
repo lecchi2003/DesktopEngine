@@ -287,6 +287,7 @@
             <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
 
             <div class="nav-header">Sistema Global & Arquitetura</div>
+            <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
             <a href="#integracao-api">Integração com APIs REST &amp; Backend</a>
@@ -771,16 +772,33 @@ const TelaCadastro = {
             <!-- SEÇÃO: PRIMITIVAS -->
             <h2 id="primitivas">Primitivas de Layout e Impressão</h2>
             
-            <h3>createElement</h3>
-            <p>Fábrica de nós DOM pura e segura utilizada em toda a biblioteca:</p>
+            <h3>createElement (Fábrica DOM Polimórfica)</h3>
+            <p>Fábrica de nós DOM pura, rápida e segura utilizada em toda a biblioteca. Suporta múltiplas assinaturas polimórficas para maior ergonomia:</p>
             <div class="code-box">
 <pre><code>import { createElement } from './ui.js';
 
-// Assinatura: createElement(tag, className, children)
-const elemento = createElement("div", "meu-container", [
-    createElement("h2", "titulo", ["Título da Seção"]),
-    createElement("p", "", ["Texto descritivo"])
-]);</code></pre>
+// 1. Passando filhos diretamente (sem precisar de classe vazia ""):
+const div1 = createElement("div", [
+    createElement("h2", "Título Direto"),
+    createElement("p", "Texto descritivo simples")
+]);
+
+// 2. Com classe e filhos (Padrão clássico):
+const div2 = createElement("div", "meu-container", [
+    createElement("span", "badge", ["Status Ativo"])
+]);
+
+// 3. Com objeto de propriedades, estilos e eventos (Estilo Hyperscript):
+const div3 = createElement("button", {
+    className: "btn btn-primary",
+    id: "btn-salvar",
+    style: { fontWeight: "bold", padding: "8px 16px" },
+    onclick: () => alert("Salvo!")
+}, ["Salvar Dados"]);
+
+// 4. Tags vazias e quebras simples:
+const hr = createElement("hr");
+const br = createElement("br");</code></pre>
             </div>
 
             <h3>printElement</h3>
@@ -1641,6 +1659,83 @@ export default {
         ]);
     }
 };</code></pre>
+            </div>
+
+            <!-- SEÇÃO: BACKGROUND TASKS & WEB WORKERS -->
+            <h2 id="background-tasks">Processamento em Segundo Plano &amp; Multitarefa (Background Tasks &amp; Web Workers)</h2>
+            <p>O DesktopEngine foi desenvolvido para permitir <strong>multitarefa real entre janelas</strong>. Uma janela pode executar relatórios demorados, processamento massivo de planilhas ou cálculos pesados de Big Data em segundo plano enquanto o usuário utiliza outras janelas (como editores, cadastros e gráficos) com <strong>60 FPS fluidos</strong> e zero travamento na interface.</p>
+
+            <h3>1. Padrão Web Worker (Thread de CPU Dedicada)</h3>
+            <p>Para processamento matemático pesado ou parsing de arquivos gigantescos no navegador, utilize um <code>Web Worker</code>. O processamento roda em um núcleo de CPU separado da thread de renderização da interface:</p>
+
+            <div class="code-box">
+<pre><code>// Dentro da Janela de Relatórios:
+export default {
+    title: "Gerador de Relatórios",
+    state: { progresso: 0, isProcessando: false, worker: null },
+
+    iniciarCalculoPesado(totalLinhas = 100000) {
+        this.state.isProcessando = true;
+
+        // Cria o Worker inline (ou a partir de um arquivo .js)
+        const workerCode = `
+            self.onmessage = function(e) {
+                const total = e.data.total;
+                for (let i = 0; i < total; i++) {
+                    // Cálculo pesado...
+                    if (i % 1000 === 0) {
+                        self.postMessage({ progresso: Math.floor((i / total) * 100) });
+                    }
+                }
+                self.postMessage({ progresso: 100, concluido: true });
+            };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        this.state.worker = new Worker(URL.createObjectURL(blob));
+
+        this.state.worker.onmessage = (e) => {
+            this.state.progresso = e.data.progresso;
+            if (e.data.concluido) {
+                this.state.isProcessando = false;
+                Desktop.notify("📊 Relatório processado com sucesso!", "success");
+            }
+        };
+
+        this.state.worker.postMessage({ total: totalLinhas });
+    },
+
+    onDestroy() {
+        // Limpa a thread do Worker ao fechar a janela para liberar memória
+        if (this.state.worker) this.state.worker.terminate();
+    },
+
+    view() {
+        return createElement("div", "flex-col", [
+            ProgressBar({ value: this.state.progresso, max: 100 }),
+            Button({
+                text: this.state.isProcessando ? "Calculando..." : "Iniciar Geração",
+                disabled: this.state.isProcessando,
+                onClick: () => this.iniciarCalculoPesado()
+            })
+        ]);
+    }
+};</code></pre>
+            </div>
+
+            <h3>2. Padrão Async Stream / Chunking (Requisições em Lotes)</h3>
+            <p>Quando a geração do relatório consome dados de APIs remotas, utilize <code>async/await</code> com divisão em lotes (<em>chunking</em>). O Event Loop do navegador atualiza a barra de progresso e mantém a responsividade das demais janelas:</p>
+
+            <div class="code-box">
+<pre><code>async gerarRelatorioAsync(lotes = 10) {
+    this.state.isProcessando = true;
+    for (let i = 1; i <= lotes; i++) {
+        await new Promise(r => setTimeout(r, 400)); // Simula requisição assíncrona
+        this.state.progresso = (i / lotes) * 100;
+    }
+    this.state.isProcessando = false;
+    Desktop.notify("Relatório concluído!", "success");
+}</code></pre>
             </div>
 
             <h3>2. Boas Práticas na Integração com Serviços</h3>

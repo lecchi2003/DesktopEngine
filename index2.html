@@ -74,6 +74,7 @@
                     items: [
                         { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
                         "separator",
+                        { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
                         { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
                         { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
                         { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
@@ -657,7 +658,14 @@
                                 title: "🪟 9. Janelas Filhas (Dialogs)",
                                 children: [
                                     createElement("p", "text-secondary", ["Sub-janelas modais acopladas à janela mãe com bloqueio local, foco e retorno assíncrono."]),
-                                    Button({ text: "Abrir Diálogos Modais ↗", onClick: () => Desktop.openScreen("child_modal_demo"), variant: "success" })
+                                    Button({ text: "Abrir Diálogos Modais ↗", onClick: () => Desktop.openScreen("child_modal_demo"), variant: "primary" })
+                                ]
+                            }),
+                            Card({
+                                title: "📊 10. Relatórios em Segundo Plano",
+                                children: [
+                                    createElement("p", "text-secondary", ["Geração de relatórios pesados e tarefas assíncronas com Web Workers mantendo 60 FPS na UI."]),
+                                    Button({ text: "Abrir Relatórios Background ↗", onClick: () => Desktop.openScreen("background_reports"), variant: "success" })
                                 ]
                             })
                         ]
@@ -672,6 +680,7 @@
             "hub_arquiteturas": () => HubArquiteturasScreen,
 
             // 1. Telas com Lazy Loading nativo (Arquivos isolados em /screens)
+            "background_reports": () => import('./screens/BackgroundReportScreen.js'),
             "child_modal_demo": () => import('./screens/ChildModalDemoScreen.js'),
             "lifecycle_demo": () => import('./screens/LifecycleDemoScreen.js'),
             "crud_api": () => import('./screens/ProductsCrudScreen.js'),

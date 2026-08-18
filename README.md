@@ -438,7 +438,7 @@ export default {
 Todos os componentes aceitam composição direta e utilizam classes CSS corporativas nativas.
 
 ### 1. Primitivas de Layout & Utilitários
-- `createElement(tag, className, children)`: Fábrica base de nós DOM.
+- `createElement(tag, [children])` / `createElement(tag, className, [children])` / `createElement(tag, props, [children])`: Fábrica de nós DOM polimórfica com suporte a arrays de filhos diretos, classes, atributos, estilos e listeners.
 - `printElement(element, options)`: Clona um elemento para um iframe isolado e dispara a impressão nativa.
 - `Row({ children, style })`: Linha flexível (`display: flex`).
 - `Col({ children, style })`: Coluna flexível expansível (`flex: 1`).
@@ -446,6 +446,14 @@ Todos os componentes aceitam composição direta e utilizam classes CSS corporat
 - `Card({ title, children })`: Painel com sombra e borda arredondada.
 - `Form({ fields, actions })`: Agrupador de campos e botões de ação.
 - `Tabs({ tabs, instance, activeTabBind })`: Sistema de abas conectado ao `state`.
+
+```javascript
+// Exemplos de criação com createElement:
+const el1 = createElement("div", [createElement("h2", "Título")]); // Filhos direto sem ""
+const el2 = createElement("div", "card-header", [createElement("span", "Badge")]); // Com classe
+const el3 = createElement("button", { className: "btn", onclick: () => {} }, ["Salvar"]); // Com props/eventos
+const el4 = createElement("hr"); // Tag vazia simples
+```
 
 ```javascript
 Tabs({
@@ -1003,6 +1011,85 @@ export default {
 - **Preservação de Foco na Digitação:** Ao vincular campos de busca ou filtros a inputs, o DesktopEngine utiliza `instance._setSilentState()` para atualizar o estado sem destruir os elementos DOM ativos durante a digitação.
 - **Orquestração com Actions & Middlewares:** Para fluxos com validações encadeadas, use `actions: { salvar: [validarForm, enviarApi, logAuditoria] }`.
 - **Tratamento de Autenticação 401:** Intercepte respostas de status `401 Unauthorized` para abrir dinamicamente um `Modal()` de login ou renovação de token sem fechar a janela do usuário.
+
+---
+
+## 📊 Processamento em Segundo Plano & Multitarefa (Background Tasks & Web Workers)
+
+O DesktopEngine foi desenvolvido para permitir **multitarefa real entre janelas**. Uma janela pode executar relatórios demorados, processamento massivo de planilhas ou cálculos pesados de Big Data em segundo plano enquanto o usuário utiliza outras janelas (como editores, cadastros e gráficos) com **60 FPS fluidos** e zero travamento na interface.
+
+### 1. Padrão Web Worker (Thread de CPU Dedicada)
+Para processamento matemático pesado ou parsing de arquivos gigantescos no navegador, utilize um `Web Worker`. O processamento roda em um núcleo de CPU separado da thread de renderização da interface:
+
+```javascript
+// Dentro da Janela de Relatórios:
+export default {
+    title: "Gerador de Relatórios",
+    state: { progresso: 0, isProcessando: false, worker: null },
+
+    iniciarCalculoPesado(totalLinhas = 100000) {
+        this.state.isProcessando = true;
+
+        // Cria o Worker inline (ou a partir de um arquivo .js)
+        const workerCode = `
+            self.onmessage = function(e) {
+                const total = e.data.total;
+                for (let i = 0; i < total; i++) {
+                    // Cálculo pesado...
+                    if (i % 1000 === 0) {
+                        self.postMessage({ progresso: Math.floor((i / total) * 100) });
+                    }
+                }
+                self.postMessage({ progresso: 100, concluido: true });
+            };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        this.state.worker = new Worker(URL.createObjectURL(blob));
+
+        this.state.worker.onmessage = (e) => {
+            this.state.progresso = e.data.progresso;
+            if (e.data.concluido) {
+                this.state.isProcessando = false;
+                Desktop.notify("📊 Relatório processado com sucesso!", "success");
+            }
+        };
+
+        this.state.worker.postMessage({ total: totalLinhas });
+    },
+
+    onDestroy() {
+        // Limpa a thread do Worker ao fechar a janela para liberar memória
+        if (this.state.worker) this.state.worker.terminate();
+    },
+
+    view() {
+        return createElement("div", "flex-col", [
+            ProgressBar({ value: this.state.progresso, max: 100 }),
+            Button({
+                text: this.state.isProcessando ? "Calculando..." : "Iniciar Geração",
+                disabled: this.state.isProcessando,
+                onClick: () => this.iniciarCalculoPesado()
+            })
+        ]);
+    }
+};
+```
+
+### 2. Padrão Async Stream / Chunking (Requisições em Lotes)
+Quando a geração do relatório consome dados de APIs remotas, utilize `async/await` com divisão em lotes (*chunking*). O Event Loop do navegador atualiza a barra de progresso e mantém a responsividade das demais janelas:
+
+```javascript
+async gerarRelatorioAsync(lotes = 10) {
+    this.state.isProcessando = true;
+    for (let i = 1; i <= lotes; i++) {
+        await new Promise(r => setTimeout(r, 400)); // Simula requisição assíncrona
+        this.state.progresso = (i / lotes) * 100;
+    }
+    this.state.isProcessando = false;
+    Desktop.notify("Relatório concluído!", "success");
+}
+```
 
 ---
 

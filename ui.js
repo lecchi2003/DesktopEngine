@@ -1,16 +1,80 @@
 // ui.js
 import { Desktop } from './desktop.js';
 
-export function createElement(tag, className, children = []) {
+export function createElement(tag, arg2, arg3) {
     const el = document.createElement(tag);
-    if (className) el.className = className;
-    children.forEach(child => {
+    let children = [];
+    let pendingProps = null;
+
+    // Caso 1: Modo legado tradicional com String no 2º argumento:
+    // createElement("div", "classe", [...]) ou createElement("div", "", [...])
+    if (typeof arg2 === 'string') {
+        if (arg2) el.className = arg2;
+        if (Array.isArray(arg3)) {
+            children = arg3;
+        } else if (arg3 !== undefined && arg3 !== null) {
+            children = [arg3];
+        }
+    }
+    // Caso 2: Segundo argumento é um Array de filhos diretamente:
+    // createElement("div", [child1, child2])
+    else if (Array.isArray(arg2)) {
+        children = arg2;
+        if (arg3 && typeof arg3 === 'object' && !Array.isArray(arg3)) {
+            pendingProps = arg3;
+        }
+    }
+    // Caso 3: Segundo argumento é um Node do DOM:
+    // createElement("div", meuElemento)
+    else if (arg2 instanceof Node) {
+        children = [arg2];
+    }
+    // Caso 4: Segundo argumento é um Objeto de propriedades/atributos:
+    // createElement("div", { className: "card", id: "app" }, [children])
+    else if (arg2 && typeof arg2 === 'object') {
+        pendingProps = arg2;
+        if (Array.isArray(arg3)) {
+            children = arg3;
+        } else if (arg3 !== undefined && arg3 !== null) {
+            children = [arg3];
+        }
+    }
+
+    // 1. Anexa filhos primeiro
+    const appendChild = (child) => {
+        if (child === null || child === undefined || child === false) return;
         if (typeof child === 'string' || typeof child === 'number') {
-            el.appendChild(document.createTextNode(child));
+            el.appendChild(document.createTextNode(String(child)));
         } else if (child instanceof Node) {
             el.appendChild(child);
+        } else if (Array.isArray(child)) {
+            child.forEach(appendChild);
         }
-    });
+    };
+
+    children.forEach(appendChild);
+
+    // 2. Aplica propriedades DEPOIS de anexar os filhos (permite que <select> encontre options ao definir value)
+    if (pendingProps) {
+        Object.entries(pendingProps).forEach(([key, val]) => {
+            if (val === undefined || val === null) return;
+            if (key === 'className' || key === 'class') {
+                el.className = val;
+            } else if (key === 'style' && typeof val === 'string') {
+                el.style.cssText = val;
+            } else if (key === 'style' && typeof val === 'object') {
+                Object.assign(el.style, val);
+            } else if (key.startsWith('on') && typeof val === 'function') {
+                const eventName = key.slice(2).toLowerCase();
+                el.addEventListener(eventName, val);
+            } else if (key in el && typeof el[key] !== 'function') {
+                try { el[key] = val; } catch (e) { el.setAttribute(key, val); }
+            } else {
+                el.setAttribute(key, val);
+            }
+        });
+    }
+
     return el;
 }
 
