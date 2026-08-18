@@ -762,14 +762,40 @@ FloatButton({
 ### 6. Menus Globais e ContextMenu
 
 #### `MenuBar` & `StartMenu` (Menus Globais)
+O framework suporta os dois paradigmas clássicos de sistemas operacionais, com total integração e acoplamento dinâmico:
+- **StartMenu (Estilo Windows):** Menu inicial ancorado no botão da taskbar.
+- **MenuBar (Estilo macOS / Desktop Pro):** Barra de menus fixa no topo (ou laterais/rodapé) com submenus em cascata (hover).
+- **Acoplamento Dinâmico Inteligente:** Ao alternar o modo do MenuBar para `"startmenu"`, caso não haja um Menu Iniciar previamente definido, o framework **cria dinamicamente o botão Iniciar** na barra de tarefas para alocá-lo. Ao desacoplar (`"separate"`), o botão é removido. Caso já exista um Menu Iniciar configurado, ambos os menus são **mesclados automaticamente no primeiro nível**. Se o botão Iniciar não possuir itens acoplados a ele, ele não é exibido. Funciona de forma 100% idêntica e responsiva em **Desktop** (popups em cascata) e **Mobile** (Drawer deslizante).
+
 ```javascript
-const estruturaMenus = [
+import { MenuBar, StartMenu } from './ui.js';
+
+// Exemplo 1: Estrutura do MenuBar
+const menusBarra = [
     {
         label: "Arquivo",
         items: [
-            { label: "Nova Janela", action: () => Desktop.open(MinhaJanela) },
+            { label: "Nova Janela", action: () => Desktop.openScreen("editor") },
             "separator",
-            { label: "Fechar Tudo", action: () => Desktop.showDesktop() }
+            { label: "Sair", action: () => alert("Saindo...") }
+        ]
+    },
+    {
+        label: "Exibir",
+        items: [
+            { label: "Organizar em Grade", action: () => Desktop.arrangeWindows() },
+            { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
+        ]
+    }
+];
+
+// Exemplo 2: Estrutura do StartMenu
+const menusIniciar = [
+    {
+        label: "Aplicativos",
+        items: [
+            { label: "📊 Painel de Controle", screen: "dashboard" },
+            { label: "📝 Editor de Texto", screen: "editor" }
         ]
     }
 ];
@@ -778,15 +804,15 @@ const estruturaMenus = [
 MenuBar({
     containerId: "menubar",
     position: "top", // Se a Taskbar também estiver no topo, a Taskbar fica acima e o MenuBar logo abaixo!
-    menus: estruturaMenus
+    menus: menusBarra
 });
 
-// Menu Iniciar na Barra de Tarefas:
-StartMenu({ buttonId: "btnStart", menus: estruturaMenus });
+// Menu Iniciar na Barra de Tarefas (opcional):
+StartMenu({ buttonId: "startBtn", menus: menusIniciar });
 
 // Alternando dinamicamente onde o MenuBar deve ficar:
-Desktop.setMenuBarMode("separate");  // Exibe como barra de menus separada no desktop
-Desktop.setMenuBarMode("startmenu"); // Oculta a barra separada e mantém os menus no botão Iniciar
+Desktop.setMenuBarMode("startmenu"); // Mescla menusBarra com menusIniciar no primeiro nível do Menu Iniciar (ou cria o botão Iniciar caso não exista)
+Desktop.setMenuBarMode("separate");  // Desacopla: restaura o Menu Iniciar original e reexibe a barra separada
 Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "none"
 ```
 

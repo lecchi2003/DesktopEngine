@@ -79,6 +79,7 @@ export const Desktop = {
 
         // Atualiza estilo e ícone do botão Iniciar de acordo com o Look and Feel
         this.updateStartButton();
+        this.syncTaskbarMenus();
 
         // Configura modo responsivo
         this.setMobileMode(this.options.responsiveMode || "auto", false);
@@ -1003,6 +1004,9 @@ export const Desktop = {
             candidates.add(el);
         });
 
+        const effectiveMenus = this.getEffectiveStartMenus ? this.getEffectiveStartMenus() : [];
+        const hasEffectiveMenus = effectiveMenus && effectiveMenus.length > 0;
+
         candidates.forEach(btn => {
             if (!btn) return;
 
@@ -1019,6 +1023,13 @@ export const Desktop = {
                 btn.title = startConfig.tooltip;
             }
             btn.setAttribute('data-laf-start', laf);
+
+            // Se o botão não possui menus associados (nativos ou acoplados), oculta-o da taskbar
+            if (!hasEffectiveMenus) {
+                btn.style.display = "none";
+            } else {
+                btn.style.display = "";
+            }
         });
 
         // Atualiza os botões Mostrar Área de Trabalho
@@ -1120,6 +1131,98 @@ export const Desktop = {
         return this.options?.taskbarPosition || app?.dataset.taskbar || "bottom";
     },
 
+    // --- Registro e Sincronização Inteligente de Menus (MenuBar & StartMenu) ---
+    _globalMenuBarMenus: [],
+    _registeredStartMenus: [],
+    _startMenuRegistered: false,
+    _startMenuInstance: null,
+    _autoCreatedStartButton: false,
+
+    registerMenuBarMenus(menus = []) {
+        this._globalMenuBarMenus = Array.isArray(menus) ? menus : [];
+        this.syncTaskbarMenus();
+    },
+
+    registerStartMenu(config = {}) {
+        this._startMenuRegistered = true;
+        this._registeredStartMenus = Array.isArray(config.menus) ? config.menus : [];
+        if (config.instance) {
+            this._startMenuInstance = config.instance;
+        }
+        this.syncTaskbarMenus();
+    },
+
+    getEffectiveStartMenus() {
+        const mode = this.getMenuBarMode(); // "startmenu" | "separate"
+        const startMenus = this._registeredStartMenus || [];
+        const menuBarMenus = this._globalMenuBarMenus || [];
+
+        if (mode === "startmenu") {
+            if (startMenus.length > 0 && menuBarMenus.length > 0) {
+                // Mescla no primeiro nível sem duplicações diretas
+                return [...startMenus, "separator", ...menuBarMenus];
+            } else if (menuBarMenus.length > 0) {
+                return [...menuBarMenus];
+            } else {
+                return [...startMenus];
+            }
+        } else {
+            // No modo separate, exibe apenas os menus nativos do StartMenu
+            return [...startMenus];
+        }
+    },
+
+    syncTaskbarMenus() {
+        const mode = this.getMenuBarMode();
+        const effectiveMenus = this.getEffectiveStartMenus();
+        const hasEffectiveMenus = effectiveMenus && effectiveMenus.length > 0;
+
+        const targetIds = [this.options?.startButtonId, "startBtn", "taskStartBtn"].filter(Boolean);
+        let startBtnEl = null;
+        for (const id of targetIds) {
+            const el = document.getElementById(id);
+            if (el) {
+                startBtnEl = el;
+                break;
+            }
+        }
+
+        // Se não existir botão e precisamos de um botão para alocar o menu iniciar gerado
+        if (!startBtnEl && hasEffectiveMenus && mode === "startmenu") {
+            const taskbar = document.getElementById(this.options?.taskbarContainerId || "taskWindows")?.parentElement ||
+                            document.getElementById("taskbar");
+            if (taskbar) {
+                startBtnEl = document.createElement("button");
+                startBtnEl.id = this.options?.startButtonId || "startBtn";
+                startBtnEl.className = "taskStart";
+                startBtnEl.dataset.role = "start-button";
+                taskbar.insertBefore(startBtnEl, taskbar.firstChild);
+                this._autoCreatedStartButton = true;
+                this.updateStartButton();
+            }
+        }
+
+        if (startBtnEl) {
+            if (hasEffectiveMenus) {
+                startBtnEl.style.display = "";
+            } else {
+                // Se não tem menus acoplados a ele, não deve aparecer na barra de tarefas
+                startBtnEl.style.display = "none";
+                if (this._autoCreatedStartButton && mode === "separate") {
+                    startBtnEl.remove();
+                    this._autoCreatedStartButton = false;
+                }
+            }
+        }
+
+        // Notifica o componente StartMenu e a UI global para re-renderizar
+        EventBus.emit("startmenu:sync", {
+            menus: effectiveMenus,
+            hasMenus: hasEffectiveMenus,
+            mode
+        });
+    },
+
     setMenuBarPosition(pos, persist = true) {
         if (!["top", "bottom", "left", "right", "none"].includes(pos)) return;
         this.options.menubarPosition = pos;
@@ -1137,6 +1240,7 @@ export const Desktop = {
         if (persist) {
             try { localStorage.setItem("desktop_engine_menubar_pos", pos); } catch (e) { }
         }
+        this.syncTaskbarMenus();
         EventBus.emit("menubar:positionchange", pos);
     },
 
@@ -1162,6 +1266,7 @@ export const Desktop = {
                 try { localStorage.setItem("desktop_engine_menubar_mode", "separate"); } catch (e) { }
             }
         }
+        this.syncTaskbarMenus();
         EventBus.emit("menubar:modechange", mode);
     },
 

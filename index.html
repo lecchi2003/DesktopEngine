@@ -223,10 +223,24 @@
             }
         ];
 
+        // Menus dedicados ao Menu Iniciar da Barra de Tarefas
+        const nativeStartMenus = [
+            {
+                label: "Aplicativos Rápidos",
+                icon: "🚀",
+                items: [
+                    { label: "📊 Painel de Controle (Lazy)", screen: "dashboard" },
+                    { label: "📝 Editor de Documentos", screen: "editor" },
+                    { label: "🛍️ CRUD de Produtos", screen: "crud_api" },
+                    { label: "Showcase de Componentes UI", screen: "showcase" }
+                ]
+            }
+        ];
+
         // --- MENU INICIAR (TASKBAR) ---
         StartMenu({
             buttonId: "startBtn",
-            menus: globalSystemMenus
+            menus: nativeStartMenus
         });
 
         // --- MENU BAR (TOPO) ---

@@ -612,6 +612,36 @@ export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal"
     const contentEl = drawer.querySelector(".drawer-content");
 
     menus.forEach(menu => {
+        if (menu === "separator") {
+            contentEl.appendChild(createElement("div", "drawer-sep", []));
+            return;
+        }
+
+        // Se o item do topo não tem subitems, renderiza como ação direta no primeiro nível
+        if (!menu.items || menu.items.length === 0) {
+            const directOpt = createElement("div", "drawer-option", [
+                menu.icon ? createElement("span", "drawer-opt-icon", [menu.icon]) : null,
+                createElement("span", "drawer-opt-label", [menu.label || ""])
+            ].filter(Boolean));
+
+            if (menu.disabled) directOpt.classList.add("disabled");
+            directOpt.onclick = (ev) => {
+                if (menu.disabled) return;
+                ev.stopPropagation();
+                closeDrawer();
+                if (menu.screen) {
+                    const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                    if (d && typeof d.openScreen === 'function') {
+                        d.openScreen(menu.screen, menu.props);
+                    }
+                } else if (menu.action) {
+                    menu.action(windowInstance, ev);
+                }
+            };
+            contentEl.appendChild(directOpt);
+            return;
+        }
+
         const catHeader = createElement("div", "drawer-cat-header", [
             menu.icon ? createElement("span", "drawer-cat-icon", [menu.icon]) : null,
             createElement("span", "drawer-cat-title", [menu.label || ""]),
@@ -661,6 +691,11 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
 
     const app = document.getElementById("app");
     const isGlobalBar = app && (bar.id === "menubar" || (containerId === "menubar" && !bar.closest(".window")));
+
+    // Registra globalmente os menus no Desktop se for a barra de menus global
+    if (isGlobalBar && typeof Desktop !== 'undefined' && typeof Desktop.registerMenuBarMenus === 'function') {
+        Desktop.registerMenuBarMenus(menus);
+    }
 
     let effectivePosition = position;
     if (!effectivePosition) {
@@ -780,8 +815,8 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
 
     // --- Menus Padrão Desktop & Itens da Barra ---
     function buildMenu(items, isSub = false) {
-        const containerClass = isSub ? "dropdown sub-dropdown" : "dropdown menubar-dropdown";
-        const container = createElement("div", containerClass, []);
+        const container = createElement("div", isSub ? "dropdown sub-dropdown" : "dropdown menubar-dropdown", []);
+        container.style.display = "none";
         container.style.flexDirection = "column";
 
         items.forEach(subItem => {
@@ -819,6 +854,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                     
                     const positionSub = () => {
                         nested.style.display = "flex";
+                        nested.style.flexDirection = "column";
                         nested.classList.remove("open-left", "open-top");
                         nested.style.removeProperty("left");
                         nested.style.removeProperty("right");
@@ -984,16 +1020,34 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
     return bar;
 }
 
-export function StartMenu({ buttonId, menus = [] }) {
-    const btn = document.getElementById(buttonId);
-    if (!btn) return;
+export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
+    let btn = document.getElementById(buttonId);
 
-    const menuEl = createElement("div", "ui-start-menu", []);
+    // Registra a configuração inicial no Desktop
+    if (typeof Desktop !== 'undefined' && typeof Desktop.registerStartMenu === 'function') {
+        Desktop.registerStartMenu({ buttonId, menus });
+    }
+
+    let menuEl = document.querySelector(".ui-start-menu");
+    if (!menuEl) {
+        menuEl = createElement("div", "ui-start-menu", []);
+        const app = document.getElementById("app") || document.body;
+        app.appendChild(menuEl);
+    }
+
+    const closeStartMenu = () => {
+        menuEl.classList.remove("show");
+        menuEl.querySelectorAll(".dropdown, .sub-dropdown").forEach(d => {
+            d.style.display = "none";
+        });
+    };
     
     function buildMenu(items, isSub = false) {
-        const container = createElement("div", isSub ? "dropdown sub-dropdown" : "menu-container", []);
-        container.style.display = isSub ? "none" : "flex";
-        container.style.flexDirection = "column";
+        const container = isSub ? createElement("div", "dropdown sub-dropdown", []) : menuEl;
+        if (isSub) {
+            container.style.display = "none";
+            container.style.flexDirection = "column";
+        }
         
         items.forEach(subItem => {
             if (subItem === "separator") {
@@ -1086,7 +1140,7 @@ export function StartMenu({ buttonId, menus = [] }) {
                         } else if (subItem.action) {
                             subItem.action();
                         }
-                        menuEl.classList.remove("show");
+                        closeStartMenu();
                     };
                 }
                 container.appendChild(opt);
@@ -1095,30 +1149,115 @@ export function StartMenu({ buttonId, menus = [] }) {
         return container;
     }
 
-    menuEl.appendChild(buildMenu(menus));
-    document.getElementById("app").appendChild(menuEl);
+    const renderMenuContent = () => {
+        menuEl.innerHTML = "";
+        const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
+            ? Desktop.getEffectiveStartMenus()
+            : menus;
 
-    btn.onclick = (e) => {
+        if (currentEffectiveMenus && currentEffectiveMenus.length > 0) {
+            buildMenu(currentEffectiveMenus, false);
+            // Garantir que todos submenus fiquem ocultos ao montar
+            menuEl.querySelectorAll(".dropdown, .sub-dropdown").forEach(d => {
+                d.style.display = "none";
+            });
+        }
+    };
+
+    renderMenuContent();
+
+    const handleButtonClick = (e) => {
         e.stopPropagation();
+        const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
+            ? Desktop.getEffectiveStartMenus()
+            : menus;
+
+        if (!currentEffectiveMenus || currentEffectiveMenus.length === 0) {
+            return;
+        }
+
         const app = document.getElementById("app");
         const isMobile = (Desktop && typeof Desktop.isMobile === 'function' && Desktop.isMobile()) ||
                          app?.classList.contains("mobile-mode") ||
                          window.innerWidth <= 768;
         if (isMobile) {
-            menuEl.classList.remove("show");
+            closeStartMenu();
             openMobileMenuDrawer({
-                menus,
+                menus: currentEffectiveMenus,
                 title: "Início",
                 icon: "☰"
             });
             return;
         }
-        menuEl.classList.toggle("show");
+        if (menuEl.classList.contains("show")) {
+            closeStartMenu();
+        } else {
+            // Posicionamento dinâmico ancorado ao botão que disparou
+            const btnEl = e.currentTarget || e.target;
+            const btnRect = btnEl ? btnEl.getBoundingClientRect() : null;
+            const tbPos = app?.dataset?.taskbar || (Desktop && typeof Desktop.getTaskbarPosition === 'function' ? Desktop.getTaskbarPosition() : 'bottom');
+            
+            // Limpa propriedades anteriores
+            menuEl.style.removeProperty("top");
+            menuEl.style.removeProperty("bottom");
+            menuEl.style.removeProperty("left");
+            menuEl.style.removeProperty("right");
+
+            if (btnRect) {
+                const pad = 4;
+                if (tbPos === "left") {
+                    menuEl.style.setProperty("top", `${Math.max(4, btnRect.top)}px`, "important");
+                    menuEl.style.setProperty("left", `${btnRect.right + pad}px`, "important");
+                    menuEl.style.setProperty("bottom", "auto", "important");
+                    menuEl.style.setProperty("right", "auto", "important");
+                } else if (tbPos === "right") {
+                    menuEl.style.setProperty("top", `${Math.max(4, btnRect.top)}px`, "important");
+                    menuEl.style.setProperty("right", `${(window.innerWidth - btnRect.left) + pad}px`, "important");
+                    menuEl.style.setProperty("left", "auto", "important");
+                    menuEl.style.setProperty("bottom", "auto", "important");
+                } else if (tbPos === "top") {
+                    menuEl.style.setProperty("top", `${btnRect.bottom + pad}px`, "important");
+                    menuEl.style.setProperty("left", `${Math.max(4, btnRect.left)}px`, "important");
+                    menuEl.style.setProperty("bottom", "auto", "important");
+                    menuEl.style.setProperty("right", "auto", "important");
+                } else {
+                    // bottom
+                    menuEl.style.setProperty("bottom", `${(window.innerHeight - btnRect.top) + pad}px`, "important");
+                    menuEl.style.setProperty("left", `${Math.max(4, btnRect.left)}px`, "important");
+                    menuEl.style.setProperty("top", "auto", "important");
+                    menuEl.style.setProperty("right", "auto", "important");
+                }
+            }
+
+            menuEl.classList.add("show");
+        }
     };
 
+    const attachButtonListener = () => {
+        const targetIds = [buttonId, "startBtn", "taskStartBtn"].filter(Boolean);
+        for (const id of targetIds) {
+            const el = document.getElementById(id);
+            if (el && !el._startMenuBound) {
+                el.onclick = handleButtonClick;
+                el._startMenuBound = true;
+            }
+        }
+    };
+
+    attachButtonListener();
+
+    // Sincroniza dinamicamente quando o Desktop emite sincronização de menus
+    import('./core.js').then(({ EventBus }) => {
+        EventBus.on("startmenu:sync", (data) => {
+            renderMenuContent();
+            attachButtonListener();
+        });
+    });
+
     document.addEventListener("click", e => {
-        if (!menuEl.contains(e.target) && e.target !== btn) {
-            menuEl.classList.remove("show");
+        const currentBtn = document.getElementById(buttonId) || document.querySelector('.taskStart[data-role="start-button"]');
+        if (!menuEl.contains(e.target) && (!currentBtn || e.target !== currentBtn && !currentBtn.contains(e.target))) {
+            closeStartMenu();
         }
     });
     

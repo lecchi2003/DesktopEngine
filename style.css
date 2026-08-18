@@ -875,9 +875,9 @@ select {
 
 /* StartMenu no Rodapé (Taskbar: Bottom): o menu principal sobe e os submenus alinham pela base */
 #app[data-taskbar="bottom"]>.ui-start-menu {
-    bottom: 40px !important;
-    top: auto !important;
-    left: 5px !important;
+    bottom: 40px;
+    top: auto;
+    left: 5px;
 }
 
 #app[data-taskbar="bottom"]>.ui-start-menu .dropdown.sub-dropdown {
@@ -889,9 +889,9 @@ select {
 
 /* StartMenu no Topo (Taskbar: Top): o menu principal desce e os submenus alinham pelo topo */
 #app[data-taskbar="top"]>.ui-start-menu {
-    top: 40px !important;
-    bottom: auto !important;
-    left: 5px !important;
+    top: 40px;
+    bottom: auto;
+    left: 5px;
 }
 
 #app[data-taskbar="top"]>.ui-start-menu .dropdown.sub-dropdown {
@@ -903,9 +903,9 @@ select {
 
 /* StartMenu na Esquerda (Taskbar: Left) */
 #app[data-taskbar="left"]>.ui-start-menu {
-    top: 5px !important;
-    left: 74px !important;
-    bottom: auto !important;
+    top: 5px;
+    left: 74px;
+    bottom: auto;
 }
 
 #app[data-taskbar="left"]>.ui-start-menu .dropdown.sub-dropdown {
@@ -917,9 +917,9 @@ select {
 
 /* StartMenu na Direita (Taskbar: Right) */
 #app[data-taskbar="right"]>.ui-start-menu {
-    top: 5px !important;
-    right: 74px !important;
-    bottom: auto !important;
+    top: 5px;
+    right: 74px;
+    bottom: auto;
 }
 
 #app[data-taskbar="right"]>.ui-start-menu .dropdown.sub-dropdown {
