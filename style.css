@@ -1851,19 +1851,6 @@ textarea:focus,
 }
 
 .ui-table-wrapper {
-    overflow-x: auto;
-    background: var(--win-bg);
-    border: 1px solid var(--win-border);
-    border-radius: 6px;
-}
-
-.ui-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.ui-table-wrapper {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -8406,6 +8393,9 @@ select option {
     padding: 12px !important;
     box-sizing: border-box !important;
     width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
 }
 
 #app.mobile-mode .window .statusbar {
@@ -8487,6 +8477,57 @@ select option {
     max-width: 100% !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
+}
+
+/* Scroll horizontal em tabelas e datagrid no mobile */
+#app.mobile-mode .ui-table-wrapper {
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#app.mobile-mode .ui-table-wrapper > .ui-table,
+#app.mobile-mode .ui-table-wrapper > .ui-datagrid {
+    /* A tabela em si não é scrollável — o wrapper de scroll é inserido abaixo */
+}
+
+/* Wrapper interno para scroll horizontal da tabela (thead + tbody) */
+#app.mobile-mode .ui-table-scroll {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Fallback direto: se a tabela estiver dentro do windowBody sem wrapper específico */
+#app.mobile-mode .window .windowBody table,
+#app.mobile-mode .window .windowBody .ui-table,
+#app.mobile-mode .window .windowBody .ui-datagrid {
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-width: 100% !important;
+    width: max-content !important;
+    min-width: 100% !important;
+}
+
+/* Garante que thead e tbody herdem display correto dentro do scroll */
+#app.mobile-mode .window .windowBody table thead,
+#app.mobile-mode .window .windowBody table tbody,
+#app.mobile-mode .window .windowBody .ui-table thead,
+#app.mobile-mode .window .windowBody .ui-table tbody,
+#app.mobile-mode .window .windowBody .ui-datagrid thead,
+#app.mobile-mode .window .windowBody .ui-datagrid tbody {
+    display: table-header-group !important;
+    width: 100% !important;
+}
+#app.mobile-mode .window .windowBody table tbody,
+#app.mobile-mode .window .windowBody .ui-table tbody,
+#app.mobile-mode .window .windowBody .ui-datagrid tbody {
+    display: table-row-group !important;
 }
 
 #app.mobile-mode .window-menubar {
