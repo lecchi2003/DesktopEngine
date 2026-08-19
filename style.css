@@ -8015,13 +8015,20 @@ h2 {
         overflow-y: auto !important;
     }
 
+    .window.is-contained-child,
     .is-contained-child {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        left: 0 !important;
-        top: 0 !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 92% !important;
+        max-width: 92% !important;
+        height: auto !important;
+        max-height: 90% !important;
+        margin: 0 !important;
+        z-index: 250 !important;
         box-sizing: border-box !important;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--primary, #2563eb) !important;
     }
 
     /* Taskbar Mobile */
@@ -8307,13 +8314,20 @@ h2 {
     overflow-y: auto !important;
 }
 
+#app.mobile-mode .window.is-contained-child,
 #app.mobile-mode .is-contained-child {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 92% !important;
+    max-width: 92% !important;
+    height: auto !important;
+    max-height: 90% !important;
+    margin: 0 !important;
+    z-index: 250 !important;
     box-sizing: border-box !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--primary, #2563eb) !important;
 }
 
 #app.mobile-mode #taskbar {
