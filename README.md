@@ -1094,12 +1094,12 @@ Você pode controlar se a janela filha deve se movimentar livremente pelo deskto
 ---
 
 #### `ContextMenu` & `bindContextMenu`
-Adiciona menus de contexto flutuantes com suporte nativo a **submenus aninhados (`items: [...]`)**, ícones, atalhos, separadores e prevenção de colisão de tela:
+Adiciona menus de contexto flutuantes com suporte nativo a **submenus aninhados (`items: [...]`)**, ícones, atalhos, separadores e prevenção de colisão de tela. Permite configurar teclas de atalho/modificadoras (ex: `"alt"`, `"ctrl"`, `"shift"`, `"meta"`) para ignorar o menu customizado e exibir o menu nativo do navegador (a tecla `"shift"` já vem ativa por padrão em todo o framework).
 
 ```javascript
 import { ContextMenu, bindContextMenu } from './ui.js';
 
-// 1. Vinculando menu de contexto a um elemento com submenus:
+// 1. Vinculando menu de contexto a um elemento com propriedades de atalho nativo:
 bindContextMenu(meuElemento, [
     { label: "Abrir em Nova Janela", icon: "🪟", action: () => console.log("Abrir") },
     {
@@ -1113,7 +1113,9 @@ bindContextMenu(meuElemento, [
     },
     "separator",
     { label: "Excluir", icon: "🗑️", action: () => meuElemento.remove() }
-]);
+], {
+    allowNativeKey: "shift" // Recomendado: Abre o menu nativo do navegador pressionando Shift + Clique Direito (mais estável)
+});
 
 // 2. Invocação manual por coordenadas (ex: desktop):
 ContextMenu({
@@ -1124,6 +1126,23 @@ ContextMenu({
         lookAndFeelsItensVar
     ]
 });
+
+// 3. Associação declarativa em componentes do framework (Card, DataGrid, Button, etc.):
+const gridEl = DataGrid({
+    bindData: "clientes",
+    instance: this,
+    columns: [ ... ],
+    contextMenu: [
+        { label: "Exportar para CSV", action: () => exportar() },
+        { label: "Imprimir Relatório", action: () => printElement(gridEl) }
+    ]
+});
+
+// 4. Associação programática uniforme via método setContextMenu:
+meuComponente.setContextMenu([
+    { label: "Recarregar", action: () => atualizar() }
+]);
+meuComponente.setContextMenu(null); // Remove o menu de contexto do elemento
 ```
 
 ---
@@ -1395,6 +1414,58 @@ EventBus.on("laf:change", (lafName) => {
 | **Desktops Unix & Abertos** | `"breeze-plasma"` | Breeze Plasma | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
 | **Console & Sci-Fi** | `"turbo-tui"` | DOS TUI Console | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
 | **Console & Sci-Fi** | `"cyberpunk-neon"` | Cyber Neon HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
+
+### 9. Comunicação Inter-telas Peer-to-Peer (EventBus)
+
+Para enviar dados ou mensagens entre telas de forma completamente desacoplada (sem relacionamento pai-filho), o framework fornece o `EventBus` global. É um barramento pub/sub reativo que suporta sincronização automática e transparente inclusive entre abas diferentes do navegador usando LocalStorage:
+
+```javascript
+import { EventBus } from './core.js';
+
+// 1. Tela Emissora
+const TelaA = {
+    title: "Emissor Alfa",
+    state: { mensagem: "" },
+    actions: {
+        enviar: [(ctx) => {
+            EventBus.emit("canal:comunicacao", ctx.state.mensagem);
+            ctx.state.mensagem = "";
+            ctx.instance.update();
+        }]
+    },
+    view() {
+        return createElement("div", "", [
+            Input({ bind: "mensagem", instance: this }),
+            Button({ text: "Enviar", onClick: "enviar", instance: this })
+        ]);
+    }
+};
+
+// 2. Tela Receptora
+const TelaB = {
+    title: "Receptor Beta",
+    state: { historico: [] },
+    onMount() {
+        // Escuta o canal e atualiza o estado
+        this._handler = (payload) => {
+            this.state.historico.push(payload);
+            this.update(); // Re-renderiza a tela com o novo histórico
+        };
+        EventBus.on("canal:comunicacao", this._handler);
+    },
+    onDestroy() {
+        // Remove a escuta ao fechar a janela para liberar memória
+        if (this._handler) {
+            EventBus.off("canal:comunicacao", this._handler);
+        }
+    },
+    view() {
+        return createElement("div", "", 
+            this.state.historico.map(msg => createElement("p", "", [msg]))
+        );
+    }
+};
+```
 
 ---
 

@@ -4,6 +4,26 @@ import { EventBus } from './core.js';
 
 export function createElement(tag, arg2, arg3) {
     const el = document.createElement(tag);
+    
+    // Anexa a API programática de menu de contexto a todo elemento criado no framework
+    el.setContextMenu = (items) => {
+        if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+            el._contextMenuController.destroy();
+        }
+        if (items) {
+            let menuItems = items;
+            let menuOptions = {};
+            if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
+                menuItems = items.items;
+                menuOptions = items;
+            }
+            el._contextMenuController = bindContextMenu(el, menuItems, menuOptions);
+        } else {
+            el._contextMenuController = null;
+        }
+        return el._contextMenuController;
+    };
+
     let children = [];
     let pendingProps = null;
 
@@ -65,6 +85,8 @@ export function createElement(tag, arg2, arg3) {
                 el.style.cssText = val;
             } else if (key === 'style' && typeof val === 'object') {
                 Object.assign(el.style, val);
+            } else if (key === 'contextMenu' || key === 'contextmenu') {
+                el.setContextMenu(val);
             } else if (key.startsWith('on') && typeof val === 'function') {
                 const eventName = key.slice(2).toLowerCase();
                 el.addEventListener(eventName, val);
@@ -76,6 +98,51 @@ export function createElement(tag, arg2, arg3) {
         });
     }
 
+    return el;
+}
+
+export function applyCommonProps(el, props) {
+    if (!el || !props) return el;
+    
+    // Suporte ao setContextMenu programático
+    if (!el.setContextMenu) {
+        el.setContextMenu = (items) => {
+            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+                el._contextMenuController.destroy();
+            }
+            if (items) {
+                let menuItems = items;
+                let menuOptions = {};
+                if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
+                    menuItems = items.items;
+                    menuOptions = items;
+                }
+                el._contextMenuController = bindContextMenu(el, menuItems, menuOptions);
+            } else {
+                el._contextMenuController = null;
+            }
+            return el._contextMenuController;
+        };
+    }
+
+    if (props.contextMenu || props.contextmenu) {
+        el.setContextMenu(props.contextMenu || props.contextmenu);
+    }
+    if (props.id) el.id = props.id;
+    
+    if (props.style) {
+        if (typeof props.style === 'string') {
+            el.style.cssText = (el.style.cssText || "") + ";" + props.style;
+        } else {
+            Object.assign(el.style, props.style);
+        }
+    }
+    
+    if (props.className || props.class) {
+        const cls = props.className || props.class;
+        el.className = (el.className || "") + " " + cls;
+    }
+    
     return el;
 }
 
@@ -157,29 +224,34 @@ export function printElement(element, options = {}) {
     }, 500);
 }
 
-export function Row({ children = [], style = "" }) {
+export function Row(options = {}) {
+    const { children = [], style = "" } = options;
     const el = createElement("div", "ui-row", children);
     if (style) el.style.cssText = style;
-    return el;
+    return applyCommonProps(el, options);
 }
 
-export function Col({ children = [], style = "" }) {
+export function Col(options = {}) {
+    const { children = [], style = "" } = options;
     const el = createElement("div", "ui-col", children);
     if (style) el.style.cssText = style;
-    return el;
+    return applyCommonProps(el, options);
 }
 
-export function Grid({ children = [], columns = 2 }) {
+export function Grid(options = {}) {
+    const { children = [], columns = 2 } = options;
     const el = createElement("div", "ui-grid", children);
     el.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-    return el;
+    return applyCommonProps(el, options);
 }
 
-export function Card({ title, children = [] }) {
+export function Card(options = {}) {
+    const { title, children = [] } = options;
     const content = [];
     if (title) content.push(createElement("h3", "ui-card-title", [title]));
     content.push(...children);
-    return createElement("div", "ui-card", content);
+    const el = createElement("div", "ui-card", content);
+    return applyCommonProps(el, options);
 }
 
 export function Form({ fields = [], actions = [] }) {
@@ -241,17 +313,19 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
     return wrap;
 }
 
-export function Button({ text, onClick, instance, variant = "primary" }) {
+export function Button(options = {}) {
+    const { text, onClick, instance, variant = "primary" } = options;
     const btn = createElement("button", `ui-btn ui-btn-${variant}`, [text]);
     if (onClick && instance) {
         btn.addEventListener("click", () => instance.runAction(onClick));
     } else if (typeof onClick === "function") {
         btn.addEventListener("click", onClick);
     }
-    return btn;
+    return applyCommonProps(btn, options);
 }
 
-export function Table({ columns = [], data = [] }) {
+export function Table(options = {}) {
+    const { columns = [], data = [] } = options;
     const thead = createElement("thead", "", [
         createElement("tr", "", columns.map(c => createElement("th", "", [c.label || c])))
     ]);
@@ -269,7 +343,8 @@ export function Table({ columns = [], data = [] }) {
         }));
     });
     const table = createElement("table", "ui-table", [thead, createElement("tbody", "", rows)]);
-    return createElement("div", "ui-table-wrapper", [table]);
+    const wrapper = createElement("div", "ui-table-wrapper", [table]);
+    return applyCommonProps(wrapper, options);
 }
 
 export function Tabs({ tabs = [], instance, activeTabBind }) {
@@ -633,12 +708,33 @@ export function ContextMenu({ x, y, items = [] }) {
     return rootMenu;
 }
 
-export function bindContextMenu(element, items = []) {
+export function bindContextMenu(element, items = [], options = {}) {
     if (!element) return null;
     let currentItems = items;
+    let opt = options || {};
+
+    // Se items for um objeto com a estrutura { items, allowNativeKey, ... }
+    if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
+        currentItems = items.items;
+        opt = { ...items, ...options };
+    }
+
+    const allowNativeKey = opt.allowNativeKey !== undefined ? opt.allowNativeKey : "shift";
 
     // Clique do botão direito padrão (Desktop)
     const onContextMenu = (e) => {
+        // Se a tecla configurada estiver pressionada, ignora o menu do framework e exibe o menu nativo do navegador
+        let shouldBypass = false;
+        if (allowNativeKey && allowNativeKey !== "none" && allowNativeKey !== "false") {
+            const key = String(allowNativeKey).toLowerCase();
+            if (key === "alt" && e.altKey) shouldBypass = true;
+            else if (key === "ctrl" && e.ctrlKey) shouldBypass = true;
+            else if (key === "shift" && e.shiftKey) shouldBypass = true;
+            else if (key === "meta" && e.metaKey) shouldBypass = true;
+        }
+
+        if (shouldBypass) return;
+
         e.preventDefault();
         e.stopPropagation();
         
@@ -1751,7 +1847,8 @@ export function DraggableList({ bindItems, onReorder, instance }) {
     return wrap;
 }
 
-export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, serverSide = false, bindTotalPages = null, onPageChange = null }) {
+export function DataGrid(options = {}) {
+    const { columns = [], bindData, instance, itemsPerPage = 5, serverSide = false, bindTotalPages = null, onPageChange = null } = options;
     if (!instance.state._gridState) instance.state._gridState = {};
     if (!instance.state._gridState[bindData]) {
         instance.state._gridState[bindData] = { sortKey: null, sortDesc: false, filters: {}, currentPage: 1 };
@@ -1919,7 +2016,8 @@ export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, s
     paginationWrapper.appendChild(info);
     paginationWrapper.appendChild(btnGroup);
 
-    return createElement("div", "ui-table-wrapper", [table, paginationWrapper]);
+    const wrapper = createElement("div", "ui-table-wrapper", [table, paginationWrapper]);
+    return applyCommonProps(wrapper, options);
 }
 
 // --- COMPONENTES DE FEEDBACK E NOTIFICAÇÕES (GRUPO 1) ---

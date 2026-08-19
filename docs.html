@@ -2889,12 +2889,12 @@ Desktop.loadConfig({
             </div>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
-            <p>Adiciona menus de contexto flutuantes com suporte a <strong>submenus aninhados (<code>items: [...]</code>)</strong>, separadores, ícones, atalhos de teclado e proteção nativa contra colisão de bordas:</p>
+            <p>Adiciona menus de contexto flutuantes com suporte a <strong>submenus aninhados (<code>items: [...]</code>)</strong>, separadores, ícones, atalhos de teclado e proteção nativa contra colisão de bordas. Permite configurar teclas de atalho/modificadoras (ex: <code>"alt"</code>, <code>"ctrl"</code>, <code>"shift"</code>, <code>"meta"</code>) para ignorar o menu customizado e exibir o menu nativo do navegador (a tecla <strong><code>"shift"</code></strong> já vem ativa por padrão em todo o framework).</p>
 
             <div class="code-box">
                 <pre><code>import { ContextMenu, bindContextMenu } from './ui.js';
 
-// 1. Vinculando menu de contexto a um elemento com submenus aninhados
+// 1. Vinculando menu de contexto a um elemento com propriedades de atalho nativo
 bindContextMenu(meuCardEl, [
     { label: "Abrir em Nova Janela", icon: "🪟", action: () => console.log("Abrir") },
     {
@@ -2908,7 +2908,9 @@ bindContextMenu(meuCardEl, [
     },
     "separator",
     { label: "Excluir Registro", icon: "🗑️", action: () => meuCardEl.remove() }
-]);
+], {
+    allowNativeKey: "shift" // Recomendado: Abre o menu nativo do navegador pressionando Shift + Clique Direito (mais estável)
+});
 
 // 2. Invocação direta por coordenadas (ex: desktop)
 document.getElementById("desktop").addEventListener("contextmenu", (e) => {
@@ -2921,7 +2923,75 @@ document.getElementById("desktop").addEventListener("contextmenu", (e) => {
             { label: "Aparência", items: lookAndFeelsItensVar }
         ]
     });
-});</code></pre>
+});
+
+// 3. Declarativo em qualquer Componente do Framework (Card, DataGrid, Button, etc.)
+const gridEl = DataGrid({
+    bindData: "clientes",
+    instance: this,
+    columns: [ ... ],
+    contextMenu: [
+        { label: "Exportar para CSV", action: () => exportar() },
+        { label: "Imprimir Relatório", action: () => printElement(gridEl) }
+    ]
+});
+
+// 4. Programático via instância de Componente ou Elemento criado por createElement
+meuCard.setContextMenu([
+    { label: "Recarregar Dados", action: () => atualizar() }
+]);
+meuCard.setContextMenu(null); // Remove o menu de contexto do elemento</code></pre>
+            </div>
+
+            <h2 id="eventbus-p2p">Comunicação Inter-telas Peer-to-Peer (EventBus)</h2>
+            <p>Para enviar dados ou mensagens entre telas arbitrárias sem qualquer acoplamento de hierarquia (sem relacionamento pai-filho), o framework disponibiliza o <code>EventBus</code> global. É um barramento pub/sub reativo que suporta sincronização automática e transparente inclusive entre abas diferentes do navegador usando LocalStorage:</p>
+
+            <div class="code-box">
+                <pre><code>import { EventBus } from './core.js';
+
+// 1. Tela Emissora
+const TelaA = {
+    title: "Emissor Alfa",
+    state: { mensagem: "" },
+    actions: {
+        enviar: [(ctx) => {
+            EventBus.emit("canal:comunicacao", ctx.state.mensagem);
+            ctx.state.mensagem = "";
+            ctx.instance.update();
+        }]
+    },
+    view() {
+        return createElement("div", "", [
+            Input({ bind: "mensagem", instance: this }),
+            Button({ text: "Enviar", onClick: "enviar", instance: this })
+        ]);
+    }
+};
+
+// 2. Tela Receptora
+const TelaB = {
+    title: "Receptor Beta",
+    state: { historico: [] },
+    onMount() {
+        // Escuta o canal e atualiza o estado
+        this._handler = (payload) => {
+            this.state.historico.push(payload);
+            this.update(); // Re-renderiza a tela com o novo histórico
+        };
+        EventBus.on("canal:comunicacao", this._handler);
+    },
+    onDestroy() {
+        // Remove a escuta ao fechar a janela para liberar memória
+        if (this._handler) {
+            EventBus.off("canal:comunicacao", this._handler);
+        }
+    },
+    view() {
+        return createElement("div", "", 
+            this.state.historico.map(msg => createElement("p", "", [msg]))
+        );
+    }
+};</code></pre>
             </div>
 
             <h2 id="modo-mobile">Modo Mobile &amp; Responsivo (Stacked Windows, Drawer &amp; Bottom Sheet)</h2>

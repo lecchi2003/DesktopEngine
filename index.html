@@ -12,7 +12,7 @@
     <div id="app"></div>
 
     <script type="module">
-        import { Framework } from './core.js';
+        import { Framework, EventBus } from './core.js';
         import { Desktop } from './desktop.js';
         import {
             MenuBar, StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
@@ -128,7 +128,10 @@
                     { label: "Navegador Web (Window MenuBar)", screen: "browser" },
                     { label: "Formulários e Cadastros", screen: "forms" },
                     { label: "Gerenciador de Tarefas", screen: "tasks" },
-                    { label: "Showcase de Componentes", screen: "showcase" }
+                    { label: "Showcase de Componentes", screen: "showcase" },
+                    "separator",
+                    { label: "📟 Terminal Alfa (P2P EventBus)", screen: "terminal_alfa" },
+                    { label: "📟 Terminal Beta (P2P EventBus)", screen: "terminal_beta" }
                 ]
             },
             {
@@ -237,6 +240,10 @@
             "separator",
             { label: "Abrir Painel (Lazy)", screen: "dashboard" },
             { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
+            "separator",
+            { label: "📟 Abrir Terminal Alfa (P2P)", screen: "terminal_alfa" },
+            { label: "📟 Abrir Terminal Beta (P2P)", screen: "terminal_beta" },
+            "separator",
             lookAndFeelsItensVar
         ];
 
@@ -249,7 +256,10 @@
             clock: { format: "pt-BR", showSeconds: true },
             menuBar: globalSystemMenus,
             startMenu: nativeStartMenus,
-            contextMenu: desktopContextMenus
+            contextMenu: {
+                items: desktopContextMenus,
+                allowNativeKey: "shift"
+            }
         });
 
         // --- TELAS DO SHOWCASE ---
@@ -830,6 +840,116 @@
             }
         };
 
+        const TerminalAlfaScreen = {
+            title: "Terminal Alfa (P2P)",
+            icon: "⚡",
+            width: 420,
+            height: 320,
+            singleInstance: true,
+            state: {
+                messageToSend: "",
+                receivedMessages: []
+            },
+            onMount() {
+                this._cb = (msg) => {
+                    this.state.receivedMessages.push(msg);
+                    this.update();
+                };
+                EventBus.on("p2p:to-alfa", this._cb);
+            },
+            onDestroy() {
+                if (this._cb) {
+                    EventBus.off("p2p:to-alfa", this._cb);
+                }
+            },
+            actions: {
+                send: [async (ctx) => {
+                    const text = ctx.state.messageToSend.trim();
+                    if (!text) return;
+                    const timestamp = new Date().toLocaleTimeString('pt-BR');
+                    const msg = `[${timestamp}] ⚡ Alfa: ${text}`;
+                    EventBus.emit("p2p:to-beta", msg);
+                    ctx.state.receivedMessages.push(`[${timestamp}] Eu: ${text}`);
+                    ctx.state.messageToSend = "";
+                    ctx.instance.update();
+                }]
+            },
+            view() {
+                const msgList = createElement("div", "", 
+                    this.state.receivedMessages.map(m => createElement("div", "", [m]))
+                );
+                msgList.style.cssText = "flex: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; font-family: monospace; font-size: 11px; height: 180px; border: 1px solid var(--win-border); display: flex; flex-direction: column; gap: 4px;";
+                
+                return createElement("div", "flex-col", [
+                    createElement("div", "", ["Envie uma mensagem em tempo real para o Terminal Beta."]),
+                    createElement("br", "", []),
+                    msgList,
+                    Row({
+                        style: "gap: 8px; align-items: flex-end;",
+                        children: [
+                            Input({ bind: "messageToSend", instance: this, placeholder: "Escreva algo...", style: "flex: 1;" }),
+                            Button({ text: "Enviar 🚀", onClick: "send", instance: this, variant: "primary" })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        const TerminalBetaScreen = {
+            title: "Terminal Beta (P2P)",
+            icon: "🔮",
+            width: 420,
+            height: 320,
+            singleInstance: true,
+            state: {
+                messageToSend: "",
+                receivedMessages: []
+            },
+            onMount() {
+                this._cb = (msg) => {
+                    this.state.receivedMessages.push(msg);
+                    this.update();
+                };
+                EventBus.on("p2p:to-beta", this._cb);
+            },
+            onDestroy() {
+                if (this._cb) {
+                    EventBus.off("p2p:to-beta", this._cb);
+                }
+            },
+            actions: {
+                send: [async (ctx) => {
+                    const text = ctx.state.messageToSend.trim();
+                    if (!text) return;
+                    const timestamp = new Date().toLocaleTimeString('pt-BR');
+                    const msg = `[${timestamp}] 🔮 Beta: ${text}`;
+                    EventBus.emit("p2p:to-alfa", msg);
+                    ctx.state.receivedMessages.push(`[${timestamp}] Eu: ${text}`);
+                    ctx.state.messageToSend = "";
+                    ctx.instance.update();
+                }]
+            },
+            view() {
+                const msgList = createElement("div", "", 
+                    this.state.receivedMessages.map(m => createElement("div", "", [m]))
+                );
+                msgList.style.cssText = "flex: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; font-family: monospace; font-size: 11px; height: 180px; border: 1px solid var(--win-border); display: flex; flex-direction: column; gap: 4px;";
+                
+                return createElement("div", "flex-col", [
+                    createElement("div", "", ["Envie uma mensagem em tempo real para o Terminal Alfa."]),
+                    createElement("br", "", []),
+                    msgList,
+                    Row({
+                        style: "gap: 8px; align-items: flex-end;",
+                        children: [
+                            Input({ bind: "messageToSend", instance: this, placeholder: "Escreva algo...", style: "flex: 1;" }),
+                            Button({ text: "Enviar 🚀", onClick: "send", instance: this, variant: "success" })
+                        ]
+                    })
+                ]);
+            }
+        };
+
         // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
         Desktop.registerScreens({
             // Hub de Arquiteturas
@@ -849,13 +969,16 @@
             // 2. Telas Registradas Diretamente (Objetos ou inline)
             "tasks": () => TaskScreen,
             "forms": () => FormsScreen,
-            "showcase": () => ComponentShowcaseScreen
+            "showcase": () => ComponentShowcaseScreen,
+            "terminal_alfa": () => TerminalAlfaScreen,
+            "terminal_beta": () => TerminalBetaScreen
         });
 
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
             Desktop.openScreen("hub_arquiteturas");
-            setTimeout(() => Desktop.openScreen("lifecycle_demo"), 150);
+            setTimeout(() => Desktop.openScreen("terminal_alfa"), 150);
+            setTimeout(() => Desktop.openScreen("terminal_beta"), 300);
         }, 100);
 
         // --- 1. DOCK WIDGET GLOBAL (ESTILO LINKEDIN MESSENGER / LOG DE EVENTOS) ---
