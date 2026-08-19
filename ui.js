@@ -799,6 +799,58 @@ export function bindContextMenu(element, items = [], options = {}) {
     };
 }
 
+// --- buildMobileItems: constrói lista de opções para drawers/sheets mobile ---
+function buildMobileItems(items, closeFn, windowInstance = null) {
+    const list = createElement("div", "drawer-item-list", []);
+    items.forEach(subItem => {
+        if (subItem === "separator") {
+            list.appendChild(createElement("div", "drawer-sep", []));
+        } else {
+            const optChildren = [];
+            if (subItem.icon) optChildren.push(createElement("span", "drawer-opt-icon", [subItem.icon]));
+            optChildren.push(createElement("span", "drawer-opt-label", [subItem.label || ""]));
+            if (subItem.items && subItem.items.length > 0) {
+                optChildren.push(createElement("span", "drawer-accordion-arrow", ["▼"]));
+            }
+
+            const opt = createElement("div", "drawer-option", optChildren);
+            if (subItem.disabled) opt.classList.add("disabled");
+
+            if (subItem.items && subItem.items.length > 0) {
+                opt.classList.add("drawer-has-sub");
+                const subList = buildMobileItems(subItem.items, closeFn, windowInstance);
+                subList.style.display = "none";
+
+                opt.onclick = (ev) => {
+                    ev.stopPropagation();
+                    const isOpen = subList.style.display === "flex";
+                    subList.style.display = isOpen ? "none" : "flex";
+                    opt.classList.toggle("expanded", !isOpen);
+                };
+
+                const group = createElement("div", "drawer-group", [opt, subList]);
+                list.appendChild(group);
+            } else {
+                opt.onclick = (ev) => {
+                    if (subItem.disabled) return;
+                    ev.stopPropagation();
+                    if (closeFn) closeFn();
+                    if (subItem.screen) {
+                        const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                        if (d && typeof d.openScreen === 'function') {
+                            d.openScreen(subItem.screen, subItem.props);
+                        }
+                    } else if (subItem.action) {
+                        subItem.action(windowInstance, ev);
+                    }
+                };
+                list.appendChild(opt);
+            }
+        }
+    });
+    return list;
+}
+
 // --- Mobile Hamburger & Drawer Engine Compartilhado ---
 export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal", icon = "📱", windowInstance = null } = {}) {
     document.querySelectorAll(".menubar-mobile-drawer-backdrop").forEach(d => d.remove());
@@ -823,56 +875,6 @@ export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal"
         if (e.target === backdrop) closeDrawer();
     };
 
-    const buildMobileItems = (items, closeFn) => {
-        const list = createElement("div", "drawer-item-list", []);
-        items.forEach(subItem => {
-            if (subItem === "separator") {
-                list.appendChild(createElement("div", "drawer-sep", []));
-            } else {
-                const optChildren = [];
-                if (subItem.icon) optChildren.push(createElement("span", "drawer-opt-icon", [subItem.icon]));
-                optChildren.push(createElement("span", "drawer-opt-label", [subItem.label || ""]));
-                if (subItem.items && subItem.items.length > 0) {
-                    optChildren.push(createElement("span", "drawer-accordion-arrow", ["▼"]));
-                }
-
-                const opt = createElement("div", "drawer-option", optChildren);
-                if (subItem.disabled) opt.classList.add("disabled");
-
-                if (subItem.items && subItem.items.length > 0) {
-                    opt.classList.add("drawer-has-sub");
-                    const subList = buildMobileItems(subItem.items, closeFn);
-                    subList.style.display = "none";
-
-                    opt.onclick = (ev) => {
-                        ev.stopPropagation();
-                        const isOpen = subList.style.display === "flex";
-                        subList.style.display = isOpen ? "none" : "flex";
-                        opt.classList.toggle("expanded", !isOpen);
-                    };
-
-                    const group = createElement("div", "drawer-group", [opt, subList]);
-                    list.appendChild(group);
-                } else {
-                    opt.onclick = (ev) => {
-                        if (subItem.disabled) return;
-                        ev.stopPropagation();
-                        if (closeFn) closeFn();
-                        if (subItem.screen) {
-                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
-                            if (d && typeof d.openScreen === 'function') {
-                                d.openScreen(subItem.screen, subItem.props);
-                            }
-                        } else if (subItem.action) {
-                            subItem.action(windowInstance, ev);
-                        }
-                    };
-                    list.appendChild(opt);
-                }
-            }
-        });
-        return list;
-    };
 
     const contentEl = drawer.querySelector(".drawer-content");
 
@@ -1050,7 +1052,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                 const group = createElement("div", "drawer-category-group", [catHeader]);
 
                 if (menu.items && menu.items.length > 0) {
-                    const subList = buildMobileItems(menu.items, closeSheet);
+                    const subList = buildMobileItems(menu.items, closeSheet, windowInstance);
                     subList.style.display = "none"; // Inicia recolhido em sanfona/accordion
 
                     catHeader.onclick = () => {
