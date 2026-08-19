@@ -6587,31 +6587,33 @@ h2 {
     border-radius: 8px;
 }
 
-/* Dropdowns / Popups do MenuBar global: sempre claros no aubergine-orange */
+/* StartMenu e Dropdowns / Popups: aubergine-orange (Ubuntu Yaru) */
+[data-laf="aubergine-orange"] .ui-start-menu,
 [data-laf="aubergine-orange"] .dropdown,
 [data-laf="aubergine-orange"] .menubar-dropdown,
 [data-laf="aubergine-orange"] .sub-dropdown {
-    background: #ffffff !important;
-    color: #1a1a1a !important;
-    border-color: #d0d0d0 !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+    background: #2c001e !important;
+    color: #ffffff !important;
+    border: 1px solid #4a1538 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
 }
 
 [data-laf="aubergine-orange"] .menuOption {
-    color: #1a1a1a !important;
+    color: #ffffff !important;
 }
 
-[data-laf="aubergine-orange"] .menuOption:hover {
-    background: #f5f0ee !important;
-    color: #e95420 !important;
+[data-laf="aubergine-orange"] .menuOption:hover,
+[data-laf="aubergine-orange"] .menuOption.active {
+    background: #e95420 !important;
+    color: #ffffff !important;
 }
 
 [data-laf="aubergine-orange"] .menuOption.disabled {
-    color: #aaaaaa !important;
+    color: #8a6a80 !important;
 }
 
 [data-laf="aubergine-orange"] .menu-separator {
-    border-color: #e0e0e0 !important;
+    border-color: #4a1538 !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -6750,7 +6752,8 @@ h2 {
     color: #2e3436;
 }
 
-/* Dropdowns / Popups: sempre claros neste LaF */
+/* StartMenu e Dropdowns / Popups: pantheon-pure */
+[data-laf="pantheon-pure"] .ui-start-menu,
 [data-laf="pantheon-pure"] .dropdown,
 [data-laf="pantheon-pure"] .menubar-dropdown,
 [data-laf="pantheon-pure"] .sub-dropdown {
@@ -6764,7 +6767,8 @@ h2 {
     color: #2e3436 !important;
 }
 
-[data-laf="pantheon-pure"] .menuOption:hover {
+[data-laf="pantheon-pure"] .menuOption:hover,
+[data-laf="pantheon-pure"] .menuOption.active {
     background: #e8f0fb !important;
     color: #3689e6 !important;
 }
@@ -7148,7 +7152,8 @@ h2 {
     color: #2c3e50;
 }
 
-/* Dropdowns / Popups: sempre claros no greybird-lite */
+/* StartMenu e Dropdowns / Popups: greybird-lite */
+[data-laf="greybird-lite"] .ui-start-menu,
 [data-laf="greybird-lite"] .dropdown,
 [data-laf="greybird-lite"] .menubar-dropdown,
 [data-laf="greybird-lite"] .sub-dropdown {
@@ -7162,7 +7167,8 @@ h2 {
     color: #2c3e50 !important;
 }
 
-[data-laf="greybird-lite"] .menuOption:hover {
+[data-laf="greybird-lite"] .menuOption:hover,
+[data-laf="greybird-lite"] .menuOption.active {
     background: #dde4ef !important;
     color: #398ee7 !important;
 }
