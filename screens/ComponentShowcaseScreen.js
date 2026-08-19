@@ -73,10 +73,6 @@ export default {
             document.documentElement.setAttribute('data-theme', this.state.tema);
         }
 
-        const lafList = (Desktop.getAvailableLookAndFeels ? Desktop.getAvailableLookAndFeels() : []).map(l => ({
-            label: `${l.icon} ${l.label} (${l.category})`,
-            value: l.id
-        }));
 
         return createElement("div", "", [
             Drawer({
@@ -119,13 +115,27 @@ export default {
                             Card({
                                 title: "Formulários & Temas do Sistema", children: [
                                     Select({
-                                        label: "Look and Feel do Sistema (34 Skins Disponíveis)",
+                                        label: "Look and Feel do Sistema",
                                         bind: "laf",
                                         instance: this,
-                                        options: lafList,
+                                        options: (() => {
+                                            const all = Desktop.getAvailableLookAndFeels ? Desktop.getAvailableLookAndFeels() : [];
+                                            const categories = {};
+                                            all.forEach(l => {
+                                                if (!categories[l.category]) categories[l.category] = [];
+                                                categories[l.category].push(l);
+                                            });
+                                            const result = [];
+                                            Object.entries(categories).forEach(([cat, items]) => {
+                                                result.push({ label: `─── ${cat} ───`, value: "__sep__", disabled: true });
+                                                items.forEach(l => result.push({ label: `${l.icon} ${l.label}`, value: l.id }));
+                                            });
+                                            return result;
+                                        })(),
                                         onChange: (val) => {
+                                            if (val === "__sep__") return;
                                             if (Desktop.setLookAndFeel) Desktop.setLookAndFeel(val);
-                                            Toast({ message: `Look and Feel alterado para: ${val}`, type: "info" });
+                                            Toast({ message: `LaF alterado: ${val}`, type: "info" });
                                         }
                                     }),
                                     Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
