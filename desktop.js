@@ -669,10 +669,35 @@ export const Desktop = {
 
     toggleWindow(w) {
         if (!w || !document.body.contains(w)) return;
+
+        // --- Modo Mobile: scroll até a janela + efeito de destaque ---
+        if (this.isMobile()) {
+            if (w.classList.contains("minimized")) {
+                this.restoreWindow(w);
+            }
+            this.focusWindow(w);
+
+            // Scroll suave até a janela
+            setTimeout(() => {
+                try {
+                    w.scrollIntoView({ behavior: "smooth", block: "start" });
+                } catch (e) {}
+            }, 30);
+
+            // Efeito de highlight: ring + glow pulsante por 1.2s
+            w.classList.remove("mobile-highlight");
+            void w.offsetWidth; // force reflow para reiniciar a animação
+            w.classList.add("mobile-highlight");
+            setTimeout(() => w.classList.remove("mobile-highlight"), 1400);
+            return;
+        }
+
+        // --- Modo Desktop: comportamento original ---
         if (w.classList.contains("minimized")) this.restoreWindow(w);
         else if (w.style.zIndex == this.zCounter || +w.style.zIndex >= this.zCounter - 1) this.minimizeWindow(w);
         else this.focusWindow(w);
     },
+
 
     showDesktop() {
         const visible = [...document.querySelectorAll(".window:not(.minimized)")];
