@@ -214,7 +214,7 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
     return wrap;
 }
 
-export function Textarea({ label, bind, instance, placeholder = "", rows = 4, width = "100%", style = "" }) {
+export function Textarea({ label, bind, instance, placeholder = "", rows = 4, width = "100%", style = "", inputStyle = "" }) {
     const wrap = createElement("div", "ui-field");
     if (width !== "100%") wrap.style.width = width;
     if (style) wrap.style.cssText += style;
@@ -225,6 +225,7 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
     txt.className = "filter-input";
     txt.rows = rows;
     txt.placeholder = placeholder;
+    if (inputStyle) txt.style.cssText += inputStyle;
     if (bind && instance) {
         txt.dataset.bind = bind;
         txt.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
@@ -597,6 +598,9 @@ export function ContextMenu({ x, y, items = [] }) {
         return container;
     }
 
+    // Remove qualquer outro menu de contexto previamente aberto
+    document.querySelectorAll('.ui-context-menu').forEach(m => m.remove());
+
     rootMenu = buildDesktopMenu(items, false);
     rootMenu.style.left = x + "px";
     rootMenu.style.top = y + "px";
@@ -615,36 +619,43 @@ export function ContextMenu({ x, y, items = [] }) {
     requestAnimationFrame(() => rootMenu.classList.add("show"));
     setTimeout(() => {
         const closeMenu = (e) => {
-            if (!rootMenu.contains(e.target)) {
-                rootMenu.remove();
-                document.removeEventListener("click", closeMenu);
-                document.removeEventListener("contextmenu", closeMenu);
+            if (!rootMenu || !rootMenu.contains(e.target)) {
+                if (rootMenu) rootMenu.remove();
+                document.removeEventListener("click", closeMenu, true);
+                document.removeEventListener("contextmenu", closeMenu, true);
+                document.removeEventListener("pointerdown", closeMenu, true);
             }
         };
-        document.addEventListener("click", closeMenu);
-        document.addEventListener("contextmenu", closeMenu);
+        document.addEventListener("click", closeMenu, true);
+        document.addEventListener("contextmenu", closeMenu, true);
+        document.addEventListener("pointerdown", closeMenu, true);
     }, 10);
     return rootMenu;
 }
 
 export function bindContextMenu(element, items = []) {
+    if (!element) return null;
+    let currentItems = items;
+
     // Clique do botão direito padrão (Desktop)
-    element.addEventListener("contextmenu", (e) => {
+    const onContextMenu = (e) => {
         e.preventDefault();
         e.stopPropagation();
         
         // Se os itens forem uma função, permite gerar os itens dinamicamente
-        const menuItems = typeof items === 'function' ? items(e) : items;
+        const menuItems = typeof currentItems === 'function' ? currentItems(e) : currentItems;
         if (!menuItems || menuItems.length === 0) return;
         
         ContextMenu({ x: e.clientX, y: e.clientY, items: menuItems });
-    });
+    };
+
+    element.addEventListener("contextmenu", onContextMenu);
 
     // Suporte nativo a Long-Press Touch para Mobile
     let touchTimer = null;
     let startX = 0, startY = 0;
 
-    element.addEventListener("touchstart", (e) => {
+    const onTouchStart = (e) => {
         if (e.touches.length !== 1) return;
         const touch = e.touches[0];
         startX = touch.clientX;
@@ -653,29 +664,43 @@ export function bindContextMenu(element, items = []) {
         touchTimer = setTimeout(() => {
             touchTimer = null;
             if (navigator.vibrate) try { navigator.vibrate(40); } catch(err) {}
-            const menuItems = typeof items === 'function' ? items(touch) : items;
+            const menuItems = typeof currentItems === 'function' ? currentItems(touch) : currentItems;
             if (menuItems && menuItems.length > 0) {
                 ContextMenu({ x: touch.clientX, y: touch.clientY, items: menuItems });
             }
         }, 450);
-    }, { passive: true });
+    };
 
-    element.addEventListener("touchmove", (e) => {
+    const onTouchMove = (e) => {
         if (!touchTimer) return;
         const touch = e.touches[0];
         if (Math.hypot(touch.clientX - startX, touch.clientY - startY) > 10) {
             clearTimeout(touchTimer);
             touchTimer = null;
         }
-    }, { passive: true });
+    };
 
-    element.addEventListener("touchend", () => {
+    const onTouchEnd = () => {
         if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
-    }, { passive: true });
+    };
 
-    element.addEventListener("touchcancel", () => {
-        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
-    }, { passive: true });
+    element.addEventListener("touchstart", onTouchStart, { passive: true });
+    element.addEventListener("touchmove", onTouchMove, { passive: true });
+    element.addEventListener("touchend", onTouchEnd, { passive: true });
+    element.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
+    return {
+        update(newItems) {
+            currentItems = newItems;
+        },
+        destroy() {
+            element.removeEventListener("contextmenu", onContextMenu);
+            element.removeEventListener("touchstart", onTouchStart);
+            element.removeEventListener("touchmove", onTouchMove);
+            element.removeEventListener("touchend", onTouchEnd);
+            element.removeEventListener("touchcancel", onTouchEnd);
+        }
+    };
 }
 
 // --- Mobile Hamburger & Drawer Engine Compartilhado ---
@@ -1143,6 +1168,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
         item.onmousedown = (e) => {
             if (e.target.closest(".ui-start-menu") || e.target.closest(".dropdown")) return;
 
+            document.querySelectorAll('.ui-context-menu').forEach(m => m.remove());
             e.stopPropagation();
             if (item.classList.contains("active")) {
                 item.classList.remove("active");
@@ -1343,6 +1369,7 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 
     const handleButtonClick = (e) => {
         e.stopPropagation();
+        document.querySelectorAll('.ui-context-menu').forEach(m => m.remove());
         renderMenuContent();
         const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
             ? Desktop.getEffectiveStartMenus()
@@ -1428,12 +1455,14 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
         attachButtonListener();
     });
 
-    document.addEventListener("click", e => {
+    const closeOnOutside = (e) => {
         const currentBtn = document.getElementById(buttonId) || document.querySelector('.taskStart[data-role="start-button"]');
         if (!menuEl.contains(e.target) && (!currentBtn || e.target !== currentBtn && !currentBtn.contains(e.target))) {
             closeStartMenu();
         }
-    });
+    };
+    document.addEventListener("click", closeOnOutside, true);
+    document.addEventListener("contextmenu", closeOnOutside, true);
     
     return menuEl;
 }
@@ -1516,7 +1545,20 @@ export function ProgressBar({ value = 0, max = 100 }) {
     return wrap;
 }
 
-export function Modal({ title, icon = "🪟", children = [], onClose, beforeClose, showCloseButton = true, closable = true, instance, targetContainer, width, height }) {
+export function Modal({
+    title,
+    icon = "🪟",
+    children = [],
+    onClose,
+    beforeClose,
+    showCloseButton = true,
+    closable = true,
+    instance = null,
+    targetContainer = null,
+    global = false,
+    width,
+    height
+} = {}) {
     const overlay = createElement("div", "ui-modal-overlay", []);
     const content = [];
     const hasCloseBtn = (showCloseButton !== false && closable !== false);
@@ -1537,6 +1579,11 @@ export function Modal({ title, icon = "🪟", children = [], onClose, beforeClos
             overlay.remove();
         }, 150);
         document.removeEventListener('keydown', escListener);
+    };
+
+    const modalApi = {
+        element: overlay,
+        close: () => closeModal()
     };
     
     if (title) {
@@ -1561,10 +1608,12 @@ export function Modal({ title, icon = "🪟", children = [], onClose, beforeClos
         content.push(header);
     }
     
-    const body = createElement("div", "windowBody ui-modal-body", children);
+    const resolvedChildren = typeof children === 'function' ? children(modalApi) : children;
+    const body = createElement("div", "windowBody ui-modal-body", Array.isArray(resolvedChildren) ? resolvedChildren : [resolvedChildren]);
     content.push(body);
     
     const dialog = createElement("div", "window ui-modal-dialog active", content);
+    modalApi.dialog = dialog;
     if (width) dialog.style.width = typeof width === 'number' ? `${width}px` : width;
     if (height) dialog.style.height = typeof height === 'number' ? `${height}px` : height;
     
@@ -1578,10 +1627,12 @@ export function Modal({ title, icon = "🪟", children = [], onClose, beforeClos
     };
     document.addEventListener('keydown', escListener);
     
-    // Resolve Container
+    // Resolve Container: se global for true ou se não tiver instance nem targetContainer, assume Desktop (#app)
     let container = targetContainer;
     if (!container) {
-        if (instance && instance.windowEl) {
+        if (global || !instance) {
+            container = document.getElementById("app") || document.body;
+        } else if (instance && instance.windowEl) {
             container = instance.windowEl;
         } else {
             container = document.getElementById("app") || document.body;
@@ -1596,6 +1647,8 @@ export function Modal({ title, icon = "🪟", children = [], onClose, beforeClos
     container.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("show"));
     
+    overlay.close = closeModal;
+    overlay.modalApi = modalApi;
     return overlay;
 }
 
@@ -2535,6 +2588,9 @@ export function DockWidget({
         restoreFromTray: (andExpand) => restoreFromTray(andExpand),
         isMinimizedToTray: () => dock.classList.contains("minimized-to-tray"),
         isExpanded: () => dock.classList.contains("expanded"),
+        getBadge: () => currentBadge || 0,
+        getTitle: () => title,
+        getContent: () => content,
         setBadge(val, variant) {
             currentBadge = val;
             if (val === null || val === undefined || val === 0 || val === "") {
@@ -2571,6 +2627,10 @@ export function DockWidget({
             content = newContent;
             renderContent();
         },
+        clear() {
+            content = [];
+            renderContent();
+        },
         addItem(item, prepend = false) {
             const node = typeof item === 'string' ? createElement("div", "ui-dock-text-item", [item]) : item;
             if (prepend && body.firstChild) {
@@ -2584,6 +2644,10 @@ export function DockWidget({
             dock.remove();
         }
     };
+
+    // Mescla a API diretamente no elemento do dock para acesso direto
+    Object.assign(dock, dockApi);
+    dock.dockApi = dockApi;
 
     // Anexa ao target se for global ou configurado
     if (!instance || targetContainer) {
@@ -2782,6 +2846,10 @@ export function FloatButton({
         },
         destroy: () => wrap.remove()
     };
+
+    // Mescla a API diretamente no elemento do FAB para acesso direto
+    Object.assign(wrap, fabApi);
+    wrap.fabApi = fabApi;
 
     if (!instance || targetContainer) {
         target.appendChild(wrap);

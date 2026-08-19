@@ -78,82 +78,171 @@ select {
 }
 
 /* Quando a Taskbar é Lateral (left / right) e o Menubar é Horizontal (top / bottom ou ausente):
-   Usamos CSS Grid no #app para garantir que o #menubar ocupe 100% da largura superior/inferior
-   e a #taskbar lateral se posicione na coluna correta ao lado do #desktop */
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) {
+   Usamos CSS Grid no #app para garantir o layout correto dos elementos e posicionar o menubar horizontal. */
+
+/* 1. CONFIGURAÇÃO DO GRID DO APP */
+
+/* Taskbar na Esquerda + Menubar no Topo (ou padrão) */
+#app[data-taskbar="left"][data-menubar="top"],
+#app[data-taskbar="left"]:not([data-menubar]) {
     display: grid !important;
     grid-template-columns: 68px 1fr;
     grid-template-rows: auto 1fr;
     flex-direction: unset !important;
 }
 
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>#menubar,
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>.ui-menubar {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    width: 100% !important;
+/* Taskbar na Esquerda + Menubar no Rodapé */
+#app[data-taskbar="left"][data-menubar="bottom"] {
+    display: grid !important;
+    grid-template-columns: 68px 1fr;
+    grid-template-rows: 1fr auto;
+    flex-direction: unset !important;
 }
 
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>#taskbar {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100% !important;
-    height: 100% !important;
+/* Taskbar na Esquerda + Menubar Oculto */
+#app[data-taskbar="left"][data-menubar="none"] {
+    display: grid !important;
+    grid-template-columns: 68px 1fr;
+    grid-template-rows: 1fr;
+    flex-direction: unset !important;
 }
 
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>#desktop {
-    grid-column: 2;
-    grid-row: 2;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) {
+/* Taskbar na Direita + Menubar no Topo (ou padrão) */
+#app[data-taskbar="right"][data-menubar="top"],
+#app[data-taskbar="right"]:not([data-menubar]) {
     display: grid !important;
     grid-template-columns: 1fr 68px;
     grid-template-rows: auto 1fr;
     flex-direction: unset !important;
 }
 
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>#menubar,
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>.ui-menubar {
+/* Taskbar na Direita + Menubar no Rodapé */
+#app[data-taskbar="right"][data-menubar="bottom"] {
+    display: grid !important;
+    grid-template-columns: 1fr 68px;
+    grid-template-rows: 1fr auto;
+    flex-direction: unset !important;
+}
+
+/* Taskbar na Direita + Menubar Oculto */
+#app[data-taskbar="right"][data-menubar="none"] {
+    display: grid !important;
+    grid-template-columns: 1fr 68px;
+    grid-template-rows: 1fr;
+    flex-direction: unset !important;
+}
+
+/* 2. POSICIONAMENTO DOS ELEMENTOS NO GRID */
+
+/* Menubar no Topo (linha 1) */
+#app[data-taskbar="left"][data-menubar="top"]>#menubar,
+#app[data-taskbar="left"][data-menubar="top"]>.ui-menubar,
+#app[data-taskbar="right"][data-menubar="top"]>#menubar,
+#app[data-taskbar="right"][data-menubar="top"]>.ui-menubar,
+#app[data-taskbar="left"]:not([data-menubar])>#menubar,
+#app[data-taskbar="left"]:not([data-menubar])>.ui-menubar,
+#app[data-taskbar="right"]:not([data-menubar])>#menubar,
+#app[data-taskbar="right"]:not([data-menubar])>.ui-menubar {
     grid-column: 1 / -1;
     grid-row: 1;
     width: 100% !important;
 }
 
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>#desktop {
+/* Menubar no Rodapé (linha 2) */
+#app[data-taskbar="left"][data-menubar="bottom"]>#menubar,
+#app[data-taskbar="left"][data-menubar="bottom"]>.ui-menubar,
+#app[data-taskbar="right"][data-menubar="bottom"]>#menubar,
+#app[data-taskbar="right"][data-menubar="bottom"]>.ui-menubar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100% !important;
+}
+
+/* Desktop & Taskbar quando Menubar está no Topo (linha 2) */
+#app[data-taskbar="left"][data-menubar="top"]>#taskbar,
+#app[data-taskbar="left"]:not([data-menubar])>#taskbar {
     grid-column: 1;
     grid-row: 2;
     width: 100% !important;
     height: 100% !important;
 }
-
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>#taskbar {
+#app[data-taskbar="left"][data-menubar="top"]>#desktop,
+#app[data-taskbar="left"]:not([data-menubar])>#desktop {
     grid-column: 2;
     grid-row: 2;
     width: 100% !important;
     height: 100% !important;
 }
 
-/* Quando não há menubar (como no index2.html), o grid se adapta naturalmente */
-#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar)) {
-    grid-template-rows: 1fr !important;
+#app[data-taskbar="right"][data-menubar="top"]>#taskbar,
+#app[data-taskbar="right"]:not([data-menubar])>#taskbar {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="right"][data-menubar="top"]>#desktop,
+#app[data-taskbar="right"]:not([data-menubar])>#desktop {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar))>#taskbar,
-#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar))>#desktop {
-    grid-row: 1 !important;
+/* Desktop & Taskbar quando Menubar está no Rodapé (linha 1) */
+#app[data-taskbar="left"][data-menubar="bottom"]>#taskbar {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="left"][data-menubar="bottom"]>#desktop {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar)) {
-    grid-template-rows: 1fr !important;
+#app[data-taskbar="right"][data-menubar="bottom"]>#taskbar {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="right"][data-menubar="bottom"]>#desktop {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar))>#taskbar,
-#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar))>#desktop {
-    grid-row: 1 !important;
+/* Desktop & Taskbar quando Menubar está Oculto (linha 1) */
+#app[data-taskbar="left"][data-menubar="none"]>#taskbar {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
 }
+#app[data-taskbar="left"][data-menubar="none"]>#desktop {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#app[data-taskbar="right"][data-menubar="none"]>#taskbar {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="right"][data-menubar="none"]>#desktop {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+
 
 /* --- Menu Bar (Layouts: Top, Bottom, Left, Right) --- */
 #menubar,

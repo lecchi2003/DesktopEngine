@@ -9,18 +9,7 @@
 </head>
 
 <body>
-    <div id="app">
-        <div id="menubar"></div>
-        <div id="desktop">
-            <div id="windows"></div>
-        </div>
-        <div id="taskbar">
-            <button class="taskStart" id="startBtn">Iniciar</button>
-            <button class="taskShowDesktop" id="showDesktop" title="Mostrar Área de Trabalho">🖥️</button>
-            <div class="taskWindows" id="taskWindows"></div>
-            <div class="clock" id="clock"></div>
-        </div>
-    </div>
+    <div id="app"></div>
 
     <script type="module">
         import { Framework } from './core.js';
@@ -34,22 +23,6 @@
             DockWidget, FloatButton
         } from './ui.js';
 
-        // Inicializa o desktop na posição escolhida
-        Desktop.init({
-            windowsContainerId: "windows",
-            taskbarContainerId: "taskWindows",
-            taskbarPosition: "left", // Pode ser 'top', 'bottom', 'left', 'right'
-            startButtonId: "startBtn",
-            showDesktopButton: true
-        });
-
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
         const lookAndFeelsItensVar = {
             label: "Look and Feel (Skins de Interface)",
             items: [
@@ -251,37 +224,32 @@
             }
         ];
 
-        // --- MENU INICIAR (TASKBAR) ---
-        StartMenu({
-            buttonId: "startBtn",
-            menus: nativeStartMenus
-        });
+        // Menu de Contexto da Área de Trabalho (Desktop)
+        const desktopContextMenus = [
+            { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
+            "separator",
+            { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
+            { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
+            { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
+            { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
+            { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
+            { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "Abrir Painel (Lazy)", screen: "dashboard" },
+            { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
+            lookAndFeelsItensVar
+        ];
 
-        // --- MENU BAR (TOPO) ---
-        MenuBar({
-            containerId: "menubar",
-            menus: globalSystemMenus
-        });
-
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                    "separator",
-                    { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
-                    { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
-                    { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
-                    { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
-                    { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
-                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
-                    "separator",
-                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
-                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
-                    lookAndFeelsItensVar
-                ]
-            });
+        // --- INICIALIZAÇÃO HÍBRIDA DO DESKTOP ENGINE (DECLARATIVA + PROGRAMÁTICA) ---
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "left", // Pode ser 'top', 'bottom', 'left', 'right'
+            showDesktopButton: true,
+            clock: { format: "pt-BR", showSeconds: true },
+            menuBar: globalSystemMenus,
+            startMenu: nativeStartMenus,
+            contextMenu: desktopContextMenus
         });
 
         // --- TELAS DO SHOWCASE ---
@@ -297,19 +265,15 @@
                 singleInstance: false, // Pode abrir infinitas!
                 state: { texto: "" },
                 view() {
-                    const field = Textarea({
-                        bind: "texto",
-                        instance: this,
-                        placeholder: "Digite sua anotação...",
-                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
-                    });
-                    const txtEl = field.querySelector('textarea');
-                    if (txtEl) {
-                        txtEl.style.flex = "1";
-                        txtEl.style.resize = "none";
-                        txtEl.style.height = "100%";
-                    }
-                    return createElement("div", "flex-col", [field]);
+                    return createElement("div", "flex-col", [
+                        Textarea({
+                            bind: "texto",
+                            instance: this,
+                            placeholder: "Digite sua anotação...",
+                            style: "height: 100%; display: flex; flex-direction: column; flex: 1;",
+                            inputStyle: "flex: 1; resize: none; height: 100%;"
+                        })
+                    ]);
                 }
             };
             Desktop.open(Framework.createWindow(AnotacaoScreen, `anotacao_${Date.now()}`, Desktop));
@@ -361,16 +325,15 @@
             },
             actions: {
                 salvar: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Confirmar Inclusão",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                             Button({
                                 text: "Sim, salvar", onClick: () => {
                                     Desktop.notify("Salvo com sucesso!", "success");
                                     ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                                    document.querySelector('.ui-modal-overlay').remove();
+                                    modal.close();
                                 }, variant: "success"
                             })
                         ]
@@ -459,31 +422,29 @@
                     Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
                 }],
                 abrirModalLocal: [async (ctx) => {
-                    Modal({
-                        title: "Modal Local",
-                        instance: ctx.instance,
-                        children: [
-                            createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
-                        ]
-                    });
+                    const modal = (ctx.instance && typeof ctx.instance.openModal === 'function')
+                        ? ctx.instance.openModal({
+                            title: "Modal Local",
+                            children: (m) => [
+                                createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                                Button({ text: "Fechar", onClick: () => m.close() })
+                            ]
+                        })
+                        : Modal({
+                            title: "Modal Local",
+                            instance: ctx.instance,
+                            children: (m) => [
+                                createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                                Button({ text: "Fechar", onClick: () => m.close() })
+                            ]
+                        });
                 }],
                 abrirModalGlobal: [async (ctx) => {
-                    Modal({
+                    const modal = Desktop.openModal({
                         title: "Modal Global",
-                        instance: ctx.instance,
-                        targetContainer: document.getElementById("app"),
-                        children: [
+                        children: (m) => [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => m.close() })
                         ]
                     });
                 }]
@@ -920,8 +881,7 @@
                     icon: "➕",
                     title: "Simular nova mensagem",
                     action: (dock) => {
-                        const count = (parseInt(dock.element.querySelector('.ui-dock-badge')?.textContent) || 0) + 1;
-                        dock.setBadge(count);
+                        dock.setBadge(dock.getBadge() + 1);
                         dock.addItem(`📩 Nova mensagem recebida às ${new Date().toLocaleTimeString('pt-BR')}`, true);
                         Toast({ message: "Nova notificação recebida no Dock!", type: "success" });
                     }
@@ -968,7 +928,7 @@
                     icon: "💬",
                     label: "Alternar Dock Messenger",
                     variant: "surface",
-                    action: () => eventLogDock.querySelector('.ui-dock-header')?.click()
+                    action: () => eventLogDock.toggle()
                 }
             ]
         });

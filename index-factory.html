@@ -41,14 +41,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // =========================================================================
         // FORMA 3: FACTORY FUNCTIONS / GERADORES DINÂMICOS DE TELAS
         // =========================================================================
@@ -413,19 +405,13 @@
         });
 
         // Context Menu do Desktop
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Abrir CRUD Clientes (Factory)", action: () => Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop)) },
-                    { label: "Abrir CRUD Produtos (Factory)", action: () => Desktop.open(Framework.createWindow(ProdutosScreen, "crud_produtos", Desktop)) },
-                    { label: "Abrir Relatório BI (Factory)", action: () => Desktop.open(Framework.createWindow(RelatorioFinanceiroScreen, "bi_financeiro", Desktop)) },
-                    "separator",
-                    { label: "Guia Desta Abordagem", action: () => Desktop.open(Framework.createWindow(GuiaFactoryScreen, "guia_factory", Desktop)) }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Abrir CRUD Clientes (Factory)", action: () => Desktop.open(Framework.createWindow(ClientesScreen, "crud_clientes", Desktop)) },
+            { label: "Abrir CRUD Produtos (Factory)", action: () => Desktop.open(Framework.createWindow(ProdutosScreen, "crud_produtos", Desktop)) },
+            { label: "Abrir Relatório BI (Factory)", action: () => Desktop.open(Framework.createWindow(RelatorioFinanceiroScreen, "bi_financeiro", Desktop)) },
+            "separator",
+            { label: "Guia Desta Abordagem", action: () => Desktop.open(Framework.createWindow(GuiaFactoryScreen, "guia_factory", Desktop)) }
+        ]);
 
         // Abertura inicial
         setTimeout(() => {

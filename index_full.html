@@ -41,14 +41,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // --- MENU BAR (TOPO) ---
         MenuBar({
             containerId: "menubar",
@@ -87,18 +79,12 @@
             ]
         });
 
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
-                    "separator",
-                    { label: "Abrir Painel", action: () => openScreen(DashboardScreen, "dashboard") },
-                    { label: "Abrir DataGrid", action: () => openScreen(DataGridScreen, "datagrid") }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "Abrir Painel", action: () => openScreen(DashboardScreen, "dashboard") },
+            { label: "Abrir DataGrid", action: () => openScreen(DataGridScreen, "datagrid") }
+        ]);
 
         // --- TELAS DO SHOWCASE ---
 
@@ -340,16 +326,15 @@
             },
             actions: {
                 salvar: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Confirmar Inclusão",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                             Button({
                                 text: "Sim, salvar", onClick: () => {
                                     Desktop.notify("Salvo com sucesso!", "success");
                                     ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                                    document.querySelector('.ui-modal-overlay').remove();
+                                    modal.close();
                                 }, variant: "success"
                             })
                         ]
@@ -418,31 +403,20 @@
                     Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
                 }],
                 abrirModalLocal: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Modal Local",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }],
                 abrirModalGlobal: [async (ctx) => {
-                    Modal({
+                    Desktop.openModal({
                         title: "Modal Global",
-                        instance: ctx.instance,
-                        targetContainer: document.getElementById("app"),
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }]

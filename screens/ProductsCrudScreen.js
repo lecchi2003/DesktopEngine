@@ -286,27 +286,22 @@ export default {
     },
 
     deleteProduct(id) {
-        Modal({
+        this.openModal({
             title: "Confirmar Exclusão",
-            instance: this,
-            children: [
+            children: (modal) => [
                 createElement("p", "", [`Deseja realmente excluir o produto #${id}?`]),
                 Row({
                     style: "justify-content: flex-end; gap: 8px; margin-top: 15px;",
                     children: [
                         Button({
                             text: "Cancelar",
-                            onClick: () => {
-                                const m = document.querySelector('.ui-modal-overlay.show');
-                                if (m) m.remove();
-                            }
+                            onClick: () => modal.close()
                         }),
                         Button({
                             text: "Sim, Excluir",
                             variant: "danger",
                             onClick: async () => {
-                                const m = document.querySelector('.ui-modal-overlay.show');
-                                if (m) m.remove();
+                                modal.close();
 
                                 if (this.state.isMockMode || this.state.serverStatus === "offline") {
                                     const idx = MOCK_DATA.findIndex(p => p.id === id);
@@ -341,22 +336,19 @@ export default {
 
     openProductModal(prod = null) {
         const isEdit = !!prod;
-        let formName = prod ? prod.name : "";
-        let formCategory = prod ? prod.category : "Eletrônicos";
-        let formPrice = prod ? prod.price : 0;
-        let formStock = prod ? prod.stock : 1;
-        let formDesc = prod ? prod.description || "" : "";
 
-        Modal({
+        // Refs dos campos — capturadas no closure, sem querySelector
+        let inpName, inpCategory, inpPrice, inpStock, txtDesc;
+
+        this.openModal({
             title: isEdit ? `Editar Produto #${prod.id}` : "Novo Produto",
-            instance: this,
-            children: [
+            children: (modal) => [
                 createElement("div", "flex-col", [
                     createElement("label", "", ["Nome do Produto:"]),
-                    createElement("input", "filter-input", [], {
-                        value: formName,
+                    (inpName = createElement("input", "filter-input", [], {
+                        value: prod ? prod.name : "",
                         placeholder: "Ex: Monitor Gamer 144Hz"
-                    }),
+                    })),
                     Row({
                         style: "gap: 8px; margin-top: 8px;",
                         children: [
@@ -364,7 +356,7 @@ export default {
                                 style: "flex: 1;",
                                 children: [
                                     createElement("label", "", ["Categoria:"]),
-                                    createElement("select", "filter-input", [
+                                    (inpCategory = createElement("select", "filter-input", [
                                         createElement("option", "", ["Eletrônicos"]),
                                         createElement("option", "", ["Monitores"]),
                                         createElement("option", "", ["Periféricos"]),
@@ -372,73 +364,59 @@ export default {
                                         createElement("option", "", ["Áudio"]),
                                         createElement("option", "", ["Acessórios"]),
                                         createElement("option", "", ["Geral"])
-                                    ])
+                                    ]))
                                 ]
                             }),
                             Col({
                                 style: "flex: 1;",
                                 children: [
                                     createElement("label", "", ["Preço (R$):"]),
-                                    createElement("input", "filter-input", [], {
+                                    (inpPrice = createElement("input", "filter-input", [], {
                                         type: "number",
                                         step: "0.01",
-                                        value: formPrice
-                                    })
+                                        value: prod ? prod.price : 0
+                                    }))
                                 ]
                             }),
                             Col({
                                 style: "flex: 1;",
                                 children: [
                                     createElement("label", "", ["Estoque:"]),
-                                    createElement("input", "filter-input", [], {
+                                    (inpStock = createElement("input", "filter-input", [], {
                                         type: "number",
                                         step: "1",
-                                        value: formStock
-                                    })
+                                        value: prod ? prod.stock : 1
+                                    }))
                                 ]
                             })
                         ]
                     }),
                     createElement("label", "", ["Descrição / Especificações:", { style: "margin-top: 8px;" }]),
-                    createElement("textarea", "filter-input", [formDesc], {
+                    (txtDesc = createElement("textarea", "filter-input", [prod ? prod.description || "" : ""], {
                         rows: 3,
                         placeholder: "Detalhes do item..."
-                    }),
+                    })),
                     Row({
                         style: "justify-content: flex-end; gap: 8px; margin-top: 16px;",
                         children: [
                             Button({
                                 text: "Cancelar",
-                                onClick: () => {
-                                    const m = document.querySelector('.ui-modal-overlay.show');
-                                    if (m) m.remove();
-                                }
+                                onClick: () => modal.close()
                             }),
                             Button({
                                 text: isEdit ? "Atualizar Produto" : "Cadastrar Produto",
                                 variant: "primary",
                                 onClick: async () => {
-                                    const modalOverlay = document.querySelector('.ui-modal-overlay.show');
-                                    if (!modalOverlay) return;
-
-                                    const inputs = modalOverlay.querySelectorAll("input, select, textarea");
-                                    const nameVal = inputs[0].value.trim();
-                                    const catVal = inputs[1].value;
-                                    const priceVal = parseFloat(inputs[2].value) || 0;
-                                    const stockVal = parseInt(inputs[3].value, 10) || 0;
-                                    const descVal = inputs[4].value.trim();
-
+                                    if (inpCategory) inpCategory.value = prod ? prod.category : "Eletrônicos";
                                     const success = await this.saveProduct({
-                                        name: nameVal,
-                                        category: catVal,
-                                        price: priceVal,
-                                        stock: stockVal,
-                                        description: descVal
+                                        name: inpName.value.trim(),
+                                        category: inpCategory.value,
+                                        price: parseFloat(inpPrice.value) || 0,
+                                        stock: parseInt(inpStock.value, 10) || 0,
+                                        description: txtDesc.value.trim()
                                     }, isEdit, prod ? prod.id : null);
 
-                                    if (success) {
-                                        modalOverlay.remove();
-                                    }
+                                    if (success) modal.close();
                                 }
                             })
                         ]
@@ -447,57 +425,44 @@ export default {
             ]
         });
 
-        // Configura valores iniciais no modal recém-aberto
+        // Configura o valor do <select> de categoria após renderização
         setTimeout(() => {
-            const m = document.querySelector('.ui-modal-overlay.show');
-            if (m) {
-                const inputs = m.querySelectorAll("input, select, textarea");
-                if (inputs[0]) inputs[0].value = formName;
-                if (inputs[1]) inputs[1].value = formCategory;
-                if (inputs[2]) inputs[2].value = formPrice;
-                if (inputs[3]) inputs[3].value = formStock;
-                if (inputs[4]) inputs[4].value = formDesc;
-            }
+            if (inpCategory && prod) inpCategory.value = prod.category;
         }, 30);
     },
 
     openLoginModal() {
-        Modal({
+        let inpUser, inpPass;
+
+        this.openModal({
             title: "🔐 Autenticação Basic Auth (API Python)",
-            instance: this,
-            children: [
+            children: (modal) => [
                 createElement("div", "flex-col", [
                     createElement("p", "", ["Insira as credenciais configuradas no servidor Python (padrão: admin / admin123):"]),
                     createElement("label", "", ["Usuário:"]),
-                    createElement("input", "filter-input", [], { value: this.state.username, placeholder: "admin" }),
+                    (inpUser = createElement("input", "filter-input", [], { value: this.state.username, placeholder: "admin" })),
                     createElement("label", "", ["Senha:", { style: "margin-top: 8px;" }]),
-                    createElement("input", "filter-input", [], { type: "password", value: this.state.password, placeholder: "admin123" }),
+                    (inpPass = createElement("input", "filter-input", [], { type: "password", value: this.state.password, placeholder: "admin123" })),
                     Row({
                         style: "justify-content: flex-end; gap: 8px; margin-top: 16px;",
                         children: [
                             Button({
                                 text: "Cancelar",
-                                onClick: () => {
-                                    const m = document.querySelector('.ui-modal-overlay.show');
-                                    if (m) m.remove();
-                                }
+                                onClick: () => modal.close()
                             }),
                             Button({
                                 text: "Conectar / Salvar",
                                 variant: "primary",
                                 onClick: async () => {
-                                    const m = document.querySelector('.ui-modal-overlay.show');
-                                    if (!m) return;
-                                    const inps = m.querySelectorAll("input");
-                                    const u = inps[0].value.trim();
-                                    const p = inps[1].value.trim();
+                                    const u = inpUser.value.trim();
+                                    const p = inpPass.value.trim();
 
                                     this.state.username = u;
                                     this.state.password = p;
                                     this.state.authHeader = "Basic " + btoa(`${u}:${p}`);
                                     this.state.isAuthenticated = true;
 
-                                    m.remove();
+                                    modal.close();
                                     Toast({ message: "Credenciais salvas!", type: "success" });
                                     this.fetchProducts();
                                 }
@@ -507,48 +472,30 @@ export default {
                 ])
             ]
         });
-
-        setTimeout(() => {
-            const m = document.querySelector('.ui-modal-overlay.show');
-            if (m) {
-                const inps = m.querySelectorAll("input");
-                if (inps[0]) inps[0].value = this.state.username;
-                if (inps[1]) inps[1].value = this.state.password;
-            }
-        }, 30);
     },
 
     openSettingsModal() {
-        Modal({
+        let inpUrl;
+
+        this.openModal({
             title: "⚙️ Configuração da API Python",
-            instance: this,
-            children: [
+            children: (modal) => [
                 createElement("div", "flex-col", [
                     createElement("label", "", ["URL Base da API:"]),
-                    createElement("input", "filter-input", [], { value: this.state.apiUrl }),
+                    (inpUrl = createElement("input", "filter-input", [], { value: this.state.apiUrl })),
                     createElement("small", "", ["Padrão: http://localhost:8000 (servidor api.py)", { style: "opacity: 0.7; margin-top: 4px;" }]),
                     Row({
                         style: "justify-content: flex-end; gap: 8px; margin-top: 16px;",
                         children: [
-                            Button({
-                                text: "Fechar",
-                                onClick: () => {
-                                    const m = document.querySelector('.ui-modal-overlay.show');
-                                    if (m) m.remove();
-                                }
-                            }),
+                            Button({ text: "Fechar", onClick: () => modal.close() }),
                             Button({
                                 text: "Salvar e Testar",
                                 variant: "primary",
                                 onClick: () => {
-                                    const m = document.querySelector('.ui-modal-overlay.show');
-                                    if (m) {
-                                        const inp = m.querySelector("input");
-                                        this.state.apiUrl = inp.value.trim().replace(/\/$/, "");
-                                        m.remove();
-                                        Toast({ message: "URL atualizada!", type: "info" });
-                                        this.checkApiHealth(true);
-                                    }
+                                    this.state.apiUrl = inpUrl.value.trim().replace(/\/$/, "");
+                                    modal.close();
+                                    Toast({ message: "URL atualizada!", type: "info" });
+                                    this.checkApiHealth(true);
                                 }
                             })
                         ]
@@ -556,21 +503,12 @@ export default {
                 ])
             ]
         });
-
-        setTimeout(() => {
-            const m = document.querySelector('.ui-modal-overlay.show');
-            if (m) {
-                const inp = m.querySelector("input");
-                if (inp) inp.value = this.state.apiUrl;
-            }
-        }, 30);
     },
 
     openHelpModal() {
-        Modal({
+        this.openModal({
             title: "🐍 Como Rodar o Servidor Python",
-            instance: this,
-            children: [
+            children: (modal) => [
                 createElement("div", "", [
                     createElement("h4", "", ["Passo a passo rápido:"]),
                     createElement("ol", "", [
@@ -584,13 +522,7 @@ export default {
                 Row({
                     style: "justify-content: flex-end; margin-top: 15px;",
                     children: [
-                        Button({
-                            text: "Entendido",
-                            onClick: () => {
-                                const m = document.querySelector('.ui-modal-overlay.show');
-                                if (m) m.remove();
-                            }
-                        })
+                        Button({ text: "Entendido", onClick: () => modal.close() })
                     ]
                 })
             ]
@@ -646,25 +578,23 @@ export default {
                 label: "Ações",
                 key: "id",
                 render: (val, row) => {
-                    const div = document.createElement("div");
-                    div.style.cssText = "display: flex; gap: 4px;";
-
-                    const btnEdit = document.createElement("button");
-                    btnEdit.className = "ui-btn";
-                    btnEdit.style.cssText = "padding: 3px 8px; font-size: 11px;";
-                    btnEdit.textContent = "✏️ Editar";
-                    btnEdit.onclick = () => this.openProductModal(row);
-
-                    const btnDel = document.createElement("button");
-                    btnDel.className = "ui-btn ui-btn-danger";
-                    btnDel.style.cssText = "padding: 3px 8px; font-size: 11px; background: #dc2626; color: white;";
-                    btnDel.textContent = "🗑️";
-                    btnDel.title = "Excluir";
-                    btnDel.onclick = () => this.deleteProduct(row.id);
-
-                    div.appendChild(btnEdit);
-                    div.appendChild(btnDel);
-                    return div;
+                    return Row({
+                        style: "gap: 4px;",
+                        children: [
+                            Button({
+                                text: "✏️ Editar",
+                                variant: "surface",
+                                style: "padding: 3px 8px; font-size: 11px;",
+                                onClick: () => this.openProductModal(row)
+                            }),
+                            Button({
+                                text: "🗑️",
+                                variant: "danger",
+                                style: "padding: 3px 8px; font-size: 11px;",
+                                onClick: () => this.deleteProduct(row.id)
+                            })
+                        ]
+                    });
                 }
             }
         ];

@@ -34,33 +34,29 @@ export default {
             Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
         }],
         abrirModalLocal: [async (ctx) => {
-            Modal({
-                title: "Modal Local",
-                instance: ctx.instance,
-                children: [
-                    createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                    Button({
-                        text: "Fechar", onClick: () => {
-                            const m = document.querySelector('.ui-modal-overlay.show');
-                            if (m) m.remove();
-                        }
-                    })
-                ]
-            });
+            const modal = (ctx.instance && typeof ctx.instance.openModal === 'function')
+                ? ctx.instance.openModal({
+                    title: "Modal Local",
+                    children: (m) => [
+                        createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                        Button({ text: "Fechar", onClick: () => m.close() })
+                    ]
+                })
+                : Modal({
+                    title: "Modal Local",
+                    instance: ctx.instance,
+                    children: (m) => [
+                        createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                        Button({ text: "Fechar", onClick: () => m.close() })
+                    ]
+                });
         }],
         abrirModalGlobal: [async (ctx) => {
-            Modal({
+            const modal = Desktop.openModal({
                 title: "Modal Global",
-                instance: ctx.instance,
-                targetContainer: document.getElementById("app"),
-                children: [
+                children: (m) => [
                     createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                    Button({
-                        text: "Fechar", onClick: () => {
-                            const m = document.querySelector('.ui-modal-overlay.show');
-                            if (m) m.remove();
-                        }
-                    })
+                    Button({ text: "Fechar", onClick: () => m.close() })
                 ]
             });
         }]

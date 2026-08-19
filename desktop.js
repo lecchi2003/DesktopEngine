@@ -1,6 +1,6 @@
 // desktop.js
 import { EventBus, Framework } from './core.js';
-import { bindContextMenu, MenuBar, DockWidget, FloatButton } from './ui.js';
+import { bindContextMenu, MenuBar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
 
 export const Desktop = {
     windowsEl: null,
@@ -12,6 +12,103 @@ export const Desktop = {
     currentTheme: "light",
     currentLaF: "default",
     isMobileActive: false,
+    _clockTimer: null,
+    _contextMenuController: null,
+
+    _ensureShell(options = {}) {
+        const target = options.target || options.rootContainer || "#app";
+        let app = typeof target === 'string' ? document.querySelector(target) : target;
+        if (!app) {
+            app = document.getElementById("app");
+        }
+        if (!app) {
+            app = document.createElement("div");
+            app.id = "app";
+            document.body.appendChild(app);
+        }
+        if (!app.id) app.id = "app";
+
+        const menubarId = options.menubarContainerId || "menubar";
+        const desktopId = options.desktopContainerId || "desktop";
+        const windowsId = options.windowsContainerId || "windows";
+        const taskbarId = options.taskbarId || "taskbar";
+        const taskWindowsId = options.taskbarContainerId || "taskWindows";
+        const startBtnId = options.startButtonId || "startBtn";
+        const showDesktopBtnId = options.showDesktopButtonId || "showDesktop";
+        const clockId = options.clockContainerId || "clock";
+
+        // 1. MenuBar (se não existir, cria)
+        let menubar = document.getElementById(menubarId) || app.querySelector(`#${menubarId}`);
+        if (!menubar) {
+            menubar = document.createElement("div");
+            menubar.id = menubarId;
+            menubar.className = "ui-menubar";
+            app.appendChild(menubar);
+        }
+
+        // 2. Desktop & Windows (se não existirem, cria)
+        let desktop = document.getElementById(desktopId) || app.querySelector(`#${desktopId}`);
+        if (!desktop) {
+            desktop = document.createElement("div");
+            desktop.id = desktopId;
+            app.appendChild(desktop);
+        }
+
+        let windows = document.getElementById(windowsId) || desktop.querySelector(`#${windowsId}`);
+        if (!windows) {
+            windows = document.createElement("div");
+            windows.id = windowsId;
+            desktop.appendChild(windows);
+        }
+
+        // 3. Taskbar (se não existir, cria)
+        let taskbar = document.getElementById(taskbarId) || app.querySelector(`#${taskbarId}`);
+        if (!taskbar) {
+            taskbar = document.createElement("div");
+            taskbar.id = taskbarId;
+            taskbar.className = "taskbar";
+            app.appendChild(taskbar);
+        }
+
+        // Itens internos da Taskbar
+        let startBtn = document.getElementById(startBtnId) || taskbar.querySelector(`button#${startBtnId}, .taskStart`);
+        if (!startBtn && options.startButton !== false) {
+            startBtn = document.createElement("button");
+            startBtn.className = "taskStart";
+            startBtn.id = startBtnId;
+            startBtn.setAttribute("data-role", "start-button");
+            startBtn.textContent = "Iniciar";
+            taskbar.appendChild(startBtn);
+        }
+
+        let showDesktopBtn = document.getElementById(showDesktopBtnId) || taskbar.querySelector(`button#${showDesktopBtnId}, .taskShowDesktop`);
+        if (!showDesktopBtn && options.showDesktopButton !== false) {
+            showDesktopBtn = document.createElement("button");
+            showDesktopBtn.className = "taskShowDesktop";
+            showDesktopBtn.id = showDesktopBtnId;
+            showDesktopBtn.title = "Mostrar Área de Trabalho";
+            showDesktopBtn.textContent = "🖥️";
+            taskbar.appendChild(showDesktopBtn);
+        }
+
+        let taskWindows = document.getElementById(taskWindowsId) || taskbar.querySelector(`div#${taskWindowsId}, .taskWindows`);
+        if (!taskWindows) {
+            taskWindows = document.createElement("div");
+            taskWindows.className = "taskWindows";
+            taskWindows.id = taskWindowsId;
+            taskbar.appendChild(taskWindows);
+        }
+
+        let clock = document.getElementById(clockId) || taskbar.querySelector(`div#${clockId}, .clock`);
+        if (!clock && options.clock !== false) {
+            clock = document.createElement("div");
+            clock.className = "clock";
+            clock.id = clockId;
+            taskbar.appendChild(clock);
+        }
+
+        return { app, menubar, desktop, windows, taskbar, startBtn, showDesktopBtn, taskWindows, clock };
+    },
 
     init(options = {}) {
         this.windows = {}; // Reseta referências ativas ao inicializar
@@ -25,8 +122,12 @@ export const Desktop = {
             defaultLaF: "default",
             responsiveMode: "auto", // 'auto' | 'mobile' | 'desktop'
             mobileBreakpoint: 768,
+            clock: true,
             ...options
         };
+
+        // Garante e monta o shell do Desktop automaticamente se necessário
+        this._ensureShell(this.options);
 
         // Carrega Look and Feel persistido ou padrão
         try {
@@ -66,9 +167,42 @@ export const Desktop = {
         const app = document.getElementById("app");
         if (app) app.dataset.taskbar = this.options.taskbarPosition;
 
+        // Auto-conecta o botão Mostrar Área de Trabalho
         const desktopBtn = document.getElementById(this.options.showDesktopButtonId || "showDesktop");
-        if (desktopBtn && !this.options.showDesktopButton) {
-            desktopBtn.style.display = "none";
+        if (desktopBtn) {
+            if (this.options.showDesktopButton === false) {
+                desktopBtn.style.display = "none";
+            } else {
+                desktopBtn.style.display = "";
+                desktopBtn.onclick = () => this.showDesktop();
+            }
+        }
+
+        // Registro de telas declarativas via init
+        if (this.options.screens && typeof this.options.screens === 'object') {
+            Object.entries(this.options.screens).forEach(([id, screen]) => {
+                this.registerScreen(id, screen);
+            });
+        }
+
+        // Menu de Contexto Declarativo do Desktop
+        if (this.options.contextMenu) {
+            this.setContextMenu(this.options.contextMenu, this.options.desktopContainerId || "desktop");
+        }
+
+        // MenuBar Declarativo do Desktop
+        if (this.options.menuBar) {
+            this.setMenuBar(this.options.menuBar, this.options.menubarPosition || "top");
+        }
+
+        // StartMenu Declarativo da Taskbar
+        if (this.options.startMenu) {
+            this.setStartMenu(this.options.startMenu, this.options.startButtonId || "startBtn");
+        }
+
+        // Relógio Nativo da Taskbar
+        if (this.options.clock !== false) {
+            this.setClock(this.options.clock);
         }
 
         // Atualiza estilo e ícone do botão Iniciar de acordo com o Look and Feel
@@ -270,6 +404,14 @@ export const Desktop = {
         // --- Injeção de Métodos de Controle na Instância ---
         instance.setMenuBar = (menus) => this.setWindowMenuBar(instance, menus);
         instance.getMenuBar = () => instance.windowEl ? instance.windowEl.querySelector(".window-menubar") : null;
+        instance.setContextMenu = (items) => {
+            if (instance._contextMenuController?.destroy) instance._contextMenuController.destroy();
+            instance._contextMenuController = bindContextMenu(w.querySelector(".windowBody") || w, items);
+            return instance._contextMenuController;
+        };
+        instance.openModal = (options = {}) => Modal({ ...options, instance, global: false });
+        instance.createDockWidget = (options = {}) => DockWidget({ ...options, instance });
+        instance.createFloatButton = (options = {}) => FloatButton({ ...options, instance });
         instance.close = (resultData = undefined) => this.closeWindow(instance, w, task, resultData);
         instance.minimize = () => this.minimizeWindow(w);
         instance.maximize = () => this.maximizeWindow(w);
@@ -280,6 +422,12 @@ export const Desktop = {
         const windowMenus = config.menubar || config.menus || config.menu;
         if (windowMenus && Array.isArray(windowMenus) && windowMenus.length > 0) {
             this.setWindowMenuBar(instance, windowMenus);
+        }
+
+        // --- Inicializa Window ContextMenu se configurado declarativamente na tela ---
+        const windowContextMenu = config.contextMenu || config.contextmenu;
+        if (windowContextMenu) {
+            instance.setContextMenu(windowContextMenu);
         }
 
         // --- Hook: beforeMount (Antes do primeiro render) ---
@@ -1557,6 +1705,102 @@ export const Desktop = {
                 resolve(null);
             }
         });
+    },
+
+    // --- Getters e Acessores de Estrutura do Desktop ---
+    getRoot() {
+        return document.getElementById("app") || document.body;
+    },
+
+    getSurface() {
+        return document.getElementById(this.options?.desktopContainerId || "desktop") || this.windowsEl || document.body;
+    },
+
+    getTaskbar() {
+        return document.getElementById("taskbar") || this.tasksEl?.closest('.taskbar') || document.querySelector('.taskbar');
+    },
+
+    getClock() {
+        const id = this.options?.clockContainerId || "clock";
+        return document.getElementById(id);
+    },
+
+    // --- Métodos Programáticos do Ambiente Desktop ---
+    setContextMenu(items, containerId = "desktop") {
+        const target = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+        if (!target) return null;
+        if (this._contextMenuController && typeof this._contextMenuController.destroy === 'function') {
+            this._contextMenuController.destroy();
+            this._contextMenuController = null;
+        }
+        if (items) {
+            this._contextMenuController = bindContextMenu(target, items);
+        }
+        return this._contextMenuController;
+    },
+
+    setMenuBar(menus, position) {
+        if (!menus) return null;
+        const pos = position || this.options?.menubarPosition || "top";
+        return MenuBar({ containerId: "menubar", menus, position: pos });
+    },
+
+    setStartMenu(menus, buttonId = "startBtn") {
+        if (!menus) return null;
+        return StartMenu({ buttonId: this.options?.startButtonId || buttonId, menus });
+    },
+
+    setClock(options = true) {
+        this.stopClock();
+        if (options === false) {
+            const clockEl = this.getClock();
+            if (clockEl) clockEl.style.display = "none";
+            return;
+        }
+
+        const clockConfig = typeof options === 'object' ? options : {};
+        const containerId = clockConfig.containerId || this.options?.clockContainerId || "clock";
+        const format = clockConfig.format || "pt-BR";
+        const showSeconds = clockConfig.showSeconds !== false;
+        const interval = clockConfig.interval || 1000;
+
+        const updateClock = () => {
+            const clockEl = document.getElementById(containerId);
+            if (!clockEl) return;
+            clockEl.style.display = "";
+            const now = new Date();
+            clockEl.textContent = now.toLocaleTimeString(format, {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: showSeconds ? '2-digit' : undefined
+            });
+            if (clockConfig.tooltip !== false) {
+                clockEl.title = now.toLocaleDateString(format, {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        };
+
+        updateClock();
+        this._clockTimer = setInterval(updateClock, interval);
+    },
+
+    startClock(options) {
+        this.setClock(options || true);
+    },
+
+    stopClock() {
+        if (this._clockTimer) {
+            clearInterval(this._clockTimer);
+            this._clockTimer = null;
+        }
+    },
+
+    openModal(options = {}) {
+        return Modal({ ...options, global: true });
     },
 
     // --- Helpers Programáticos de Widgets Globais ---

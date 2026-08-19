@@ -43,14 +43,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // --- ESTRUTURA GLOBAL DE MENUS ---
         const globalSystemMenus = [
             {
@@ -224,21 +216,15 @@
                 menus: globalSystemMenus
             });
 
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                    "separator",
-                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
-                    "separator",
-                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
-                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
-                    { label: "Showcase Completo", screen: "showcase" }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Hub de Arquiteturas de Telas", action: () => Desktop.openScreen("hub_arquiteturas") },
+            "separator",
+            { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "Abrir Painel (Lazy)", action: () => Desktop.openScreen("dashboard") },
+            { label: "Abrir DataGrid (Lazy)", action: () => Desktop.openScreen("datagrid") },
+            { label: "Showcase Completo", action: () => Desktop.openScreen("showcase") }
+        ]);
 
         // --- TELAS DO SHOWCASE ---
 
@@ -253,19 +239,15 @@
                 singleInstance: false, // Pode abrir infinitas!
                 state: { texto: "" },
                 view() {
-                    const field = Textarea({
-                        bind: "texto",
-                        instance: this,
-                        placeholder: "Digite sua anotação...",
-                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
-                    });
-                    const txtEl = field.querySelector('textarea');
-                    if (txtEl) {
-                        txtEl.style.flex = "1";
-                        txtEl.style.resize = "none";
-                        txtEl.style.height = "100%";
-                    }
-                    return createElement("div", "flex-col", [field]);
+                    return createElement("div", "flex-col", [
+                        Textarea({
+                            bind: "texto",
+                            instance: this,
+                            placeholder: "Digite sua anotação...",
+                            style: "height: 100%; display: flex; flex-direction: column; flex: 1;",
+                            inputStyle: "flex: 1; resize: none; height: 100%;"
+                        })
+                    ]);
                 }
             };
             Desktop.open(Framework.createWindow(AnotacaoScreen, `anotacao_${Date.now()}`, Desktop));
@@ -317,16 +299,15 @@
             },
             actions: {
                 salvar: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Confirmar Inclusão",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                             Button({
                                 text: "Sim, salvar", onClick: () => {
                                     Desktop.notify("Salvo com sucesso!", "success");
                                     ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                                    document.querySelector('.ui-modal-overlay').remove();
+                                    modal.close();
                                 }, variant: "success"
                             })
                         ]
@@ -414,31 +395,20 @@
                     Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
                 }],
                 abrirModalLocal: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Modal Local",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }],
                 abrirModalGlobal: [async (ctx) => {
-                    Modal({
+                    Desktop.openModal({
                         title: "Modal Global",
-                        instance: ctx.instance,
-                        targetContainer: document.getElementById("app"),
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }]

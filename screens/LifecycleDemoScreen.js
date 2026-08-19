@@ -90,10 +90,9 @@ export default {
         console.log("🛑 [beforeClose] Tentativa de fechamento detectada.");
         if (this.state.protectUnsavedChanges) {
             return new Promise((resolve) => {
-                Modal({
+                this.openModal({
                     title: "⚠️ Interceptador beforeClose()",
-                    instance: this,
-                    children: [
+                    children: (modal) => [
                         createElement("p", "", [
                             "O hook ", createElement("code", "", ["beforeClose()"]), " interceptou a tentativa de fechar a janela porque a opção ",
                             createElement("b", "", ["'Proteger alterações não salvas'"]), " está ativada!"
@@ -105,8 +104,7 @@ export default {
                                 Button({
                                     text: "Cancelar Fechamento (Ficar na Janela)",
                                     onClick: () => {
-                                        const m = document.querySelector('.ui-modal-overlay.show');
-                                        if (m) m.remove();
+                                        modal.close();
                                         console.log("❌ [beforeClose] Fechamento cancelado pelo usuário.");
                                         resolve(false); // BLOQUEIA O FECHAMENTO
                                     }
@@ -115,8 +113,7 @@ export default {
                                     text: "Sim, Destruir Janela",
                                     variant: "danger",
                                     onClick: () => {
-                                        const m = document.querySelector('.ui-modal-overlay.show');
-                                        if (m) m.remove();
+                                        modal.close();
                                         console.log("✅ [beforeClose] Fechamento autorizado pelo usuário.");
                                         resolve(true); // PERMITE FECHAR
                                     }

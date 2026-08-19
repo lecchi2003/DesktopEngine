@@ -384,22 +384,46 @@
             </ul>
 
             <!-- SEÇÃO 2: INIT -->
-            <h2 id="init">Inicialização do Desktop</h2>
-            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, agrupamento e notificações
-                globais.</p>
+            <h2 id="init">Inicialização do Desktop (Abordagem Híbrida &amp; Zero-HTML)</h2>
+            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, relógio nativo, menus de contexto globais e notificações. Possui suporte a <strong>Auto-Scaffolding de Shell</strong>: ao chamar <code>Desktop.init()</code> em um contêiner vazio (ex: <code>&lt;div id="app"&gt;&lt;/div&gt;</code> ou direto no <code>&lt;body&gt;</code>), o framework <strong>monta toda a estrutura DOM programaticamente</strong> (MenuBar, Desktop, Windows, Taskbar, Botão Iniciar, Mostrar Desktop e Relógio), eliminando código de casca no HTML.</p>
 
             <div class="code-box">
                 <pre><code>import { Desktop } from './desktop.js';
 
-// Inicialização com opções
+// 1. Inicialização com Auto-Scaffolding (Zero-HTML no &lt;body&gt;):
 Desktop.init({
-    windowsContainerId: "windows",       // Container onde as janelas são criadas
-    taskbarContainerId: "taskWindows",   // Container da barra de tarefas
+    target: "#app",                      // Contêiner de montagem (padrão: "#app" ou document.body)
     taskbarPosition: "bottom",           // "bottom", "top", "left", "right"
-    showDesktopButton: true              // Exibe o botão de minimizar tudo
+    startButton: true,                   // Cria e conecta o botão do Menu Iniciar
+    showDesktopButton: true,             // Cria e conecta o botão #showDesktop
+    clock: { format: "pt-BR", showSeconds: true }, // Relógio gerenciado nativamente
+    menuBar: globalSystemMenus,          // MenuBar global auto-conectado
+    startMenu: nativeStartMenus,         // Menu Iniciar auto-conectado
+    contextMenu: desktopContextMenus,    // Menu de Contexto da Área de Trabalho
+    screens: {                           // Registro declarativo de telas
+        dashboard: () => import('./screens/DashboardScreen.js'),
+        editor: () => import('./screens/EditorScreen.js')
+    }
 });
 
-// Métodos utilitários globais de posicionamento e controle:
+// 2. Métodos Programáticos Globais do Desktop:
+Desktop.setContextMenu(itensDoMenu);     // Altera dinamicamente o menu de contexto do desktop
+Desktop.setMenuBar(menus, "top");        // Atualiza a barra de menus global
+Desktop.setStartMenu(menus);             // Atualiza o menu iniciar da taskbar
+Desktop.setClock({ showSeconds: false });// Reconfigura o relógio nativo
+Desktop.openModal({                      // Abre um modal global no Desktop
+    title: "Alerta Global",
+    children: (modal) => [
+        createElement("p", "", ["Mensagem global para todos os usuários."]),
+        Button({ text: "Entendi", onClick: () => modal.close() })
+    ]
+});
+
+Desktop.getRoot();                       // Retorna o elemento raiz (#app)
+Desktop.getSurface();                    // Retorna a Área de Trabalho (#desktop)
+Desktop.getTaskbar();                    // Retorna a Barra de Tarefas (#taskbar)
+Desktop.getClock();                      // Retorna o elemento do relógio (#clock)
+
 Desktop.setTaskbarPosition("right");     // Altera a barra de tarefas ("bottom", "top", "left", "right")
 Desktop.getTaskbarPosition();            // Retorna a posição ativa da barra de tarefas
 Desktop.setMenuBarPosition("top");       // Altera o MenuBar ("top", "bottom", "left", "right")
@@ -474,6 +498,18 @@ Desktop.notify("Olá mundo!", "success"); // Dispara um toast global ("success",
                         <td>Exibe o botão de maximizar na titlebar.</td>
                     </tr>
                     <tr>
+                        <td><code>contextMenu</code></td>
+                        <td><code>Array | Function</code></td>
+                        <td><code>null</code></td>
+                        <td>Menu de contexto exclusivo do corpo da janela (vinculado automaticamente).</td>
+                    </tr>
+                    <tr>
+                        <td><code>menubar</code> / <code>menus</code></td>
+                        <td><code>Array</code></td>
+                        <td><code>null</code></td>
+                        <td>Barra de menus dedicada exclusiva desta janela.</td>
+                    </tr>
+                    <tr>
                         <td><code>status</code></td>
                         <td><code>String</code></td>
                         <td><code>""</code></td>
@@ -513,6 +549,23 @@ const MinhaJanela = {
     singleInstance: true,
     status: "Pronto",
 
+    // Menu de Contexto Declarativo da Janela
+    contextMenu: [
+        { label: "🔄 Recarregar Dados", action: (inst) => inst.setStatus("Recarregado!") },
+        { label: "🪟 Abrir Diálogo Local", action: (inst) => inst.openModal({ title: "Diálogo", children: [createElement("p", "", ["Alô!"])] }) }
+    ],
+
+    // MenuBar Declarativo da Janela
+    menubar: [
+        {
+            label: "Arquivo",
+            items: [
+                { label: "Salvar", action: () => alert("Salvo!") },
+                { label: "Fechar", action: (inst) => inst.close() }
+            ]
+        }
+    ],
+
     state: {
         usuario: ""
     },
@@ -523,14 +576,24 @@ const MinhaJanela = {
             await new Promise(r => setTimeout(r, 600));
             ctx.instance.setTitle(`Usuário: ${ctx.state.usuario}`);
             ctx.instance.setStatus("Pronto");
+        }],
+        abrirModal: [async (ctx) => {
+            // Método programático na instância da janela (já sabe que é local)
+            const modal = ctx.instance.openModal({
+                title: "Confirmar Ação",
+                children: (m) => [
+                    createElement("p", "", ["Deseja prosseguir?"]),
+                    Button({ text: "Fechar", onClick: () => m.close() })
+                ]
+            });
         }]
     },
 
     view() {
-        return createElement("div", "p-3", [
+        return createElement("div", "p-3 flex-col gap-2", [
             Input({ label: "Nome de Usuário", bind: "usuario", instance: this }),
-            createElement("br", "", []),
-            Button({ text: "Salvar Dados", onClick: "salvar", instance: this })
+            Button({ text: "Salvar Dados", onClick: "salvar", instance: this }),
+            Button({ text: "Abrir Modal Local", onClick: "abrirModal", instance: this, variant: "secondary" })
         ]);
     }
 };
@@ -1616,36 +1679,50 @@ view() {
             </div>
 
             <h2 id="modal">Modal (Diálogos Modais Integrados ao Look and Feel)</h2>
-            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Se chamado passando <code>instance</code>, o fundo bloqueia apenas a janela de onde foi invocado; se omitido ou passado <code>targetContainer: document.getElementById("app")</code>, o modal se torna global.</p>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Suporta modo <strong>Local</strong> (bloqueando a janela atual via <code>this.openModal</code> ou <code>instance: this</code>) e modo <strong>Global</strong> (bloqueando todo o Desktop via <code>Desktop.openModal</code> ou <code>global: true</code>).</p>
 
             <div class="code-box">
                 <pre><code>import { Modal, Button, createElement } from './ui.js';
+import { Desktop } from './desktop.js';
 
-// 1. Modal Local (Herda o Look and Feel da Janela):
-Modal({
+// 1. Modal Local via Método da Janela (Recomendado):
+const localModal = this.openModal({
     title: "Confirmar Exclusão",
     icon: "🗑️",
-    instance: this,
     closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
-    children: [
+    children: (modal) => [
         createElement("p", "", ["Deseja realmente excluir este registro?"]),
-        Button({ text: "Sim, Excluir", variant: "danger", onClick: () => { /* ... */ } })
+        Button({ text: "Sim, Excluir", variant: "danger", onClick: () => {
+            // Executa ação e fecha sem manipular o DOM diretamente
+            modal.close();
+        }}),
+        Button({ text: "Cancelar", onClick: () => modal.close() })
     ]
 });
 
-// 2. Modal Global com Dimensões Customizadas e Hook beforeClose:
-Modal({
+// 2. Modal Global via Desktop Engine (Sem document.getElementById!):
+const globalModal = Desktop.openModal({
     title: "Aviso Crítico do Sistema",
     icon: "⚠️",
     width: 480,
     showCloseButton: false, // Oculta o botão e desativa a tecla ESC
-    targetContainer: document.getElementById("app"), // Força container do Desktop
     async beforeClose() {
         // Pode validar ou bloquear o fechamento retornando false
         return true;
     },
-    children: [
-        createElement("p", "", ["O servidor será reiniciado em 5 minutos."])
+    children: (modal) => [
+        createElement("p", "", ["O servidor será reiniciado em 5 minutos."]),
+        Button({ text: "OK, Entendido", onClick: () => modal.close() })
+    ]
+});
+
+// 3. Invocação Declarativa com flag global:
+Modal({
+    title: "Diálogo Global",
+    global: true,
+    children: (modal) => [
+        createElement("p", "", ["Modal invocado diretamente sem passar container manual."]),
+        Button({ text: "Fechar", onClick: () => modal.close() })
     ]
 });</code></pre>
             </div>
@@ -1858,11 +1935,16 @@ const dock = DockWidget({
     }
 });
 
-// Ações via código:
-dock.minimizeToTray();   // Minimiza para o canto do relógio na taskbar
-dock.restoreFromTray();  // Restaura e abre o dock
+// Ações e Métodos Programáticos Diretos (Sem querySelector):
+dock.toggle();           // Alterna entre expandido e recolhido
+dock.expand();           // Expande o painel
+dock.collapse();         // Recolhe o painel
+dock.getBadge();         // Retorna o contador numérico atual (ex: 2)
+dock.setBadge(dock.getBadge() + 1); // Define ou incrementa badge
 dock.addItem("📩 Novo e-mail recebido!", true); // true = insere no topo
-dock.setBadge(1);</code></pre>
+dock.clear();            // Limpa o histórico de mensagens
+dock.minimizeToTray();   // Minimiza para o canto do relógio na taskbar
+dock.restoreFromTray();  // Restaura e abre o dock</code></pre>
             </div>
 
             <!-- SEÇÃO: FLOAT BUTTON -->
@@ -1928,7 +2010,7 @@ dock.setBadge(1);</code></pre>
                 <pre><code>import { FloatButton } from './ui.js';
 
 // Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial & Arrastável
-FloatButton({
+const fab = FloatButton({
     icon: "⚡",
     tooltip: "Navegação Rápida",
     position: "bottom-right",
@@ -1948,7 +2030,13 @@ FloatButton({
             action: () => Desktop.openScreen("showcase")
         }
     ]
-});</code></pre>
+});
+
+// Ações e Métodos Programáticos Diretos:
+fab.toggle(); // Alterna a abertura do menu speed dial
+fab.open();   // Abre o menu speed dial
+fab.close();  // Fecha o menu speed dial
+fab.isOpen(); // Retorna booleano indicando se o menu está aberto</code></pre>
             </div>
 
             <hr>
