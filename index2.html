@@ -43,14 +43,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // --- ESTRUTURA GLOBAL DE MENUS ---
         const globalSystemMenus = [
             {
@@ -103,7 +95,6 @@
                         {
                             label: "Preferências",
                             items: [
-                                { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
                                 {
                                     label: "📱 Modo Responsivo",
                                     items: [
@@ -131,17 +122,6 @@
                                         { label: "⬇️ Posicionar no Rodapé", action: () => Desktop.setMenuBarPosition("bottom") },
                                         { label: "⬅️ Posicionar na Esquerda", action: () => Desktop.setMenuBarPosition("left") },
                                         { label: "➡️ Posicionar na Direita", action: () => Desktop.setMenuBarPosition("right") }
-                                    ]
-                                },
-                                {
-                                    label: "Paleta de Cores",
-                                    items: [
-                                        { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
-                                        { label: "Slate Dark", action: () => Desktop.setTheme("dark") },
-                                        { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
-                                        { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
-                                        { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                        { label: "Alto Contraste", action: () => Desktop.setTheme("contrast") }
                                     ]
                                 },
                                 {
@@ -236,21 +216,15 @@
                 menus: globalSystemMenus
             });
 
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                    "separator",
-                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
-                    "separator",
-                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
-                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
-                    { label: "Showcase Completo", screen: "showcase" }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Hub de Arquiteturas de Telas", action: () => Desktop.openScreen("hub_arquiteturas") },
+            "separator",
+            { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "Abrir Painel (Lazy)", action: () => Desktop.openScreen("dashboard") },
+            { label: "Abrir DataGrid (Lazy)", action: () => Desktop.openScreen("datagrid") },
+            { label: "Showcase Completo", action: () => Desktop.openScreen("showcase") }
+        ]);
 
         // --- TELAS DO SHOWCASE ---
 
@@ -265,19 +239,15 @@
                 singleInstance: false, // Pode abrir infinitas!
                 state: { texto: "" },
                 view() {
-                    const field = Textarea({
-                        bind: "texto",
-                        instance: this,
-                        placeholder: "Digite sua anotação...",
-                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
-                    });
-                    const txtEl = field.querySelector('textarea');
-                    if (txtEl) {
-                        txtEl.style.flex = "1";
-                        txtEl.style.resize = "none";
-                        txtEl.style.height = "100%";
-                    }
-                    return createElement("div", "flex-col", [field]);
+                    return createElement("div", "flex-col", [
+                        Textarea({
+                            bind: "texto",
+                            instance: this,
+                            placeholder: "Digite sua anotação...",
+                            style: "height: 100%; display: flex; flex-direction: column; flex: 1;",
+                            inputStyle: "flex: 1; resize: none; height: 100%;"
+                        })
+                    ]);
                 }
             };
             Desktop.open(Framework.createWindow(AnotacaoScreen, `anotacao_${Date.now()}`, Desktop));
@@ -329,16 +299,15 @@
             },
             actions: {
                 salvar: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Confirmar Inclusão",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                             Button({
                                 text: "Sim, salvar", onClick: () => {
                                     Desktop.notify("Salvo com sucesso!", "success");
                                     ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                                    document.querySelector('.ui-modal-overlay').remove();
+                                    modal.close();
                                 }, variant: "success"
                             })
                         ]
@@ -389,7 +358,6 @@
             state: {
                 step: 0,
                 volume: 50,
-                tema: Desktop.getTheme ? Desktop.getTheme() : "light",
                 laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
                 taskbarPos: Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom",
                 menubarPos: Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "none",
@@ -397,13 +365,11 @@
                 menuLateral: false
             },
             onMount() {
-                this.state.tema = Desktop.getTheme ? Desktop.getTheme() : "light";
                 this.state.laf = Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default";
                 this.state.taskbarPos = Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom";
                 this.state.menubarPos = Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "none";
 
                 this._unsubEvents = [
-                    EventBus.on("theme:change", (t) => { this.state.tema = t; }),
                     EventBus.on("laf:change", (l) => { this.state.laf = l; }),
                     EventBus.on("taskbar:positionchange", (p) => { this.state.taskbarPos = p; }),
                     EventBus.on("menubar:positionchange", (m) => { this.state.menubarPos = m; })
@@ -429,41 +395,25 @@
                     Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
                 }],
                 abrirModalLocal: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Modal Local",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }],
                 abrirModalGlobal: [async (ctx) => {
-                    Modal({
+                    Desktop.openModal({
                         title: "Modal Global",
-                        instance: ctx.instance,
-                        targetContainer: document.getElementById("app"),
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }]
             },
             view() {
-                // Aplica o tema se tiver sido modificado pelo select da tela
-                if (Desktop && typeof Desktop.setTheme === 'function' && Desktop.getTheme() !== this.state.tema) {
-                    Desktop.setTheme(this.state.tema);
-                }
-
                 // Aplica o Look and Feel se tiver sido modificado pelo select da tela
                 if (Desktop && typeof Desktop.setLookAndFeel === 'function' && Desktop.getLookAndFeel() !== this.state.laf) {
                     Desktop.setLookAndFeel(this.state.laf);
@@ -567,16 +517,6 @@
                                                         ]
                                                     })
                                                 ]
-                                            }),
-                                            RadioGroup({
-                                                label: "Paleta de Cores do Sistema", bind: "tema", options: [
-                                                    { label: "Light (Azul)", value: "light" },
-                                                    { label: "Dark (Slate)", value: "dark" },
-                                                    { label: "Midnight", value: "midnight" },
-                                                    { label: "Emerald", value: "emerald" },
-                                                    { label: "Nord", value: "nord" },
-                                                    { label: "Alto Contraste", value: "contrast" }
-                                                ], layout: "horizontal", instance: this
                                             }),
                                             Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
                                             Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })

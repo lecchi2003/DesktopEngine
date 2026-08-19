@@ -341,7 +341,6 @@
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
             <a href="#look-and-feel">Look and Feel (34 Skins)</a>
-            <a href="#temas-paletas">Temas e Paletas de Cores</a>
             <a href="#config-export-load">Exportar &amp; Carregar Configurações (JSON)</a>
             <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
@@ -385,22 +384,46 @@
             </ul>
 
             <!-- SEÇÃO 2: INIT -->
-            <h2 id="init">Inicialização do Desktop</h2>
-            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, agrupamento e notificações
-                globais.</p>
+            <h2 id="init">Inicialização do Desktop (Abordagem Híbrida &amp; Zero-HTML)</h2>
+            <p>A classe <code>Desktop</code> controla o ambiente de janelas, taskbar, relógio nativo, menus de contexto globais e notificações. Possui suporte a <strong>Auto-Scaffolding de Shell</strong>: ao chamar <code>Desktop.init()</code> em um contêiner vazio (ex: <code>&lt;div id="app"&gt;&lt;/div&gt;</code> ou direto no <code>&lt;body&gt;</code>), o framework <strong>monta toda a estrutura DOM programaticamente</strong> (MenuBar, Desktop, Windows, Taskbar, Botão Iniciar, Mostrar Desktop e Relógio), eliminando código de casca no HTML.</p>
 
             <div class="code-box">
                 <pre><code>import { Desktop } from './desktop.js';
 
-// Inicialização com opções
+// 1. Inicialização com Auto-Scaffolding (Zero-HTML no &lt;body&gt;):
 Desktop.init({
-    windowsContainerId: "windows",       // Container onde as janelas são criadas
-    taskbarContainerId: "taskWindows",   // Container da barra de tarefas
+    target: "#app",                      // Contêiner de montagem (padrão: "#app" ou document.body)
     taskbarPosition: "bottom",           // "bottom", "top", "left", "right"
-    showDesktopButton: true              // Exibe o botão de minimizar tudo
+    startButton: true,                   // Cria e conecta o botão do Menu Iniciar
+    showDesktopButton: true,             // Cria e conecta o botão #showDesktop
+    clock: { format: "pt-BR", showSeconds: true }, // Relógio gerenciado nativamente
+    menuBar: globalSystemMenus,          // MenuBar global auto-conectado
+    startMenu: nativeStartMenus,         // Menu Iniciar auto-conectado
+    contextMenu: desktopContextMenus,    // Menu de Contexto da Área de Trabalho
+    screens: {                           // Registro declarativo de telas
+        dashboard: () => import('./screens/DashboardScreen.js'),
+        editor: () => import('./screens/EditorScreen.js')
+    }
 });
 
-// Métodos utilitários globais de posicionamento e controle:
+// 2. Métodos Programáticos Globais do Desktop:
+Desktop.setContextMenu(itensDoMenu);     // Altera dinamicamente o menu de contexto do desktop
+Desktop.setMenuBar(menus, "top");        // Atualiza a barra de menus global
+Desktop.setStartMenu(menus);             // Atualiza o menu iniciar da taskbar
+Desktop.setClock({ showSeconds: false });// Reconfigura o relógio nativo
+Desktop.openModal({                      // Abre um modal global no Desktop
+    title: "Alerta Global",
+    children: (modal) => [
+        createElement("p", "", ["Mensagem global para todos os usuários."]),
+        Button({ text: "Entendi", onClick: () => modal.close() })
+    ]
+});
+
+Desktop.getRoot();                       // Retorna o elemento raiz (#app)
+Desktop.getSurface();                    // Retorna a Área de Trabalho (#desktop)
+Desktop.getTaskbar();                    // Retorna a Barra de Tarefas (#taskbar)
+Desktop.getClock();                      // Retorna o elemento do relógio (#clock)
+
 Desktop.setTaskbarPosition("right");     // Altera a barra de tarefas ("bottom", "top", "left", "right")
 Desktop.getTaskbarPosition();            // Retorna a posição ativa da barra de tarefas
 Desktop.setMenuBarPosition("top");       // Altera o MenuBar ("top", "bottom", "left", "right")
@@ -475,6 +498,18 @@ Desktop.notify("Olá mundo!", "success"); // Dispara um toast global ("success",
                         <td>Exibe o botão de maximizar na titlebar.</td>
                     </tr>
                     <tr>
+                        <td><code>contextMenu</code></td>
+                        <td><code>Array | Function</code></td>
+                        <td><code>null</code></td>
+                        <td>Menu de contexto exclusivo do corpo da janela (vinculado automaticamente).</td>
+                    </tr>
+                    <tr>
+                        <td><code>menubar</code> / <code>menus</code></td>
+                        <td><code>Array</code></td>
+                        <td><code>null</code></td>
+                        <td>Barra de menus dedicada exclusiva desta janela.</td>
+                    </tr>
+                    <tr>
                         <td><code>status</code></td>
                         <td><code>String</code></td>
                         <td><code>""</code></td>
@@ -514,6 +549,23 @@ const MinhaJanela = {
     singleInstance: true,
     status: "Pronto",
 
+    // Menu de Contexto Declarativo da Janela
+    contextMenu: [
+        { label: "🔄 Recarregar Dados", action: (inst) => inst.setStatus("Recarregado!") },
+        { label: "🪟 Abrir Diálogo Local", action: (inst) => inst.openModal({ title: "Diálogo", children: [createElement("p", "", ["Alô!"])] }) }
+    ],
+
+    // MenuBar Declarativo da Janela
+    menubar: [
+        {
+            label: "Arquivo",
+            items: [
+                { label: "Salvar", action: () => alert("Salvo!") },
+                { label: "Fechar", action: (inst) => inst.close() }
+            ]
+        }
+    ],
+
     state: {
         usuario: ""
     },
@@ -524,14 +576,24 @@ const MinhaJanela = {
             await new Promise(r => setTimeout(r, 600));
             ctx.instance.setTitle(`Usuário: ${ctx.state.usuario}`);
             ctx.instance.setStatus("Pronto");
+        }],
+        abrirModal: [async (ctx) => {
+            // Método programático na instância da janela (já sabe que é local)
+            const modal = ctx.instance.openModal({
+                title: "Confirmar Ação",
+                children: (m) => [
+                    createElement("p", "", ["Deseja prosseguir?"]),
+                    Button({ text: "Fechar", onClick: () => m.close() })
+                ]
+            });
         }]
     },
 
     view() {
-        return createElement("div", "p-3", [
+        return createElement("div", "p-3 flex-col gap-2", [
             Input({ label: "Nome de Usuário", bind: "usuario", instance: this }),
-            createElement("br", "", []),
-            Button({ text: "Salvar Dados", onClick: "salvar", instance: this })
+            Button({ text: "Salvar Dados", onClick: "salvar", instance: this }),
+            Button({ text: "Abrir Modal Local", onClick: "abrirModal", instance: this, variant: "secondary" })
         ]);
     }
 };
@@ -1616,36 +1678,51 @@ view() {
 }</code></pre>
             </div>
 
-            <h2 id="modal">Modal (Isolado por Janela ou Global)</h2>
-            <p>Diálogos de confirmação ou formulários de foco bloqueante. Se chamado passando <code>instance</code>, o
-                fundo bloqueia apenas a janela onde foi chamado.</p>
+            <h2 id="modal">Modal (Diálogos Modais Integrados ao Look and Feel)</h2>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Suporta modo <strong>Local</strong> (bloqueando a janela atual via <code>this.openModal</code> ou <code>instance: this</code>) e modo <strong>Global</strong> (bloqueando todo o Desktop via <code>Desktop.openModal</code> ou <code>global: true</code>).</p>
 
             <div class="code-box">
                 <pre><code>import { Modal, Button, createElement } from './ui.js';
+import { Desktop } from './desktop.js';
 
-// 1. Modal Local (Restrito à Janela)
-Modal({
+// 1. Modal Local via Método da Janela (Recomendado):
+const localModal = this.openModal({
     title: "Confirmar Exclusão",
-    instance: this,
-    closable: true, // Padrão: true. Se false, oculta o botão 'X' superior
-    children: [
+    icon: "🗑️",
+    closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
+    children: (modal) => [
         createElement("p", "", ["Deseja realmente excluir este registro?"]),
-        Button({ text: "Sim, Excluir", variant: "danger", onClick: () => { /* ... */ } })
+        Button({ text: "Sim, Excluir", variant: "danger", onClick: () => {
+            // Executa ação e fecha sem manipular o DOM diretamente
+            modal.close();
+        }}),
+        Button({ text: "Cancelar", onClick: () => modal.close() })
     ]
 });
 
-// 2. Modal Global Sem Botão 'X' e com Interceptador beforeClose
-Modal({
+// 2. Modal Global via Desktop Engine (Sem document.getElementById!):
+const globalModal = Desktop.openModal({
     title: "Aviso Crítico do Sistema",
-    instance: this,
-    showCloseButton: false, // Oculta o 'X' e desativa a tecla ESC
-    targetContainer: document.getElementById("app"), // Força container do Desktop
+    icon: "⚠️",
+    width: 480,
+    showCloseButton: false, // Oculta o botão e desativa a tecla ESC
     async beforeClose() {
         // Pode validar ou bloquear o fechamento retornando false
         return true;
     },
-    children: [
-        createElement("p", "", ["O servidor será reiniciado em 5 minutos."])
+    children: (modal) => [
+        createElement("p", "", ["O servidor será reiniciado em 5 minutos."]),
+        Button({ text: "OK, Entendido", onClick: () => modal.close() })
+    ]
+});
+
+// 3. Invocação Declarativa com flag global:
+Modal({
+    title: "Diálogo Global",
+    global: true,
+    children: (modal) => [
+        createElement("p", "", ["Modal invocado diretamente sem passar container manual."]),
+        Button({ text: "Fechar", onClick: () => modal.close() })
     ]
 });</code></pre>
             </div>
@@ -1747,7 +1824,7 @@ Tooltip({
 
             <!-- SEÇÃO: DOCK WIDGET -->
             <h2 id="dock-widget">DockWidget (Collapsible Bottom Tray &amp; Messenger)</h2>
-            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong>.</p>
+            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong> (com alinhamento e ancoragem automática acima da <code>StatusBar</code>).</p>
 
             <table>
                 <thead>
@@ -1858,11 +1935,16 @@ const dock = DockWidget({
     }
 });
 
-// Ações via código:
-dock.minimizeToTray();   // Minimiza para o canto do relógio na taskbar
-dock.restoreFromTray();  // Restaura e abre o dock
+// Ações e Métodos Programáticos Diretos (Sem querySelector):
+dock.toggle();           // Alterna entre expandido e recolhido
+dock.expand();           // Expande o painel
+dock.collapse();         // Recolhe o painel
+dock.getBadge();         // Retorna o contador numérico atual (ex: 2)
+dock.setBadge(dock.getBadge() + 1); // Define ou incrementa badge
 dock.addItem("📩 Novo e-mail recebido!", true); // true = insere no topo
-dock.setBadge(1);</code></pre>
+dock.clear();            // Limpa o histórico de mensagens
+dock.minimizeToTray();   // Minimiza para o canto do relógio na taskbar
+dock.restoreFromTray();  // Restaura e abre o dock</code></pre>
             </div>
 
             <!-- SEÇÃO: FLOAT BUTTON -->
@@ -1928,7 +2010,7 @@ dock.setBadge(1);</code></pre>
                 <pre><code>import { FloatButton } from './ui.js';
 
 // Exemplo: Botão Flutuante de Ações Rápidas com Speed Dial & Arrastável
-FloatButton({
+const fab = FloatButton({
     icon: "⚡",
     tooltip: "Navegação Rápida",
     position: "bottom-right",
@@ -1948,7 +2030,13 @@ FloatButton({
             action: () => Desktop.openScreen("showcase")
         }
     ]
-});</code></pre>
+});
+
+// Ações e Métodos Programáticos Diretos:
+fab.toggle(); // Alterna a abertura do menu speed dial
+fab.open();   // Abre o menu speed dial
+fab.close();  // Fecha o menu speed dial
+fab.isOpen(); // Retorna booleano indicando se o menu está aberto</code></pre>
             </div>
 
             <hr>
@@ -2493,16 +2581,6 @@ export default {
                 permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela,
                 tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
 
-            <div class="alert alert-tip">
-                <span class="alert-icon">💡</span>
-                <div>
-                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça visual via atributo
-                    <code>data-laf</code>) é independente da <em>Paleta de Cores</em> (cores e tons via atributo
-                    <code>data-theme</code>). Você pode combinar livremente qualquer Look and Feel com qualquer Tema
-                    (ex: Aqua Frosted no tema Midnight Cyber, Retro 3D em Alto Contraste, ou Steel Metal no tema Slate Dark).
-                </div>
-            </div>
-
             <h3>API do Desktop para Look and Feel &amp; Botão Iniciar Dinâmico</h3>
             <div class="code-box">
                 <pre><code>import { Desktop } from './desktop.js';
@@ -2775,129 +2853,6 @@ EventBus.on("laf:change", (lafName) => {
                 </tbody>
             </table>
 
-            <h2 id="temas-paletas">Sistema de Temas e Schema de Paletas de Cores</h2>
-            <p>O DesktopEngine inclui um motor nativo de temas que altera todas as variáveis visuais (janelas,
-                titlebars, botões, formulários e cards) sem recarregar a página e com persistência automática no
-                <code>localStorage</code>.
-            </p>
-
-            <h3>API do Desktop</h3>
-            <div class="code-box">
-                <pre><code>import { Desktop } from './desktop.js';
-
-// 1. Aplicar um tema pré-configurado
-Desktop.setTheme("dark");       // Opções: "light", "dark", "midnight", "emerald", "nord"
-
-// 2. Alternar rapidamente entre Light e Dark
-Desktop.toggleTheme();
-
-// 3. Obter o tema ativo no momento
-const temaAtual = Desktop.getTheme(); // Ex: "midnight"
-
-// 4. Registrar uma Paleta Customizada em Runtime
-Desktop.registerPalette("sunset", {
-    "--bg-primary": "#2b1055",
-    "--bg-secondary": "#3c1b75",
-    "--text-primary": "#fde047",
-    "--text-secondary": "#fbcfe8",
-    "--win-bg": "rgba(43, 16, 85, 0.9)",
-    "--win-border": "rgba(253, 224, 71, 0.3)",
-    "--title-bg-start": "#f43f5e",
-    "--title-bg-end": "#fb7185",
-    "--btn-primary": "#f43f5e",
-    "--btn-primary-hover": "#e11d48",
-    "--btn-primary-text": "#ffffff"
-});
-
-// Ativar a paleta registrada:
-Desktop.setTheme("sunset");</code></pre>
-            </div>
-
-            <h3>Paletas Nativas Embutidas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Identificador</th>
-                        <th>Estilo / Perfil</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Azul Corporativo</strong></td>
-                        <td><code>"light"</code></td>
-                        <td>Padrão claro institucional com realces em azul royal.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Slate Dark</strong></td>
-                        <td><code>"dark"</code></td>
-                        <td>Fundo escuro grafite com destaques em índigo moderno.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Midnight Cyber</strong></td>
-                        <td><code>"midnight"</code></td>
-                        <td>Azul marinho profundo com roxo elétrico (estilo terminal/dev).</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Emerald Fintech</strong></td>
-                        <td><code>"emerald"</code></td>
-                        <td>Verde esmeralda sofisticado para dashboards financeiros.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Nord Frost</strong></td>
-                        <td><code>"nord"</code></td>
-                        <td>Minimalismo ártico com tons glaciais e azul pastel suave.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Alto Contraste</strong></td>
-                        <td><code>"contrast"</code></td>
-                        <td>Visual clássico retrô Windows de acessibilidade (fundo preto puro, ciano e barra magenta).
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Schema de Tokens CSS Disponíveis</h3>
-            <p>Qualquer tema ou componente no framework responde a estes tokens semânticos declarados no
-                <code>style.css</code>:
-            </p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Token CSS</th>
-                        <th>Finalidade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>--bg-primary</code> / <code>--bg-secondary</code></td>
-                        <td>Cor de fundo do desktop e de painéis secundários.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--text-primary</code> / <code>--text-secondary</code></td>
-                        <td>Tipografia principal e textos atenuados (labels, notas).</td>
-                    </tr>
-                    <tr>
-                        <td><code>--win-bg</code> / <code>--win-border</code> / <code>--win-shadow</code></td>
-                        <td>Fundo com transparência (Glassmorphism), borda e elevação das janelas.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--title-bg-start</code> / <code>--title-bg-end</code> / <code>--title-text</code></td>
-                        <td>Gradiente da barra de título das janelas e cor do título.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--btn-primary</code> / <code>--btn-primary-hover</code> /
-                            <code>--btn-primary-text</code>
-                        </td>
-                        <td>Cores dos botões de ação principal em todo o sistema.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--input-bg</code> / <code>--input-border</code></td>
-                        <td>Fundo e contorno de caixas de entrada e selects.</td>
-                    </tr>
-                </tbody>
-            </table>
-
             <!-- SEÇÃO: EXPORTAR E CARREGAR CONFIGURAÇÕES -->
             <h2 id="config-export-load">Exportar &amp; Carregar Configurações do Ambiente (JSON)</h2>
             <p>O framework fornece métodos nativos e convenientes para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string <code>JSON</code> (ideal para salvar em banco de dados, perfil do usuário ou arquivos de configuração) e recarregá-lo instantaneamente:</p>
@@ -2910,7 +2865,6 @@ const jsonConfig = Desktop.exportConfig(true);
 console.log(jsonConfig);
 /* Exemplo de saída gerada:
 {
-  "theme": "dark",
   "lookAndFeel": "aqua-frosted",
   "taskbarPosition": "bottom",
   "menubarPosition": "top",
@@ -2921,14 +2875,13 @@ console.log(jsonConfig);
 */
 
 // 2. Extrair configuração como Objeto JavaScript puro
-const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+const configObj = Desktop.exportConfig(); // { lookAndFeel: "aqua-frosted", ... }
 
 // 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
 Desktop.loadConfig(jsonConfig);
 
 // Também aceita objeto diretamente e controla se deve persistir no localStorage:
 Desktop.loadConfig({
-    theme: "midnight",
     lookAndFeel: "fluent-acrylic",
     taskbarPosition: "left",
     menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
@@ -2936,19 +2889,109 @@ Desktop.loadConfig({
             </div>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
-            <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção
-                nativa contra colisão de bordas:</p>
+            <p>Adiciona menus de contexto flutuantes com suporte a <strong>submenus aninhados (<code>items: [...]</code>)</strong>, separadores, ícones, atalhos de teclado e proteção nativa contra colisão de bordas. Permite configurar teclas de atalho/modificadoras (ex: <code>"alt"</code>, <code>"ctrl"</code>, <code>"shift"</code>, <code>"meta"</code>) para ignorar o menu customizado e exibir o menu nativo do navegador (a tecla <strong><code>"shift"</code></strong> já vem ativa por padrão em todo o framework).</p>
 
             <div class="code-box">
-                <pre><code>import { bindContextMenu } from './ui.js';
+                <pre><code>import { ContextMenu, bindContextMenu } from './ui.js';
 
-// Associa o clique direito no elemento
+// 1. Vinculando menu de contexto a um elemento com propriedades de atalho nativo
 bindContextMenu(meuCardEl, [
-    { label: "Abrir em Nova Aba", action: () => console.log("Abrir") },
-    { label: "Duplicar Item", action: () => console.log("Duplicar") },
+    { label: "Abrir em Nova Janela", icon: "🪟", action: () => console.log("Abrir") },
+    {
+        label: "Exportar Como...",
+        icon: "📤",
+        items: [
+            { label: "Documento PDF (.pdf)", action: () => exportar("pdf") },
+            { label: "Planilha Excel (.xlsx)", action: () => exportar("xlsx") },
+            { label: "JSON Raw (.json)", action: () => exportar("json") }
+        ]
+    },
     "separator",
-    { label: "Excluir", action: () => meuCardEl.remove() }
-]);</code></pre>
+    { label: "Excluir Registro", icon: "🗑️", action: () => meuCardEl.remove() }
+], {
+    allowNativeKey: "shift" // Recomendado: Abre o menu nativo do navegador pressionando Shift + Clique Direito (mais estável)
+});
+
+// 2. Invocação direta por coordenadas (ex: desktop)
+document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    ContextMenu({
+        x: e.clientX,
+        y: e.clientY,
+        items: [
+            { label: "Nova Janela", screen: "dashboard" },
+            { label: "Aparência", items: lookAndFeelsItensVar }
+        ]
+    });
+});
+
+// 3. Declarativo em qualquer Componente do Framework (Card, DataGrid, Button, etc.)
+const gridEl = DataGrid({
+    bindData: "clientes",
+    instance: this,
+    columns: [ ... ],
+    contextMenu: [
+        { label: "Exportar para CSV", action: () => exportar() },
+        { label: "Imprimir Relatório", action: () => printElement(gridEl) }
+    ]
+});
+
+// 4. Programático via instância de Componente ou Elemento criado por createElement
+meuCard.setContextMenu([
+    { label: "Recarregar Dados", action: () => atualizar() }
+]);
+meuCard.setContextMenu(null); // Remove o menu de contexto do elemento</code></pre>
+            </div>
+
+            <h2 id="eventbus-p2p">Comunicação Inter-telas Peer-to-Peer (EventBus)</h2>
+            <p>Para enviar dados ou mensagens entre telas arbitrárias sem qualquer acoplamento de hierarquia (sem relacionamento pai-filho), o framework disponibiliza o <code>EventBus</code> global. É um barramento pub/sub reativo que suporta sincronização automática e transparente inclusive entre abas diferentes do navegador usando LocalStorage:</p>
+
+            <div class="code-box">
+                <pre><code>import { EventBus } from './core.js';
+
+// 1. Tela Emissora
+const TelaA = {
+    title: "Emissor Alfa",
+    state: { mensagem: "" },
+    actions: {
+        enviar: [(ctx) => {
+            EventBus.emit("canal:comunicacao", ctx.state.mensagem);
+            ctx.state.mensagem = "";
+            ctx.instance.update();
+        }]
+    },
+    view() {
+        return createElement("div", "", [
+            Input({ bind: "mensagem", instance: this }),
+            Button({ text: "Enviar", onClick: "enviar", instance: this })
+        ]);
+    }
+};
+
+// 2. Tela Receptora
+const TelaB = {
+    title: "Receptor Beta",
+    state: { historico: [] },
+    onMount() {
+        // Escuta o canal e atualiza o estado
+        this._handler = (payload) => {
+            this.state.historico.push(payload);
+            this.update(); // Re-renderiza a tela com o novo histórico
+        };
+        EventBus.on("canal:comunicacao", this._handler);
+    },
+    onDestroy() {
+        // Remove a escuta ao fechar a janela para liberar memória
+        if (this._handler) {
+            EventBus.off("canal:comunicacao", this._handler);
+        }
+    },
+    view() {
+        return createElement("div", "", 
+            this.state.historico.map(msg => createElement("p", "", [msg]))
+        );
+    }
+};</code></pre>
             </div>
 
             <h2 id="modo-mobile">Modo Mobile &amp; Responsivo (Stacked Windows, Drawer &amp; Bottom Sheet)</h2>

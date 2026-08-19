@@ -9,21 +9,10 @@
 </head>
 
 <body>
-    <div id="app">
-        <div id="menubar"></div>
-        <div id="desktop">
-            <div id="windows"></div>
-        </div>
-        <div id="taskbar">
-            <button class="taskStart" id="startBtn">Iniciar</button>
-            <button class="taskShowDesktop" id="showDesktop" title="Mostrar Área de Trabalho">🖥️</button>
-            <div class="taskWindows" id="taskWindows"></div>
-            <div class="clock" id="clock"></div>
-        </div>
-    </div>
+    <div id="app"></div>
 
     <script type="module">
-        import { Framework } from './core.js';
+        import { Framework, EventBus } from './core.js';
         import { Desktop } from './desktop.js';
         import {
             MenuBar, StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
@@ -34,22 +23,77 @@
             DockWidget, FloatButton
         } from './ui.js';
 
-        // Inicializa o desktop na posição escolhida
-        Desktop.init({
-            windowsContainerId: "windows",
-            taskbarContainerId: "taskWindows",
-            taskbarPosition: "left", // Pode ser 'top', 'bottom', 'left', 'right'
-            startButtonId: "startBtn",
-            showDesktopButton: true
-        });
-
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
+        const lookAndFeelsItensVar = {
+            label: "Look and Feel (Skins de Interface)",
+            items: [
+                {
+                    label: "📱 & 💻 Modernos & Translúcidos",
+                    items: [
+                        { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
+                        { label: "🍎 Aqua Frosted (Vidro Fosco)", action: () => Desktop.setLookAndFeel("aqua-frosted") },
+                        { label: "🪟 Fluent Acrylic (Acrílico)", action: () => Desktop.setLookAndFeel("fluent-acrylic") },
+                        { label: "🤖 Material Tonal (Dynamic)", action: () => Desktop.setLookAndFeel("material-tonal") },
+                        { label: "🍏 Cupertino Touch (Fluid)", action: () => Desktop.setLookAndFeel("cupertino-touch") },
+                        { label: "🌌 One Touch (Curvas)", action: () => Desktop.setLookAndFeel("one-touch") },
+                        { label: "🔲 Flat Tiles (Modern UI)", action: () => Desktop.setLookAndFeel("flat-tiles") }
+                    ]
+                },
+                {
+                    label: "🥽 & 🫧 Espacial & Tátil",
+                    items: [
+                        { label: "🥽 Spatial Glass (Imersivo)", action: () => Desktop.setLookAndFeel("spatial-glass") },
+                        { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
+                        { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
+                    ]
+                },
+                {
+                    label: "☕ Ecossistema Swing & Java",
+                    items: [
+                        { label: "☕ Steel Metal (Classic Swing)", action: () => Desktop.setLookAndFeel("steel-metal") },
+                        { label: "🌊 Ocean Metal (Steel Blue)", action: () => Desktop.setLookAndFeel("ocean-metal") },
+                        { label: "✨ Nimbus Vector (Vibrant)", action: () => Desktop.setLookAndFeel("nimbus-vector") },
+                        { label: "🎨 Modern IDE (Studio Dark/Light)", action: () => Desktop.setLookAndFeel("flatlaf-ide") },
+                        { label: "🌿 Modena Soft (Enterprise)", action: () => Desktop.setLookAndFeel("modena-soft") },
+                        { label: "🔷 Caspian Slate (Dark Blue)", action: () => Desktop.setLookAndFeel("caspian-dark") }
+                    ]
+                },
+                {
+                    label: "🕹️ Clássicos & Retro 3D",
+                    items: [
+                        { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
+                        { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
+                        { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
+                        { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
+                        { label: "⬛ Dark Slate Cube (Workstation)", action: () => Desktop.setLookAndFeel("next-dark") },
+                        { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
+                        { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
+                        { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
+                    ]
+                },
+                {
+                    label: "🐧 Desktops Unix & Abertos",
+                    items: [
+                        { label: "🟠 Aubergine Orange (Humanist)", action: () => Desktop.setLookAndFeel("aubergine-orange") },
+                        { label: "🕊️ Pantheon Pure (Light Minimal)", action: () => Desktop.setLookAndFeel("pantheon-pure") },
+                        { label: "🚀 Cosmic Teal (Modern Desktop)", action: () => Desktop.setLookAndFeel("cosmic-teal") },
+                        { label: "🪟 Tiling Grid (Minimal Tiling)", action: () => Desktop.setLookAndFeel("tiling-grid") },
+                        { label: "🐭 Greybird Lite (Lightweight)", action: () => Desktop.setLookAndFeel("greybird-lite") },
+                        { label: "🌌 Fusion Neon (Compositor)", action: () => Desktop.setLookAndFeel("e-fusion") },
+                        { label: "⬛ X11 Dark Box (NeXT-Style)", action: () => Desktop.setLookAndFeel("x11-box") },
+                        { label: "🟣 Motif Panel (UNIX CDE)", action: () => Desktop.setLookAndFeel("motif-panel") },
+                        { label: "🐧 Adwaita Slate (Clean Flat)", action: () => Desktop.setLookAndFeel("adwaita-slate") },
+                        { label: "⚙️ Breeze Plasma (Glass Glow)", action: () => Desktop.setLookAndFeel("breeze-plasma") }
+                    ]
+                },
+                {
+                    label: "💻 Console & Sci-Fi",
+                    items: [
+                        { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
+                        { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
+                    ]
+                }
+            ]
+        };
 
         // --- ESTRUTURA GLOBAL DA ÁRVORE DE MENUS ---
         const globalSystemMenus = [
@@ -84,7 +128,10 @@
                     { label: "Navegador Web (Window MenuBar)", screen: "browser" },
                     { label: "Formulários e Cadastros", screen: "forms" },
                     { label: "Gerenciador de Tarefas", screen: "tasks" },
-                    { label: "Showcase de Componentes", screen: "showcase" }
+                    { label: "Showcase de Componentes", screen: "showcase" },
+                    "separator",
+                    { label: "📟 Terminal Alfa (P2P EventBus)", screen: "terminal_alfa" },
+                    { label: "📟 Terminal Beta (P2P EventBus)", screen: "terminal_beta" }
                 ]
             },
             {
@@ -102,7 +149,6 @@
                     {
                         label: "Preferências",
                         items: [
-                            { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
                             {
                                 label: "📱 Modo Responsivo",
                                 items: [
@@ -132,88 +178,7 @@
                                     { label: "➡️ Posicionar na Direita", action: () => Desktop.setMenuBarPosition("right") }
                                 ]
                             },
-                            {
-                                label: "Paleta de Cores",
-                                items: [
-                                    { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
-                                    { label: "Slate Dark", action: () => Desktop.setTheme("dark") },
-                                    { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
-                                    { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
-                                    { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                    { label: "Alto Contraste", action: () => Desktop.setTheme("contrast") }
-                                ]
-                            },
-                            {
-                                label: "Look and Feel (Skins de Interface)",
-                                items: [
-                                    {
-                                        label: "📱 & 💻 Modernos & Translúcidos",
-                                        items: [
-                                            { label: "✨ Padrão (DesktopEngine)", action: () => Desktop.setLookAndFeel("default") },
-                                            { label: "🍎 Aqua Frosted (Vidro Fosco)", action: () => Desktop.setLookAndFeel("aqua-frosted") },
-                                            { label: "🪟 Fluent Acrylic (Acrílico)", action: () => Desktop.setLookAndFeel("fluent-acrylic") },
-                                            { label: "🤖 Material Tonal (Dynamic)", action: () => Desktop.setLookAndFeel("material-tonal") },
-                                            { label: "🍏 Cupertino Touch (Fluid)", action: () => Desktop.setLookAndFeel("cupertino-touch") },
-                                            { label: "🌌 One Touch (Curvas)", action: () => Desktop.setLookAndFeel("one-touch") },
-                                            { label: "🔲 Flat Tiles (Modern UI)", action: () => Desktop.setLookAndFeel("flat-tiles") }
-                                        ]
-                                    },
-                                    {
-                                        label: "🥽 & 🫧 Espacial & Tátil",
-                                        items: [
-                                            { label: "🥽 Spatial Glass (Imersivo)", action: () => Desktop.setLookAndFeel("spatial-glass") },
-                                            { label: "🫧 Neumorphism (Soft UI)", action: () => Desktop.setLookAndFeel("neumorphism") },
-                                            { label: "⚡ Tactical HUD (Cyberdeck)", action: () => Desktop.setLookAndFeel("tactical-hud") }
-                                        ]
-                                    },
-                                    {
-                                        label: "☕ Ecossistema Swing & Java",
-                                        items: [
-                                            { label: "☕ Steel Metal (Classic Swing)", action: () => Desktop.setLookAndFeel("steel-metal") },
-                                            { label: "🌊 Ocean Metal (Steel Blue)", action: () => Desktop.setLookAndFeel("ocean-metal") },
-                                            { label: "✨ Nimbus Vector (Vibrant)", action: () => Desktop.setLookAndFeel("nimbus-vector") },
-                                            { label: "🎨 Modern IDE (Studio Dark/Light)", action: () => Desktop.setLookAndFeel("flatlaf-ide") },
-                                            { label: "🌿 Modena Soft (Enterprise)", action: () => Desktop.setLookAndFeel("modena-soft") },
-                                            { label: "🔷 Caspian Slate (Dark Blue)", action: () => Desktop.setLookAndFeel("caspian-dark") }
-                                        ]
-                                    },
-                                    {
-                                        label: "🕹️ Clássicos & Retro 3D",
-                                        items: [
-                                            { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
-                                            { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
-                                            { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
-                                            { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
-                                            { label: "⬛ Dark Slate Cube (Workstation)", action: () => Desktop.setLookAndFeel("next-dark") },
-                                            { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
-                                            { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
-                                            { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
-                                        ]
-                                    },
-                                    {
-                                        label: "🐧 Desktops Unix & Abertos",
-                                        items: [
-                                            { label: "🟠 Aubergine Orange (Humanist)", action: () => Desktop.setLookAndFeel("aubergine-orange") },
-                                            { label: "🕊️ Pantheon Pure (Light Minimal)", action: () => Desktop.setLookAndFeel("pantheon-pure") },
-                                            { label: "🚀 Cosmic Teal (Modern Desktop)", action: () => Desktop.setLookAndFeel("cosmic-teal") },
-                                            { label: "🪟 Tiling Grid (Minimal Tiling)", action: () => Desktop.setLookAndFeel("tiling-grid") },
-                                            { label: "🐭 Greybird Lite (Lightweight)", action: () => Desktop.setLookAndFeel("greybird-lite") },
-                                            { label: "🌌 Fusion Neon (Compositor)", action: () => Desktop.setLookAndFeel("e-fusion") },
-                                            { label: "⬛ X11 Dark Box (NeXT-Style)", action: () => Desktop.setLookAndFeel("x11-box") },
-                                            { label: "🟣 Motif Panel (UNIX CDE)", action: () => Desktop.setLookAndFeel("motif-panel") },
-                                            { label: "🐧 Adwaita Slate (Clean Flat)", action: () => Desktop.setLookAndFeel("adwaita-slate") },
-                                            { label: "⚙️ Breeze Plasma (Glass Glow)", action: () => Desktop.setLookAndFeel("breeze-plasma") }
-                                        ]
-                                    },
-                                    {
-                                        label: "💻 Console & Sci-Fi",
-                                        items: [
-                                            { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
-                                            { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
-                                        ]
-                                    }
-                                ]
-                            },
+                            lookAndFeelsItensVar,
                             {
                                 label: "💾 Configurações do Ambiente (JSON)",
                                 items: [
@@ -262,36 +227,39 @@
             }
         ];
 
-        // --- MENU INICIAR (TASKBAR) ---
-        StartMenu({
-            buttonId: "startBtn",
-            menus: nativeStartMenus
-        });
+        // Menu de Contexto da Área de Trabalho (Desktop)
+        const desktopContextMenus = [
+            { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
+            "separator",
+            { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
+            { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
+            { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
+            { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
+            { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
+            { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "Abrir Painel (Lazy)", screen: "dashboard" },
+            { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
+            "separator",
+            { label: "📟 Abrir Terminal Alfa (P2P)", screen: "terminal_alfa" },
+            { label: "📟 Abrir Terminal Beta (P2P)", screen: "terminal_beta" },
+            "separator",
+            lookAndFeelsItensVar
+        ];
 
-        // --- MENU BAR (TOPO) ---
-        MenuBar({
-            containerId: "menubar",
-            menus: globalSystemMenus
-        });
-
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
-                    "separator",
-                    { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
-                    { label: "🪟 Janelas Modais Filhas (Dialogs)", screen: "child_modal_demo" },
-                    { label: "⏱️ Monitor de Ciclo de Vida (Hooks)", screen: "lifecycle_demo" },
-                    { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
-                    { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
-                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
-                    "separator",
-                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
-                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" }
-                ]
-            });
+        // --- INICIALIZAÇÃO HÍBRIDA DO DESKTOP ENGINE (DECLARATIVA + PROGRAMÁTICA) ---
+        Desktop.init({
+            windowsContainerId: "windows",
+            taskbarContainerId: "taskWindows",
+            taskbarPosition: "left", // Pode ser 'top', 'bottom', 'left', 'right'
+            showDesktopButton: true,
+            clock: { format: "pt-BR", showSeconds: true },
+            menuBar: globalSystemMenus,
+            startMenu: nativeStartMenus,
+            contextMenu: {
+                items: desktopContextMenus,
+                allowNativeKey: "shift"
+            }
         });
 
         // --- TELAS DO SHOWCASE ---
@@ -307,19 +275,15 @@
                 singleInstance: false, // Pode abrir infinitas!
                 state: { texto: "" },
                 view() {
-                    const field = Textarea({
-                        bind: "texto",
-                        instance: this,
-                        placeholder: "Digite sua anotação...",
-                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
-                    });
-                    const txtEl = field.querySelector('textarea');
-                    if (txtEl) {
-                        txtEl.style.flex = "1";
-                        txtEl.style.resize = "none";
-                        txtEl.style.height = "100%";
-                    }
-                    return createElement("div", "flex-col", [field]);
+                    return createElement("div", "flex-col", [
+                        Textarea({
+                            bind: "texto",
+                            instance: this,
+                            placeholder: "Digite sua anotação...",
+                            style: "height: 100%; display: flex; flex-direction: column; flex: 1;",
+                            inputStyle: "flex: 1; resize: none; height: 100%;"
+                        })
+                    ]);
                 }
             };
             Desktop.open(Framework.createWindow(AnotacaoScreen, `anotacao_${Date.now()}`, Desktop));
@@ -371,16 +335,15 @@
             },
             actions: {
                 salvar: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Confirmar Inclusão",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                             Button({
                                 text: "Sim, salvar", onClick: () => {
                                     Desktop.notify("Salvo com sucesso!", "success");
                                     ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                                    document.querySelector('.ui-modal-overlay').remove();
+                                    modal.close();
                                 }, variant: "success"
                             })
                         ]
@@ -431,7 +394,6 @@
             state: {
                 step: 0,
                 volume: 50,
-                tema: Desktop.getTheme ? Desktop.getTheme() : "light",
                 laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
                 taskbarPos: Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom",
                 menubarPos: Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "top",
@@ -440,13 +402,11 @@
             },
             onMount() {
                 // Sincroniza com as configurações reais ativas do Desktop
-                this.state.tema = Desktop.getTheme ? Desktop.getTheme() : "light";
                 this.state.laf = Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default";
                 this.state.taskbarPos = Desktop.getTaskbarPosition ? Desktop.getTaskbarPosition() : "bottom";
                 this.state.menubarPos = Desktop.getMenuBarPosition ? Desktop.getMenuBarPosition() : "top";
 
                 this._unsubEvents = [
-                    EventBus.on("theme:change", (t) => { this.state.tema = t; }),
                     EventBus.on("laf:change", (l) => { this.state.laf = l; }),
                     EventBus.on("taskbar:positionchange", (p) => { this.state.taskbarPos = p; }),
                     EventBus.on("menubar:positionchange", (m) => { this.state.menubarPos = m; })
@@ -472,41 +432,34 @@
                     Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
                 }],
                 abrirModalLocal: [async (ctx) => {
-                    Modal({
-                        title: "Modal Local",
-                        instance: ctx.instance,
-                        children: [
-                            createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
-                        ]
-                    });
+                    const modal = (ctx.instance && typeof ctx.instance.openModal === 'function')
+                        ? ctx.instance.openModal({
+                            title: "Modal Local",
+                            children: (m) => [
+                                createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                                Button({ text: "Fechar", onClick: () => m.close() })
+                            ]
+                        })
+                        : Modal({
+                            title: "Modal Local",
+                            instance: ctx.instance,
+                            children: (m) => [
+                                createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                                Button({ text: "Fechar", onClick: () => m.close() })
+                            ]
+                        });
                 }],
                 abrirModalGlobal: [async (ctx) => {
-                    Modal({
+                    const modal = Desktop.openModal({
                         title: "Modal Global",
-                        instance: ctx.instance,
-                        targetContainer: document.getElementById("app"),
-                        children: [
+                        children: (m) => [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => m.close() })
                         ]
                     });
                 }]
             },
             view() {
-                // Aplica o tema se tiver sido modificado pelo select da tela
-                if (Desktop && typeof Desktop.setTheme === 'function' && Desktop.getTheme() !== this.state.tema) {
-                    Desktop.setTheme(this.state.tema);
-                }
-
                 // Aplica o Look and Feel se tiver sido modificado pelo select da tela
                 if (Desktop && typeof Desktop.setLookAndFeel === 'function' && Desktop.getLookAndFeel() !== this.state.laf) {
                     Desktop.setLookAndFeel(this.state.laf);
@@ -643,16 +596,6 @@
                                                         ]
                                                     })
                                                 ]
-                                            }),
-                                            RadioGroup({
-                                                label: "Paleta de Cores do Sistema", bind: "tema", options: [
-                                                    { label: "Light (Azul)", value: "light" },
-                                                    { label: "Dark (Slate)", value: "dark" },
-                                                    { label: "Midnight", value: "midnight" },
-                                                    { label: "Emerald", value: "emerald" },
-                                                    { label: "Nord", value: "nord" },
-                                                    { label: "Alto Contraste", value: "contrast" }
-                                                ], layout: "horizontal", instance: this
                                             }),
                                             Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
                                             Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
@@ -897,6 +840,116 @@
             }
         };
 
+        const TerminalAlfaScreen = {
+            title: "Terminal Alfa (P2P)",
+            icon: "⚡",
+            width: 420,
+            height: 320,
+            singleInstance: true,
+            state: {
+                messageToSend: "",
+                receivedMessages: []
+            },
+            onMount() {
+                this._cb = (msg) => {
+                    this.state.receivedMessages.push(msg);
+                    this.update();
+                };
+                EventBus.on("p2p:to-alfa", this._cb);
+            },
+            onDestroy() {
+                if (this._cb) {
+                    EventBus.off("p2p:to-alfa", this._cb);
+                }
+            },
+            actions: {
+                send: [async (ctx) => {
+                    const text = ctx.state.messageToSend.trim();
+                    if (!text) return;
+                    const timestamp = new Date().toLocaleTimeString('pt-BR');
+                    const msg = `[${timestamp}] ⚡ Alfa: ${text}`;
+                    EventBus.emit("p2p:to-beta", msg);
+                    ctx.state.receivedMessages.push(`[${timestamp}] Eu: ${text}`);
+                    ctx.state.messageToSend = "";
+                    ctx.instance.update();
+                }]
+            },
+            view() {
+                const msgList = createElement("div", "", 
+                    this.state.receivedMessages.map(m => createElement("div", "", [m]))
+                );
+                msgList.style.cssText = "flex: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; font-family: monospace; font-size: 11px; height: 180px; border: 1px solid var(--win-border); display: flex; flex-direction: column; gap: 4px;";
+                
+                return createElement("div", "flex-col", [
+                    createElement("div", "", ["Envie uma mensagem em tempo real para o Terminal Beta."]),
+                    createElement("br", "", []),
+                    msgList,
+                    Row({
+                        style: "gap: 8px; align-items: flex-end;",
+                        children: [
+                            Input({ bind: "messageToSend", instance: this, placeholder: "Escreva algo...", style: "flex: 1;" }),
+                            Button({ text: "Enviar 🚀", onClick: "send", instance: this, variant: "primary" })
+                        ]
+                    })
+                ]);
+            }
+        };
+
+        const TerminalBetaScreen = {
+            title: "Terminal Beta (P2P)",
+            icon: "🔮",
+            width: 420,
+            height: 320,
+            singleInstance: true,
+            state: {
+                messageToSend: "",
+                receivedMessages: []
+            },
+            onMount() {
+                this._cb = (msg) => {
+                    this.state.receivedMessages.push(msg);
+                    this.update();
+                };
+                EventBus.on("p2p:to-beta", this._cb);
+            },
+            onDestroy() {
+                if (this._cb) {
+                    EventBus.off("p2p:to-beta", this._cb);
+                }
+            },
+            actions: {
+                send: [async (ctx) => {
+                    const text = ctx.state.messageToSend.trim();
+                    if (!text) return;
+                    const timestamp = new Date().toLocaleTimeString('pt-BR');
+                    const msg = `[${timestamp}] 🔮 Beta: ${text}`;
+                    EventBus.emit("p2p:to-alfa", msg);
+                    ctx.state.receivedMessages.push(`[${timestamp}] Eu: ${text}`);
+                    ctx.state.messageToSend = "";
+                    ctx.instance.update();
+                }]
+            },
+            view() {
+                const msgList = createElement("div", "", 
+                    this.state.receivedMessages.map(m => createElement("div", "", [m]))
+                );
+                msgList.style.cssText = "flex: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; font-family: monospace; font-size: 11px; height: 180px; border: 1px solid var(--win-border); display: flex; flex-direction: column; gap: 4px;";
+                
+                return createElement("div", "flex-col", [
+                    createElement("div", "", ["Envie uma mensagem em tempo real para o Terminal Alfa."]),
+                    createElement("br", "", []),
+                    msgList,
+                    Row({
+                        style: "gap: 8px; align-items: flex-end;",
+                        children: [
+                            Input({ bind: "messageToSend", instance: this, placeholder: "Escreva algo...", style: "flex: 1;" }),
+                            Button({ text: "Enviar 🚀", onClick: "send", instance: this, variant: "success" })
+                        ]
+                    })
+                ]);
+            }
+        };
+
         // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
         Desktop.registerScreens({
             // Hub de Arquiteturas
@@ -916,13 +969,16 @@
             // 2. Telas Registradas Diretamente (Objetos ou inline)
             "tasks": () => TaskScreen,
             "forms": () => FormsScreen,
-            "showcase": () => ComponentShowcaseScreen
+            "showcase": () => ComponentShowcaseScreen,
+            "terminal_alfa": () => TerminalAlfaScreen,
+            "terminal_beta": () => TerminalBetaScreen
         });
 
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
             Desktop.openScreen("hub_arquiteturas");
-            setTimeout(() => Desktop.openScreen("lifecycle_demo"), 150);
+            setTimeout(() => Desktop.openScreen("terminal_alfa"), 150);
+            setTimeout(() => Desktop.openScreen("terminal_beta"), 300);
         }, 100);
 
         // --- 1. DOCK WIDGET GLOBAL (ESTILO LINKEDIN MESSENGER / LOG DE EVENTOS) ---
@@ -948,8 +1004,7 @@
                     icon: "➕",
                     title: "Simular nova mensagem",
                     action: (dock) => {
-                        const count = (parseInt(dock.element.querySelector('.ui-dock-badge')?.textContent) || 0) + 1;
-                        dock.setBadge(count);
+                        dock.setBadge(dock.getBadge() + 1);
                         dock.addItem(`📩 Nova mensagem recebida às ${new Date().toLocaleTimeString('pt-BR')}`, true);
                         Toast({ message: "Nova notificação recebida no Dock!", type: "success" });
                     }
@@ -996,7 +1051,7 @@
                     icon: "💬",
                     label: "Alternar Dock Messenger",
                     variant: "surface",
-                    action: () => eventLogDock.querySelector('.ui-dock-header')?.click()
+                    action: () => eventLogDock.toggle()
                 }
             ]
         });

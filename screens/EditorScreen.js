@@ -109,20 +109,16 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
                     label: "Limpar Conteúdo",
                     icon: "🗑️",
                     action: (inst) => {
-                        Modal({
+                        inst.openModal({
                             title: "Confirmar Limpeza",
-                            instance: inst,
-                            children: [
+                            children: (modal) => [
                                 createElement("p", "", ["Deseja realmente apagar todo o conteúdo do editor?"]),
                                 Row({
                                     style: "justify-content: flex-end; gap: 8px; margin-top: 15px;",
                                     children: [
                                         Button({
                                             text: "Cancelar",
-                                            onClick: () => {
-                                                const m = document.querySelector('.ui-modal-overlay.show');
-                                                if (m) m.remove();
-                                            }
+                                            onClick: () => modal.close()
                                         }),
                                         Button({
                                             text: "Sim, Limpar",
@@ -130,8 +126,7 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
                                             onClick: () => {
                                                 inst.state.content = "";
                                                 inst.setStatus("Editor limpo.");
-                                                const m = document.querySelector('.ui-modal-overlay.show');
-                                                if (m) m.remove();
+                                                modal.close();
                                                 Toast({ message: "Conteúdo apagado.", type: "warning" });
                                             }
                                         })
@@ -197,10 +192,9 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
                     label: "Sobre o Editor",
                     icon: "ℹ️",
                     action: (inst) => {
-                        Modal({
+                        inst.openModal({
                             title: "Sobre o Editor Pro",
-                            instance: inst,
-                            children: [
+                            children: (modal) => [
                                 createElement("div", "", [
                                     createElement("h3", "", ["📝 Editor de Documentos Pro"]),
                                     createElement("p", "", ["Aplicativo oficial com barra de menus (Window MenuBar) embutida na janela do DesktopEngine."]),
@@ -216,10 +210,7 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
                                     children: [
                                         Button({
                                             text: "Fechar",
-                                            onClick: () => {
-                                                const m = document.querySelector('.ui-modal-overlay.show');
-                                                if (m) m.remove();
-                                            }
+                                            onClick: () => modal.close()
                                         })
                                     ]
                                 })

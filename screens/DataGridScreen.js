@@ -1,6 +1,6 @@
 // screens/DataGridScreen.js
 import { Desktop } from '../desktop.js';
-import { DataGrid, Badge, Card, bindContextMenu, printElement, createElement } from '../ui.js';
+import { DataGrid, Badge, Card, printElement, createElement } from '../ui.js';
 
 export default {
     title: "Listagem de Clientes",
@@ -18,7 +18,8 @@ export default {
         ]
     },
     view() {
-        const gridEl = DataGrid({
+        let gridEl;
+        gridEl = DataGrid({
             bindData: "clientes",
             instance: this,
             columns: [
@@ -35,15 +36,14 @@ export default {
                         return Badge({ text: val, variant });
                     }
                 }
+            ],
+            contextMenu: [
+                { label: "Exportar Tabela para CSV", action: () => Desktop.notify("Tabela exportada com sucesso!", "success") },
+                { label: "Atualizar Dados", action: () => Desktop.notify("Dados atualizados.", "info") },
+                "separator",
+                { label: "Imprimir Relatório", action: () => printElement(gridEl, { title: "Relatório de Clientes" }) }
             ]
         });
-
-        bindContextMenu(gridEl, [
-            { label: "Exportar Tabela para CSV", action: () => Desktop.notify("Tabela exportada com sucesso!", "success") },
-            { label: "Atualizar Dados", action: () => Desktop.notify("Dados atualizados.", "info") },
-            "separator",
-            { label: "Imprimir Relatório", action: () => printElement(gridEl, { title: "Relatório de Clientes" }) }
-        ]);
 
         return createElement("div", "", [
             Card({

@@ -30,21 +30,47 @@ Para rodar localmente:
 
 ---
 
-## 🖥️ Inicialização do Desktop
+## 🖥️ Inicialização do Desktop (Abordagem Híbrida & Zero-HTML)
 
-No arquivo principal (`index.html`), o ambiente desktop é inicializado com as configurações de taskbar e containers:
+O DesktopEngine adota uma abordagem híbrida elegante: **100% declarativa** no manifesto de inicialização e **programática** para manipulação em tempo de execução, com suporte a **Auto-Scaffolding de Shell** (montagem automática de toda a casca DOM dentro de `<div id="app"></div>` ou `<body>`):
 
 ```javascript
 import { Desktop } from './desktop.js';
 
+// 1. Inicialização com Auto-Scaffolding (Zero-HTML no <body>):
 Desktop.init({
-    windowsContainerId: "windows",       // Container onde as janelas são criadas
-    taskbarContainerId: "taskWindows",   // Container da barra de tarefas
+    target: "#app",                      // Contêiner de montagem (padrão: "#app" ou document.body)
     taskbarPosition: "bottom",           // "bottom", "top", "left" ou "right"
-    showDesktopButton: true              // Botão para minimizar/restaurar tudo
+    startButton: true,                   // Cria e conecta o botão do Menu Iniciar
+    showDesktopButton: true,             // Cria e conecta o botão #showDesktop
+    clock: { format: "pt-BR", showSeconds: true }, // Relógio gerenciado nativamente
+    menuBar: globalSystemMenus,          // MenuBar global auto-conectado
+    startMenu: nativeStartMenus,         // Menu Iniciar auto-conectado
+    contextMenu: desktopContextMenus,    // Menu de Contexto da Área de Trabalho
+    screens: {                           // Registro declarativo de telas
+        dashboard: () => import('./screens/DashboardScreen.js'),
+        editor: () => import('./screens/EditorScreen.js')
+    }
 });
 
-// Métodos Globais Úteis de Controle e Posicionamento:
+// 2. Métodos Programáticos Globais do Desktop:
+Desktop.setContextMenu(itensDoMenu);     // Altera dinamicamente o menu de contexto do desktop
+Desktop.setMenuBar(menus, "top");        // Atualiza a barra de menus global
+Desktop.setStartMenu(menus);             // Atualiza o menu iniciar da taskbar
+Desktop.setClock({ showSeconds: false });// Reconfigura o relógio nativo
+Desktop.openModal({                      // Abre um modal global no Desktop
+    title: "Alerta Global",
+    children: (modal) => [
+        createElement("p", "", ["Mensagem global para todos os usuários."]),
+        Button({ text: "Entendi", onClick: () => modal.close() })
+    ]
+});
+
+Desktop.getRoot();                       // Retorna o elemento raiz (#app)
+Desktop.getSurface();                    // Retorna a Área de Trabalho (#desktop)
+Desktop.getTaskbar();                    // Retorna a Barra de Tarefas (#taskbar)
+Desktop.getClock();                      // Retorna o elemento do relógio (#clock)
+
 Desktop.setTaskbarPosition("right");     // Altera a barra de tarefas ("bottom", "top", "left", "right")
 Desktop.getTaskbarPosition();            // Retorna a posição ativa da barra de tarefas
 Desktop.setMenuBarPosition("top");       // Altera o MenuBar ("top", "bottom", "left", "right")
@@ -59,7 +85,7 @@ Desktop.notify("Operação concluída!", "success"); // Notificação global ("s
 
 ## 🪟 Anatomia de uma Tela (Windows)
 
-Uma tela no DesktopEngine é criada declarativamente através de um objeto com configurações de janela, estado reativo, ações e view:
+Uma tela no DesktopEngine é criada declarativamente através de um objeto com configurações de janela, menubars dedicados, menus de contexto, estado reativo, ações e view:
 
 ```javascript
 import { Framework } from './core.js';
@@ -79,6 +105,23 @@ const MinhaJanela = {
     maximizable: true,     // Exibe botão de maximizar
     status: "Pronto",      // Texto inicial da barra de status inferior
     
+    // Menu de Contexto Declarativo da Janela
+    contextMenu: [
+        { label: "🔄 Recarregar Dados", action: (inst) => inst.setStatus("Recarregado!") },
+        { label: "🪟 Abrir Diálogo Local", action: (inst) => inst.openModal({ title: "Diálogo", children: [createElement("p", "", ["Alô!"])] }) }
+    ],
+
+    // MenuBar Declarativo da Janela
+    menubar: [
+        {
+            label: "Arquivo",
+            items: [
+                { label: "Salvar", action: () => alert("Salvo!") },
+                { label: "Fechar", action: (inst) => inst.close() }
+            ]
+        }
+    ],
+
     // 1. Estado Reativo Inicial
     state: {
         nome: ""
@@ -95,15 +138,25 @@ const MinhaJanela = {
             ctx.instance.setTitle(`Usuário: ${ctx.state.nome}`);
             Desktop.notify(`Usuário ${ctx.state.nome} cadastrado!`, "success");
             ctx.instance.setStatus("Pronto");
+        }],
+        abrirModal: [async (ctx) => {
+            // Modal local aberto programaticamente na janela
+            const modal = ctx.instance.openModal({
+                title: "Confirmar",
+                children: (m) => [
+                    createElement("p", "", ["Deseja prosseguir?"]),
+                    Button({ text: "Fechar", onClick: () => m.close() })
+                ]
+            });
         }]
     },
     
     // 3. View (Retorna os nós DOM)
     view() {
-        return createElement("div", "p-3", [
+        return createElement("div", "p-3 flex-col gap-2", [
             Input({ label: "Nome do Usuário", bind: "nome", placeholder: "Ex: Maria Silva", instance: this }),
-            createElement("br", "", []),
-            Button({ text: "Salvar Dados", onClick: "salvar", instance: this, variant: "primary" })
+            Button({ text: "Salvar Dados", onClick: "salvar", instance: this, variant: "primary" }),
+            Button({ text: "Abrir Modal Local", onClick: "abrirModal", instance: this, variant: "secondary" })
         ]);
     }
 };
@@ -630,30 +683,52 @@ Drawer({
 })
 ```
 
-#### `Modal` (Diálogos Isolados ou Globais)
+#### `Modal` (Diálogos Modais Integrados ao Look and Feel)
+O `Modal` adota nativamente a mesma arquitetura de janelas (`.window`, `.titlebar` com controles de fechar e `.windowBody`), herdando 100% da estética, bordas, sombras e botões do **Look and Feel ativo**. Suporta modo **Local** (bloqueando a janela atual via `this.openModal` ou `instance: this`) e modo **Global** (bloqueando todo o Desktop via `Desktop.openModal` ou `global: true`).
+
 ```javascript
-// 1. Modal Local (Cobre apenas a janela atual):
-Modal({
-    title: "Confirmação",
-    instance: this,
-    closable: true, // Padrão: true. Se false, oculta o 'X' superior
-    children: [
-        createElement("p", "", ["Deseja salvar as alterações?"]),
-        Button({ text: "Sim", onClick: "salvarTudo", instance: this })
+import { Modal, Button, createElement } from './ui.js';
+import { Desktop } from './desktop.js';
+
+// 1. Modal Local via Método da Janela (Recomendado):
+const localModal = this.openModal({
+    title: "Confirmar Exclusão",
+    icon: "🗑️",
+    closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
+    children: (modal) => [
+        createElement("p", "", ["Deseja realmente excluir este registro?"]),
+        Button({ text: "Sim, Excluir", variant: "danger", onClick: () => {
+            // Executa ação e fecha sem manipular o DOM diretamente
+            modal.close();
+        }}),
+        Button({ text: "Cancelar", onClick: () => modal.close() })
     ]
 });
 
-// 2. Modal Global Sem Botão 'X' e com Interceptador beforeClose:
-Modal({
-    title: "Alerta Crítico",
-    instance: this,
-    showCloseButton: false, // Oculta o 'X' e desativa a tecla ESC
-    targetContainer: document.getElementById("app"),
+// 2. Modal Global via Desktop Engine (Sem document.getElementById!):
+const globalModal = Desktop.openModal({
+    title: "Aviso Crítico do Sistema",
+    icon: "⚠️",
+    width: 480,
+    showCloseButton: false, // Oculta o botão e desativa a tecla ESC
     async beforeClose() {
         // Pode validar ou bloquear o fechamento retornando false
         return true;
     },
-    children: [ createElement("p", "", ["Manutenção do servidor agendada."]) ]
+    children: (modal) => [
+        createElement("p", "", ["O servidor será reiniciado em 5 minutos."]),
+        Button({ text: "OK, Entendido", onClick: () => modal.close() })
+    ]
+});
+
+// 3. Invocação Declarativa com flag global:
+Modal({
+    title: "Diálogo Global",
+    global: true,
+    children: (modal) => [
+        createElement("p", "", ["Modal invocado diretamente sem passar container manual."]),
+        Button({ text: "Fechar", onClick: () => modal.close() })
+    ]
 });
 ```
 
@@ -687,7 +762,7 @@ Tooltip({
 ```
 
 #### `DockWidget` (Collapsible Tray & Messenger de Eventos)
-Painel expansível ancorado no rodapé (estilo mensageiro do LinkedIn ou monitor de logs em tempo real), com suporte a minimização para a barra de tarefas (ao lado do relógio estilo Windows Tray):
+Painel expansível ancorado no rodapé (estilo mensageiro do LinkedIn ou monitor de logs em tempo real), com suporte a minimização para a barra de tarefas (ao lado do relógio estilo Windows Tray) e ancoragem automática acima da `StatusBar` quando utilizado localmente em janelas:
 ```javascript
 import { DockWidget } from './ui.js';
 
@@ -719,13 +794,16 @@ const dock = DockWidget({
     }
 });
 
-// Métodos programáticos do Dock:
+// Métodos programáticos do Dock (Sem querySelector):
+dock.toggle();           // Alterna entre expandido e recolhido
+dock.expand();           // Expande o painel
+dock.collapse();         // Recolhe o painel
+dock.getBadge();         // Retorna o contador numérico atual (ex: 3)
+dock.setBadge(dock.getBadge() + 1); // Define ou incrementa o badge
 dock.addItem("📩 Novo alerta recebido!", true); // insere no topo
-dock.setBadge(1);
-dock.expand();
-dock.collapse();
-dock.minimizeToTray();  // Minimiza para a bandeja ao lado do relógio
-dock.restoreFromTray(); // Restaura da bandeja
+dock.clear();            // Limpa o histórico de mensagens
+dock.minimizeToTray();   // Minimiza para a bandeja ao lado do relógio
+dock.restoreFromTray();  // Restaura da bandeja
 ```
 
 #### `FloatButton` (Floating Action Button / Speed Dial)
@@ -733,7 +811,7 @@ Botão de ação rápida flutuante com menu em cascata (Speed Dial) para Desktop
 ```javascript
 import { FloatButton } from './ui.js';
 
-FloatButton({
+const fab = FloatButton({
     icon: "⚡",
     activeIcon: "✕",
     tooltip: "Ações Rápidas",
@@ -756,6 +834,12 @@ FloatButton({
         }
     ]
 });
+
+// Métodos programáticos do FAB:
+fab.toggle(); // Alterna a abertura do menu speed dial
+fab.open();   // Abre o menu speed dial
+fab.close();  // Fecha o menu speed dial
+fab.isOpen(); // Retorna booleano indicando se o menu está aberto
 ```
 
 ---
@@ -1010,11 +1094,55 @@ Você pode controlar se a janela filha deve se movimentar livremente pelo deskto
 ---
 
 #### `ContextMenu` & `bindContextMenu`
+Adiciona menus de contexto flutuantes com suporte nativo a **submenus aninhados (`items: [...]`)**, ícones, atalhos, separadores e prevenção de colisão de tela. Permite configurar teclas de atalho/modificadoras (ex: `"alt"`, `"ctrl"`, `"shift"`, `"meta"`) para ignorar o menu customizado e exibir o menu nativo do navegador (a tecla `"shift"` já vem ativa por padrão em todo o framework).
+
 ```javascript
+import { ContextMenu, bindContextMenu } from './ui.js';
+
+// 1. Vinculando menu de contexto a um elemento com propriedades de atalho nativo:
 bindContextMenu(meuElemento, [
-    { label: "Copiar", action: () => console.log("Copiado") },
-    { label: "Excluir", action: () => meuElemento.remove() }
+    { label: "Abrir em Nova Janela", icon: "🪟", action: () => console.log("Abrir") },
+    {
+        label: "Exportar Como...",
+        icon: "📤",
+        items: [
+            { label: "Documento PDF (.pdf)", action: () => exportar("pdf") },
+            { label: "Planilha Excel (.xlsx)", action: () => exportar("xlsx") },
+            { label: "JSON Raw (.json)", action: () => exportar("json") }
+        ]
+    },
+    "separator",
+    { label: "Excluir", icon: "🗑️", action: () => meuElemento.remove() }
+], {
+    allowNativeKey: "shift" // Recomendado: Abre o menu nativo do navegador pressionando Shift + Clique Direito (mais estável)
+});
+
+// 2. Invocação manual por coordenadas (ex: desktop):
+ContextMenu({
+    x: e.clientX,
+    y: e.clientY,
+    items: [
+        { label: "Nova Janela", screen: "dashboard" },
+        lookAndFeelsItensVar
+    ]
+});
+
+// 3. Associação declarativa em componentes do framework (Card, DataGrid, Button, etc.):
+const gridEl = DataGrid({
+    bindData: "clientes",
+    instance: this,
+    columns: [ ... ],
+    contextMenu: [
+        { label: "Exportar para CSV", action: () => exportar() },
+        { label: "Imprimir Relatório", action: () => printElement(gridEl) }
+    ]
+});
+
+// 4. Associação programática uniforme via método setContextMenu:
+meuComponente.setContextMenu([
+    { label: "Recarregar", action: () => atualizar() }
 ]);
+meuComponente.setContextMenu(null); // Remove o menu de contexto do elemento
 ```
 
 ---
@@ -1205,9 +1333,6 @@ async gerarRelatorioAsync(lotes = 10) {
 
 O DesktopEngine possui um subsistema nativo e modular de **Look and Feel (L&F)** que permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela, tipografia, cantos e molduras do ambiente desktop em tempo de execução.
 
-> [!TIP]
-> **Ortogonalidade:** O *Look and Feel* (estrutura da carcaça visual via atributo `data-laf`) é independente da *Paleta de Cores* (cores e tons via atributo `data-theme`). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: Aqua Frosted no tema Midnight Cyber, Retro 3D em Alto Contraste, ou Steel Metal no tema Slate Dark).
-
 ### API de Look and Feel no `Desktop` & Botões Dinâmicos da Barra
 ```javascript
 import { Desktop } from './desktop.js';
@@ -1290,48 +1415,57 @@ EventBus.on("laf:change", (lafName) => {
 | **Console & Sci-Fi** | `"turbo-tui"` | DOS TUI Console | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
 | **Console & Sci-Fi** | `"cyberpunk-neon"` | Cyber Neon HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
 
----
+### 9. Comunicação Inter-telas Peer-to-Peer (EventBus)
 
-## 🎨 Sistema de Temas e Schema de Paletas de Cores
+Para enviar dados ou mensagens entre telas de forma completamente desacoplada (sem relacionamento pai-filho), o framework fornece o `EventBus` global. É um barramento pub/sub reativo que suporta sincronização automática e transparente inclusive entre abas diferentes do navegador usando LocalStorage:
 
-O DesktopEngine possui um motor completo de alternância de paletas com persistência automática no `localStorage`.
-
-### API de Temas no `Desktop`
 ```javascript
-import { Desktop } from './desktop.js';
+import { EventBus } from './core.js';
 
-// 1. Alterar tema
-Desktop.setTheme("dark"); // "light", "dark", "midnight", "emerald", "nord", "contrast"
+// 1. Tela Emissora
+const TelaA = {
+    title: "Emissor Alfa",
+    state: { mensagem: "" },
+    actions: {
+        enviar: [(ctx) => {
+            EventBus.emit("canal:comunicacao", ctx.state.mensagem);
+            ctx.state.mensagem = "";
+            ctx.instance.update();
+        }]
+    },
+    view() {
+        return createElement("div", "", [
+            Input({ bind: "mensagem", instance: this }),
+            Button({ text: "Enviar", onClick: "enviar", instance: this })
+        ]);
+    }
+};
 
-// 2. Alternar entre Light e Dark rapidamente
-Desktop.toggleTheme();
-
-// 3. Obter o tema ativo
-console.log(Desktop.getTheme());
-
-// 4. Registrar uma Paleta Customizada
-Desktop.registerPalette("synthwave", {
-    "--bg-primary": "#241734",
-    "--bg-secondary": "#2e1f47",
-    "--text-primary": "#f92aad",
-    "--text-secondary": "#00f0ff",
-    "--win-bg": "rgba(36, 23, 52, 0.9)",
-    "--win-border": "rgba(0, 240, 255, 0.3)",
-    "--title-bg-start": "#f92aad",
-    "--title-bg-end": "#7b2cbf",
-    "--btn-primary": "#00f0ff",
-    "--btn-primary-hover": "#00c4d1",
-    "--btn-primary-text": "#241734"
-});
+// 2. Tela Receptora
+const TelaB = {
+    title: "Receptor Beta",
+    state: { historico: [] },
+    onMount() {
+        // Escuta o canal e atualiza o estado
+        this._handler = (payload) => {
+            this.state.historico.push(payload);
+            this.update(); // Re-renderiza a tela com o novo histórico
+        };
+        EventBus.on("canal:comunicacao", this._handler);
+    },
+    onDestroy() {
+        // Remove a escuta ao fechar a janela para liberar memória
+        if (this._handler) {
+            EventBus.off("canal:comunicacao", this._handler);
+        }
+    },
+    view() {
+        return createElement("div", "", 
+            this.state.historico.map(msg => createElement("p", "", [msg]))
+        );
+    }
+};
 ```
-
-### Paletas Nativas Disponíveis
-- **`light` (Azul Corporativo):** Padrão institucional de alto contraste.
-- **`dark` (Slate Dark):** Fundo grafite moderno com realces em índigo.
-- **`midnight` (Cyber Navy):** Tons de azul escuro profundo com roxo.
-- **`emerald` (Fintech):** Tons verdes esmeralda para dashboards e finanças.
-- **`nord` (Frost):** Paleta fria e minimalista inspirada no design ártico.
-- **`contrast` (Alto Contraste):** O visual clássico retrô de acessibilidade (fundo preto absoluto, bordas ciano/amarelo e barra magenta).
 
 ---
 
@@ -1375,18 +1509,6 @@ Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneame
 
 ---
 
-## 🎭 Look and Feel (34 Skins Conceituais & Botões Adaptativos)
-
-O **DesktopEngine** suporta **34 Look and Feels conceituais**, com estética detalhada e controles adaptativos para cada estilo: **Aero Glass**, **Fluent Acrylic**, **Luna Classic**, **Retro 3D**, **Aqua Frosted**, **Spatial Glass**, **Neumorphism**, **Material Tonal**, **Aubergine Orange**, **DOS TUI**, **Cyber Neon HUD**, **Steel Metal**, **Modern IDE (Studio)**, entre outros.
-
-Ao alternar de Look & Feel, tanto as janelas quanto os botões da Taskbar (**Botão Iniciar** e **Mostrar Área de Trabalho**) transformam automaticamente sua geometria, ícones e comportamento visual:
-- **Aero Glass (`aero-glass` / `win7`):** Transforma o botão Iniciar em um **Orb circular translúcido (36px)** e o botão Mostrar Área de Trabalho na clássica **faixa de vidro Aero Peek** no canto da tela.
-- **Aqua Frosted (`aqua-frosted` / `macos`):** Transforma os controles em cápsulas de vidro fosco minimalistas.
-- **Retro 3D (`retro-3d` / `win98`):** Adota bordas chanfradas 3D outset autênticas com textos em negrito.
-- **Luna Classic (`luna-blue` / `winxp`):** Adota relevo clássico e gradientes azuis/verdes.
-
----
-
 ## 💾 Exportar & Carregar Configurações do Ambiente (JSON)
 
 O framework disponibiliza métodos nativos para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string `JSON` (para salvar em banco de dados, perfil de usuário ou arquivos) e recarregá-lo instantaneamente:
@@ -1399,7 +1521,6 @@ const jsonConfig = Desktop.exportConfig(true);
 console.log(jsonConfig);
 /* Exemplo de saída gerada:
 {
-  "theme": "dark",
   "lookAndFeel": "aqua-frosted",
   "taskbarPosition": "bottom",
   "menubarPosition": "top",
@@ -1410,14 +1531,13 @@ console.log(jsonConfig);
 */
 
 // 2. Extrair configuração como Objeto JavaScript puro
-const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+const configObj = Desktop.exportConfig(); // { lookAndFeel: "aqua-frosted", ... }
 
 // 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
 Desktop.loadConfig(jsonConfig);
 
 // Também aceita objeto diretamente e controla se deve persistir no localStorage:
 Desktop.loadConfig({
-    theme: "midnight",
     lookAndFeel: "fluent-acrylic",
     taskbarPosition: "left",
     menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar

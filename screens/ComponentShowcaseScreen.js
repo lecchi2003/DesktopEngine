@@ -15,7 +15,6 @@ export default {
     state: {
         step: 0,
         volume: 50,
-        tema: Desktop.getTheme ? Desktop.getTheme() : "light",
         laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
         pais: ["Brasil"],
         menuLateral: false
@@ -35,45 +34,34 @@ export default {
             Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
         }],
         abrirModalLocal: [async (ctx) => {
-            Modal({
-                title: "Modal Local",
-                instance: ctx.instance,
-                children: [
-                    createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                    Button({
-                        text: "Fechar", onClick: () => {
-                            const m = document.querySelector('.ui-modal-overlay.show');
-                            if (m) m.remove();
-                        }
-                    })
-                ]
-            });
+            const modal = (ctx.instance && typeof ctx.instance.openModal === 'function')
+                ? ctx.instance.openModal({
+                    title: "Modal Local",
+                    children: (m) => [
+                        createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                        Button({ text: "Fechar", onClick: () => m.close() })
+                    ]
+                })
+                : Modal({
+                    title: "Modal Local",
+                    instance: ctx.instance,
+                    children: (m) => [
+                        createElement("p", "", ["Este modal está restrito aos limites da janela."]),
+                        Button({ text: "Fechar", onClick: () => m.close() })
+                    ]
+                });
         }],
         abrirModalGlobal: [async (ctx) => {
-            Modal({
+            const modal = Desktop.openModal({
                 title: "Modal Global",
-                instance: ctx.instance,
-                targetContainer: document.getElementById("app"),
-                children: [
+                children: (m) => [
                     createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                    Button({
-                        text: "Fechar", onClick: () => {
-                            const m = document.querySelector('.ui-modal-overlay.show');
-                            if (m) m.remove();
-                        }
-                    })
+                    Button({ text: "Fechar", onClick: () => m.close() })
                 ]
             });
         }]
     },
     view() {
-        if (Desktop && typeof Desktop.setTheme === 'function') {
-            Desktop.setTheme(this.state.tema);
-        } else {
-            document.documentElement.setAttribute('data-theme', this.state.tema);
-        }
-
-
         return createElement("div", "", [
             Drawer({
                 bind: "menuLateral", side: "left", instance: this, content: [
@@ -139,16 +127,6 @@ export default {
                                         }
                                     }),
                                     Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
-                                    RadioGroup({
-                                        label: "Paleta de Cores do Sistema", bind: "tema", options: [
-                                            { label: "Light (Azul)", value: "light" },
-                                            { label: "Dark (Slate)", value: "dark" },
-                                            { label: "Midnight", value: "midnight" },
-                                            { label: "Emerald", value: "emerald" },
-                                            { label: "Nord", value: "nord" },
-                                            { label: "Alto Contraste", value: "contrast" }
-                                        ], layout: "horizontal", instance: this
-                                    }),
                                     Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
                                 ]
                             }),

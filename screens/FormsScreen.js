@@ -22,18 +22,17 @@ export default {
                 Desktop.notify("Preencha o nome antes de salvar!", "warning");
                 return;
             }
-            Modal({
+            ctx.instance.openModal({
                 title: "Confirmar Inclusão",
-                instance: ctx.instance,
-                children: [
+                children: (modal) => [
                     createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                     Button({
-                        text: "Sim, salvar", 
+                        text: "Sim, salvar",
                         onClick: () => {
                             Desktop.notify("Salvo com sucesso!", "success");
                             ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                            document.querySelector('.ui-modal-overlay').remove();
-                        }, 
+                            modal.close();
+                        },
                         variant: "success"
                     })
                 ]

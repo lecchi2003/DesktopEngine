@@ -38,270 +38,6 @@
     --font-family: "Segoe UI", Inter, Roboto, sans-serif;
 }
 
-[data-theme="dark"] {
-    --bg-primary: #121212;
-    --bg-secondary: #1e1e1e;
-    --text-primary: #e0e0e0;
-    --text-secondary: #aaa;
-
-    --win-bg: rgba(30, 30, 30, 0.88);
-    --win-border: rgba(255, 255, 255, 0.12);
-    --win-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-
-    --menu-bg: #1e1e1e;
-    --menu-text: #e0e0e0;
-    --menu-hover: #2d2d2d;
-    --menu-border: rgba(255, 255, 255, 0.12);
-
-    --title-bg-start: #2a2a2a;
-    --title-bg-end: #1f1f1f;
-    --title-text: #ddd;
-
-    --input-border: #444;
-    --input-bg: #2a2a2a;
-    --btn-bg: #333;
-    --btn-hover: #444;
-    --btn-primary: #4F46E5;
-    --btn-primary-hover: #3730A3;
-    --btn-primary-text: #fff;
-}
-
-[data-theme="midnight"] {
-    --bg-primary: #0b0f19;
-    --bg-secondary: #111827;
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-
-    --win-bg: rgba(17, 24, 39, 0.88);
-    --win-border: rgba(99, 102, 241, 0.25);
-    --win-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-
-    --menu-bg: #111827;
-    --menu-text: #f3f4f6;
-    --menu-hover: #1f2937;
-    --menu-border: rgba(99, 102, 241, 0.3);
-
-    --title-bg-start: #4338ca;
-    --title-bg-end: #312e81;
-    --title-text: #ffffff;
-
-    --input-border: #374151;
-    --input-bg: #1f2937;
-    --btn-bg: #1f2937;
-    --btn-hover: #374151;
-    --btn-primary: #6366f1;
-    --btn-primary-hover: #4f46e5;
-    --btn-primary-text: #ffffff;
-}
-
-[data-theme="emerald"] {
-    --bg-primary: #064e3b;
-    --bg-secondary: #065f46;
-    --text-primary: #ecfdf5;
-    --text-secondary: #a7f3d0;
-
-    --win-bg: rgba(6, 78, 59, 0.9);
-    --win-border: rgba(52, 211, 153, 0.3);
-    --win-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-
-    --menu-bg: #064e3b;
-    --menu-text: #ecfdf5;
-    --menu-hover: #065f46;
-    --menu-border: rgba(52, 211, 153, 0.35);
-
-    --title-bg-start: #059669;
-    --title-bg-end: #047857;
-    --title-text: #ffffff;
-
-    --input-border: #047857;
-    --input-bg: #065f46;
-    --btn-bg: #065f46;
-    --btn-hover: #047857;
-    --btn-primary: #10b981;
-    --btn-primary-hover: #059669;
-    --btn-primary-text: #ffffff;
-}
-
-[data-theme="nord"] {
-    --bg-primary: #2e3440;
-    --bg-secondary: #3b4252;
-    --text-primary: #eceff4;
-    --text-secondary: #d8dee9;
-
-    --win-bg: rgba(46, 52, 64, 0.92);
-    --win-border: rgba(136, 192, 208, 0.3);
-    --win-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-
-    --menu-bg: #2e3440;
-    --menu-text: #eceff4;
-    --menu-hover: #3b4252;
-    --menu-border: rgba(136, 192, 208, 0.3);
-
-    --title-bg-start: #5e81ac;
-    --title-bg-end: #4c566a;
-    --title-text: #eceff4;
-
-    --input-border: #4c566a;
-    --input-bg: #3b4252;
-    --btn-bg: #3b4252;
-    --btn-hover: #4c566a;
-    --btn-primary: #88c0d0;
-    --btn-primary-hover: #81a1c1;
-    --btn-primary-text: #c4c7cc;
-}
-
-/* --- Tema Clássico Alto Contraste (Windows High Contrast) --- */
-[data-theme="contrast"],
-[data-theme="high-contrast"] {
-    --bg-primary: #000000;
-    --bg-secondary: #000000;
-    --text-primary: #ffffff;
-    --text-secondary: #00ffff;
-
-    --win-bg: #000000;
-    --win-border: #00ffff;
-    --win-shadow: 0 0 0 2px #00ffff;
-    --win-blur: none;
-
-    --menu-bg: #000000;
-    --menu-text: #ffffff;
-    --menu-hover: #1a3a4a;
-    --menu-border: #00ffff;
-
-    --title-bg-start: #800080;
-    --title-bg-end: #800080;
-    --title-text: #ffffff;
-
-    --input-border: #00ffff;
-    --input-bg: #000000;
-    --btn-bg: #000000;
-    --btn-hover: #00ffff;
-    --btn-primary: #00ffff;
-    --btn-primary-hover: #ffffff;
-    --btn-primary-text: #e9e4e4;
-}
-
-[data-theme="contrast"] .window,
-[data-theme="high-contrast"] .window,
-[data-theme="contrast"] .ui-card,
-[data-theme="high-contrast"] .ui-card,
-[data-theme="contrast"] .ui-modal-dialog,
-[data-theme="high-contrast"] .ui-modal-dialog,
-[data-theme="contrast"] .ui-accordion,
-[data-theme="high-contrast"] .ui-accordion,
-[data-theme="contrast"] .ui-table-wrapper,
-[data-theme="high-contrast"] .ui-table-wrapper,
-[data-theme="contrast"] .ui-carousel-slide,
-[data-theme="high-contrast"] .ui-carousel-slide {
-    border: 2px solid #00ffff !important;
-    background: #000000 !important;
-    color: #ffffff !important;
-    border-radius: 0px !important;
-    box-shadow: none !important;
-}
-
-[data-theme="contrast"] .titlebar,
-[data-theme="high-contrast"] .titlebar {
-    border-radius: 0px !important;
-}
-
-[data-theme="contrast"] .ui-btn,
-[data-theme="high-contrast"] .ui-btn {
-    border: 1px solid #00ffff !important;
-    background: #000000 !important;
-    color: #ffffff !important;
-}
-
-[data-theme="contrast"] .ui-btn:hover,
-[data-theme="high-contrast"] .ui-btn:hover {
-    background: #00ffff !important;
-    color: #000000 !important;
-}
-
-[data-theme="contrast"] .ui-accordion-header,
-[data-theme="high-contrast"] .ui-accordion-header {
-    background: #000000 !important;
-    color: #00ffff !important;
-    border-bottom: 1px solid #00ffff !important;
-}
-
-[data-theme="contrast"] .ui-accordion-title,
-[data-theme="high-contrast"] .ui-accordion-title {
-    color: #ffffff !important;
-}
-
-[data-theme="contrast"] .ui-accordion-content,
-[data-theme="high-contrast"] .ui-accordion-content {
-    background: #000000 !important;
-    color: #ffffff !important;
-}
-
-[data-theme="contrast"] .ui-table th,
-[data-theme="high-contrast"] .ui-table th,
-[data-theme="contrast"] .ui-datagrid th,
-[data-theme="high-contrast"] .ui-datagrid th {
-    border: 1px solid #00ffff !important;
-    background: #000000 !important;
-    color: #00ffff !important;
-}
-
-[data-theme="contrast"] .ui-table td,
-[data-theme="high-contrast"] .ui-table td,
-[data-theme="contrast"] .ui-datagrid td,
-[data-theme="high-contrast"] .ui-datagrid td {
-    border-bottom: 1px solid #00ffff !important;
-    color: #ffffff !important;
-    background: #000000 !important;
-}
-
-[data-theme="contrast"] .ui-skeleton,
-[data-theme="high-contrast"] .ui-skeleton {
-    background: #111111 !important;
-    border: 1px solid #00ffff !important;
-    background-image: linear-gradient(90deg, #111111 0px, #262626 40px, #111111 80px) !important;
-}
-
-[data-theme="contrast"] .ui-alert,
-[data-theme="high-contrast"] .ui-alert {
-    background: #000000 !important;
-    border: 2px solid #00ffff !important;
-    color: #ffffff !important;
-    border-radius: 0px !important;
-}
-
-[data-theme="contrast"] #taskbar,
-[data-theme="high-contrast"] #taskbar {
-    background: #000000 !important;
-    border-top: 2px solid #00ffff !important;
-    color: #ffffff !important;
-}
-
-[data-theme="contrast"] .taskStart,
-[data-theme="high-contrast"] .taskStart,
-[data-theme="contrast"] .taskButton,
-[data-theme="high-contrast"] .taskButton {
-    background: #000000 !important;
-    border: 1px solid #00ffff !important;
-    color: #ffffff !important;
-    border-radius: 0px !important;
-}
-
-[data-theme="contrast"] .taskButton.active,
-[data-theme="high-contrast"] .taskButton.active {
-    background: #1a3a4a !important;
-    border: 1px solid #00ffff !important;
-    box-shadow: inset 0 -2px #00ffff !important;
-}
-
-[data-theme="contrast"] textarea,
-[data-theme="high-contrast"] textarea,
-[data-theme="contrast"] .filter-input,
-[data-theme="high-contrast"] .filter-input {
-    background: #000000 !important;
-    border: 1px solid #00ffff !important;
-    color: #ffffff !important;
-    border-radius: 0px !important;
-}
 
 html,
 body {
@@ -342,82 +78,171 @@ select {
 }
 
 /* Quando a Taskbar é Lateral (left / right) e o Menubar é Horizontal (top / bottom ou ausente):
-   Usamos CSS Grid no #app para garantir que o #menubar ocupe 100% da largura superior/inferior
-   e a #taskbar lateral se posicione na coluna correta ao lado do #desktop */
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"]) {
+   Usamos CSS Grid no #app para garantir o layout correto dos elementos e posicionar o menubar horizontal. */
+
+/* 1. CONFIGURAÇÃO DO GRID DO APP */
+
+/* Taskbar na Esquerda + Menubar no Topo (ou padrão) */
+#app[data-taskbar="left"][data-menubar="top"],
+#app[data-taskbar="left"]:not([data-menubar]) {
     display: grid !important;
     grid-template-columns: 68px 1fr;
     grid-template-rows: auto 1fr;
     flex-direction: unset !important;
 }
 
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>#menubar,
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>.ui-menubar {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    width: 100% !important;
+/* Taskbar na Esquerda + Menubar no Rodapé */
+#app[data-taskbar="left"][data-menubar="bottom"] {
+    display: grid !important;
+    grid-template-columns: 68px 1fr;
+    grid-template-rows: 1fr auto;
+    flex-direction: unset !important;
 }
 
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>#taskbar {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100% !important;
-    height: 100% !important;
+/* Taskbar na Esquerda + Menubar Oculto */
+#app[data-taskbar="left"][data-menubar="none"] {
+    display: grid !important;
+    grid-template-columns: 68px 1fr;
+    grid-template-rows: 1fr;
+    flex-direction: unset !important;
 }
 
-#app[data-taskbar="left"]:not([data-menubar="left"]):not([data-menubar="right"])>#desktop {
-    grid-column: 2;
-    grid-row: 2;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"]) {
+/* Taskbar na Direita + Menubar no Topo (ou padrão) */
+#app[data-taskbar="right"][data-menubar="top"],
+#app[data-taskbar="right"]:not([data-menubar]) {
     display: grid !important;
     grid-template-columns: 1fr 68px;
     grid-template-rows: auto 1fr;
     flex-direction: unset !important;
 }
 
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>#menubar,
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>.ui-menubar {
+/* Taskbar na Direita + Menubar no Rodapé */
+#app[data-taskbar="right"][data-menubar="bottom"] {
+    display: grid !important;
+    grid-template-columns: 1fr 68px;
+    grid-template-rows: 1fr auto;
+    flex-direction: unset !important;
+}
+
+/* Taskbar na Direita + Menubar Oculto */
+#app[data-taskbar="right"][data-menubar="none"] {
+    display: grid !important;
+    grid-template-columns: 1fr 68px;
+    grid-template-rows: 1fr;
+    flex-direction: unset !important;
+}
+
+/* 2. POSICIONAMENTO DOS ELEMENTOS NO GRID */
+
+/* Menubar no Topo (linha 1) */
+#app[data-taskbar="left"][data-menubar="top"]>#menubar,
+#app[data-taskbar="left"][data-menubar="top"]>.ui-menubar,
+#app[data-taskbar="right"][data-menubar="top"]>#menubar,
+#app[data-taskbar="right"][data-menubar="top"]>.ui-menubar,
+#app[data-taskbar="left"]:not([data-menubar])>#menubar,
+#app[data-taskbar="left"]:not([data-menubar])>.ui-menubar,
+#app[data-taskbar="right"]:not([data-menubar])>#menubar,
+#app[data-taskbar="right"]:not([data-menubar])>.ui-menubar {
     grid-column: 1 / -1;
     grid-row: 1;
     width: 100% !important;
 }
 
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>#desktop {
+/* Menubar no Rodapé (linha 2) */
+#app[data-taskbar="left"][data-menubar="bottom"]>#menubar,
+#app[data-taskbar="left"][data-menubar="bottom"]>.ui-menubar,
+#app[data-taskbar="right"][data-menubar="bottom"]>#menubar,
+#app[data-taskbar="right"][data-menubar="bottom"]>.ui-menubar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100% !important;
+}
+
+/* Desktop & Taskbar quando Menubar está no Topo (linha 2) */
+#app[data-taskbar="left"][data-menubar="top"]>#taskbar,
+#app[data-taskbar="left"]:not([data-menubar])>#taskbar {
     grid-column: 1;
     grid-row: 2;
     width: 100% !important;
     height: 100% !important;
 }
-
-#app[data-taskbar="right"]:not([data-menubar="left"]):not([data-menubar="right"])>#taskbar {
+#app[data-taskbar="left"][data-menubar="top"]>#desktop,
+#app[data-taskbar="left"]:not([data-menubar])>#desktop {
     grid-column: 2;
     grid-row: 2;
     width: 100% !important;
     height: 100% !important;
 }
 
-/* Quando não há menubar (como no index2.html), o grid se adapta naturalmente */
-#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar)) {
-    grid-template-rows: 1fr !important;
+#app[data-taskbar="right"][data-menubar="top"]>#taskbar,
+#app[data-taskbar="right"]:not([data-menubar])>#taskbar {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="right"][data-menubar="top"]>#desktop,
+#app[data-taskbar="right"]:not([data-menubar])>#desktop {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar))>#taskbar,
-#app[data-taskbar="left"]:not(:has(#menubar)):not(:has(.ui-menubar))>#desktop {
-    grid-row: 1 !important;
+/* Desktop & Taskbar quando Menubar está no Rodapé (linha 1) */
+#app[data-taskbar="left"][data-menubar="bottom"]>#taskbar {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="left"][data-menubar="bottom"]>#desktop {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar)) {
-    grid-template-rows: 1fr !important;
+#app[data-taskbar="right"][data-menubar="bottom"]>#taskbar {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="right"][data-menubar="bottom"]>#desktop {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar))>#taskbar,
-#app[data-taskbar="right"]:not(:has(#menubar)):not(:has(.ui-menubar))>#desktop {
-    grid-row: 1 !important;
+/* Desktop & Taskbar quando Menubar está Oculto (linha 1) */
+#app[data-taskbar="left"][data-menubar="none"]>#taskbar {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
 }
+#app[data-taskbar="left"][data-menubar="none"]>#desktop {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#app[data-taskbar="right"][data-menubar="none"]>#taskbar {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+#app[data-taskbar="right"][data-menubar="none"]>#desktop {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+
 
 /* --- Menu Bar (Layouts: Top, Bottom, Left, Right) --- */
 #menubar,
@@ -636,11 +461,13 @@ select {
     flex-direction: column;
     min-width: 205px;
     background: var(--menu-bg);
-    color: var(--menu-text);
+    color: var(--menu-text) !important;
     border: 1px solid var(--menu-border);
+    border-radius: 6px;
     box-shadow: var(--win-shadow);
     padding: 4px 0;
-    z-index: 500001;
+    z-index: 500000;
+    overflow: visible;
     backdrop-filter: var(--win-blur);
     -webkit-backdrop-filter: var(--win-blur);
 }
@@ -726,12 +553,24 @@ select {
     z-index: 500002;
 }
 
+/* --- ContextMenu Sub-dropdown --- */
+.ui-context-menu .dropdown.sub-dropdown {
+    position: absolute;
+    top: 0 !important;
+    left: 100% !important;
+    margin-top: -4px;
+    margin-left: -2px;
+    display: none;
+    z-index: 500002;
+}
+
 /* --- Smart Viewport Collision Classes (Inversão e Alinhamento Inteligente) --- */
 .dropdown.sub-dropdown.open-left,
 .ui-menubar .dropdown.sub-dropdown.open-left,
 .ui-menubar[data-position] .dropdown.sub-dropdown.open-left,
 .ui-menubar:not([data-position="bottom"]):not([data-position="left"]):not([data-position="right"]) .dropdown.sub-dropdown.open-left,
 .ui-start-menu .dropdown.sub-dropdown.open-left,
+.ui-context-menu .dropdown.sub-dropdown.open-left,
 .window-menubar .dropdown.sub-dropdown.open-left {
     left: auto !important;
     right: 100% !important;
@@ -743,6 +582,7 @@ select {
 .ui-menubar .dropdown.sub-dropdown.open-top,
 .ui-menubar[data-position] .dropdown.sub-dropdown.open-top,
 .ui-start-menu .dropdown.sub-dropdown.open-top,
+.ui-context-menu .dropdown.sub-dropdown.open-top,
 .window-menubar .dropdown.sub-dropdown.open-top {
     top: auto !important;
     bottom: 0 !important;
@@ -774,7 +614,7 @@ select {
     white-space: nowrap;
     font-size: 13px;
     cursor: pointer;
-    color: var(--menu-text);
+    color: var(--menu-text) !important;
     transition: background 0.15s ease;
     display: flex;
     align-items: center;
@@ -784,7 +624,7 @@ select {
 
 .menuOption:hover {
     background: var(--menu-hover);
-    color: var(--menu-text);
+    color: var(--menu-text) !important;
 }
 
 .menuOption.has-submenu {
@@ -795,6 +635,11 @@ select {
     display: flex;
     align-items: center;
     gap: 8px;
+    color: inherit;
+}
+
+.menuOption-label {
+    color: inherit;
 }
 
 .menuOption-icon {
@@ -839,7 +684,7 @@ select {
 .ui-start-menu {
     position: absolute;
     background: var(--menu-bg);
-    color: var(--menu-text);
+    color: var(--menu-text) !important;
     backdrop-filter: var(--win-blur);
     -webkit-backdrop-filter: var(--win-blur);
     border: 1px solid var(--menu-border);
@@ -937,7 +782,7 @@ select {
 .ui-context-menu {
     position: fixed;
     background: var(--menu-bg);
-    color: var(--menu-text);
+    color: var(--menu-text) !important;
     backdrop-filter: var(--win-blur);
     -webkit-backdrop-filter: var(--win-blur);
     border: 1px solid var(--menu-border);
@@ -955,6 +800,320 @@ select {
     opacity: 1;
     pointer-events: auto;
 }
+
+/* ==========================================================================
+   LOOK AND FEEL (LAF) - COMPREHENSIVE CONTEXT MENU HARMONIZATION
+   Garante fidelidade visual e contraste rigoroso para .ui-context-menu em todos os 35+ LaFs e Temas
+   ========================================================================== */
+
+/* 1. Cyberpunk Neon */
+[data-laf="cyberpunk-neon"] .ui-context-menu {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
+    font-family: 'Orbitron', monospace !important;
+    color: #00ffcc !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-context-menu .menuOption {
+    color: #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-context-menu .menuOption:hover {
+    background: #00ffcc !important;
+    color: #000000 !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-context-menu .menuSep {
+    background: #00ffcc !important;
+    opacity: 0.35;
+}
+
+/* 2. Tactical HUD / Cyberdeck */
+[data-laf="tactical-hud"] .ui-context-menu {
+    background: rgba(18, 14, 8, 0.98) !important;
+    border: 1px solid #ff9900 !important;
+    box-shadow: 0 0 20px rgba(255, 153, 0, 0.4) !important;
+    font-family: 'Consolas', monospace !important;
+    color: #ffaa00 !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="tactical-hud"] .ui-context-menu .menuOption {
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .ui-context-menu .menuOption:hover {
+    background: #ff9900 !important;
+    color: #000000 !important;
+}
+
+[data-laf="tactical-hud"] .ui-context-menu .menuSep {
+    background: #ff9900 !important;
+    opacity: 0.35;
+}
+
+/* 3. DOS TUI / Turbo Vision */
+[data-laf="turbo-tui"] .ui-context-menu {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    font-family: 'Consolas', monospace !important;
+    border-radius: 0 !important;
+}
+
+[data-laf="turbo-tui"] .ui-context-menu .menuOption {
+    color: #000000 !important;
+    font-weight: bold;
+}
+
+[data-laf="turbo-tui"] .ui-context-menu .menuOption:hover {
+    background: #000000 !important;
+    color: #00ffcc !important;
+}
+
+[data-laf="turbo-tui"] .ui-context-menu .menuSep {
+    background: #ffffff !important;
+    height: 1px;
+}
+
+/* 4. Neumorphism / Soft UI */
+[data-laf="neumorphism"] .ui-context-menu {
+    background: #e0e5ec !important;
+    border: none !important;
+    box-shadow: 6px 6px 14px #b8b9be, -6px -6px 14px #ffffff !important;
+    border-radius: 16px !important;
+    color: #31344b !important;
+    padding: 6px !important;
+}
+
+[data-laf="neumorphism"] .ui-context-menu .menuOption {
+    color: #31344b !important;
+    border-radius: 10px;
+}
+
+[data-laf="neumorphism"] .ui-context-menu .menuOption:hover {
+    box-shadow: inset 2px 2px 5px #b8b9be, inset -2px -2px 5px #ffffff;
+    color: #0381fe !important;
+    background: #e0e5ec !important;
+}
+
+[data-laf="neumorphism"] .ui-context-menu .menuSep {
+    background: #b8b9be !important;
+}
+
+/* 5. Retrô 3D, Clássicos & Java Swing: Steel Metal, Retro 3D, Ocean Metal, Yellow Tab, Luna Blue, Warp, Motif, Platinum, Workbench, Modena, Nimbus */
+[data-laf="retro-3d"] .ui-context-menu,
+[data-laf="steel-metal"] .ui-context-menu,
+[data-laf="ocean-metal"] .ui-context-menu,
+[data-laf="yellow-tab"] .ui-context-menu,
+[data-laf="modena-soft"] .ui-context-menu,
+[data-laf="nimbus-vector"] .ui-context-menu,
+[data-laf="luna-blue"] .ui-context-menu,
+[data-laf="workbench-boing"] .ui-context-menu,
+[data-laf="warp-enterprise"] .ui-context-menu,
+[data-laf="motif-panel"] .ui-context-menu,
+[data-laf="platinum-classic"] .ui-context-menu {
+    background: #d4d0c8 !important;
+    color: #000000 !important;
+    border: 2px outset #ffffff !important;
+    border-radius: 0px !important;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35) !important;
+    padding: 2px !important;
+}
+
+[data-laf="retro-3d"] .ui-context-menu .menuOption,
+[data-laf="steel-metal"] .ui-context-menu .menuOption,
+[data-laf="ocean-metal"] .ui-context-menu .menuOption,
+[data-laf="yellow-tab"] .ui-context-menu .menuOption,
+[data-laf="modena-soft"] .ui-context-menu .menuOption,
+[data-laf="nimbus-vector"] .ui-context-menu .menuOption,
+[data-laf="luna-blue"] .ui-context-menu .menuOption,
+[data-laf="workbench-boing"] .ui-context-menu .menuOption,
+[data-laf="warp-enterprise"] .ui-context-menu .menuOption,
+[data-laf="motif-panel"] .ui-context-menu .menuOption,
+[data-laf="platinum-classic"] .ui-context-menu .menuOption {
+    color: #000000 !important;
+    border-radius: 0px;
+}
+
+[data-laf="retro-3d"] .ui-context-menu .menuOption:hover,
+[data-laf="steel-metal"] .ui-context-menu .menuOption:hover,
+[data-laf="ocean-metal"] .ui-context-menu .menuOption:hover,
+[data-laf="luna-blue"] .ui-context-menu .menuOption:hover,
+[data-laf="workbench-boing"] .ui-context-menu .menuOption:hover,
+[data-laf="warp-enterprise"] .ui-context-menu .menuOption:hover,
+[data-laf="motif-panel"] .ui-context-menu .menuOption:hover,
+[data-laf="platinum-classic"] .ui-context-menu .menuOption:hover {
+    background: #0a246a !important;
+    color: #ffffff !important;
+}
+
+[data-laf="yellow-tab"] .ui-context-menu .menuOption:hover {
+    background: #ffcc00 !important;
+    color: #000000 !important;
+}
+
+[data-laf="nimbus-vector"] .ui-context-menu .menuOption:hover {
+    background: #e78200 !important;
+    color: #ffffff !important;
+}
+
+/* 6. Dark Retrô & Workstations: Next Dark, Caspian Dark, X11 Box, E-Fusion, Cosmic Teal, Tiling Grid */
+[data-laf="next-dark"] .ui-context-menu,
+[data-laf="caspian-dark"] .ui-context-menu,
+[data-laf="x11-box"] .ui-context-menu,
+[data-laf="e-fusion"] .ui-context-menu,
+[data-laf="cosmic-teal"] .ui-context-menu,
+[data-laf="tiling-grid"] .ui-context-menu {
+    background: #1e2430 !important;
+    border: 1px solid #3a475a !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-laf="next-dark"] .ui-context-menu .menuOption,
+[data-laf="caspian-dark"] .ui-context-menu .menuOption,
+[data-laf="x11-box"] .ui-context-menu .menuOption,
+[data-laf="e-fusion"] .ui-context-menu .menuOption,
+[data-laf="cosmic-teal"] .ui-context-menu .menuOption,
+[data-laf="tiling-grid"] .ui-context-menu .menuOption {
+    color: #f1f5f9 !important;
+}
+
+[data-laf="next-dark"] .ui-context-menu .menuOption:hover,
+[data-laf="caspian-dark"] .ui-context-menu .menuOption:hover,
+[data-laf="x11-box"] .ui-context-menu .menuOption:hover,
+[data-laf="e-fusion"] .ui-context-menu .menuOption:hover,
+[data-laf="cosmic-teal"] .ui-context-menu .menuOption:hover,
+[data-laf="tiling-grid"] .ui-context-menu .menuOption:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+/* 7. Unix Modernos: Aubergine Orange, Pantheon Pure, Greybird Lite, Adwaita Slate, Breeze Plasma, FlatLaf IDE */
+[data-laf="aubergine-orange"] .ui-context-menu {
+    background: #2c001e !important;
+    color: #ffffff !important;
+    border: 1px solid #4a1538 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    border-radius: 6px !important;
+}
+
+[data-laf="aubergine-orange"] .ui-context-menu .menuOption {
+    color: #ffffff !important;
+}
+
+[data-laf="aubergine-orange"] .ui-context-menu .menuOption:hover {
+    background: #e95420 !important;
+    color: #ffffff !important;
+}
+
+[data-laf="pantheon-pure"] .ui-context-menu {
+    background: #ffffff !important;
+    color: #2e3436 !important;
+    border: 1px solid #d0d0d0 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    border-radius: 6px !important;
+}
+
+[data-laf="pantheon-pure"] .ui-context-menu .menuOption {
+    color: #2e3436 !important;
+}
+
+[data-laf="pantheon-pure"] .ui-context-menu .menuOption:hover {
+    background: #e8f0fb !important;
+    color: #3689e6 !important;
+}
+
+[data-laf="greybird-lite"] .ui-context-menu {
+    background: #ffffff !important;
+    color: #2c3e50 !important;
+    border: 1px solid #c4cbd4 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10) !important;
+    border-radius: 4px !important;
+}
+
+[data-laf="greybird-lite"] .ui-context-menu .menuOption {
+    color: #2c3e50 !important;
+}
+
+[data-laf="greybird-lite"] .ui-context-menu .menuOption:hover {
+    background: #dde4ef !important;
+    color: #398ee7 !important;
+}
+
+[data-laf="adwaita-slate"] .ui-context-menu,
+[data-laf="breeze-plasma"] .ui-context-menu,
+[data-laf="flatlaf-ide"] .ui-context-menu {
+    background: var(--menu-bg) !important;
+    color: var(--menu-text) !important;
+    border: 1px solid var(--menu-border) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    border-radius: 6px !important;
+}
+
+/* 8. Vidro & Fluidez: Spatial Glass, Cupertino Touch, Aqua Frosted, Fluent Acrylic, One Touch, Material Tonal, Aero Glass */
+[data-laf="spatial-glass"] .ui-context-menu,
+[data-laf="cupertino-touch"] .ui-context-menu,
+[data-laf="aqua-frosted"] .ui-context-menu,
+[data-laf="fluent-acrylic"] .ui-context-menu,
+[data-laf="one-touch"] .ui-context-menu,
+[data-laf="material-tonal"] .ui-context-menu,
+[data-laf="aero-glass"] .ui-context-menu {
+    background: var(--menu-bg) !important;
+    border: 1px solid var(--win-border) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    color: var(--menu-text) !important;
+}
+
+[data-laf="spatial-glass"] .ui-context-menu .menuOption,
+[data-laf="cupertino-touch"] .ui-context-menu .menuOption,
+[data-laf="aqua-frosted"] .ui-context-menu .menuOption,
+[data-laf="fluent-acrylic"] .ui-context-menu .menuOption,
+[data-laf="one-touch"] .ui-context-menu .menuOption,
+[data-laf="material-tonal"] .ui-context-menu .menuOption,
+[data-laf="aero-glass"] .ui-context-menu .menuOption {
+    color: var(--menu-text) !important;
+    border-radius: 8px;
+}
+
+[data-laf="spatial-glass"] .ui-context-menu .menuOption:hover,
+[data-laf="cupertino-touch"] .ui-context-menu .menuOption:hover,
+[data-laf="aqua-frosted"] .ui-context-menu .menuOption:hover,
+[data-laf="fluent-acrylic"] .ui-context-menu .menuOption:hover,
+[data-laf="one-touch"] .ui-context-menu .menuOption:hover,
+[data-laf="material-tonal"] .ui-context-menu .menuOption:hover,
+[data-laf="aero-glass"] .ui-context-menu .menuOption:hover {
+    background: var(--menu-hover) !important;
+    color: var(--menu-text) !important;
+}
+
+/* 9. Flat Tiles */
+[data-laf="flat-tiles"] .ui-context-menu {
+    border: 2px solid #0078d7 !important;
+    border-radius: 0px !important;
+    background: var(--menu-bg) !important;
+    color: var(--menu-text) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-laf="flat-tiles"] .ui-context-menu .menuOption {
+    color: var(--menu-text) !important;
+    border-radius: 0;
+}
+
+[data-laf="flat-tiles"] .ui-context-menu .menuOption:hover {
+    background: #0078d7 !important;
+    color: #ffffff !important;
+}
+
+
 
 /* --- TreeView --- */
 .ui-tree {
@@ -1473,6 +1632,9 @@ select {
     overflow-x: hidden;
     overflow-y: auto;
     align-items: center;
+    justify-content: flex-start;
+    flex: 1 1 auto;
+    gap: 4px;
 }
 
 #app[data-taskbar="left"] .taskButton,
@@ -1481,9 +1643,13 @@ select {
     max-width: 100%;
     min-width: 0;
     height: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    flex: 0 0 32px;
     padding: 0 4px;
     font-size: 11px;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .taskButton {
@@ -1936,64 +2102,60 @@ textarea:focus,
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 400000;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s ease;
 }
 
 .ui-modal-overlay.show {
     opacity: 1;
 }
 
-.ui-modal-dialog {
-    background: var(--menu-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--win-border);
-    border-radius: 12px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
-    min-width: 0;
-    width: 92%;
-    max-width: 500px;
-    max-height: 90vh;
+.ui-modal-dialog.window,
+.window.ui-modal-dialog {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: scale(0.95);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    min-width: 320px;
+    width: 90%;
+    max-width: 520px;
+    max-height: 88vh;
+    min-height: auto;
     display: flex;
     flex-direction: column;
-    backdrop-filter: var(--win-blur);
-    -webkit-backdrop-filter: var(--win-blur);
     box-sizing: border-box;
+    margin: auto;
+    z-index: 2;
 }
 
-.ui-modal-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.ui-modal-overlay.show .ui-modal-dialog.window,
+.ui-modal-overlay.show .window.ui-modal-dialog {
+    transform: scale(1);
 }
 
-.ui-modal-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: var(--text-primary);
+.ui-modal-dialog .titlebar,
+.window.ui-modal-dialog .titlebar {
+    cursor: default;
+    user-select: none;
+    flex-shrink: 0;
 }
 
-.ui-modal-close {
-    cursor: pointer;
-    font-size: 20px;
-    color: var(--text-secondary);
-}
-
-.ui-modal-close:hover {
-    color: var(--text-primary);
-}
-
-.ui-modal-body {
-    padding: 20px;
+.ui-modal-dialog .windowBody,
+.window.ui-modal-dialog .windowBody {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 /* --- Notifications --- */
@@ -2533,7 +2695,7 @@ h2 {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: #e9ecef;
+    background: var(--bg-secondary, #e9ecef);
     color: var(--text-secondary);
     display: flex;
     align-items: center;
@@ -2541,8 +2703,8 @@ h2 {
     font-weight: 600;
     font-size: 12px;
     transition: all 0.3s;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 2px #e9ecef;
+    border: 2px solid var(--win-bg, #fff);
+    box-shadow: 0 0 0 2px var(--win-border, #e9ecef);
 }
 
 .ui-step.active .ui-step-circle {
@@ -2573,7 +2735,7 @@ h2 {
 .ui-step-line {
     flex: 1;
     height: 2px;
-    background: #e9ecef;
+    background: var(--win-border, #e9ecef);
     margin: 0 12px;
     transform: translateY(-10px);
     /* align with circles */
@@ -2608,7 +2770,7 @@ h2 {
     -webkit-appearance: none;
     width: 100%;
     height: 6px;
-    background: #e9ecef;
+    background: var(--win-border, #e9ecef);
     border-radius: 3px;
     outline: none;
     background-image: linear-gradient(var(--btn-primary), var(--btn-primary));
@@ -2993,9 +3155,14 @@ h2 {
    Garante consistência estrutural, estética de SO e alto contraste de cores.
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   REGRAS GLOBAIS DE ALTO CONTRASTE PARA TODOS OS TEMAS CLAROS
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   SUBSISTEMA DE LOOK AND FEEL & TEMAS - CORES, FONTES E ALTO CONTRASTE
+   Arquitetura limpa: Fundo Claro => Fonte Escura | Fundo Escuro => Fonte Clara
+   ========================================================================== */
+
+/* 1. Definição Base de Tokens para LaFs Claros */
+:root,
+[data-laf="default"],
 [data-laf="steel-metal"],
 [data-laf="ocean-metal"],
 [data-laf="nimbus-vector"],
@@ -3008,7 +3175,19 @@ h2 {
 [data-laf="warp-enterprise"],
 [data-laf="motif-panel"],
 [data-laf="adwaita-slate"],
-[data-laf="breeze-plasma"] {
+[data-laf="breeze-plasma"],
+[data-laf="neumorphism"],
+[data-laf="material-tonal"],
+[data-laf="one-touch"],
+[data-laf="flat-tiles"],
+[data-laf="pantheon-pure"],
+[data-laf="greybird-lite"],
+[data-laf="aubergine-orange"],
+[data-laf="aqua-frosted"],
+[data-laf="fluent-acrylic"],
+[data-laf="spatial-glass"],
+[data-laf="cupertino-touch"],
+[data-laf="flatlaf-ide"] {
     --text-primary: #111827;
     --text-secondary: #4b5563;
     --menu-text: #111827;
@@ -3017,277 +3196,130 @@ h2 {
     --input-text: #111827;
 }
 
-[data-laf="steel-metal"] .windowBody,
-[data-laf="ocean-metal"] .windowBody,
-[data-laf="nimbus-vector"] .windowBody,
-[data-laf="modena-soft"] .windowBody,
-[data-laf="yellow-tab"] .windowBody,
-[data-laf="retro-3d"] .windowBody,
-[data-laf="luna-blue"] .windowBody,
-[data-laf="aero-glass"] .windowBody,
-[data-laf="platinum-classic"] .windowBody,
-[data-laf="warp-enterprise"] .windowBody,
-[data-laf="motif-panel"] .windowBody,
-[data-laf="adwaita-slate"] .windowBody,
-[data-laf="breeze-plasma"] .windowBody {
-    color: #111827 !important;
+/* 2. Definição de Tokens para LaFs com Superfície Escura */
+[data-laf="cyberpunk-neon"],
+[data-laf="tactical-hud"],
+[data-laf="caspian-dark"],
+[data-laf="next-dark"],
+[data-laf="x11-box"],
+[data-laf="e-fusion"],
+[data-laf="turbo-tui"],
+[data-laf="cosmic-teal"] {
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --menu-text: #f1f5f9;
+    --input-bg: rgba(20, 25, 35, 0.95);
+    --input-border: rgba(255, 255, 255, 0.2);
+    --input-text: #f1f5f9;
 }
 
-[data-laf="steel-metal"] .windowBody p,
-[data-laf="steel-metal"] .windowBody h1,
-[data-laf="steel-metal"] .windowBody h2,
-[data-laf="steel-metal"] .windowBody h3,
-[data-laf="steel-metal"] .windowBody h4,
-[data-laf="steel-metal"] .windowBody span,
-[data-laf="steel-metal"] .windowBody label,
-[data-laf="steel-metal"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="ocean-metal"] .windowBody p,
-[data-laf="ocean-metal"] .windowBody h1,
-[data-laf="ocean-metal"] .windowBody h2,
-[data-laf="ocean-metal"] .windowBody h3,
-[data-laf="ocean-metal"] .windowBody h4,
-[data-laf="ocean-metal"] .windowBody span,
-[data-laf="ocean-metal"] .windowBody label,
-[data-laf="ocean-metal"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="nimbus-vector"] .windowBody p,
-[data-laf="nimbus-vector"] .windowBody h1,
-[data-laf="nimbus-vector"] .windowBody h2,
-[data-laf="nimbus-vector"] .windowBody h3,
-[data-laf="nimbus-vector"] .windowBody h4,
-[data-laf="nimbus-vector"] .windowBody span,
-[data-laf="nimbus-vector"] .windowBody label,
-[data-laf="nimbus-vector"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="modena-soft"] .windowBody p,
-[data-laf="modena-soft"] .windowBody h1,
-[data-laf="modena-soft"] .windowBody h2,
-[data-laf="modena-soft"] .windowBody h3,
-[data-laf="modena-soft"] .windowBody h4,
-[data-laf="modena-soft"] .windowBody span,
-[data-laf="modena-soft"] .windowBody label,
-[data-laf="modena-soft"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="yellow-tab"] .windowBody p,
-[data-laf="yellow-tab"] .windowBody h1,
-[data-laf="yellow-tab"] .windowBody h2,
-[data-laf="yellow-tab"] .windowBody h3,
-[data-laf="yellow-tab"] .windowBody h4,
-[data-laf="yellow-tab"] .windowBody span,
-[data-laf="yellow-tab"] .windowBody label,
-[data-laf="yellow-tab"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="retro-3d"] .windowBody p,
-[data-laf="retro-3d"] .windowBody h1,
-[data-laf="retro-3d"] .windowBody h2,
-[data-laf="retro-3d"] .windowBody h3,
-[data-laf="retro-3d"] .windowBody h4,
-[data-laf="retro-3d"] .windowBody span,
-[data-laf="retro-3d"] .windowBody label,
-[data-laf="retro-3d"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="luna-blue"] .windowBody p,
-[data-laf="luna-blue"] .windowBody h1,
-[data-laf="luna-blue"] .windowBody h2,
-[data-laf="luna-blue"] .windowBody h3,
-[data-laf="luna-blue"] .windowBody h4,
-[data-laf="luna-blue"] .windowBody span,
-[data-laf="luna-blue"] .windowBody label,
-[data-laf="luna-blue"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="aero-glass"] .windowBody p,
-[data-laf="aero-glass"] .windowBody h1,
-[data-laf="aero-glass"] .windowBody h2,
-[data-laf="aero-glass"] .windowBody h3,
-[data-laf="aero-glass"] .windowBody h4,
-[data-laf="aero-glass"] .windowBody span,
-[data-laf="aero-glass"] .windowBody label,
-[data-laf="aero-glass"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="platinum-classic"] .windowBody p,
-[data-laf="platinum-classic"] .windowBody h1,
-[data-laf="platinum-classic"] .windowBody h2,
-[data-laf="platinum-classic"] .windowBody h3,
-[data-laf="platinum-classic"] .windowBody h4,
-[data-laf="platinum-classic"] .windowBody span,
-[data-laf="platinum-classic"] .windowBody label,
-[data-laf="platinum-classic"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="warp-enterprise"] .windowBody p,
-[data-laf="warp-enterprise"] .windowBody h1,
-[data-laf="warp-enterprise"] .windowBody h2,
-[data-laf="warp-enterprise"] .windowBody h3,
-[data-laf="warp-enterprise"] .windowBody h4,
-[data-laf="warp-enterprise"] .windowBody span,
-[data-laf="warp-enterprise"] .windowBody label,
-[data-laf="warp-enterprise"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="motif-panel"] .windowBody p,
-[data-laf="motif-panel"] .windowBody h1,
-[data-laf="motif-panel"] .windowBody h2,
-[data-laf="motif-panel"] .windowBody h3,
-[data-laf="motif-panel"] .windowBody h4,
-[data-laf="motif-panel"] .windowBody span,
-[data-laf="motif-panel"] .windowBody label,
-[data-laf="motif-panel"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="adwaita-slate"] .windowBody p,
-[data-laf="adwaita-slate"] .windowBody h1,
-[data-laf="adwaita-slate"] .windowBody h2,
-[data-laf="adwaita-slate"] .windowBody h3,
-[data-laf="adwaita-slate"] .windowBody h4,
-[data-laf="adwaita-slate"] .windowBody span,
-[data-laf="adwaita-slate"] .windowBody label,
-[data-laf="adwaita-slate"] .windowBody div:not(.ui-btn):not(.tag):not(.badge),
-[data-laf="breeze-plasma"] .windowBody p,
-[data-laf="breeze-plasma"] .windowBody h1,
-[data-laf="breeze-plasma"] .windowBody h2,
-[data-laf="breeze-plasma"] .windowBody h3,
-[data-laf="breeze-plasma"] .windowBody h4,
-[data-laf="breeze-plasma"] .windowBody span,
-[data-laf="breeze-plasma"] .windowBody label,
-[data-laf="breeze-plasma"] .windowBody div:not(.ui-btn):not(.tag):not(.badge) {
-    color: #111827 !important;
+/* 3. Aplicação Universal de Herança nos Componentes da Janela */
+.windowBody {
+    color: var(--text-primary);
 }
 
-[data-laf="steel-metal"] .ui-card,
-[data-laf="ocean-metal"] .ui-card,
-[data-laf="nimbus-vector"] .ui-card,
-[data-laf="modena-soft"] .ui-card,
-[data-laf="yellow-tab"] .ui-card,
-[data-laf="retro-3d"] .ui-card,
-[data-laf="luna-blue"] .ui-card,
-[data-laf="aero-glass"] .ui-card,
-[data-laf="platinum-classic"] .ui-card,
-[data-laf="warp-enterprise"] .ui-card,
-[data-laf="motif-panel"] .ui-card,
-[data-laf="adwaita-slate"] .ui-card,
-[data-laf="breeze-plasma"] .ui-card {
-    background: rgba(255, 255, 255, 0.75) !important;
-    border: 1px solid rgba(0, 0, 0, 0.15) !important;
-    color: #111827 !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+.windowBody p,
+.windowBody h1,
+.windowBody h2,
+.windowBody h3,
+.windowBody h4,
+.windowBody h5,
+.windowBody h6,
+.windowBody span:not(.ui-badge):not(.tag):not(.badge):not(.task-start-icon),
+.windowBody label,
+.windowBody div:not(.ui-btn):not(.tag):not(.badge):not(.taskButton):not(.ui-chip):not(.ui-modal-overlay):not(.ui-modal-dialog) {
+    color: inherit;
 }
 
-[data-laf="steel-metal"] .ui-card-title,
-[data-laf="ocean-metal"] .ui-card-title,
-[data-laf="nimbus-vector"] .ui-card-title,
-[data-laf="modena-soft"] .ui-card-title,
-[data-laf="yellow-tab"] .ui-card-title,
-[data-laf="retro-3d"] .ui-card-title,
-[data-laf="luna-blue"] .ui-card-title,
-[data-laf="aero-glass"] .ui-card-title,
-[data-laf="platinum-classic"] .ui-card-title,
-[data-laf="warp-enterprise"] .ui-card-title,
-[data-laf="motif-panel"] .ui-card-title,
-[data-laf="adwaita-slate"] .ui-card-title,
-[data-laf="breeze-plasma"] .ui-card-title {
-    color: #111827 !important;
+/* 4. Formulários (Inputs, Selects, Textareas, Autocomplete, Checkboxes) */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+select,
+textarea,
+.filter-input,
+.ui-autocomplete-input {
+    background: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border: 1px solid var(--input-border) !important;
+}
+
+select option {
+    background: var(--input-bg);
+    color: var(--input-text);
+}
+
+.ui-radio-label,
+.ui-checkbox-label,
+.ui-radiogroup-label {
+    color: var(--text-primary) !important;
+}
+
+/* 5. Cards & Containers */
+.ui-card,
+.card {
+    color: var(--text-primary);
+}
+
+.ui-card-title {
+    color: var(--text-primary) !important;
     font-weight: 700;
 }
 
-[data-laf="steel-metal"] input,
-[data-laf="steel-metal"] textarea,
-[data-laf="steel-metal"] select,
-[data-laf="steel-metal"] .filter-input,
-[data-laf="ocean-metal"] input,
-[data-laf="ocean-metal"] textarea,
-[data-laf="ocean-metal"] select,
-[data-laf="ocean-metal"] .filter-input,
-[data-laf="nimbus-vector"] input,
-[data-laf="nimbus-vector"] textarea,
-[data-laf="nimbus-vector"] select,
-[data-laf="nimbus-vector"] .filter-input,
-[data-laf="modena-soft"] input,
-[data-laf="modena-soft"] textarea,
-[data-laf="modena-soft"] select,
-[data-laf="modena-soft"] .filter-input,
-[data-laf="yellow-tab"] input,
-[data-laf="yellow-tab"] textarea,
-[data-laf="yellow-tab"] select,
-[data-laf="yellow-tab"] .filter-input,
-[data-laf="retro-3d"] input,
-[data-laf="retro-3d"] textarea,
-[data-laf="retro-3d"] select,
-[data-laf="retro-3d"] .filter-input,
-[data-laf="luna-blue"] input,
-[data-laf="luna-blue"] textarea,
-[data-laf="luna-blue"] select,
-[data-laf="luna-blue"] .filter-input,
-[data-laf="aero-glass"] input,
-[data-laf="aero-glass"] textarea,
-[data-laf="aero-glass"] select,
-[data-laf="aero-glass"] .filter-input,
-[data-laf="platinum-classic"] input,
-[data-laf="platinum-classic"] textarea,
-[data-laf="platinum-classic"] select,
-[data-laf="platinum-classic"] .filter-input,
-[data-laf="warp-enterprise"] input,
-[data-laf="warp-enterprise"] textarea,
-[data-laf="warp-enterprise"] select,
-[data-laf="warp-enterprise"] .filter-input,
-[data-laf="motif-panel"] input,
-[data-laf="motif-panel"] textarea,
-[data-laf="motif-panel"] select,
-[data-laf="motif-panel"] .filter-input,
-[data-laf="adwaita-slate"] input,
-[data-laf="adwaita-slate"] textarea,
-[data-laf="adwaita-slate"] select,
-[data-laf="adwaita-slate"] .filter-input,
-[data-laf="breeze-plasma"] input,
-[data-laf="breeze-plasma"] textarea,
-[data-laf="breeze-plasma"] select,
-[data-laf="breeze-plasma"] .filter-input {
-    background: #ffffff !important;
-    color: #111827 !important;
-    border: 1px solid #9ca3af !important;
+/* 6. Accordions */
+.ui-accordion-header {
+    background: var(--bg-secondary, rgba(128, 128, 128, 0.08)) !important;
+    color: var(--text-primary) !important;
 }
 
-[data-laf="steel-metal"] .ui-table th,
-[data-laf="steel-metal"] .ui-table td,
-[data-laf="steel-metal"] .ui-datagrid th,
-[data-laf="steel-metal"] .ui-datagrid td,
-[data-laf="ocean-metal"] .ui-table th,
-[data-laf="ocean-metal"] .ui-table td,
-[data-laf="ocean-metal"] .ui-datagrid th,
-[data-laf="ocean-metal"] .ui-datagrid td,
-[data-laf="nimbus-vector"] .ui-table th,
-[data-laf="nimbus-vector"] .ui-table td,
-[data-laf="nimbus-vector"] .ui-datagrid th,
-[data-laf="nimbus-vector"] .ui-datagrid td,
-[data-laf="modena-soft"] .ui-table th,
-[data-laf="modena-soft"] .ui-table td,
-[data-laf="modena-soft"] .ui-datagrid th,
-[data-laf="modena-soft"] .ui-datagrid td,
-[data-laf="yellow-tab"] .ui-table th,
-[data-laf="yellow-tab"] .ui-table td,
-[data-laf="yellow-tab"] .ui-datagrid th,
-[data-laf="yellow-tab"] .ui-datagrid td,
-[data-laf="retro-3d"] .ui-table th,
-[data-laf="retro-3d"] .ui-table td,
-[data-laf="retro-3d"] .ui-datagrid th,
-[data-laf="retro-3d"] .ui-datagrid td,
-[data-laf="luna-blue"] .ui-table th,
-[data-laf="luna-blue"] .ui-table td,
-[data-laf="luna-blue"] .ui-datagrid th,
-[data-laf="luna-blue"] .ui-datagrid td,
-[data-laf="aero-glass"] .ui-table th,
-[data-laf="aero-glass"] .ui-table td,
-[data-laf="aero-glass"] .ui-datagrid th,
-[data-laf="aero-glass"] .ui-datagrid td,
-[data-laf="platinum-classic"] .ui-table th,
-[data-laf="platinum-classic"] .ui-table td,
-[data-laf="platinum-classic"] .ui-datagrid th,
-[data-laf="platinum-classic"] .ui-datagrid td,
-[data-laf="warp-enterprise"] .ui-table th,
-[data-laf="warp-enterprise"] .ui-table td,
-[data-laf="warp-enterprise"] .ui-datagrid th,
-[data-laf="warp-enterprise"] .ui-datagrid td,
-[data-laf="motif-panel"] .ui-table th,
-[data-laf="motif-panel"] .ui-table td,
-[data-laf="motif-panel"] .ui-datagrid th,
-[data-laf="motif-panel"] .ui-datagrid td,
-[data-laf="adwaita-slate"] .ui-table th,
-[data-laf="adwaita-slate"] .ui-table td,
-[data-laf="adwaita-slate"] .ui-datagrid th,
-[data-laf="adwaita-slate"] .ui-datagrid td,
-[data-laf="breeze-plasma"] .ui-table th,
-[data-laf="breeze-plasma"] .ui-table td,
-[data-laf="breeze-plasma"] .ui-datagrid th,
-[data-laf="breeze-plasma"] .ui-datagrid td {
-    color: #111827 !important;
+.ui-accordion-title {
+    color: var(--text-primary) !important;
 }
 
+.ui-accordion-content {
+    background: var(--win-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 7. Carousel */
+.ui-carousel-slide {
+    background: var(--bg-secondary, rgba(128, 128, 128, 0.08)) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--win-border) !important;
+}
+
+/* 8. Tabelas & DataGrids */
+.ui-table td,
+.ui-datagrid td {
+    color: var(--text-primary) !important;
+}
+
+.ui-table th,
+.ui-datagrid th {
+    color: var(--text-primary) !important;
+    background: var(--bg-secondary) !important;
+}
+
+/* ==========================================================================
+   LOOK AND FEEL (LAF) - STATUSBAR & LOCAL DOCK THEME HARMONIZATION
+   ========================================================================== */
+
+/* 1. Base Default Statusbar: herda background secundário e bordas da janela */
+.statusbar {
+    height: 24px;
+    flex: 0 0 24px;
+    border-top: 1px solid var(--win-border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+}
+
+/* 2. Temas Claros & Clássicos (Steel, Ocean, Nimbus, Modena, Retro, Luna, Aero, etc.) */
 [data-laf="steel-metal"] .statusbar,
 [data-laf="ocean-metal"] .statusbar,
 [data-laf="nimbus-vector"] .statusbar,
@@ -3301,8 +3333,168 @@ h2 {
 [data-laf="motif-panel"] .statusbar,
 [data-laf="adwaita-slate"] .statusbar,
 [data-laf="breeze-plasma"] .statusbar {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
     color: #111827 !important;
 }
+
+/* 3. Cyberpunk Neon: statusbar e dock local em neon ciano / escuro */
+[data-laf="cyberpunk-neon"] .statusbar {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border-top: 1px solid #00ffcc !important;
+    color: #00ffcc !important;
+    font-family: 'Orbitron', monospace !important;
+    font-size: 11px !important;
+    letter-spacing: 1px !important;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2) inset !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget.is-local {
+    background: rgba(10, 14, 23, 0.98) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 18px rgba(0, 255, 204, 0.35) !important;
+    color: #00ffcc !important;
+    font-family: 'Orbitron', monospace !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget.is-local .ui-dock-header {
+    background: rgba(0, 255, 204, 0.15) !important;
+    color: #00ffcc !important;
+    border-bottom: 1px solid #00ffcc !important;
+}
+
+[data-laf="cyberpunk-neon"] .ui-dock-widget.is-local .ui-dock-body {
+    background: rgba(10, 14, 23, 0.95) !important;
+    color: #00ffcc !important;
+}
+
+/* 4. Tactical HUD: statusbar e dock local em âmbar militar */
+[data-laf="tactical-hud"] .statusbar {
+    background: rgba(18, 14, 8, 0.98) !important;
+    border-top: 1px solid #ff9900 !important;
+    color: #ffaa00 !important;
+    font-family: 'Consolas', monospace !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget.is-local {
+    background: rgba(18, 14, 8, 0.98) !important;
+    border: 1px solid #ff9900 !important;
+    box-shadow: 0 0 16px rgba(255, 153, 0, 0.25) !important;
+    color: #ffaa00 !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget.is-local .ui-dock-header {
+    background: rgba(255, 153, 0, 0.15) !important;
+    color: #ffcc00 !important;
+    border-bottom: 1px solid #ff9900 !important;
+}
+
+[data-laf="tactical-hud"] .ui-dock-widget.is-local .ui-dock-body {
+    background: rgba(18, 14, 8, 0.95) !important;
+    color: #ffaa00 !important;
+}
+
+/* 5. Neumorphism: statusbar e dock local integrados com relevo suave */
+[data-laf="neumorphism"] .statusbar {
+    background: #e0e5ec !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.7) !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget.is-local {
+    background: #e0e5ec !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 4px 4px 10px #b8b9be, -4px -4px 10px #ffffff !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget.is-local .ui-dock-header {
+    background: #e0e5ec !important;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget.is-local .ui-dock-body {
+    background: #e0e5ec !important;
+    color: #31344b !important;
+}
+
+/* 6. Turbo Vision (DOS TUI) */
+[data-laf="turbo-tui"] .statusbar {
+    background: #00aaaa !important;
+    border-top: 2px solid #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Consolas', monospace !important;
+    font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .ui-dock-widget.is-local {
+    background: #0000a8 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 4px 4px 0px #000000 !important;
+    color: #ffffff !important;
+    font-family: 'Consolas', monospace !important;
+}
+
+[data-laf="turbo-tui"] .ui-dock-widget.is-local .ui-dock-header {
+    background: #00aaaa !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+}
+
+/* 7. Spatial Glass & Cupertino: translúcidos */
+[data-laf="spatial-glass"] .statusbar,
+[data-laf="cupertino-touch"] .statusbar {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #1d1d1f !important;
+}
+
+/* 8. One Touch & Material Tonal */
+[data-laf="one-touch"] .statusbar {
+    background: #f8fafc !important;
+    border-top: 1px solid #edf2f7 !important;
+    color: #334155 !important;
+}
+
+[data-laf="material-tonal"] .statusbar {
+    background: #f3edf7 !important;
+    border-top: 1px solid rgba(103, 80, 164, 0.12) !important;
+    color: #1d1b20 !important;
+}
+
+/* 9. Flat Tiles */
+[data-laf="flat-tiles"] .statusbar {
+    background: #0078d7 !important;
+    border-top: none !important;
+    color: #ffffff !important;
+}
+
+/* 10. Caspian Dark & NeXT Dark */
+[data-laf="caspian-dark"] .statusbar {
+    background: #1e2833 !important;
+    border-top: 1px solid #1a2733 !important;
+    color: #9cb8d4 !important;
+}
+
+[data-laf="next-dark"] .statusbar {
+    background: #1e1e1e !important;
+    border-top: 1px solid #333333 !important;
+    color: #aaaaaa !important;
+}
+
+[data-laf="x11-box"] .statusbar {
+    background: #2b2b2b !important;
+    border-top: 1px solid #444444 !important;
+    color: #cccccc !important;
+}
+
+[data-laf="e-fusion"] .statusbar {
+    background: #111420 !important;
+    border-top: 1px solid #1f283d !important;
+    color: #798bb0 !important;
+}
+
+
 
 /* --------------------------------------------------------------------------
    1. Aqua-Frosted (Aqua Style)
@@ -3454,7 +3646,8 @@ h2 {
 }
 
 [data-laf="aqua-frosted"] .dropdown,
-[data-laf="aqua-frosted"] .ui-start-menu {
+[data-laf="aqua-frosted"] .ui-start-menu,
+[data-laf="aqua-frosted"] .ui-context-menu {
     border-radius: 8px !important;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
     border: 1px solid var(--win-border) !important;
@@ -3655,7 +3848,8 @@ h2 {
 }
 
 [data-laf="fluent-acrylic"] .dropdown,
-[data-laf="fluent-acrylic"] .ui-start-menu {
+[data-laf="fluent-acrylic"] .ui-start-menu,
+[data-laf="fluent-acrylic"] .ui-context-menu {
     border-radius: 8px !important;
     border: 1px solid var(--menu-border) !important;
     background: var(--menu-bg) !important;
@@ -3781,7 +3975,8 @@ h2 {
 }
 
 [data-laf="steel-metal"] .dropdown,
-[data-laf="steel-metal"] .ui-start-menu {
+[data-laf="steel-metal"] .ui-start-menu,
+[data-laf="steel-metal"] .ui-context-menu {
     background: #d4d0c8 !important;
     color: #000000 !important;
     border: 2px outset #4a6499 !important;
@@ -3901,7 +4096,8 @@ h2 {
 }
 
 [data-laf="ocean-metal"] .dropdown,
-[data-laf="ocean-metal"] .ui-start-menu {
+[data-laf="ocean-metal"] .ui-start-menu,
+[data-laf="ocean-metal"] .ui-context-menu {
     background: #eef3f8 !important;
     color: #1e3a5f !important;
     border: 1px solid #7ca0c4 !important;
@@ -4016,7 +4212,8 @@ h2 {
 }
 
 [data-laf="nimbus-vector"] .dropdown,
-[data-laf="nimbus-vector"] .ui-start-menu {
+[data-laf="nimbus-vector"] .ui-start-menu,
+[data-laf="nimbus-vector"] .ui-context-menu {
     background: #f0f2f4 !important;
     color: #222222 !important;
     border: 1px solid #92979e !important;
@@ -4368,7 +4565,8 @@ h2 {
 }
 
 [data-laf="yellow-tab"] .dropdown,
-[data-laf="yellow-tab"] .ui-start-menu {
+[data-laf="yellow-tab"] .ui-start-menu,
+[data-laf="yellow-tab"] .ui-context-menu {
     background: #e8e8e8 !important;
     color: #000000 !important;
     border: 1px solid #333 !important;
@@ -4459,7 +4657,8 @@ h2 {
 }
 
 [data-laf="retro-3d"] .dropdown,
-[data-laf="retro-3d"] .ui-start-menu {
+[data-laf="retro-3d"] .ui-start-menu,
+[data-laf="retro-3d"] .ui-context-menu {
     border: 2px outset #ffffff !important;
     background: #c0c0c0 !important;
     color: #000000 !important;
@@ -4659,7 +4858,8 @@ h2 {
 }
 
 [data-laf="luna-blue"] .dropdown,
-[data-laf="luna-blue"] .ui-start-menu {
+[data-laf="luna-blue"] .ui-start-menu,
+[data-laf="luna-blue"] .ui-context-menu {
     background: #ffffff !important;
     color: #000000 !important;
     border: 1px solid #0055ea !important;
@@ -4833,7 +5033,8 @@ h2 {
 }
 
 [data-laf="aero-glass"] .dropdown,
-[data-laf="aero-glass"] .ui-start-menu {
+[data-laf="aero-glass"] .ui-start-menu,
+[data-laf="aero-glass"] .ui-context-menu {
     background: rgba(240, 248, 255, 0.95) !important;
     color: #1e395b !important;
     border: 1px solid rgba(93, 173, 226, 0.6) !important;
@@ -5574,7 +5775,8 @@ h2 {
 }
 
 [data-laf="turbo-tui"] .dropdown,
-[data-laf="turbo-tui"] .ui-start-menu {
+[data-laf="turbo-tui"] .ui-start-menu,
+[data-laf="turbo-tui"] .ui-context-menu {
     background: #00aaaa !important;
     color: #000000 !important;
     border: 2px solid #ffffff !important;
@@ -5720,7 +5922,8 @@ h2 {
 }
 
 [data-laf="cyberpunk-neon"] .dropdown,
-[data-laf="cyberpunk-neon"] .ui-start-menu {
+[data-laf="cyberpunk-neon"] .ui-start-menu,
+[data-laf="cyberpunk-neon"] .ui-context-menu {
     background: rgba(10, 14, 23, 0.98) !important;
     border: 1px solid #00ffcc !important;
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
@@ -5743,15 +5946,16 @@ h2 {
 [data-laf="material-tonal"] .window {
     border-radius: 20px;
     border: 1px solid rgba(103, 80, 164, 0.18);
-    background: #fef7ff;
+    background: var(--win-bg);
     box-shadow: 0 4px 20px rgba(103, 80, 164, 0.15);
     font-family: 'Roboto', -apple-system, sans-serif;
+    color: var(--text-primary);
 }
 
 [data-laf="material-tonal"] .titlebar {
-    background: #ece6f0;
+    background: var(--bg-secondary);
     border-bottom: 1px solid rgba(103, 80, 164, 0.1);
-    color: #1d1b20;
+    color: var(--text-primary);
     height: 42px;
     padding: 0 16px;
     border-radius: 20px 20px 0 0;
@@ -5760,7 +5964,7 @@ h2 {
 [data-laf="material-tonal"] .titleText {
     font-weight: 600;
     font-size: 14px;
-    color: #1d1b20;
+    color: var(--text-primary);
 }
 
 [data-laf="material-tonal"] .winBtn {
@@ -5768,7 +5972,7 @@ h2 {
     height: 28px;
     border-radius: 50%;
     background: transparent;
-    color: #49454f;
+    color: var(--text-secondary);
     font-size: 14px;
     display: inline-flex;
     align-items: center;
@@ -5777,7 +5981,7 @@ h2 {
 
 [data-laf="material-tonal"] .winBtn:hover {
     background: rgba(103, 80, 164, 0.12);
-    color: #6750a4;
+    color: var(--btn-primary);
 }
 
 [data-laf="material-tonal"] .winBtn.close:hover {
@@ -5786,8 +5990,8 @@ h2 {
 }
 
 [data-laf="material-tonal"] .windowBody {
-    background: #ffffff;
-    color: #1d1b20;
+    background: transparent;
+    color: var(--text-primary);
 }
 
 [data-laf="material-tonal"] .ui-btn,
@@ -5802,35 +6006,27 @@ h2 {
 [data-laf="material-tonal"] .ui-card,
 [data-laf="material-tonal"] .card {
     border-radius: 16px;
-    background: #f7f2fa;
-    border: 1px solid rgba(103, 80, 164, 0.08);
-}
-
-[data-laf="material-tonal"] input,
-[data-laf="material-tonal"] select,
-[data-laf="material-tonal"] textarea {
-    border-radius: 12px;
-    background: #ece6f0;
-    border: 1px solid rgba(103, 80, 164, 0.2);
-    color: #1d1b20;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(103, 80, 164, 0.12);
+    color: var(--text-primary);
 }
 
 [data-laf="material-tonal"] #menubar,
 [data-laf="material-tonal"] .ui-menubar {
-    background: #f3edf7;
+    background: var(--bg-secondary);
     border-bottom: 1px solid rgba(103, 80, 164, 0.12);
-    color: #1d1b20;
+    color: var(--text-primary);
 }
 
 [data-laf="material-tonal"] #taskbar {
-    background: #ece6f0;
+    background: var(--bg-secondary);
     border-top: 1px solid rgba(103, 80, 164, 0.12);
 }
 
 [data-laf="material-tonal"] .taskButton {
     border-radius: 16px;
-    background: #e8def8;
-    color: #1d192b;
+    background: rgba(103, 80, 164, 0.15);
+    color: var(--text-primary);
     border: none;
 }
 
@@ -5844,19 +6040,20 @@ h2 {
    -------------------------------------------------------------------------- */
 [data-laf="cupertino-touch"] .window {
     border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid var(--win-border);
+    background: var(--win-bg);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    color: var(--text-primary);
 }
 
 [data-laf="cupertino-touch"] .titlebar {
-    background: rgba(245, 245, 247, 0.75);
+    background: var(--bg-secondary);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    color: #1d1d1f;
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
     height: 44px;
     padding: 0 16px;
     border-radius: 22px 22px 0 0;
@@ -5865,7 +6062,7 @@ h2 {
 [data-laf="cupertino-touch"] .titleText {
     font-weight: 600;
     font-size: 14.5px;
-    color: #1d1d1f;
+    color: var(--text-primary);
     letter-spacing: -0.2px;
 }
 
@@ -5873,13 +6070,13 @@ h2 {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.06);
-    color: #515154;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-secondary);
     font-size: 13px;
 }
 
 [data-laf="cupertino-touch"] .winBtn:hover {
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(128, 128, 128, 0.28);
 }
 
 [data-laf="cupertino-touch"] .winBtn.close:hover {
@@ -5889,7 +6086,7 @@ h2 {
 
 [data-laf="cupertino-touch"] .windowBody {
     background: transparent;
-    color: #1d1d1f;
+    color: var(--text-primary);
 }
 
 [data-laf="cupertino-touch"] .ui-btn,
@@ -5902,28 +6099,30 @@ h2 {
 [data-laf="cupertino-touch"] .ui-card,
 [data-laf="cupertino-touch"] .card {
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: var(--bg-secondary);
+    border: 1px solid var(--win-border);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
 }
 
 [data-laf="cupertino-touch"] #menubar,
 [data-laf="cupertino-touch"] .ui-menubar {
-    background: rgba(255, 255, 255, 0.78);
+    background: var(--bg-secondary);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
 }
 
 [data-laf="cupertino-touch"] #taskbar {
-    background: rgba(245, 245, 247, 0.85);
+    background: var(--bg-secondary);
     backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid var(--win-border);
 }
 
 [data-laf="cupertino-touch"] .taskButton {
     border-radius: 14px;
-    background: rgba(0, 0, 0, 0.05);
-    color: #1d1d1f;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-primary);
     border: none;
 }
 
@@ -5937,15 +6136,16 @@ h2 {
    -------------------------------------------------------------------------- */
 [data-laf="one-touch"] .window {
     border-radius: 24px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
+    border: 1px solid var(--win-border);
+    background: var(--win-bg);
     box-shadow: 0 10px 30px rgba(13, 110, 253, 0.12);
+    color: var(--text-primary);
 }
 
 [data-laf="one-touch"] .titlebar {
-    background: #f8fafc;
-    border-bottom: 1px solid #edf2f7;
-    color: #0f172a;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
     height: 46px;
     padding: 0 18px;
     border-radius: 24px 24px 0 0;
@@ -5954,19 +6154,19 @@ h2 {
 [data-laf="one-touch"] .titleText {
     font-weight: 700;
     font-size: 15px;
-    color: #0381fe;
+    color: var(--btn-primary, #0381fe);
 }
 
 [data-laf="one-touch"] .winBtn {
     width: 30px;
     height: 30px;
     border-radius: 10px;
-    background: #edf2f7;
-    color: #475569;
+    background: rgba(128, 128, 128, 0.12);
+    color: var(--text-secondary);
 }
 
 [data-laf="one-touch"] .winBtn:hover {
-    background: #e2e8f0;
+    background: rgba(128, 128, 128, 0.25);
 }
 
 [data-laf="one-touch"] .winBtn.close:hover {
@@ -5977,40 +6177,42 @@ h2 {
 [data-laf="one-touch"] .ui-card,
 [data-laf="one-touch"] .card {
     border-radius: 20px;
-    background: #f8fafc;
-    border: 1px solid #edf2f7;
+    background: var(--bg-secondary);
+    border: 1px solid var(--win-border);
+    color: var(--text-primary);
 }
 
 [data-laf="one-touch"] .ui-btn,
 [data-laf="one-touch"] .ui-button,
 [data-laf="one-touch"] .btn {
     border-radius: 16px;
-    background: #0381fe;
+    background: var(--btn-primary, #0381fe);
     color: #ffffff;
 }
 
 [data-laf="one-touch"] #menubar,
 [data-laf="one-touch"] .ui-menubar {
-    background: #f8fafc;
-    border-bottom: 1px solid #edf2f7;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
 }
 
 [data-laf="one-touch"] #taskbar {
-    background: #ffffff;
-    border-top: 1px solid #edf2f7;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--win-border);
 }
 
 [data-laf="one-touch"] .taskButton {
     border-radius: 16px;
-    background: #f1f5f9;
-    color: #1e293b;
-    border: 1px solid #e2e8f0;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-primary);
+    border: 1px solid var(--win-border);
 }
 
 [data-laf="one-touch"] .taskButton.active {
-    background: #0381fe;
+    background: var(--btn-primary, #0381fe);
     color: #ffffff;
-    border-color: #0381fe;
+    border-color: var(--btn-primary, #0381fe);
 }
 
 /* --------------------------------------------------------------------------
@@ -6019,9 +6221,10 @@ h2 {
 [data-laf="flat-tiles"] .window {
     border-radius: 0px !important;
     border: 2px solid #0078d7 !important;
-    background: #ffffff !important;
+    background: var(--win-bg) !important;
     box-shadow: none !important;
     font-family: "Segoe UI", "Open Sans", sans-serif;
+    color: var(--text-primary);
 }
 
 [data-laf="flat-tiles"] .titlebar {
@@ -6055,7 +6258,8 @@ h2 {
 }
 
 [data-laf="flat-tiles"] .winBtn.close:hover {
-    background: #e81123;
+    background: #e81123 !important;
+    color: #ffffff;
 }
 
 [data-laf="flat-tiles"] .ui-btn,
@@ -6071,20 +6275,37 @@ h2 {
     border-radius: 0px !important;
 }
 
+[data-laf="flat-tiles"] .ui-card,
+[data-laf="flat-tiles"] .card {
+    border-radius: 0px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--win-border);
+    color: var(--text-primary);
+}
+
+[data-laf="flat-tiles"] .ui-btn,
+[data-laf="flat-tiles"] .ui-button,
+[data-laf="flat-tiles"] .btn {
+    border-radius: 0px;
+    background: #0078d7;
+    color: #ffffff;
+}
+
 [data-laf="flat-tiles"] #menubar,
 [data-laf="flat-tiles"] .ui-menubar {
-    background: #000000;
-    color: #ffffff;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     border-bottom: 2px solid #0078d7;
 }
 
 [data-laf="flat-tiles"] .menubar-item {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
 }
 
 [data-laf="flat-tiles"] #taskbar {
-    background: #000000;
+    background: var(--bg-secondary);
     border-top: 2px solid #0078d7;
+    color: var(--text-primary);
 }
 
 [data-laf="flat-tiles"] .taskStart {
@@ -6094,14 +6315,15 @@ h2 {
 }
 
 [data-laf="flat-tiles"] .taskButton {
-    background: #1f1f1f;
-    color: #ffffff;
-    border: 1px solid #333333;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-primary);
+    border: 1px solid var(--win-border);
 }
 
 [data-laf="flat-tiles"] .taskButton.active {
     background: #0078d7;
     border-color: #0078d7;
+    color: #ffffff;
 }
 
 /* --------------------------------------------------------------------------
@@ -6109,19 +6331,19 @@ h2 {
    -------------------------------------------------------------------------- */
 [data-laf="spatial-glass"] .window {
     border-radius: 26px !important;
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
-    background: rgba(255, 255, 255, 0.32) !important;
+    border: 1px solid var(--win-border) !important;
+    background: var(--win-bg) !important;
     backdrop-filter: blur(35px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.35) !important;
-    color: #0f172a;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] .titlebar {
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: var(--bg-secondary) !important;
     backdrop-filter: blur(25px) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: #0f172a;
+    border-bottom: 1px solid var(--win-border) !important;
+    color: var(--text-primary);
     height: 46px;
     padding: 0 18px;
     border-radius: 26px 26px 0 0;
@@ -6130,23 +6352,22 @@ h2 {
 [data-laf="spatial-glass"] .titleText {
     font-weight: 600;
     font-size: 14px;
-    color: #0f172a;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] .winBtn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(128, 128, 128, 0.2);
     backdrop-filter: blur(10px);
-    color: #334155;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 [data-laf="spatial-glass"] .winBtn:hover {
-    background: rgba(255, 255, 255, 0.7);
-    color: #0f172a;
+    background: rgba(128, 128, 128, 0.35);
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] .winBtn.close:hover {
@@ -6157,45 +6378,49 @@ h2 {
 [data-laf="spatial-glass"] .ui-card,
 [data-laf="spatial-glass"] .card {
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--bg-secondary);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--win-border);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] .ui-btn,
 [data-laf="spatial-glass"] .ui-button,
 [data-laf="spatial-glass"] .btn {
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--bg-secondary);
     backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    color: #0f172a;
+    border: 1px solid var(--win-border);
+    color: var(--text-primary);
     font-weight: 600;
 }
 
 [data-laf="spatial-glass"] #menubar,
 [data-laf="spatial-glass"] .ui-menubar {
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--bg-secondary);
     backdrop-filter: blur(30px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid var(--win-border);
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] #taskbar {
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--bg-secondary);
     backdrop-filter: blur(30px);
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-top: 1px solid var(--win-border);
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] .taskButton {
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.45);
-    color: #0f172a;
+    background: rgba(128, 128, 128, 0.18);
+    border: 1px solid var(--win-border);
+    color: var(--text-primary);
 }
 
 [data-laf="spatial-glass"] .taskButton.active {
-    background: rgba(255, 255, 255, 0.75);
+    background: var(--btn-primary);
+    color: #ffffff;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
@@ -6207,13 +6432,13 @@ h2 {
     border-radius: 22px !important;
     border: none !important;
     box-shadow: 10px 10px 20px #b8b9be, -10px -10px 20px #ffffff !important;
-    color: #31344b;
+    color: #31344b !important;
 }
 
 [data-laf="neumorphism"] .titlebar {
     background: #e0e5ec !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
-    color: #31344b;
+    color: #31344b !important;
     height: 44px;
     padding: 0 16px;
     border-radius: 22px 22px 0 0;
@@ -6221,7 +6446,7 @@ h2 {
 
 [data-laf="neumorphism"] .titleText {
     font-weight: 700;
-    color: #31344b;
+    color: #31344b !important;
 }
 
 [data-laf="neumorphism"] .winBtn {
@@ -6230,19 +6455,24 @@ h2 {
     border-radius: 50%;
     background: #e0e5ec;
     box-shadow: 3px 3px 6px #b8b9be, -3px -3px 6px #ffffff;
-    color: #44476a;
+    color: #44476a !important;
 }
 
 [data-laf="neumorphism"] .winBtn:hover {
     box-shadow: inset 2px 2px 4px #b8b9be, inset -2px -2px 4px #ffffff;
 }
 
+[data-laf="neumorphism"] .windowBody {
+    color: #31344b !important;
+}
+
 [data-laf="neumorphism"] .ui-card,
 [data-laf="neumorphism"] .card {
-    background: #e0e5ec;
+    background: #e0e5ec !important;
     border-radius: 18px;
     border: none;
     box-shadow: 6px 6px 12px #b8b9be, -6px -6px 12px #ffffff;
+    color: #31344b !important;
 }
 
 [data-laf="neumorphism"] .ui-btn,
@@ -6252,7 +6482,7 @@ h2 {
     border-radius: 14px;
     border: none;
     box-shadow: 4px 4px 8px #b8b9be, -4px -4px 8px #ffffff;
-    color: #31344b;
+    color: #31344b !important;
     font-weight: 600;
 }
 
@@ -6276,12 +6506,18 @@ h2 {
     background: #e0e5ec;
     box-shadow: 0 4px 10px #b8b9be;
     border-bottom: none;
+    color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .menubar-item {
+    color: #31344b !important;
 }
 
 [data-laf="neumorphism"] #taskbar {
     background: #e0e5ec;
     box-shadow: 0 -4px 10px #b8b9be;
     border-top: none;
+    color: #31344b !important;
 }
 
 [data-laf="neumorphism"] .taskButton {
@@ -6289,12 +6525,12 @@ h2 {
     border-radius: 14px;
     border: none;
     box-shadow: 3px 3px 6px #b8b9be, -3px -3px 6px #ffffff;
-    color: #31344b;
+    color: #31344b !important;
 }
 
 [data-laf="neumorphism"] .taskButton.active {
     box-shadow: inset 3px 3px 6px #b8b9be, inset -3px -3px 6px #ffffff;
-    color: #2563eb;
+    color: #0381fe !important;
     font-weight: bold;
 }
 
@@ -6587,8 +6823,9 @@ h2 {
     border-radius: 8px;
 }
 
-/* StartMenu e Dropdowns / Popups: aubergine-orange (Ubuntu Yaru) */
+/* StartMenu e Dropdowns / Popups / ContextMenu: aubergine-orange (Ubuntu Yaru) */
 [data-laf="aubergine-orange"] .ui-start-menu,
+[data-laf="aubergine-orange"] .ui-context-menu,
 [data-laf="aubergine-orange"] .dropdown,
 [data-laf="aubergine-orange"] .menubar-dropdown,
 [data-laf="aubergine-orange"] .sub-dropdown {
@@ -6752,8 +6989,9 @@ h2 {
     color: #2e3436;
 }
 
-/* StartMenu e Dropdowns / Popups: pantheon-pure */
+/* StartMenu e Dropdowns / Popups / ContextMenu: pantheon-pure */
 [data-laf="pantheon-pure"] .ui-start-menu,
+[data-laf="pantheon-pure"] .ui-context-menu,
 [data-laf="pantheon-pure"] .dropdown,
 [data-laf="pantheon-pure"] .menubar-dropdown,
 [data-laf="pantheon-pure"] .sub-dropdown {
@@ -7152,8 +7390,9 @@ h2 {
     color: #2c3e50;
 }
 
-/* StartMenu e Dropdowns / Popups: greybird-lite */
+/* StartMenu e Dropdowns / Popups / ContextMenu: greybird-lite */
 [data-laf="greybird-lite"] .ui-start-menu,
+[data-laf="greybird-lite"] .ui-context-menu,
 [data-laf="greybird-lite"] .dropdown,
 [data-laf="greybird-lite"] .menubar-dropdown,
 [data-laf="greybird-lite"] .sub-dropdown {
@@ -8509,7 +8748,7 @@ h2 {
    ========================================================================== */
 .ui-dock-widget {
     position: fixed;
-    z-index: 100000;
+    z-index: 99999;
     display: flex;
     flex-direction: column;
     background: var(--win-bg, rgba(30, 41, 59, 0.95));
@@ -8523,47 +8762,78 @@ h2 {
     box-sizing: border-box;
 }
 
-/* Posições */
+/* Posições Padrão (Taskbar no Rodapé: bottom = 34px, exatamente sobre a barra) */
 .ui-dock-widget.pos-bottom-right {
-    bottom: 48px;
+    bottom: 34px;
     right: 20px;
     border-radius: 10px 10px 0 0;
+    border-bottom: none;
 }
 
 #app[data-taskbar="top"] .ui-dock-widget.pos-bottom-right {
-    bottom: 12px;
+    bottom: 0;
 }
 
 #app[data-taskbar="right"] .ui-dock-widget.pos-bottom-right {
-    right: 76px;
-    bottom: 12px;
+    right: 68px;
+    bottom: 0;
+}
+
+#app[data-taskbar="left"] .ui-dock-widget.pos-bottom-right {
+    bottom: 0;
 }
 
 .ui-dock-widget.pos-bottom-left {
-    bottom: 48px;
+    bottom: 34px;
     left: 20px;
     border-radius: 10px 10px 0 0;
+    border-bottom: none;
 }
 
 #app[data-taskbar="top"] .ui-dock-widget.pos-bottom-left {
-    bottom: 12px;
+    bottom: 0;
 }
 
 #app[data-taskbar="left"] .ui-dock-widget.pos-bottom-left {
-    left: 76px;
-    bottom: 12px;
+    left: 68px;
+    bottom: 0;
 }
 
+#app[data-taskbar="right"] .ui-dock-widget.pos-bottom-left {
+    bottom: 0;
+}
+
+/* Posições Topo (Se Taskbar no Topo: top = 34px, se não top = 0) */
 .ui-dock-widget.pos-top-right {
-    top: 48px;
+    top: 0;
     right: 20px;
     border-radius: 0 0 10px 10px;
+    border-top: none;
+}
+
+#app[data-taskbar="top"] .ui-dock-widget.pos-top-right {
+    top: 34px;
+}
+
+#app[data-taskbar="right"] .ui-dock-widget.pos-top-right {
+    right: 68px;
+    top: 0;
 }
 
 .ui-dock-widget.pos-top-left {
-    top: 48px;
+    top: 0;
     left: 20px;
     border-radius: 0 0 10px 10px;
+    border-top: none;
+}
+
+#app[data-taskbar="top"] .ui-dock-widget.pos-top-left {
+    top: 34px;
+}
+
+#app[data-taskbar="left"] .ui-dock-widget.pos-top-left {
+    left: 68px;
+    top: 0;
 }
 
 /* Modo Local (Dentro de uma Janela) */
@@ -8584,6 +8854,23 @@ h2 {
     left: 12px !important;
     right: auto !important;
     top: auto !important;
+}
+
+/* Quando dentro de uma janela com StatusBar, ancora perfeitamente acima da StatusBar */
+.window:has(.statusbar) .ui-dock-widget.is-local.pos-bottom-right,
+.window:has(.statusbar) .ui-dock-widget.is-local.pos-bottom-left,
+.window.has-statusbar .ui-dock-widget.is-local.pos-bottom-right,
+.window.has-statusbar .ui-dock-widget.is-local.pos-bottom-left,
+.window .ui-dock-widget.is-local.pos-bottom-right,
+.window .ui-dock-widget.is-local.pos-bottom-left {
+    bottom: 24px !important;
+}
+
+.window:not(:has(.statusbar)) .ui-dock-widget.is-local.pos-bottom-right,
+.window:not(:has(.statusbar)) .ui-dock-widget.is-local.pos-bottom-left,
+.window:has(.statusbar[style*="display: none"]) .ui-dock-widget.is-local.pos-bottom-right,
+.window:has(.statusbar[style*="display: none"]) .ui-dock-widget.is-local.pos-bottom-left {
+    bottom: 0 !important;
 }
 
 .ui-dock-widget.is-local.pos-top-right {
@@ -8702,25 +8989,29 @@ h2 {
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 32px;
-    min-width: 32px;
-    padding: 0 6px;
+    height: 28px;
+    min-height: 28px;
+    max-height: 28px;
+    min-width: 28px;
+    padding: 0 4px;
     margin: 0 2px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1;
     color: var(--text-primary, #ffffff);
     transition: background 0.15s, border-color 0.15s, transform 0.15s;
     user-select: none;
     outline: none;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .ui-dock-tray-icon:hover {
     background: var(--btn-hover, rgba(255, 255, 255, 0.12));
     border-color: var(--win-border, rgba(255, 255, 255, 0.2));
-    transform: translateY(-1px);
 }
 
 .ui-dock-tray-icon:active {
@@ -8877,6 +9168,23 @@ h2 {
     left: 16px !important;
     right: auto !important;
     top: auto !important;
+}
+
+/* Quando dentro de uma janela com StatusBar, ancora acima da StatusBar */
+.window:has(.statusbar) .ui-float-button-wrap.is-local.pos-bottom-right,
+.window:has(.statusbar) .ui-float-button-wrap.is-local.pos-bottom-left,
+.window.has-statusbar .ui-float-button-wrap.is-local.pos-bottom-right,
+.window.has-statusbar .ui-float-button-wrap.is-local.pos-bottom-left,
+.window .ui-float-button-wrap.is-local.pos-bottom-right,
+.window .ui-float-button-wrap.is-local.pos-bottom-left {
+    bottom: 36px !important;
+}
+
+.window:not(:has(.statusbar)) .ui-float-button-wrap.is-local.pos-bottom-right,
+.window:not(:has(.statusbar)) .ui-float-button-wrap.is-local.pos-bottom-left,
+.window:has(.statusbar[style*="display: none"]) .ui-float-button-wrap.is-local.pos-bottom-right,
+.window:has(.statusbar[style*="display: none"]) .ui-float-button-wrap.is-local.pos-bottom-left {
+    bottom: 16px !important;
 }
 
 .ui-float-button-wrap.is-local.pos-top-right {

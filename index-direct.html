@@ -41,14 +41,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // --- FORMA 1: DEFINIÇÃO DE TELAS COMO OBJETOS INLINE ---
 
         // Tela Explicativa da Arquitetura Direta
@@ -149,19 +141,15 @@
                 singleInstance: false, // Permite abrir ilimitadas instâncias!
                 state: { conteudo: "" },
                 view() {
-                    const field = Textarea({
-                        bind: "conteudo",
-                        instance: this,
-                        placeholder: "Digite um lembrete...",
-                        style: "height: 100%; display: flex; flex-direction: column; flex: 1;"
-                    });
-                    const txt = field.querySelector('textarea');
-                    if (txt) {
-                        txt.style.flex = "1";
-                        txt.style.resize = "none";
-                        txt.style.height = "100%";
-                    }
-                    return createElement("div", "flex-col", [field]);
+                    return createElement("div", "flex-col", [
+                        Textarea({
+                            bind: "conteudo",
+                            instance: this,
+                            placeholder: "Digite um lembrete...",
+                            style: "height: 100%; display: flex; flex-direction: column; flex: 1;",
+                            inputStyle: "flex: 1; resize: none; height: 100%;"
+                        })
+                    ]);
                 }
             };
             Desktop.open(Framework.createWindow(NotaScreen, id, Desktop));
@@ -274,25 +262,19 @@
                 {
                     label: "Sistema",
                     items: [
-                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
                     ]
                 }
             ]
         });
 
         // Context Menu do Desktop
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Nova Nota Rápida", action: () => abrirNotaRapida() },
-                    { label: "Abrir Dashboard Direto", action: () => abrirDashboard() },
-                    "separator",
-                    { label: "Guia Desta Abordagem", action: () => abrirGuia() }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Nova Nota Rápida", action: () => abrirNotaRapida() },
+            { label: "Abrir Dashboard Direto", action: () => abrirDashboard() },
+            "separator",
+            { label: "Guia Desta Abordagem", action: () => abrirGuia() }
+        ]);
 
         // Abre as janelas demonstrativas ao iniciar
         setTimeout(() => {

@@ -41,15 +41,7 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
-        // --- FORMA 2: REGISTRO CENTRALIZADO DE TELAS COM LAZY LOADING ---
+        // --- FORMA 2: TELAS SEPARADAS EM ARQUIVOS (LAZY LOADING) ---
         // As telas ficam em arquivos separados na pasta /screens/ e são baixadas somente no momento de abrir.
 
         Desktop.registerScreens({
@@ -153,26 +145,20 @@
                 {
                     label: "Sistema",
                     items: [
-                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
                     ]
                 }
             ]
         });
 
         // Context Menu do Desktop
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Abrir Painel (Lazy)", screen: "dashboard" },
-                    { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
-                    { label: "Abrir Formulários (Lazy)", screen: "forms" },
-                    "separator",
-                    { label: "Guia Desta Abordagem", screen: "guia_lazy" }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Abrir Painel (Lazy)", action: () => Desktop.openScreen("dashboard") },
+            { label: "Abrir DataGrid (Lazy)", action: () => Desktop.openScreen("datagrid") },
+            { label: "Abrir Formulários (Lazy)", action: () => Desktop.openScreen("forms") },
+            "separator",
+            { label: "Guia Desta Abordagem", action: () => Desktop.openScreen("guia_lazy") }
+        ]);
 
         // Abre as telas iniciais sob demanda
         setTimeout(() => {

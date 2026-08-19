@@ -191,11 +191,10 @@ export default {
 
     // 4. TESTE DO COMPONENTE MODAL SEM BOTÃO 'X'
     abrirModalSemBotaoFechar() {
-        Modal({
+        this.openModal({
             title: "Aviso do Sistema (Modal Sem Botão Fechar)",
             closable: false, // Oculta o botão X
-            instance: this,
-            children: [
+            children: (modal) => [
                 createElement("p", "", [
                     "Este é um popup do componente ", createElement("code", "", ["Modal({ closable: false })"]),
                     " do ", createElement("code", "", ["ui.js"]), ". O botão 'X' superior foi desativado."
@@ -206,10 +205,7 @@ export default {
                         Button({
                             text: "Entendido (Fechar Modal)",
                             variant: "primary",
-                            onClick: () => {
-                                const m = document.querySelector('.ui-modal-overlay.show');
-                                if (m) m.remove();
-                            }
+                            onClick: () => modal.close()
                         })
                     ]
                 })

@@ -1,8 +1,29 @@
 // ui.js
 import { Desktop } from './desktop.js';
+import { EventBus } from './core.js';
 
 export function createElement(tag, arg2, arg3) {
     const el = document.createElement(tag);
+    
+    // Anexa a API programática de menu de contexto a todo elemento criado no framework
+    el.setContextMenu = (items) => {
+        if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+            el._contextMenuController.destroy();
+        }
+        if (items) {
+            let menuItems = items;
+            let menuOptions = {};
+            if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
+                menuItems = items.items;
+                menuOptions = items;
+            }
+            el._contextMenuController = bindContextMenu(el, menuItems, menuOptions);
+        } else {
+            el._contextMenuController = null;
+        }
+        return el._contextMenuController;
+    };
+
     let children = [];
     let pendingProps = null;
 
@@ -64,6 +85,8 @@ export function createElement(tag, arg2, arg3) {
                 el.style.cssText = val;
             } else if (key === 'style' && typeof val === 'object') {
                 Object.assign(el.style, val);
+            } else if (key === 'contextMenu' || key === 'contextmenu') {
+                el.setContextMenu(val);
             } else if (key.startsWith('on') && typeof val === 'function') {
                 const eventName = key.slice(2).toLowerCase();
                 el.addEventListener(eventName, val);
@@ -75,6 +98,51 @@ export function createElement(tag, arg2, arg3) {
         });
     }
 
+    return el;
+}
+
+export function applyCommonProps(el, props) {
+    if (!el || !props) return el;
+    
+    // Suporte ao setContextMenu programático
+    if (!el.setContextMenu) {
+        el.setContextMenu = (items) => {
+            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+                el._contextMenuController.destroy();
+            }
+            if (items) {
+                let menuItems = items;
+                let menuOptions = {};
+                if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
+                    menuItems = items.items;
+                    menuOptions = items;
+                }
+                el._contextMenuController = bindContextMenu(el, menuItems, menuOptions);
+            } else {
+                el._contextMenuController = null;
+            }
+            return el._contextMenuController;
+        };
+    }
+
+    if (props.contextMenu || props.contextmenu) {
+        el.setContextMenu(props.contextMenu || props.contextmenu);
+    }
+    if (props.id) el.id = props.id;
+    
+    if (props.style) {
+        if (typeof props.style === 'string') {
+            el.style.cssText = (el.style.cssText || "") + ";" + props.style;
+        } else {
+            Object.assign(el.style, props.style);
+        }
+    }
+    
+    if (props.className || props.class) {
+        const cls = props.className || props.class;
+        el.className = (el.className || "") + " " + cls;
+    }
+    
     return el;
 }
 
@@ -156,29 +224,34 @@ export function printElement(element, options = {}) {
     }, 500);
 }
 
-export function Row({ children = [], style = "" }) {
+export function Row(options = {}) {
+    const { children = [], style = "" } = options;
     const el = createElement("div", "ui-row", children);
     if (style) el.style.cssText = style;
-    return el;
+    return applyCommonProps(el, options);
 }
 
-export function Col({ children = [], style = "" }) {
+export function Col(options = {}) {
+    const { children = [], style = "" } = options;
     const el = createElement("div", "ui-col", children);
     if (style) el.style.cssText = style;
-    return el;
+    return applyCommonProps(el, options);
 }
 
-export function Grid({ children = [], columns = 2 }) {
+export function Grid(options = {}) {
+    const { children = [], columns = 2 } = options;
     const el = createElement("div", "ui-grid", children);
     el.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-    return el;
+    return applyCommonProps(el, options);
 }
 
-export function Card({ title, children = [] }) {
+export function Card(options = {}) {
+    const { title, children = [] } = options;
     const content = [];
     if (title) content.push(createElement("h3", "ui-card-title", [title]));
     content.push(...children);
-    return createElement("div", "ui-card", content);
+    const el = createElement("div", "ui-card", content);
+    return applyCommonProps(el, options);
 }
 
 export function Form({ fields = [], actions = [] }) {
@@ -213,7 +286,7 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
     return wrap;
 }
 
-export function Textarea({ label, bind, instance, placeholder = "", rows = 4, width = "100%", style = "" }) {
+export function Textarea({ label, bind, instance, placeholder = "", rows = 4, width = "100%", style = "", inputStyle = "" }) {
     const wrap = createElement("div", "ui-field");
     if (width !== "100%") wrap.style.width = width;
     if (style) wrap.style.cssText += style;
@@ -224,6 +297,7 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
     txt.className = "filter-input";
     txt.rows = rows;
     txt.placeholder = placeholder;
+    if (inputStyle) txt.style.cssText += inputStyle;
     if (bind && instance) {
         txt.dataset.bind = bind;
         txt.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
@@ -239,17 +313,19 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
     return wrap;
 }
 
-export function Button({ text, onClick, instance, variant = "primary" }) {
+export function Button(options = {}) {
+    const { text, onClick, instance, variant = "primary" } = options;
     const btn = createElement("button", `ui-btn ui-btn-${variant}`, [text]);
     if (onClick && instance) {
         btn.addEventListener("click", () => instance.runAction(onClick));
     } else if (typeof onClick === "function") {
         btn.addEventListener("click", onClick);
     }
-    return btn;
+    return applyCommonProps(btn, options);
 }
 
-export function Table({ columns = [], data = [] }) {
+export function Table(options = {}) {
+    const { columns = [], data = [] } = options;
     const thead = createElement("thead", "", [
         createElement("tr", "", columns.map(c => createElement("th", "", [c.label || c])))
     ]);
@@ -267,7 +343,8 @@ export function Table({ columns = [], data = [] }) {
         }));
     });
     const table = createElement("table", "ui-table", [thead, createElement("tbody", "", rows)]);
-    return createElement("div", "ui-table-wrapper", [table]);
+    const wrapper = createElement("div", "ui-table-wrapper", [table]);
+    return applyCommonProps(wrapper, options);
 }
 
 export function Tabs({ tabs = [], instance, activeTabBind }) {
@@ -356,7 +433,7 @@ export function ContextMenu({ x, y, items = [] }) {
         : (window.innerWidth <= 768 || !!document.getElementById("app")?.classList.contains("mobile-mode"));
 
     if (isMobileMode) {
-        // --- Modo Mobile: Bottom Sheet (Action Sheet) ---
+        // --- Modo Mobile: Bottom Sheet com suporte a submenus / Accordions ---
         const backdrop = createElement("div", "ui-bottom-sheet-backdrop", []);
         const sheet = createElement("div", "ui-bottom-sheet", [
             createElement("div", "bottom-sheet-handle-bar", [
@@ -379,34 +456,60 @@ export function ContextMenu({ x, y, items = [] }) {
             if (e.target === backdrop) closeBottomSheet();
         };
 
-        items.forEach(item => {
-            if (item === "separator") {
-                contentEl.appendChild(createElement("div", "bottom-sheet-sep", []));
-            } else {
-                const optChildren = [];
-                if (item.icon) {
-                    optChildren.push(createElement("span", "bottom-sheet-icon", [item.icon]));
-                }
-                optChildren.push(createElement("span", "bottom-sheet-label", [item.label || ""]));
-                if (item.shortcut) {
-                    optChildren.push(createElement("span", "bottom-sheet-shortcut", [item.shortcut]));
-                }
+        function buildMobileLevel(list) {
+            const container = createElement("div", "bottom-sheet-sub-list", []);
+            list.forEach(item => {
+                if (item === "separator") {
+                    container.appendChild(createElement("div", "bottom-sheet-sep", []));
+                } else if (item.items && item.items.length > 0) {
+                    const header = createElement("div", "bottom-sheet-option has-submenu", [
+                        item.icon ? createElement("span", "bottom-sheet-icon", [item.icon]) : null,
+                        createElement("span", "bottom-sheet-label", [item.label || ""]),
+                        createElement("span", "drawer-accordion-arrow", ["▼"])
+                    ].filter(Boolean));
 
-                const opt = createElement("div", "bottom-sheet-option", optChildren);
-                opt.onclick = () => {
-                    closeBottomSheet();
-                    if (item.screen) {
-                        const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
-                        if (d && typeof d.openScreen === 'function') {
-                            d.openScreen(item.screen, item.props);
-                        }
-                    } else if (item.action) {
-                        item.action();
+                    const group = createElement("div", "bottom-sheet-group", [header]);
+                    const subList = buildMobileLevel(item.items);
+                    subList.style.display = "none";
+
+                    header.onclick = (e) => {
+                        e.stopPropagation();
+                        const isOpen = subList.style.display === "flex";
+                        subList.style.display = isOpen ? "none" : "flex";
+                        header.classList.toggle("expanded", !isOpen);
+                    };
+                    group.appendChild(subList);
+                    container.appendChild(group);
+                } else {
+                    const optChildren = [];
+                    if (item.icon) {
+                        optChildren.push(createElement("span", "bottom-sheet-icon", [item.icon]));
                     }
-                };
-                contentEl.appendChild(opt);
-            }
-        });
+                    optChildren.push(createElement("span", "bottom-sheet-label", [item.label || ""]));
+                    if (item.shortcut) {
+                        optChildren.push(createElement("span", "bottom-sheet-shortcut", [item.shortcut]));
+                    }
+
+                    const opt = createElement("div", "bottom-sheet-option", optChildren);
+                    opt.onclick = (e) => {
+                        e.stopPropagation();
+                        closeBottomSheet();
+                        if (item.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(item.screen, item.props);
+                            }
+                        } else if (item.action) {
+                            item.action();
+                        }
+                    };
+                    container.appendChild(opt);
+                }
+            });
+            return container;
+        }
+
+        contentEl.appendChild(buildMobileLevel(items));
 
         // Botão de Cancelar
         const cancelBtn = createElement("button", "bottom-sheet-cancel-btn", ["✕ Cancelar"]);
@@ -424,83 +527,231 @@ export function ContextMenu({ x, y, items = [] }) {
         return sheet;
     }
     
-    // --- Modo Desktop: Menu Flutuante Tradicional ---
-    const menu = createElement("div", "ui-context-menu", []);
-    menu.style.left = x + "px";
-    menu.style.top = y + "px";
-    
-    items.forEach(item => {
-        if (item === "separator") {
-            menu.appendChild(createElement("div", "menuSep", []));
-        } else {
-            const optChildren = [];
-            if (item.icon) {
-                optChildren.push(createElement("span", "menuOption-icon", [item.icon]));
-            }
-            optChildren.push(createElement("span", "menuOption-label", [item.label || ""]));
-            if (item.shortcut) {
-                optChildren.push(createElement("span", "menuShortcut", [item.shortcut]));
-            }
-            const opt = createElement("div", "menuOption", optChildren);
-            opt.onclick = () => {
-                if (item.screen) {
-                    const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
-                    if (d && typeof d.openScreen === 'function') {
-                        d.openScreen(item.screen, item.props);
-                    }
-                } else if (item.action) {
-                    item.action();
-                }
-                menu.remove();
-            };
-            menu.appendChild(opt);
+    // --- Modo Desktop: Menu Flutuante com Submenus Aninhados ---
+    let rootMenu;
+
+    function buildDesktopMenu(itemList, isSub = false) {
+        const container = createElement("div", isSub ? "dropdown sub-dropdown" : "ui-context-menu", []);
+        if (isSub) {
+            container.style.display = "none";
+            container.style.flexDirection = "column";
         }
-    });
+
+        itemList.forEach(item => {
+            if (item === "separator") {
+                container.appendChild(createElement("div", "menuSep", []));
+            } else {
+                const optChildren = [];
+                const leftPart = createElement("div", "menuOption-left", []);
+                if (item.icon) {
+                    leftPart.appendChild(createElement("span", "menuOption-icon", [item.icon]));
+                }
+                leftPart.appendChild(createElement("span", "menuOption-label", [item.label || ""]));
+                optChildren.push(leftPart);
+
+                if (item.shortcut) {
+                    optChildren.push(createElement("span", "menuShortcut", [item.shortcut]));
+                }
+
+                if (item.items && item.items.length > 0) {
+                    optChildren.push(createElement("span", "submenu-arrow", ["▶"]));
+                }
+
+                const opt = createElement("div", "menuOption", optChildren);
+
+                const isDisabled = typeof item.disabled === 'function' ? item.disabled() : !!item.disabled;
+                if (isDisabled) {
+                    opt.classList.add("disabled");
+                }
+
+                if (item.items && item.items.length > 0) {
+                    opt.classList.add("has-submenu");
+                    const nested = buildDesktopMenu(item.items, true);
+                    opt.appendChild(nested);
+
+                    const positionSub = () => {
+                        nested.style.display = "flex";
+                        nested.style.flexDirection = "column";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+
+                        const vw = window.innerWidth || document.documentElement.clientWidth;
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const pad = 10;
+                        const rect = nested.getBoundingClientRect();
+
+                        if (rect.right > vw - pad) {
+                            nested.classList.add("open-left");
+                            nested.style.setProperty("left", "auto", "important");
+                            nested.style.setProperty("right", "100%", "important");
+                            nested.style.setProperty("margin-left", "0", "important");
+                            nested.style.setProperty("margin-right", "-4px", "important");
+                        }
+
+                        const curRect = nested.getBoundingClientRect();
+                        if (curRect.bottom > vh - pad) {
+                            const optRect = opt.getBoundingClientRect();
+                            const spaceAbove = optRect.top - pad;
+                            const spaceBelow = vh - optRect.bottom - pad;
+
+                            if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
+                                nested.classList.add("open-top");
+                                nested.style.setProperty("top", "auto", "important");
+                                nested.style.setProperty("bottom", "0", "important");
+                                nested.style.setProperty("margin-top", "0", "important");
+                                nested.style.setProperty("margin-bottom", "-4px", "important");
+                            } else {
+                                const overflow = curRect.bottom - (vh - pad);
+                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                                nested.style.setProperty("top", `${-shiftY}px`, "important");
+                                if (curRect.height > vh - 2 * pad) {
+                                    nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                    nested.style.setProperty("overflow-y", "auto", "important");
+                                    nested.style.setProperty("overflow-x", "hidden", "important");
+                                }
+                            }
+                        }
+                    };
+
+                    opt.addEventListener("mouseenter", () => {
+                        if (!isDisabled) positionSub();
+                    });
+
+                    opt.addEventListener("mouseleave", () => {
+                        nested.style.display = "none";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+                    });
+
+                    opt.onclick = (e) => {
+                        if (isDisabled) return;
+                        e.stopPropagation();
+                        if (nested.style.display === "flex") {
+                            nested.style.display = "none";
+                        } else {
+                            positionSub();
+                        }
+                    };
+                } else {
+                    opt.onclick = (e) => {
+                        if (isDisabled) return;
+                        e.stopPropagation();
+                        if (item.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(item.screen, item.props);
+                            }
+                        } else if (item.action) {
+                            item.action();
+                        }
+                        if (rootMenu) rootMenu.remove();
+                    };
+                }
+                container.appendChild(opt);
+            }
+        });
+        return container;
+    }
+
+    // Remove qualquer outro menu de contexto previamente aberto
+    document.querySelectorAll('.ui-context-menu').forEach(m => m.remove());
+
+    rootMenu = buildDesktopMenu(items, false);
+    rootMenu.style.left = x + "px";
+    rootMenu.style.top = y + "px";
     
-    document.body.appendChild(menu);
+    document.body.appendChild(rootMenu);
     
     // Ajuste de colisão de tela (Impede que vaze nas bordas)
-    const rect = menu.getBoundingClientRect();
+    const rect = rootMenu.getBoundingClientRect();
     if (x + rect.width > window.innerWidth) {
-        menu.style.left = (x - rect.width) + "px";
+        rootMenu.style.left = Math.max(10, x - rect.width) + "px";
     }
     if (y + rect.height > window.innerHeight) {
-        menu.style.top = (y - rect.height) + "px";
+        rootMenu.style.top = Math.max(10, y - rect.height) + "px";
     }
     
-    requestAnimationFrame(() => menu.classList.add("show"));
+    requestAnimationFrame(() => rootMenu.classList.add("show"));
     setTimeout(() => {
         const closeMenu = (e) => {
-            if (!menu.contains(e.target)) {
-                menu.remove();
-                document.removeEventListener("click", closeMenu);
-                document.removeEventListener("contextmenu", closeMenu);
+            if (!rootMenu || !rootMenu.contains(e.target)) {
+                if (rootMenu) rootMenu.remove();
+                document.removeEventListener("click", closeMenu, true);
+                document.removeEventListener("contextmenu", closeMenu, true);
+                document.removeEventListener("pointerdown", closeMenu, true);
             }
         };
-        document.addEventListener("click", closeMenu);
-        document.addEventListener("contextmenu", closeMenu);
+        document.addEventListener("click", closeMenu, true);
+        document.addEventListener("contextmenu", closeMenu, true);
+        document.addEventListener("pointerdown", closeMenu, true);
     }, 10);
-    return menu;
+    return rootMenu;
 }
 
-export function bindContextMenu(element, items = []) {
+export function bindContextMenu(element, items = [], options = {}) {
+    if (!element) return null;
+    let currentItems = items;
+    let opt = options || {};
+
+    // Se items for um objeto com a estrutura { items, allowNativeKey, ... }
+    if (items && !Array.isArray(items) && typeof items === 'object' && items.items) {
+        currentItems = items.items;
+        opt = { ...items, ...options };
+    }
+
+    const allowNativeKey = opt.allowNativeKey !== undefined ? opt.allowNativeKey : "shift";
+
     // Clique do botão direito padrão (Desktop)
-    element.addEventListener("contextmenu", (e) => {
+    const onContextMenu = (e) => {
+        // Se a tecla configurada estiver pressionada, ignora o menu do framework e exibe o menu nativo do navegador
+        let shouldBypass = false;
+        if (allowNativeKey && allowNativeKey !== "none" && allowNativeKey !== "false") {
+            const key = String(allowNativeKey).toLowerCase();
+            if (key === "alt" && e.altKey) shouldBypass = true;
+            else if (key === "ctrl" && e.ctrlKey) shouldBypass = true;
+            else if (key === "shift" && e.shiftKey) shouldBypass = true;
+            else if (key === "meta" && e.metaKey) shouldBypass = true;
+        }
+
+        if (shouldBypass) return;
+
         e.preventDefault();
         e.stopPropagation();
         
         // Se os itens forem uma função, permite gerar os itens dinamicamente
-        const menuItems = typeof items === 'function' ? items(e) : items;
+        const menuItems = typeof currentItems === 'function' ? currentItems(e) : currentItems;
         if (!menuItems || menuItems.length === 0) return;
         
         ContextMenu({ x: e.clientX, y: e.clientY, items: menuItems });
-    });
+    };
+
+    element.addEventListener("contextmenu", onContextMenu);
 
     // Suporte nativo a Long-Press Touch para Mobile
     let touchTimer = null;
     let startX = 0, startY = 0;
 
-    element.addEventListener("touchstart", (e) => {
+    const onTouchStart = (e) => {
         if (e.touches.length !== 1) return;
         const touch = e.touches[0];
         startX = touch.clientX;
@@ -509,29 +760,43 @@ export function bindContextMenu(element, items = []) {
         touchTimer = setTimeout(() => {
             touchTimer = null;
             if (navigator.vibrate) try { navigator.vibrate(40); } catch(err) {}
-            const menuItems = typeof items === 'function' ? items(touch) : items;
+            const menuItems = typeof currentItems === 'function' ? currentItems(touch) : currentItems;
             if (menuItems && menuItems.length > 0) {
                 ContextMenu({ x: touch.clientX, y: touch.clientY, items: menuItems });
             }
         }, 450);
-    }, { passive: true });
+    };
 
-    element.addEventListener("touchmove", (e) => {
+    const onTouchMove = (e) => {
         if (!touchTimer) return;
         const touch = e.touches[0];
         if (Math.hypot(touch.clientX - startX, touch.clientY - startY) > 10) {
             clearTimeout(touchTimer);
             touchTimer = null;
         }
-    }, { passive: true });
+    };
 
-    element.addEventListener("touchend", () => {
+    const onTouchEnd = () => {
         if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
-    }, { passive: true });
+    };
 
-    element.addEventListener("touchcancel", () => {
-        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
-    }, { passive: true });
+    element.addEventListener("touchstart", onTouchStart, { passive: true });
+    element.addEventListener("touchmove", onTouchMove, { passive: true });
+    element.addEventListener("touchend", onTouchEnd, { passive: true });
+    element.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
+    return {
+        update(newItems) {
+            currentItems = newItems;
+        },
+        destroy() {
+            element.removeEventListener("contextmenu", onContextMenu);
+            element.removeEventListener("touchstart", onTouchStart);
+            element.removeEventListener("touchmove", onTouchMove);
+            element.removeEventListener("touchend", onTouchEnd);
+            element.removeEventListener("touchcancel", onTouchEnd);
+        }
+    };
 }
 
 // --- Mobile Hamburger & Drawer Engine Compartilhado ---
@@ -893,7 +1158,6 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         // 2. Ajuste Vertical Inteligente (se ultrapassar a borda inferior)
                         const curRect = nested.getBoundingClientRect();
                         if (curRect.bottom > vh - pad) {
-                            const overflow = curRect.bottom - (vh - pad);
                             const optRect = opt.getBoundingClientRect();
                             const spaceAbove = optRect.top - pad;
                             const spaceBelow = vh - optRect.bottom - pad;
@@ -905,10 +1169,14 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                                 nested.style.setProperty("margin-top", "0", "important");
                                 nested.style.setProperty("margin-bottom", "-4px", "important");
                             } else {
+                                const overflow = curRect.bottom - (vh - pad);
                                 const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
                                 nested.style.setProperty("top", `${-shiftY}px`, "important");
-                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
-                                nested.style.setProperty("overflow-y", "auto", "important");
+                                if (curRect.height > vh - 2 * pad) {
+                                    nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                    nested.style.setProperty("overflow-y", "auto", "important");
+                                    nested.style.setProperty("overflow-x", "hidden", "important");
+                                }
                             }
                         }
                     };
@@ -931,6 +1199,16 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         nested.style.removeProperty("max-width");
                         nested.style.removeProperty("overflow-y");
                     });
+
+                    opt.onclick = (e) => {
+                        if (isDisabled) return;
+                        e.stopPropagation();
+                        if (nested.style.display === "flex") {
+                            nested.style.display = "none";
+                        } else {
+                            positionSub();
+                        }
+                    };
                 } else {
                     opt.onclick = (e) => { 
                         if (isDisabled) return;
@@ -975,17 +1253,10 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             const dropdown = item.querySelector(".menubar-dropdown");
             if (dropdown) {
                 dropdown.classList.remove("align-right");
-                dropdown.style.removeProperty("max-height");
-                dropdown.style.removeProperty("overflow-y");
                 const rect = dropdown.getBoundingClientRect();
                 const vw = window.innerWidth || document.documentElement.clientWidth;
-                const vh = window.innerHeight || document.documentElement.clientHeight;
                 if (rect.right > vw - 10) {
                     dropdown.classList.add("align-right");
-                }
-                if (rect.bottom > vh - 10) {
-                    dropdown.style.setProperty("max-height", `${vh - rect.top - 12}px`, "important");
-                    dropdown.style.setProperty("overflow-y", "auto", "important");
                 }
             }
         };
@@ -993,6 +1264,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
         item.onmousedown = (e) => {
             if (e.target.closest(".ui-start-menu") || e.target.closest(".dropdown")) return;
 
+            document.querySelectorAll('.ui-context-menu').forEach(m => m.remove());
             e.stopPropagation();
             if (item.classList.contains("active")) {
                 item.classList.remove("active");
@@ -1019,15 +1291,13 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
     });
 
     if (isGlobalBar) {
-        import('./core.js').then(({ EventBus }) => {
-            EventBus.on("menubar:positionchange", (pos) => {
-                bar.dataset.position = pos;
-                if (pos === "none") {
-                    bar.style.display = "none";
-                } else {
-                    bar.style.display = "";
-                }
-            });
+        EventBus.on("menubar:positionchange", (pos) => {
+            bar.dataset.position = pos;
+            if (pos === "none") {
+                bar.style.display = "none";
+            } else {
+                bar.style.display = "";
+            }
         });
     }
 
@@ -1124,8 +1394,11 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                             const optRect = opt.getBoundingClientRect();
                             const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
                             nested.style.setProperty("top", `${-shiftY}px`, "important");
-                            nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
-                            nested.style.setProperty("overflow-y", "auto", "important");
+                            if (curRect.height > vh - 2 * pad) {
+                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                nested.style.setProperty("overflow-y", "auto", "important");
+                                nested.style.setProperty("overflow-x", "hidden", "important");
+                            }
                         }
                     };
 
@@ -1142,6 +1415,16 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                         nested.style.removeProperty("max-height");
                         nested.style.removeProperty("overflow-y");
                     });
+
+                    opt.onclick = (e) => {
+                        if (subItem.disabled) return;
+                        e.stopPropagation();
+                        if (nested.style.display === "flex") {
+                            nested.style.display = "none";
+                        } else {
+                            positionStartSub();
+                        }
+                    };
                 } else {
                     opt.onclick = (e) => { 
                         if (subItem.disabled) return;
@@ -1182,6 +1465,8 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 
     const handleButtonClick = (e) => {
         e.stopPropagation();
+        document.querySelectorAll('.ui-context-menu').forEach(m => m.remove());
+        renderMenuContent();
         const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
             ? Desktop.getEffectiveStartMenus()
             : menus;
@@ -1260,20 +1545,20 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 
     attachButtonListener();
 
-    // Sincroniza dinamicamente quando o Desktop emite sincronização de menus
-    import('./core.js').then(({ EventBus }) => {
-        EventBus.on("startmenu:sync", (data) => {
-            renderMenuContent();
-            attachButtonListener();
-        });
+    // Sincroniza dinamicamente e imediatamente quando o Desktop emite sincronização de menus
+    EventBus.on("startmenu:sync", (data) => {
+        renderMenuContent();
+        attachButtonListener();
     });
 
-    document.addEventListener("click", e => {
+    const closeOnOutside = (e) => {
         const currentBtn = document.getElementById(buttonId) || document.querySelector('.taskStart[data-role="start-button"]');
         if (!menuEl.contains(e.target) && (!currentBtn || e.target !== currentBtn && !currentBtn.contains(e.target))) {
             closeStartMenu();
         }
-    });
+    };
+    document.addEventListener("click", closeOnOutside, true);
+    document.addEventListener("contextmenu", closeOnOutside, true);
     
     return menuEl;
 }
@@ -1356,7 +1641,20 @@ export function ProgressBar({ value = 0, max = 100 }) {
     return wrap;
 }
 
-export function Modal({ title, children = [], onClose, beforeClose, showCloseButton = true, closable = true, instance, targetContainer }) {
+export function Modal({
+    title,
+    icon = "🪟",
+    children = [],
+    onClose,
+    beforeClose,
+    showCloseButton = true,
+    closable = true,
+    instance = null,
+    targetContainer = null,
+    global = false,
+    width,
+    height
+} = {}) {
     const overlay = createElement("div", "ui-modal-overlay", []);
     const content = [];
     const hasCloseBtn = (showCloseButton !== false && closable !== false);
@@ -1372,25 +1670,49 @@ export function Modal({ title, children = [], onClose, beforeClose, showCloseBut
         }
         if (onClose && instance) instance.runAction(onClose);
         else if (typeof onClose === 'function') onClose();
-        overlay.remove();
+        overlay.classList.remove("show");
+        setTimeout(() => {
+            overlay.remove();
+        }, 150);
         document.removeEventListener('keydown', escListener);
+    };
+
+    const modalApi = {
+        element: overlay,
+        close: () => closeModal()
     };
     
     if (title) {
-        const headerChildren = [createElement("h3", "", [title])];
-        if (hasCloseBtn) {
-            const closeBtn = createElement("span", "ui-modal-close", ["×"]);
-            closeBtn.onclick = () => closeModal();
-            headerChildren.push(closeBtn);
+        const headerChildren = [];
+        if (icon) {
+            headerChildren.push(createElement("span", "titleIcon windowIcon ui-modal-icon", [icon]));
         }
-        const header = createElement("div", "ui-modal-header", headerChildren);
+        headerChildren.push(createElement("span", "titleText windowTitle ui-modal-title", [title]));
+        
+        if (hasCloseBtn) {
+            const closeBtn = createElement("div", "winBtn close ui-modal-close", ["✕"]);
+            closeBtn.title = "Fechar";
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                closeModal();
+            };
+            const btnGroup = createElement("div", "winButtons windowControls ui-modal-controls", [closeBtn]);
+            headerChildren.push(btnGroup);
+        }
+        
+        const header = createElement("div", "titlebar windowTitleBar ui-modal-header", headerChildren);
         content.push(header);
     }
     
-    const body = createElement("div", "ui-modal-body", children);
+    const resolvedChildren = typeof children === 'function' ? children(modalApi) : children;
+    const body = createElement("div", "windowBody ui-modal-body", Array.isArray(resolvedChildren) ? resolvedChildren : [resolvedChildren]);
     content.push(body);
     
-    const dialog = createElement("div", "ui-modal-dialog", content);
+    const dialog = createElement("div", "window ui-modal-dialog active", content);
+    modalApi.dialog = dialog;
+    if (width) dialog.style.width = typeof width === 'number' ? `${width}px` : width;
+    if (height) dialog.style.height = typeof height === 'number' ? `${height}px` : height;
+    
     overlay.appendChild(dialog);
     
     // Auto-close on escape (apenas se closable = true)
@@ -1401,10 +1723,12 @@ export function Modal({ title, children = [], onClose, beforeClose, showCloseBut
     };
     document.addEventListener('keydown', escListener);
     
-    // Resolve Container
+    // Resolve Container: se global for true ou se não tiver instance nem targetContainer, assume Desktop (#app)
     let container = targetContainer;
     if (!container) {
-        if (instance && instance.windowEl) {
+        if (global || !instance) {
+            container = document.getElementById("app") || document.body;
+        } else if (instance && instance.windowEl) {
             container = instance.windowEl;
         } else {
             container = document.getElementById("app") || document.body;
@@ -1419,6 +1743,8 @@ export function Modal({ title, children = [], onClose, beforeClose, showCloseBut
     container.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("show"));
     
+    overlay.close = closeModal;
+    overlay.modalApi = modalApi;
     return overlay;
 }
 
@@ -1521,7 +1847,8 @@ export function DraggableList({ bindItems, onReorder, instance }) {
     return wrap;
 }
 
-export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, serverSide = false, bindTotalPages = null, onPageChange = null }) {
+export function DataGrid(options = {}) {
+    const { columns = [], bindData, instance, itemsPerPage = 5, serverSide = false, bindTotalPages = null, onPageChange = null } = options;
     if (!instance.state._gridState) instance.state._gridState = {};
     if (!instance.state._gridState[bindData]) {
         instance.state._gridState[bindData] = { sortKey: null, sortDesc: false, filters: {}, currentPage: 1 };
@@ -1689,7 +2016,8 @@ export function DataGrid({ columns = [], bindData, instance, itemsPerPage = 5, s
     paginationWrapper.appendChild(info);
     paginationWrapper.appendChild(btnGroup);
 
-    return createElement("div", "ui-table-wrapper", [table, paginationWrapper]);
+    const wrapper = createElement("div", "ui-table-wrapper", [table, paginationWrapper]);
+    return applyCommonProps(wrapper, options);
 }
 
 // --- COMPONENTES DE FEEDBACK E NOTIFICAÇÕES (GRUPO 1) ---
@@ -2358,6 +2686,9 @@ export function DockWidget({
         restoreFromTray: (andExpand) => restoreFromTray(andExpand),
         isMinimizedToTray: () => dock.classList.contains("minimized-to-tray"),
         isExpanded: () => dock.classList.contains("expanded"),
+        getBadge: () => currentBadge || 0,
+        getTitle: () => title,
+        getContent: () => content,
         setBadge(val, variant) {
             currentBadge = val;
             if (val === null || val === undefined || val === 0 || val === "") {
@@ -2394,6 +2725,10 @@ export function DockWidget({
             content = newContent;
             renderContent();
         },
+        clear() {
+            content = [];
+            renderContent();
+        },
         addItem(item, prepend = false) {
             const node = typeof item === 'string' ? createElement("div", "ui-dock-text-item", [item]) : item;
             if (prepend && body.firstChild) {
@@ -2407,6 +2742,10 @@ export function DockWidget({
             dock.remove();
         }
     };
+
+    // Mescla a API diretamente no elemento do dock para acesso direto
+    Object.assign(dock, dockApi);
+    dock.dockApi = dockApi;
 
     // Anexa ao target se for global ou configurado
     if (!instance || targetContainer) {
@@ -2605,6 +2944,10 @@ export function FloatButton({
         },
         destroy: () => wrap.remove()
     };
+
+    // Mescla a API diretamente no elemento do FAB para acesso direto
+    Object.assign(wrap, fabApi);
+    wrap.fabApi = fabApi;
 
     if (!instance || targetContainer) {
         target.appendChild(wrap);

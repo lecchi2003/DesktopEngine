@@ -41,14 +41,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // --- MENU BAR (TOPO) ---
         MenuBar({
             containerId: "menubar",
@@ -77,18 +69,6 @@
                         {
                             label: "Preferências",
                             items: [
-                                { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
-                                {
-                                    label: "Paleta de Cores",
-                                    items: [
-                                        { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
-                                        { label: "Slate Dark", action: () => Desktop.setTheme("dark") },
-                                        { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
-                                        { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
-                                        { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                        { label: "Alto Contraste (Windows Classic)", action: () => Desktop.setTheme("contrast") }
-                                    ]
-                                },
                                 { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
                             ]
                         },
@@ -99,18 +79,12 @@
             ]
         });
 
-        document.getElementById("desktop").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            ContextMenu({
-                x: e.clientX, y: e.clientY,
-                items: [
-                    { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
-                    "separator",
-                    { label: "Abrir Painel", action: () => openScreen(DashboardScreen, "dashboard") },
-                    { label: "Abrir DataGrid", action: () => openScreen(DataGridScreen, "datagrid") }
-                ]
-            });
-        });
+        Desktop.setContextMenu([
+            { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "Abrir Painel", action: () => openScreen(DashboardScreen, "dashboard") },
+            { label: "Abrir DataGrid", action: () => openScreen(DataGridScreen, "datagrid") }
+        ]);
 
         // --- TELAS DO SHOWCASE ---
 
@@ -352,16 +326,15 @@
             },
             actions: {
                 salvar: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Confirmar Inclusão",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", [`Deseja salvar o funcionário ${ctx.state.nome}?`]),
                             Button({
                                 text: "Sim, salvar", onClick: () => {
                                     Desktop.notify("Salvo com sucesso!", "success");
                                     ctx.instance.setStatus(`Salvo em ${new Date().toLocaleTimeString()}`);
-                                    document.querySelector('.ui-modal-overlay').remove();
+                                    modal.close();
                                 }, variant: "success"
                             })
                         ]
@@ -412,7 +385,6 @@
             state: {
                 step: 0,
                 volume: 50,
-                tema: Desktop.getTheme ? Desktop.getTheme() : "light",
                 pais: ["Brasil"],
                 menuLateral: false
             },
@@ -431,43 +403,25 @@
                     Toast({ message: "Dados do showcase salvos no sistema!", type: "success" });
                 }],
                 abrirModalLocal: [async (ctx) => {
-                    Modal({
+                    ctx.instance.openModal({
                         title: "Modal Local",
-                        instance: ctx.instance,
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal está restrito aos limites da janela."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }],
                 abrirModalGlobal: [async (ctx) => {
-                    Modal({
+                    Desktop.openModal({
                         title: "Modal Global",
-                        instance: ctx.instance,
-                        targetContainer: document.getElementById("app"),
-                        children: [
+                        children: (modal) => [
                             createElement("p", "", ["Este modal se sobrepõe a TODAS as janelas e ao Desktop."]),
-                            Button({
-                                text: "Fechar", onClick: () => {
-                                    document.querySelector('.ui-modal-overlay.show').remove();
-                                }
-                            })
+                            Button({ text: "Fechar", onClick: () => modal.close() })
                         ]
                     });
                 }]
             },
             view() {
-                // Aplica o tema globalmente no Desktop Engine
-                if (Desktop && typeof Desktop.setTheme === 'function') {
-                    Desktop.setTheme(this.state.tema);
-                } else {
-                    document.documentElement.setAttribute('data-theme', this.state.tema);
-                }
-
                 return createElement("div", "", [
                     // GRUPO 2: Drawer e Breadcrumbs
                     Drawer({
@@ -512,16 +466,6 @@
                                         title: "Formulários Avançados", children: [
                                             // GRUPO 3: Formulários
                                             Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
-                                            RadioGroup({
-                                                label: "Paleta de Cores do Sistema", bind: "tema", options: [
-                                                    { label: "Light (Azul)", value: "light" },
-                                                    { label: "Dark (Slate)", value: "dark" },
-                                                    { label: "Midnight", value: "midnight" },
-                                                    { label: "Emerald", value: "emerald" },
-                                                    { label: "Nord", value: "nord" },
-                                                    { label: "Alto Contraste", value: "contrast" }
-                                                ], layout: "horizontal", instance: this
-                                            }),
                                             Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
                                         ]
                                     }),

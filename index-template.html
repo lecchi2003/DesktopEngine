@@ -72,14 +72,6 @@
             showDesktopButton: true
         });
 
-        function updateClock() {
-            document.getElementById("clock").textContent = new Date().toLocaleTimeString("pt-BR");
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        document.getElementById("showDesktop").onclick = () => Desktop.showDesktop();
-
         // =========================================================================
         // FORMA 5: TELAS COM TEMPLATES HTML E STRING MARKUP
         // =========================================================================
@@ -290,7 +282,7 @@
                 {
                     label: "Sistema",
                     items: [
-                        { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() }
+                        { label: "Mostrar Área de Trabalho", action: () => Desktop.showDesktop() }
                     ]
                 }
             ]
