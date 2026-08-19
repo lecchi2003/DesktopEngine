@@ -2269,7 +2269,7 @@ if (usuarioSelecionado) {
             <ul>
                 <li><code>contained: true</code>: A janela filha é renderizada <strong>dentro do espaço da janela
                         pai</strong> e seu arrasto fica estritamente confinado aos limites da janela mãe (estilo MDI
-                    Clássico).</li>
+                    Clássico). <em>No modo mobile, a janela confinada se ajusta e centraliza automaticamente sobre a janela pai com overlay modal.</em></li>
                 <li><code>contained: false</code> (Padrão): A janela filha flutua livremente pelo Desktop, mas mantém o
                     bloqueio modal e foco vinculados à janela mãe.</li>
                 <li><code>closable: false</code> / <code>showCloseButton: false</code>: Oculta o botão <code>X</code> da
