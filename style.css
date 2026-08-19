@@ -8363,6 +8363,25 @@ select option {
     border-radius: 12px !important;
 }
 
+@keyframes mobileWindowHighlight {
+    0% {
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 0 0 2px transparent !important;
+        transform: scale(1);
+    }
+    15% {
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 0 0 3px var(--primary, #176cad), 0 0 15px rgba(23, 108, 173, 0.6) !important;
+        transform: scale(1.01);
+    }
+    100% {
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 0 0 2px transparent !important;
+        transform: scale(1);
+    }
+}
+
+#app.mobile-mode .window.mobile-highlight {
+    animation: mobileWindowHighlight 1.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards !important;
+}
+
 #app.mobile-mode .window .titlebar {
     padding: 10px 14px !important;
     height: auto !important;
