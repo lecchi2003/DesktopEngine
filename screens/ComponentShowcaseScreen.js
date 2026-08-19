@@ -15,7 +15,6 @@ export default {
     state: {
         step: 0,
         volume: 50,
-        tema: Desktop.getTheme ? Desktop.getTheme() : "light",
         laf: Desktop.getLookAndFeel ? Desktop.getLookAndFeel() : "default",
         pais: ["Brasil"],
         menuLateral: false
@@ -67,13 +66,6 @@ export default {
         }]
     },
     view() {
-        if (Desktop && typeof Desktop.setTheme === 'function') {
-            Desktop.setTheme(this.state.tema);
-        } else {
-            document.documentElement.setAttribute('data-theme', this.state.tema);
-        }
-
-
         return createElement("div", "", [
             Drawer({
                 bind: "menuLateral", side: "left", instance: this, content: [
@@ -139,16 +131,6 @@ export default {
                                         }
                                     }),
                                     Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
-                                    RadioGroup({
-                                        label: "Paleta de Cores do Sistema", bind: "tema", options: [
-                                            { label: "Light (Azul)", value: "light" },
-                                            { label: "Dark (Slate)", value: "dark" },
-                                            { label: "Midnight", value: "midnight" },
-                                            { label: "Emerald", value: "emerald" },
-                                            { label: "Nord", value: "nord" },
-                                            { label: "Alto Contraste", value: "contrast" }
-                                        ], layout: "horizontal", instance: this
-                                    }),
                                     Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
                                 ]
                             }),

@@ -77,18 +77,6 @@
                         {
                             label: "Preferências",
                             items: [
-                                { label: "Alternar Tema (Light/Dark)", action: () => Desktop.toggleTheme() },
-                                {
-                                    label: "Paleta de Cores",
-                                    items: [
-                                        { label: "Azul Corporativo (Padrão)", action: () => Desktop.setTheme("light") },
-                                        { label: "Slate Dark", action: () => Desktop.setTheme("dark") },
-                                        { label: "Midnight Cyber", action: () => Desktop.setTheme("midnight") },
-                                        { label: "Emerald Fintech", action: () => Desktop.setTheme("emerald") },
-                                        { label: "Nord Frost", action: () => Desktop.setTheme("nord") },
-                                        { label: "Alto Contraste (Windows Classic)", action: () => Desktop.setTheme("contrast") }
-                                    ]
-                                },
                                 { label: "Idioma...", action: () => Desktop.notify("Idioma em pt-BR", "info") }
                             ]
                         },
@@ -412,7 +400,6 @@
             state: {
                 step: 0,
                 volume: 50,
-                tema: Desktop.getTheme ? Desktop.getTheme() : "light",
                 pais: ["Brasil"],
                 menuLateral: false
             },
@@ -461,13 +448,6 @@
                 }]
             },
             view() {
-                // Aplica o tema globalmente no Desktop Engine
-                if (Desktop && typeof Desktop.setTheme === 'function') {
-                    Desktop.setTheme(this.state.tema);
-                } else {
-                    document.documentElement.setAttribute('data-theme', this.state.tema);
-                }
-
                 return createElement("div", "", [
                     // GRUPO 2: Drawer e Breadcrumbs
                     Drawer({
@@ -512,16 +492,6 @@
                                         title: "Formulários Avançados", children: [
                                             // GRUPO 3: Formulários
                                             Slider({ label: "Nível de Intensidade", bind: "volume", min: 0, max: 100, instance: this }),
-                                            RadioGroup({
-                                                label: "Paleta de Cores do Sistema", bind: "tema", options: [
-                                                    { label: "Light (Azul)", value: "light" },
-                                                    { label: "Dark (Slate)", value: "dark" },
-                                                    { label: "Midnight", value: "midnight" },
-                                                    { label: "Emerald", value: "emerald" },
-                                                    { label: "Nord", value: "nord" },
-                                                    { label: "Alto Contraste", value: "contrast" }
-                                                ], layout: "horizontal", instance: this
-                                            }),
                                             Autocomplete({ label: "Países de Atuação", bind: "pais", multiple: true, options: ["Brasil", "Estados Unidos", "Alemanha", "França", "Itália", "Japão"], instance: this })
                                         ]
                                     }),

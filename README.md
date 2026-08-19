@@ -630,24 +630,28 @@ Drawer({
 })
 ```
 
-#### `Modal` (Diálogos Isolados ou Globais)
+#### `Modal` (Diálogos Modais Integrados ao Look and Feel)
+O `Modal` adota nativamente a mesma arquitetura de janelas (`.window`, `.titlebar` com controles de fechar e `.windowBody`), herdando 100% da estética, bordas, sombras e botões do **Look and Feel ativo**.
+
 ```javascript
-// 1. Modal Local (Cobre apenas a janela atual):
+// 1. Modal Local (Herda o Look and Feel da Janela):
 Modal({
     title: "Confirmação",
+    icon: "💾",
     instance: this,
-    closable: true, // Padrão: true. Se false, oculta o 'X' superior
+    closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
     children: [
         createElement("p", "", ["Deseja salvar as alterações?"]),
         Button({ text: "Sim", onClick: "salvarTudo", instance: this })
     ]
 });
 
-// 2. Modal Global Sem Botão 'X' e com Interceptador beforeClose:
+// 2. Modal Global com Dimensões Customizadas e Hook beforeClose:
 Modal({
     title: "Alerta Crítico",
-    instance: this,
-    showCloseButton: false, // Oculta o 'X' e desativa a tecla ESC
+    icon: "⚠️",
+    width: 480,
+    showCloseButton: false, // Oculta o botão e desativa a tecla ESC
     targetContainer: document.getElementById("app"),
     async beforeClose() {
         // Pode validar ou bloquear o fechamento retornando false
@@ -687,7 +691,7 @@ Tooltip({
 ```
 
 #### `DockWidget` (Collapsible Tray & Messenger de Eventos)
-Painel expansível ancorado no rodapé (estilo mensageiro do LinkedIn ou monitor de logs em tempo real), com suporte a minimização para a barra de tarefas (ao lado do relógio estilo Windows Tray):
+Painel expansível ancorado no rodapé (estilo mensageiro do LinkedIn ou monitor de logs em tempo real), com suporte a minimização para a barra de tarefas (ao lado do relógio estilo Windows Tray) e ancoragem automática acima da `StatusBar` quando utilizado localmente em janelas:
 ```javascript
 import { DockWidget } from './ui.js';
 
@@ -1010,11 +1014,36 @@ Você pode controlar se a janela filha deve se movimentar livremente pelo deskto
 ---
 
 #### `ContextMenu` & `bindContextMenu`
+Adiciona menus de contexto flutuantes com suporte nativo a **submenus aninhados (`items: [...]`)**, ícones, atalhos, separadores e prevenção de colisão de tela:
+
 ```javascript
+import { ContextMenu, bindContextMenu } from './ui.js';
+
+// 1. Vinculando menu de contexto a um elemento com submenus:
 bindContextMenu(meuElemento, [
-    { label: "Copiar", action: () => console.log("Copiado") },
-    { label: "Excluir", action: () => meuElemento.remove() }
+    { label: "Abrir em Nova Janela", icon: "🪟", action: () => console.log("Abrir") },
+    {
+        label: "Exportar Como...",
+        icon: "📤",
+        items: [
+            { label: "Documento PDF (.pdf)", action: () => exportar("pdf") },
+            { label: "Planilha Excel (.xlsx)", action: () => exportar("xlsx") },
+            { label: "JSON Raw (.json)", action: () => exportar("json") }
+        ]
+    },
+    "separator",
+    { label: "Excluir", icon: "🗑️", action: () => meuElemento.remove() }
 ]);
+
+// 2. Invocação manual por coordenadas (ex: desktop):
+ContextMenu({
+    x: e.clientX,
+    y: e.clientY,
+    items: [
+        { label: "Nova Janela", screen: "dashboard" },
+        lookAndFeelsItensVar
+    ]
+});
 ```
 
 ---
@@ -1205,9 +1234,6 @@ async gerarRelatorioAsync(lotes = 10) {
 
 O DesktopEngine possui um subsistema nativo e modular de **Look and Feel (L&F)** que permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela, tipografia, cantos e molduras do ambiente desktop em tempo de execução.
 
-> [!TIP]
-> **Ortogonalidade:** O *Look and Feel* (estrutura da carcaça visual via atributo `data-laf`) é independente da *Paleta de Cores* (cores e tons via atributo `data-theme`). Você pode combinar livremente qualquer Look and Feel com qualquer Tema (ex: Aqua Frosted no tema Midnight Cyber, Retro 3D em Alto Contraste, ou Steel Metal no tema Slate Dark).
-
 ### API de Look and Feel no `Desktop` & Botões Dinâmicos da Barra
 ```javascript
 import { Desktop } from './desktop.js';
@@ -1292,49 +1318,6 @@ EventBus.on("laf:change", (lafName) => {
 
 ---
 
-## 🎨 Sistema de Temas e Schema de Paletas de Cores
-
-O DesktopEngine possui um motor completo de alternância de paletas com persistência automática no `localStorage`.
-
-### API de Temas no `Desktop`
-```javascript
-import { Desktop } from './desktop.js';
-
-// 1. Alterar tema
-Desktop.setTheme("dark"); // "light", "dark", "midnight", "emerald", "nord", "contrast"
-
-// 2. Alternar entre Light e Dark rapidamente
-Desktop.toggleTheme();
-
-// 3. Obter o tema ativo
-console.log(Desktop.getTheme());
-
-// 4. Registrar uma Paleta Customizada
-Desktop.registerPalette("synthwave", {
-    "--bg-primary": "#241734",
-    "--bg-secondary": "#2e1f47",
-    "--text-primary": "#f92aad",
-    "--text-secondary": "#00f0ff",
-    "--win-bg": "rgba(36, 23, 52, 0.9)",
-    "--win-border": "rgba(0, 240, 255, 0.3)",
-    "--title-bg-start": "#f92aad",
-    "--title-bg-end": "#7b2cbf",
-    "--btn-primary": "#00f0ff",
-    "--btn-primary-hover": "#00c4d1",
-    "--btn-primary-text": "#241734"
-});
-```
-
-### Paletas Nativas Disponíveis
-- **`light` (Azul Corporativo):** Padrão institucional de alto contraste.
-- **`dark` (Slate Dark):** Fundo grafite moderno com realces em índigo.
-- **`midnight` (Cyber Navy):** Tons de azul escuro profundo com roxo.
-- **`emerald` (Fintech):** Tons verdes esmeralda para dashboards e finanças.
-- **`nord` (Frost):** Paleta fria e minimalista inspirada no design ártico.
-- **`contrast` (Alto Contraste):** O visual clássico retrô de acessibilidade (fundo preto absoluto, bordas ciano/amarelo e barra magenta).
-
----
-
 ## 📱 Modo Mobile & Responsivo (Stacked Windows, Drawer & Bottom Sheet)
 
 O **DesktopEngine** oferece suporte híbrido responsivo nativo: opera como **Desktop tradicional com janelas flutuantes livres** em telas grandes e converte-se automaticamente em uma **experiência Mobile nativa** em smartphones ou telas menores (`<= 768px` ou via classe `.mobile-mode`).
@@ -1375,18 +1358,6 @@ Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneame
 
 ---
 
-## 🎭 Look and Feel (34 Skins Conceituais & Botões Adaptativos)
-
-O **DesktopEngine** suporta **34 Look and Feels conceituais**, com estética detalhada e controles adaptativos para cada estilo: **Aero Glass**, **Fluent Acrylic**, **Luna Classic**, **Retro 3D**, **Aqua Frosted**, **Spatial Glass**, **Neumorphism**, **Material Tonal**, **Aubergine Orange**, **DOS TUI**, **Cyber Neon HUD**, **Steel Metal**, **Modern IDE (Studio)**, entre outros.
-
-Ao alternar de Look & Feel, tanto as janelas quanto os botões da Taskbar (**Botão Iniciar** e **Mostrar Área de Trabalho**) transformam automaticamente sua geometria, ícones e comportamento visual:
-- **Aero Glass (`aero-glass` / `win7`):** Transforma o botão Iniciar em um **Orb circular translúcido (36px)** e o botão Mostrar Área de Trabalho na clássica **faixa de vidro Aero Peek** no canto da tela.
-- **Aqua Frosted (`aqua-frosted` / `macos`):** Transforma os controles em cápsulas de vidro fosco minimalistas.
-- **Retro 3D (`retro-3d` / `win98`):** Adota bordas chanfradas 3D outset autênticas com textos em negrito.
-- **Luna Classic (`luna-blue` / `winxp`):** Adota relevo clássico e gradientes azuis/verdes.
-
----
-
 ## 💾 Exportar & Carregar Configurações do Ambiente (JSON)
 
 O framework disponibiliza métodos nativos para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string `JSON` (para salvar em banco de dados, perfil de usuário ou arquivos) e recarregá-lo instantaneamente:
@@ -1399,7 +1370,6 @@ const jsonConfig = Desktop.exportConfig(true);
 console.log(jsonConfig);
 /* Exemplo de saída gerada:
 {
-  "theme": "dark",
   "lookAndFeel": "aqua-frosted",
   "taskbarPosition": "bottom",
   "menubarPosition": "top",
@@ -1410,14 +1380,13 @@ console.log(jsonConfig);
 */
 
 // 2. Extrair configuração como Objeto JavaScript puro
-const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+const configObj = Desktop.exportConfig(); // { lookAndFeel: "aqua-frosted", ... }
 
 // 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
 Desktop.loadConfig(jsonConfig);
 
 // Também aceita objeto diretamente e controla se deve persistir no localStorage:
 Desktop.loadConfig({
-    theme: "midnight",
     lookAndFeel: "fluent-acrylic",
     taskbarPosition: "left",
     menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar

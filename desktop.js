@@ -22,20 +22,11 @@ export const Desktop = {
             startButtonId: "startBtn",
             showDesktopButtonId: "showDesktop",
             showDesktopButton: true,
-            defaultTheme: "light",
             defaultLaF: "default",
             responsiveMode: "auto", // 'auto' | 'mobile' | 'desktop'
             mobileBreakpoint: 768,
             ...options
         };
-
-        // Carrega tema persistido ou padrão
-        try {
-            const savedTheme = localStorage.getItem("desktop_engine_theme") || this.options.defaultTheme;
-            this.setTheme(savedTheme, false);
-        } catch (e) {
-            this.setTheme(this.options.defaultTheme, false);
-        }
 
         // Carrega Look and Feel persistido ou padrão
         try {
@@ -58,16 +49,12 @@ export const Desktop = {
             const savedMenuBarMode = localStorage.getItem("desktop_engine_menubar_mode");
             const savedMenuBarPos = localStorage.getItem("desktop_engine_menubar_pos");
             
-            if (savedMenuBarMode === "startmenu") {
+            if (savedMenuBarMode === "startmenu" || savedMenuBarPos === "none") {
                 this.setMenuBarPosition("none", false);
-            } else if (savedMenuBarPos && savedMenuBarPos !== "none") {
+            } else if (savedMenuBarPos && ["top", "bottom", "left", "right"].includes(savedMenuBarPos)) {
                 this.setMenuBarPosition(savedMenuBarPos, false);
             } else {
                 this.setMenuBarPosition(this.options.menubarPosition || "top", false);
-                try {
-                    localStorage.setItem("desktop_engine_menubar_mode", "separate");
-                    localStorage.setItem("desktop_engine_menubar_pos", this.options.menubarPosition || "top");
-                } catch (e) { }
             }
         } catch (e) {
             this.setMenuBarPosition(this.options.menubarPosition || "top", false);
@@ -647,44 +634,6 @@ export const Desktop = {
         });
     },
 
-    // --- Sistema de Temas e Paletas de Cores ---
-    setTheme(themeName, persist = true) {
-        this.currentTheme = themeName;
-        document.documentElement.setAttribute('data-theme', themeName);
-        if (persist) {
-            try { localStorage.setItem("desktop_engine_theme", themeName); } catch (e) { }
-        }
-        EventBus.emit("theme:change", themeName);
-    },
-
-    getTheme() {
-        return this.currentTheme || document.documentElement.getAttribute('data-theme') || 'light';
-    },
-
-    toggleTheme() {
-        const current = this.getTheme();
-        const next = (current === 'dark' || current === 'midnight') ? 'light' : 'dark';
-        this.setTheme(next);
-        this.notify(`Tema alterado para: ${next}`, "info");
-    },
-
-    registerPalette(name, cssTokens = {}) {
-        let styleEl = document.getElementById("custom-palettes");
-        if (!styleEl) {
-            styleEl = document.createElement("style");
-            styleEl.id = "custom-palettes";
-            document.head.appendChild(styleEl);
-        }
-
-        let cssRules = `[data-theme="${name}"] {\n`;
-        for (const [key, value] of Object.entries(cssTokens)) {
-            const varName = key.startsWith("--") ? key : `--${key}`;
-            cssRules += `  ${varName}: ${value};\n`;
-        }
-        cssRules += `}\n`;
-        styleEl.appendChild(document.createTextNode(cssRules));
-    },
-
     // --- Sistema de Look and Feel (L&F / Skins de Interface) ---
     lafStartButtons: {
         'default': {
@@ -973,24 +922,6 @@ export const Desktop = {
         }
     },
 
-    setTheme(themeName, persist = true) {
-        const theme = themeName || 'light';
-        this.currentTheme = theme;
-        if (!theme || theme === 'light') {
-            document.documentElement.removeAttribute('data-theme');
-        } else {
-            document.documentElement.setAttribute('data-theme', theme);
-        }
-        if (persist) {
-            try { localStorage.setItem("desktop_engine_theme", theme); } catch (e) { }
-        }
-        EventBus.emit("theme:change", theme);
-    },
-
-    getTheme() {
-        return this.currentTheme || document.documentElement.getAttribute('data-theme') || 'light';
-    },
-
     setLookAndFeel(lafName, persist = true) {
         const laf = lafName || 'default';
         this.currentLaF = laf;
@@ -1014,13 +945,12 @@ export const Desktop = {
     },
 
     /**
-     * Exporta as configurações atuais do ambiente (Look and Feel, Tema, Menubar, Taskbar, Modo Mobile, etc.)
+     * Exporta as configurações atuais do ambiente (Look and Feel, Menubar, Taskbar, Modo Mobile, etc.)
      * @param {boolean} asJson - Se true retorna string JSON formatada; se false retorna objeto puro.
      * @returns {Object|string}
      */
     exportConfig(asJson = false) {
         const config = {
-            theme: this.getTheme(),
             lookAndFeel: this.getLookAndFeel(),
             taskbarPosition: this.getTaskbarPosition(),
             menubarPosition: this.getMenuBarPosition(),
@@ -1048,10 +978,6 @@ export const Desktop = {
                 console.error("Erro ao analisar JSON de configuração no loadConfig:", err);
                 return null;
             }
-        }
-
-        if (cfg.theme !== undefined) {
-            this.setTheme(cfg.theme, persist);
         }
 
         if (cfg.lookAndFeel !== undefined) {
@@ -1334,7 +1260,10 @@ export const Desktop = {
             }
         }
         if (persist) {
-            try { localStorage.setItem("desktop_engine_menubar_pos", pos); } catch (e) { }
+            try {
+                localStorage.setItem("desktop_engine_menubar_pos", pos);
+                localStorage.setItem("desktop_engine_menubar_mode", pos === "none" ? "startmenu" : "separate");
+            } catch (e) { }
         }
         this.syncTaskbarMenus();
         EventBus.emit("menubar:positionchange", pos);

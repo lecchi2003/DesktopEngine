@@ -341,7 +341,6 @@
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
             <a href="#look-and-feel">Look and Feel (34 Skins)</a>
-            <a href="#temas-paletas">Temas e Paletas de Cores</a>
             <a href="#config-export-load">Exportar &amp; Carregar Configurações (JSON)</a>
             <a href="#modo-mobile">Modo Mobile &amp; Responsivo</a>
             <a href="#menus-globais">MenuBar &amp; StartMenu</a>
@@ -1616,29 +1615,30 @@ view() {
 }</code></pre>
             </div>
 
-            <h2 id="modal">Modal (Isolado por Janela ou Global)</h2>
-            <p>Diálogos de confirmação ou formulários de foco bloqueante. Se chamado passando <code>instance</code>, o
-                fundo bloqueia apenas a janela onde foi chamado.</p>
+            <h2 id="modal">Modal (Diálogos Modais Integrados ao Look and Feel)</h2>
+            <p>Diálogos de confirmação ou formulários de foco bloqueante. O <code>Modal</code> adota nativamente a mesma arquitetura de janelas (<strong>.window</strong>, <strong>.titlebar</strong> com botões de controle e <strong>.windowBody</strong>), herdando 100% da estética, bordas, sombras e botões do <strong>Look and Feel ativo</strong>. Se chamado passando <code>instance</code>, o fundo bloqueia apenas a janela de onde foi invocado; se omitido ou passado <code>targetContainer: document.getElementById("app")</code>, o modal se torna global.</p>
 
             <div class="code-box">
                 <pre><code>import { Modal, Button, createElement } from './ui.js';
 
-// 1. Modal Local (Restrito à Janela)
+// 1. Modal Local (Herda o Look and Feel da Janela):
 Modal({
     title: "Confirmar Exclusão",
+    icon: "🗑️",
     instance: this,
-    closable: true, // Padrão: true. Se false, oculta o botão 'X' superior
+    closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
     children: [
         createElement("p", "", ["Deseja realmente excluir este registro?"]),
         Button({ text: "Sim, Excluir", variant: "danger", onClick: () => { /* ... */ } })
     ]
 });
 
-// 2. Modal Global Sem Botão 'X' e com Interceptador beforeClose
+// 2. Modal Global com Dimensões Customizadas e Hook beforeClose:
 Modal({
     title: "Aviso Crítico do Sistema",
-    instance: this,
-    showCloseButton: false, // Oculta o 'X' e desativa a tecla ESC
+    icon: "⚠️",
+    width: 480,
+    showCloseButton: false, // Oculta o botão e desativa a tecla ESC
     targetContainer: document.getElementById("app"), // Força container do Desktop
     async beforeClose() {
         // Pode validar ou bloquear o fechamento retornando false
@@ -1747,7 +1747,7 @@ Tooltip({
 
             <!-- SEÇÃO: DOCK WIDGET -->
             <h2 id="dock-widget">DockWidget (Collapsible Bottom Tray &amp; Messenger)</h2>
-            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong>.</p>
+            <p>Componente expansível ancorado no rodapé (inspirado na gaveta de mensagens do LinkedIn ou logs de eventos), ideal para monitorar eventos em segundo plano, logs em tempo real, chat e notificações do sistema. Pode ser anexado <strong>globalmente no Desktop</strong> ou <strong>localmente dentro de uma Janela</strong> (com alinhamento e ancoragem automática acima da <code>StatusBar</code>).</p>
 
             <table>
                 <thead>
@@ -2493,16 +2493,6 @@ export default {
                 permite transformar completamente a arquitetura visual, disposição dos botões de controle de janela,
                 tipografia, cantos e molduras do ambiente desktop em tempo de execução.</p>
 
-            <div class="alert alert-tip">
-                <span class="alert-icon">💡</span>
-                <div>
-                    <strong>Ortogonalidade:</strong> O <em>Look and Feel</em> (estrutura da carcaça visual via atributo
-                    <code>data-laf</code>) é independente da <em>Paleta de Cores</em> (cores e tons via atributo
-                    <code>data-theme</code>). Você pode combinar livremente qualquer Look and Feel com qualquer Tema
-                    (ex: Aqua Frosted no tema Midnight Cyber, Retro 3D em Alto Contraste, ou Steel Metal no tema Slate Dark).
-                </div>
-            </div>
-
             <h3>API do Desktop para Look and Feel &amp; Botão Iniciar Dinâmico</h3>
             <div class="code-box">
                 <pre><code>import { Desktop } from './desktop.js';
@@ -2775,129 +2765,6 @@ EventBus.on("laf:change", (lafName) => {
                 </tbody>
             </table>
 
-            <h2 id="temas-paletas">Sistema de Temas e Schema de Paletas de Cores</h2>
-            <p>O DesktopEngine inclui um motor nativo de temas que altera todas as variáveis visuais (janelas,
-                titlebars, botões, formulários e cards) sem recarregar a página e com persistência automática no
-                <code>localStorage</code>.
-            </p>
-
-            <h3>API do Desktop</h3>
-            <div class="code-box">
-                <pre><code>import { Desktop } from './desktop.js';
-
-// 1. Aplicar um tema pré-configurado
-Desktop.setTheme("dark");       // Opções: "light", "dark", "midnight", "emerald", "nord"
-
-// 2. Alternar rapidamente entre Light e Dark
-Desktop.toggleTheme();
-
-// 3. Obter o tema ativo no momento
-const temaAtual = Desktop.getTheme(); // Ex: "midnight"
-
-// 4. Registrar uma Paleta Customizada em Runtime
-Desktop.registerPalette("sunset", {
-    "--bg-primary": "#2b1055",
-    "--bg-secondary": "#3c1b75",
-    "--text-primary": "#fde047",
-    "--text-secondary": "#fbcfe8",
-    "--win-bg": "rgba(43, 16, 85, 0.9)",
-    "--win-border": "rgba(253, 224, 71, 0.3)",
-    "--title-bg-start": "#f43f5e",
-    "--title-bg-end": "#fb7185",
-    "--btn-primary": "#f43f5e",
-    "--btn-primary-hover": "#e11d48",
-    "--btn-primary-text": "#ffffff"
-});
-
-// Ativar a paleta registrada:
-Desktop.setTheme("sunset");</code></pre>
-            </div>
-
-            <h3>Paletas Nativas Embutidas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Identificador</th>
-                        <th>Estilo / Perfil</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Azul Corporativo</strong></td>
-                        <td><code>"light"</code></td>
-                        <td>Padrão claro institucional com realces em azul royal.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Slate Dark</strong></td>
-                        <td><code>"dark"</code></td>
-                        <td>Fundo escuro grafite com destaques em índigo moderno.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Midnight Cyber</strong></td>
-                        <td><code>"midnight"</code></td>
-                        <td>Azul marinho profundo com roxo elétrico (estilo terminal/dev).</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Emerald Fintech</strong></td>
-                        <td><code>"emerald"</code></td>
-                        <td>Verde esmeralda sofisticado para dashboards financeiros.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Nord Frost</strong></td>
-                        <td><code>"nord"</code></td>
-                        <td>Minimalismo ártico com tons glaciais e azul pastel suave.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Alto Contraste</strong></td>
-                        <td><code>"contrast"</code></td>
-                        <td>Visual clássico retrô Windows de acessibilidade (fundo preto puro, ciano e barra magenta).
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Schema de Tokens CSS Disponíveis</h3>
-            <p>Qualquer tema ou componente no framework responde a estes tokens semânticos declarados no
-                <code>style.css</code>:
-            </p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Token CSS</th>
-                        <th>Finalidade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>--bg-primary</code> / <code>--bg-secondary</code></td>
-                        <td>Cor de fundo do desktop e de painéis secundários.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--text-primary</code> / <code>--text-secondary</code></td>
-                        <td>Tipografia principal e textos atenuados (labels, notas).</td>
-                    </tr>
-                    <tr>
-                        <td><code>--win-bg</code> / <code>--win-border</code> / <code>--win-shadow</code></td>
-                        <td>Fundo com transparência (Glassmorphism), borda e elevação das janelas.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--title-bg-start</code> / <code>--title-bg-end</code> / <code>--title-text</code></td>
-                        <td>Gradiente da barra de título das janelas e cor do título.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--btn-primary</code> / <code>--btn-primary-hover</code> /
-                            <code>--btn-primary-text</code>
-                        </td>
-                        <td>Cores dos botões de ação principal em todo o sistema.</td>
-                    </tr>
-                    <tr>
-                        <td><code>--input-bg</code> / <code>--input-border</code></td>
-                        <td>Fundo e contorno de caixas de entrada e selects.</td>
-                    </tr>
-                </tbody>
-            </table>
-
             <!-- SEÇÃO: EXPORTAR E CARREGAR CONFIGURAÇÕES -->
             <h2 id="config-export-load">Exportar &amp; Carregar Configurações do Ambiente (JSON)</h2>
             <p>O framework fornece métodos nativos e convenientes para extrair o estado exato da configuração visual e estrutural do desktop em formato de objeto JavaScript ou string <code>JSON</code> (ideal para salvar em banco de dados, perfil do usuário ou arquivos de configuração) e recarregá-lo instantaneamente:</p>
@@ -2910,7 +2777,6 @@ const jsonConfig = Desktop.exportConfig(true);
 console.log(jsonConfig);
 /* Exemplo de saída gerada:
 {
-  "theme": "dark",
   "lookAndFeel": "aqua-frosted",
   "taskbarPosition": "bottom",
   "menubarPosition": "top",
@@ -2921,14 +2787,13 @@ console.log(jsonConfig);
 */
 
 // 2. Extrair configuração como Objeto JavaScript puro
-const configObj = Desktop.exportConfig(); // { theme: "dark", lookAndFeel: "aqua-frosted", ... }
+const configObj = Desktop.exportConfig(); // { lookAndFeel: "aqua-frosted", ... }
 
 // 3. Carregar e Aplicar Configurações (a partir de JSON ou Objeto)
 Desktop.loadConfig(jsonConfig);
 
 // Também aceita objeto diretamente e controla se deve persistir no localStorage:
 Desktop.loadConfig({
-    theme: "midnight",
     lookAndFeel: "fluent-acrylic",
     taskbarPosition: "left",
     menubarMode: "startmenu" // Integra automaticamente o MenuBar ao Menu Iniciar
@@ -2936,19 +2801,39 @@ Desktop.loadConfig({
             </div>
 
             <h2 id="contextmenu">ContextMenu e bindContextMenu</h2>
-            <p>Adiciona menus flutuantes ao clicar com o botão direito do mouse sobre qualquer elemento com proteção
-                nativa contra colisão de bordas:</p>
+            <p>Adiciona menus de contexto flutuantes com suporte a <strong>submenus aninhados (<code>items: [...]</code>)</strong>, separadores, ícones, atalhos de teclado e proteção nativa contra colisão de bordas:</p>
 
             <div class="code-box">
-                <pre><code>import { bindContextMenu } from './ui.js';
+                <pre><code>import { ContextMenu, bindContextMenu } from './ui.js';
 
-// Associa o clique direito no elemento
+// 1. Vinculando menu de contexto a um elemento com submenus aninhados
 bindContextMenu(meuCardEl, [
-    { label: "Abrir em Nova Aba", action: () => console.log("Abrir") },
-    { label: "Duplicar Item", action: () => console.log("Duplicar") },
+    { label: "Abrir em Nova Janela", icon: "🪟", action: () => console.log("Abrir") },
+    {
+        label: "Exportar Como...",
+        icon: "📤",
+        items: [
+            { label: "Documento PDF (.pdf)", action: () => exportar("pdf") },
+            { label: "Planilha Excel (.xlsx)", action: () => exportar("xlsx") },
+            { label: "JSON Raw (.json)", action: () => exportar("json") }
+        ]
+    },
     "separator",
-    { label: "Excluir", action: () => meuCardEl.remove() }
-]);</code></pre>
+    { label: "Excluir Registro", icon: "🗑️", action: () => meuCardEl.remove() }
+]);
+
+// 2. Invocação direta por coordenadas (ex: desktop)
+document.getElementById("desktop").addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    ContextMenu({
+        x: e.clientX,
+        y: e.clientY,
+        items: [
+            { label: "Nova Janela", screen: "dashboard" },
+            { label: "Aparência", items: lookAndFeelsItensVar }
+        ]
+    });
+});</code></pre>
             </div>
 
             <h2 id="modo-mobile">Modo Mobile &amp; Responsivo (Stacked Windows, Drawer &amp; Bottom Sheet)</h2>

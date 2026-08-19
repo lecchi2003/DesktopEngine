@@ -1,5 +1,6 @@
 // ui.js
 import { Desktop } from './desktop.js';
+import { EventBus } from './core.js';
 
 export function createElement(tag, arg2, arg3) {
     const el = document.createElement(tag);
@@ -356,7 +357,7 @@ export function ContextMenu({ x, y, items = [] }) {
         : (window.innerWidth <= 768 || !!document.getElementById("app")?.classList.contains("mobile-mode"));
 
     if (isMobileMode) {
-        // --- Modo Mobile: Bottom Sheet (Action Sheet) ---
+        // --- Modo Mobile: Bottom Sheet com suporte a submenus / Accordions ---
         const backdrop = createElement("div", "ui-bottom-sheet-backdrop", []);
         const sheet = createElement("div", "ui-bottom-sheet", [
             createElement("div", "bottom-sheet-handle-bar", [
@@ -379,34 +380,60 @@ export function ContextMenu({ x, y, items = [] }) {
             if (e.target === backdrop) closeBottomSheet();
         };
 
-        items.forEach(item => {
-            if (item === "separator") {
-                contentEl.appendChild(createElement("div", "bottom-sheet-sep", []));
-            } else {
-                const optChildren = [];
-                if (item.icon) {
-                    optChildren.push(createElement("span", "bottom-sheet-icon", [item.icon]));
-                }
-                optChildren.push(createElement("span", "bottom-sheet-label", [item.label || ""]));
-                if (item.shortcut) {
-                    optChildren.push(createElement("span", "bottom-sheet-shortcut", [item.shortcut]));
-                }
+        function buildMobileLevel(list) {
+            const container = createElement("div", "bottom-sheet-sub-list", []);
+            list.forEach(item => {
+                if (item === "separator") {
+                    container.appendChild(createElement("div", "bottom-sheet-sep", []));
+                } else if (item.items && item.items.length > 0) {
+                    const header = createElement("div", "bottom-sheet-option has-submenu", [
+                        item.icon ? createElement("span", "bottom-sheet-icon", [item.icon]) : null,
+                        createElement("span", "bottom-sheet-label", [item.label || ""]),
+                        createElement("span", "drawer-accordion-arrow", ["▼"])
+                    ].filter(Boolean));
 
-                const opt = createElement("div", "bottom-sheet-option", optChildren);
-                opt.onclick = () => {
-                    closeBottomSheet();
-                    if (item.screen) {
-                        const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
-                        if (d && typeof d.openScreen === 'function') {
-                            d.openScreen(item.screen, item.props);
-                        }
-                    } else if (item.action) {
-                        item.action();
+                    const group = createElement("div", "bottom-sheet-group", [header]);
+                    const subList = buildMobileLevel(item.items);
+                    subList.style.display = "none";
+
+                    header.onclick = (e) => {
+                        e.stopPropagation();
+                        const isOpen = subList.style.display === "flex";
+                        subList.style.display = isOpen ? "none" : "flex";
+                        header.classList.toggle("expanded", !isOpen);
+                    };
+                    group.appendChild(subList);
+                    container.appendChild(group);
+                } else {
+                    const optChildren = [];
+                    if (item.icon) {
+                        optChildren.push(createElement("span", "bottom-sheet-icon", [item.icon]));
                     }
-                };
-                contentEl.appendChild(opt);
-            }
-        });
+                    optChildren.push(createElement("span", "bottom-sheet-label", [item.label || ""]));
+                    if (item.shortcut) {
+                        optChildren.push(createElement("span", "bottom-sheet-shortcut", [item.shortcut]));
+                    }
+
+                    const opt = createElement("div", "bottom-sheet-option", optChildren);
+                    opt.onclick = (e) => {
+                        e.stopPropagation();
+                        closeBottomSheet();
+                        if (item.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(item.screen, item.props);
+                            }
+                        } else if (item.action) {
+                            item.action();
+                        }
+                    };
+                    container.appendChild(opt);
+                }
+            });
+            return container;
+        }
+
+        contentEl.appendChild(buildMobileLevel(items));
 
         // Botão de Cancelar
         const cancelBtn = createElement("button", "bottom-sheet-cancel-btn", ["✕ Cancelar"]);
@@ -424,55 +451,172 @@ export function ContextMenu({ x, y, items = [] }) {
         return sheet;
     }
     
-    // --- Modo Desktop: Menu Flutuante Tradicional ---
-    const menu = createElement("div", "ui-context-menu", []);
-    menu.style.left = x + "px";
-    menu.style.top = y + "px";
-    
-    items.forEach(item => {
-        if (item === "separator") {
-            menu.appendChild(createElement("div", "menuSep", []));
-        } else {
-            const optChildren = [];
-            if (item.icon) {
-                optChildren.push(createElement("span", "menuOption-icon", [item.icon]));
-            }
-            optChildren.push(createElement("span", "menuOption-label", [item.label || ""]));
-            if (item.shortcut) {
-                optChildren.push(createElement("span", "menuShortcut", [item.shortcut]));
-            }
-            const opt = createElement("div", "menuOption", optChildren);
-            opt.onclick = () => {
-                if (item.screen) {
-                    const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
-                    if (d && typeof d.openScreen === 'function') {
-                        d.openScreen(item.screen, item.props);
-                    }
-                } else if (item.action) {
-                    item.action();
-                }
-                menu.remove();
-            };
-            menu.appendChild(opt);
+    // --- Modo Desktop: Menu Flutuante com Submenus Aninhados ---
+    let rootMenu;
+
+    function buildDesktopMenu(itemList, isSub = false) {
+        const container = createElement("div", isSub ? "dropdown sub-dropdown" : "ui-context-menu", []);
+        if (isSub) {
+            container.style.display = "none";
+            container.style.flexDirection = "column";
         }
-    });
+
+        itemList.forEach(item => {
+            if (item === "separator") {
+                container.appendChild(createElement("div", "menuSep", []));
+            } else {
+                const optChildren = [];
+                const leftPart = createElement("div", "menuOption-left", []);
+                if (item.icon) {
+                    leftPart.appendChild(createElement("span", "menuOption-icon", [item.icon]));
+                }
+                leftPart.appendChild(createElement("span", "menuOption-label", [item.label || ""]));
+                optChildren.push(leftPart);
+
+                if (item.shortcut) {
+                    optChildren.push(createElement("span", "menuShortcut", [item.shortcut]));
+                }
+
+                if (item.items && item.items.length > 0) {
+                    optChildren.push(createElement("span", "submenu-arrow", ["▶"]));
+                }
+
+                const opt = createElement("div", "menuOption", optChildren);
+
+                const isDisabled = typeof item.disabled === 'function' ? item.disabled() : !!item.disabled;
+                if (isDisabled) {
+                    opt.classList.add("disabled");
+                }
+
+                if (item.items && item.items.length > 0) {
+                    opt.classList.add("has-submenu");
+                    const nested = buildDesktopMenu(item.items, true);
+                    opt.appendChild(nested);
+
+                    const positionSub = () => {
+                        nested.style.display = "flex";
+                        nested.style.flexDirection = "column";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+
+                        const vw = window.innerWidth || document.documentElement.clientWidth;
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const pad = 10;
+                        const rect = nested.getBoundingClientRect();
+
+                        if (rect.right > vw - pad) {
+                            nested.classList.add("open-left");
+                            nested.style.setProperty("left", "auto", "important");
+                            nested.style.setProperty("right", "100%", "important");
+                            nested.style.setProperty("margin-left", "0", "important");
+                            nested.style.setProperty("margin-right", "-4px", "important");
+                        }
+
+                        const curRect = nested.getBoundingClientRect();
+                        if (curRect.bottom > vh - pad) {
+                            const optRect = opt.getBoundingClientRect();
+                            const spaceAbove = optRect.top - pad;
+                            const spaceBelow = vh - optRect.bottom - pad;
+
+                            if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
+                                nested.classList.add("open-top");
+                                nested.style.setProperty("top", "auto", "important");
+                                nested.style.setProperty("bottom", "0", "important");
+                                nested.style.setProperty("margin-top", "0", "important");
+                                nested.style.setProperty("margin-bottom", "-4px", "important");
+                            } else {
+                                const overflow = curRect.bottom - (vh - pad);
+                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                                nested.style.setProperty("top", `${-shiftY}px`, "important");
+                                if (curRect.height > vh - 2 * pad) {
+                                    nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                    nested.style.setProperty("overflow-y", "auto", "important");
+                                    nested.style.setProperty("overflow-x", "hidden", "important");
+                                }
+                            }
+                        }
+                    };
+
+                    opt.addEventListener("mouseenter", () => {
+                        if (!isDisabled) positionSub();
+                    });
+
+                    opt.addEventListener("mouseleave", () => {
+                        nested.style.display = "none";
+                        nested.classList.remove("open-left", "open-top");
+                        nested.style.removeProperty("left");
+                        nested.style.removeProperty("right");
+                        nested.style.removeProperty("top");
+                        nested.style.removeProperty("bottom");
+                        nested.style.removeProperty("margin-left");
+                        nested.style.removeProperty("margin-right");
+                        nested.style.removeProperty("margin-top");
+                        nested.style.removeProperty("margin-bottom");
+                        nested.style.removeProperty("max-height");
+                        nested.style.removeProperty("max-width");
+                        nested.style.removeProperty("overflow-y");
+                    });
+
+                    opt.onclick = (e) => {
+                        if (isDisabled) return;
+                        e.stopPropagation();
+                        if (nested.style.display === "flex") {
+                            nested.style.display = "none";
+                        } else {
+                            positionSub();
+                        }
+                    };
+                } else {
+                    opt.onclick = (e) => {
+                        if (isDisabled) return;
+                        e.stopPropagation();
+                        if (item.screen) {
+                            const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
+                            if (d && typeof d.openScreen === 'function') {
+                                d.openScreen(item.screen, item.props);
+                            }
+                        } else if (item.action) {
+                            item.action();
+                        }
+                        if (rootMenu) rootMenu.remove();
+                    };
+                }
+                container.appendChild(opt);
+            }
+        });
+        return container;
+    }
+
+    rootMenu = buildDesktopMenu(items, false);
+    rootMenu.style.left = x + "px";
+    rootMenu.style.top = y + "px";
     
-    document.body.appendChild(menu);
+    document.body.appendChild(rootMenu);
     
     // Ajuste de colisão de tela (Impede que vaze nas bordas)
-    const rect = menu.getBoundingClientRect();
+    const rect = rootMenu.getBoundingClientRect();
     if (x + rect.width > window.innerWidth) {
-        menu.style.left = (x - rect.width) + "px";
+        rootMenu.style.left = Math.max(10, x - rect.width) + "px";
     }
     if (y + rect.height > window.innerHeight) {
-        menu.style.top = (y - rect.height) + "px";
+        rootMenu.style.top = Math.max(10, y - rect.height) + "px";
     }
     
-    requestAnimationFrame(() => menu.classList.add("show"));
+    requestAnimationFrame(() => rootMenu.classList.add("show"));
     setTimeout(() => {
         const closeMenu = (e) => {
-            if (!menu.contains(e.target)) {
-                menu.remove();
+            if (!rootMenu.contains(e.target)) {
+                rootMenu.remove();
                 document.removeEventListener("click", closeMenu);
                 document.removeEventListener("contextmenu", closeMenu);
             }
@@ -480,7 +624,7 @@ export function ContextMenu({ x, y, items = [] }) {
         document.addEventListener("click", closeMenu);
         document.addEventListener("contextmenu", closeMenu);
     }, 10);
-    return menu;
+    return rootMenu;
 }
 
 export function bindContextMenu(element, items = []) {
@@ -893,7 +1037,6 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         // 2. Ajuste Vertical Inteligente (se ultrapassar a borda inferior)
                         const curRect = nested.getBoundingClientRect();
                         if (curRect.bottom > vh - pad) {
-                            const overflow = curRect.bottom - (vh - pad);
                             const optRect = opt.getBoundingClientRect();
                             const spaceAbove = optRect.top - pad;
                             const spaceBelow = vh - optRect.bottom - pad;
@@ -905,10 +1048,14 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                                 nested.style.setProperty("margin-top", "0", "important");
                                 nested.style.setProperty("margin-bottom", "-4px", "important");
                             } else {
+                                const overflow = curRect.bottom - (vh - pad);
                                 const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
                                 nested.style.setProperty("top", `${-shiftY}px`, "important");
-                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
-                                nested.style.setProperty("overflow-y", "auto", "important");
+                                if (curRect.height > vh - 2 * pad) {
+                                    nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                    nested.style.setProperty("overflow-y", "auto", "important");
+                                    nested.style.setProperty("overflow-x", "hidden", "important");
+                                }
                             }
                         }
                     };
@@ -931,6 +1078,16 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         nested.style.removeProperty("max-width");
                         nested.style.removeProperty("overflow-y");
                     });
+
+                    opt.onclick = (e) => {
+                        if (isDisabled) return;
+                        e.stopPropagation();
+                        if (nested.style.display === "flex") {
+                            nested.style.display = "none";
+                        } else {
+                            positionSub();
+                        }
+                    };
                 } else {
                     opt.onclick = (e) => { 
                         if (isDisabled) return;
@@ -975,17 +1132,10 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             const dropdown = item.querySelector(".menubar-dropdown");
             if (dropdown) {
                 dropdown.classList.remove("align-right");
-                dropdown.style.removeProperty("max-height");
-                dropdown.style.removeProperty("overflow-y");
                 const rect = dropdown.getBoundingClientRect();
                 const vw = window.innerWidth || document.documentElement.clientWidth;
-                const vh = window.innerHeight || document.documentElement.clientHeight;
                 if (rect.right > vw - 10) {
                     dropdown.classList.add("align-right");
-                }
-                if (rect.bottom > vh - 10) {
-                    dropdown.style.setProperty("max-height", `${vh - rect.top - 12}px`, "important");
-                    dropdown.style.setProperty("overflow-y", "auto", "important");
                 }
             }
         };
@@ -1019,15 +1169,13 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
     });
 
     if (isGlobalBar) {
-        import('./core.js').then(({ EventBus }) => {
-            EventBus.on("menubar:positionchange", (pos) => {
-                bar.dataset.position = pos;
-                if (pos === "none") {
-                    bar.style.display = "none";
-                } else {
-                    bar.style.display = "";
-                }
-            });
+        EventBus.on("menubar:positionchange", (pos) => {
+            bar.dataset.position = pos;
+            if (pos === "none") {
+                bar.style.display = "none";
+            } else {
+                bar.style.display = "";
+            }
         });
     }
 
@@ -1124,8 +1272,11 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                             const optRect = opt.getBoundingClientRect();
                             const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
                             nested.style.setProperty("top", `${-shiftY}px`, "important");
-                            nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
-                            nested.style.setProperty("overflow-y", "auto", "important");
+                            if (curRect.height > vh - 2 * pad) {
+                                nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                nested.style.setProperty("overflow-y", "auto", "important");
+                                nested.style.setProperty("overflow-x", "hidden", "important");
+                            }
                         }
                     };
 
@@ -1142,6 +1293,16 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                         nested.style.removeProperty("max-height");
                         nested.style.removeProperty("overflow-y");
                     });
+
+                    opt.onclick = (e) => {
+                        if (subItem.disabled) return;
+                        e.stopPropagation();
+                        if (nested.style.display === "flex") {
+                            nested.style.display = "none";
+                        } else {
+                            positionStartSub();
+                        }
+                    };
                 } else {
                     opt.onclick = (e) => { 
                         if (subItem.disabled) return;
@@ -1182,6 +1343,7 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 
     const handleButtonClick = (e) => {
         e.stopPropagation();
+        renderMenuContent();
         const currentEffectiveMenus = (typeof Desktop !== 'undefined' && typeof Desktop.getEffectiveStartMenus === 'function')
             ? Desktop.getEffectiveStartMenus()
             : menus;
@@ -1260,12 +1422,10 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 
     attachButtonListener();
 
-    // Sincroniza dinamicamente quando o Desktop emite sincronização de menus
-    import('./core.js').then(({ EventBus }) => {
-        EventBus.on("startmenu:sync", (data) => {
-            renderMenuContent();
-            attachButtonListener();
-        });
+    // Sincroniza dinamicamente e imediatamente quando o Desktop emite sincronização de menus
+    EventBus.on("startmenu:sync", (data) => {
+        renderMenuContent();
+        attachButtonListener();
     });
 
     document.addEventListener("click", e => {
@@ -1356,7 +1516,7 @@ export function ProgressBar({ value = 0, max = 100 }) {
     return wrap;
 }
 
-export function Modal({ title, children = [], onClose, beforeClose, showCloseButton = true, closable = true, instance, targetContainer }) {
+export function Modal({ title, icon = "🪟", children = [], onClose, beforeClose, showCloseButton = true, closable = true, instance, targetContainer, width, height }) {
     const overlay = createElement("div", "ui-modal-overlay", []);
     const content = [];
     const hasCloseBtn = (showCloseButton !== false && closable !== false);
@@ -1372,25 +1532,42 @@ export function Modal({ title, children = [], onClose, beforeClose, showCloseBut
         }
         if (onClose && instance) instance.runAction(onClose);
         else if (typeof onClose === 'function') onClose();
-        overlay.remove();
+        overlay.classList.remove("show");
+        setTimeout(() => {
+            overlay.remove();
+        }, 150);
         document.removeEventListener('keydown', escListener);
     };
     
     if (title) {
-        const headerChildren = [createElement("h3", "", [title])];
-        if (hasCloseBtn) {
-            const closeBtn = createElement("span", "ui-modal-close", ["×"]);
-            closeBtn.onclick = () => closeModal();
-            headerChildren.push(closeBtn);
+        const headerChildren = [];
+        if (icon) {
+            headerChildren.push(createElement("span", "titleIcon windowIcon ui-modal-icon", [icon]));
         }
-        const header = createElement("div", "ui-modal-header", headerChildren);
+        headerChildren.push(createElement("span", "titleText windowTitle ui-modal-title", [title]));
+        
+        if (hasCloseBtn) {
+            const closeBtn = createElement("div", "winBtn close ui-modal-close", ["✕"]);
+            closeBtn.title = "Fechar";
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                closeModal();
+            };
+            const btnGroup = createElement("div", "winButtons windowControls ui-modal-controls", [closeBtn]);
+            headerChildren.push(btnGroup);
+        }
+        
+        const header = createElement("div", "titlebar windowTitleBar ui-modal-header", headerChildren);
         content.push(header);
     }
     
-    const body = createElement("div", "ui-modal-body", children);
+    const body = createElement("div", "windowBody ui-modal-body", children);
     content.push(body);
     
-    const dialog = createElement("div", "ui-modal-dialog", content);
+    const dialog = createElement("div", "window ui-modal-dialog active", content);
+    if (width) dialog.style.width = typeof width === 'number' ? `${width}px` : width;
+    if (height) dialog.style.height = typeof height === 'number' ? `${height}px` : height;
+    
     overlay.appendChild(dialog);
     
     // Auto-close on escape (apenas se closable = true)
