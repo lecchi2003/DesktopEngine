@@ -621,6 +621,14 @@ export const Desktop = {
                 try { inst.onRestore(); } catch (e) { console.error("Erro no hook onRestore:", e); }
             }
         }
+
+        if (this.isMobile()) {
+            setTimeout(() => {
+                try {
+                    w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch (e) { }
+            }, 60);
+        }
     },
 
     maximizeWindow(w) {
@@ -643,6 +651,21 @@ export const Desktop = {
             w.classList.add("maximized");
         }
         this.focusWindow(w);
+
+        if (this.isMobile()) {
+            const windowsContainer = document.getElementById("windows");
+            if (willMaximize && windowsContainer) {
+                try {
+                    windowsContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (e) { }
+            } else {
+                setTimeout(() => {
+                    try {
+                        w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch (e) { }
+                }, 60);
+            }
+        }
 
         const inst = this.windows[w.dataset.id];
         if (inst && typeof inst.onMaximize === 'function') {
