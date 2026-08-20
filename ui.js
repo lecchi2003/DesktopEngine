@@ -4,7 +4,7 @@ import { EventBus } from './core.js';
 
 export function createElement(tag, arg2, arg3) {
     const el = document.createElement(tag);
-    
+
     // Anexa a API programática de menu de contexto a todo elemento criado no framework
     el.setContextMenu = (items) => {
         if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
@@ -103,7 +103,7 @@ export function createElement(tag, arg2, arg3) {
 
 export function applyCommonProps(el, props) {
     if (!el || !props) return el;
-    
+
     // Suporte ao setContextMenu programático
     if (!el.setContextMenu) {
         el.setContextMenu = (items) => {
@@ -129,7 +129,7 @@ export function applyCommonProps(el, props) {
         el.setContextMenu(props.contextMenu || props.contextmenu);
     }
     if (props.id) el.id = props.id;
-    
+
     if (props.style) {
         if (typeof props.style === 'string') {
             el.style.cssText = (el.style.cssText || "") + ";" + props.style;
@@ -137,12 +137,12 @@ export function applyCommonProps(el, props) {
             Object.assign(el.style, props.style);
         }
     }
-    
+
     if (props.className || props.class) {
         const cls = props.className || props.class;
         el.className = (el.className || "") + " " + cls;
     }
-    
+
     return el;
 }
 
@@ -153,7 +153,7 @@ export function applyCommonProps(el, props) {
 export function printElement(element, options = {}) {
     const title = options.title || "Imprimir Documento";
     const target = typeof element === 'string' ? document.getElementById(element) : element;
-    
+
     if (!target) {
         console.error("printElement: Elemento alvo não encontrado.");
         return;
@@ -168,7 +168,7 @@ export function printElement(element, options = {}) {
 
     const doc = iframe.contentWindow.document;
     doc.open();
-    
+
     // Clona os estilos da página atual para o iframe de impressão
     let stylesHtml = '';
     document.querySelectorAll('style, link[rel="stylesheet"]').forEach(el => {
@@ -215,7 +215,7 @@ export function printElement(element, options = {}) {
             doPrint();
         }
     };
-    
+
     setTimeout(() => {
         if (!printed) {
             printed = true;
@@ -265,9 +265,9 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
     const wrap = createElement("div", "ui-field");
     if (width !== "100%") wrap.style.width = width;
     if (style) wrap.style.cssText += style;
-    
+
     if (label) wrap.appendChild(createElement("label", "", [label]));
-    
+
     const inp = document.createElement("input");
     inp.type = type;
     inp.placeholder = placeholder;
@@ -290,9 +290,9 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
     const wrap = createElement("div", "ui-field");
     if (width !== "100%") wrap.style.width = width;
     if (style) wrap.style.cssText += style;
-    
+
     if (label) wrap.appendChild(createElement("label", "", [label]));
-    
+
     const txt = document.createElement("textarea");
     txt.className = "filter-input";
     txt.rows = rows;
@@ -354,19 +354,19 @@ export function Tabs({ tabs = [], instance, activeTabBind }) {
     tabHeaders.className = "ui-tab-headers";
     const tabContent = document.createElement("div");
     tabContent.className = "ui-tab-content";
-    
+
     const currentTabId = instance.state[activeTabBind] || tabs[0].id;
-    
+
     tabs.forEach(tab => {
         const header = document.createElement("div");
         header.className = `ui-tab-header ${currentTabId === tab.id ? 'active' : ''}`;
         header.textContent = tab.label;
         header.onclick = () => { instance.state[activeTabBind] = tab.id; };
         tabHeaders.appendChild(header);
-        
+
         if (currentTabId === tab.id) tabContent.appendChild(tab.view.call(instance));
     });
-    
+
     tabContainer.appendChild(tabHeaders);
     tabContainer.appendChild(tabContent);
     return tabContainer;
@@ -383,11 +383,11 @@ export function TreeView({ data = [], onSelect, instance }) {
         const label = document.createElement("span");
         label.className = "ui-tree-label";
         label.textContent = nodeData.label;
-        
+
         row.appendChild(icon);
         row.appendChild(label);
         wrap.appendChild(row);
-        
+
         if (nodeData.children && nodeData.children.length > 0) {
             icon.textContent = "▶";
             const childrenWrap = document.createElement("div");
@@ -395,7 +395,7 @@ export function TreeView({ data = [], onSelect, instance }) {
             childrenWrap.style.display = "none";
             nodeData.children.forEach(child => childrenWrap.appendChild(createNode(child)));
             wrap.appendChild(childrenWrap);
-            
+
             icon.onclick = (e) => {
                 e.stopPropagation();
                 const isHidden = childrenWrap.style.display === "none";
@@ -405,7 +405,7 @@ export function TreeView({ data = [], onSelect, instance }) {
         } else {
             icon.textContent = "📄";
         }
-        
+
         row.onclick = () => {
             document.querySelectorAll('.ui-tree-row').forEach(r => r.classList.remove('selected'));
             row.classList.add('selected');
@@ -416,7 +416,7 @@ export function TreeView({ data = [], onSelect, instance }) {
         };
         return wrap;
     };
-    
+
     const container = document.createElement("div");
     container.className = "ui-tree";
     data.forEach(node => container.appendChild(createNode(node)));
@@ -427,9 +427,9 @@ export function TreeView({ data = [], onSelect, instance }) {
 
 export function ContextMenu({ x, y, items = [] }) {
     document.querySelectorAll(".ui-context-menu, .ui-bottom-sheet-backdrop").forEach(el => el.remove());
-    
-    const isMobileMode = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.isMobile === 'function') 
-        ? window.Desktop.isMobile() 
+
+    const isMobileMode = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.isMobile === 'function')
+        ? window.Desktop.isMobile()
         : (window.innerWidth <= 768 || !!document.getElementById("app")?.classList.contains("mobile-mode"));
 
     if (isMobileMode) {
@@ -526,7 +526,7 @@ export function ContextMenu({ x, y, items = [] }) {
 
         return sheet;
     }
-    
+
     // --- Modo Desktop: Menu Flutuante com Submenus Aninhados ---
     let rootMenu;
 
@@ -679,9 +679,9 @@ export function ContextMenu({ x, y, items = [] }) {
     rootMenu = buildDesktopMenu(items, false);
     rootMenu.style.left = x + "px";
     rootMenu.style.top = y + "px";
-    
+
     document.body.appendChild(rootMenu);
-    
+
     // Ajuste de colisão de tela (Impede que vaze nas bordas)
     const rect = rootMenu.getBoundingClientRect();
     if (x + rect.width > window.innerWidth) {
@@ -690,7 +690,7 @@ export function ContextMenu({ x, y, items = [] }) {
     if (y + rect.height > window.innerHeight) {
         rootMenu.style.top = Math.max(10, y - rect.height) + "px";
     }
-    
+
     requestAnimationFrame(() => rootMenu.classList.add("show"));
     setTimeout(() => {
         const closeMenu = (e) => {
@@ -737,11 +737,11 @@ export function bindContextMenu(element, items = [], options = {}) {
 
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Se os itens forem uma função, permite gerar os itens dinamicamente
         const menuItems = typeof currentItems === 'function' ? currentItems(e) : currentItems;
         if (!menuItems || menuItems.length === 0) return;
-        
+
         ContextMenu({ x: e.clientX, y: e.clientY, items: menuItems });
     };
 
@@ -759,7 +759,7 @@ export function bindContextMenu(element, items = [], options = {}) {
 
         touchTimer = setTimeout(() => {
             touchTimer = null;
-            if (navigator.vibrate) try { navigator.vibrate(40); } catch(err) {}
+            if (navigator.vibrate) try { navigator.vibrate(40); } catch (err) { }
             const menuItems = typeof currentItems === 'function' ? currentItems(touch) : currentItems;
             if (menuItems && menuItems.length > 0) {
                 ContextMenu({ x: touch.clientX, y: touch.clientY, items: menuItems });
@@ -854,7 +854,7 @@ function buildMobileItems(items, closeFn, windowInstance = null) {
 // --- Mobile Hamburger & Drawer Engine Compartilhado ---
 export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal", icon = "📱", windowInstance = null } = {}) {
     document.querySelectorAll(".menubar-mobile-drawer-backdrop").forEach(d => d.remove());
-    
+
     const backdrop = createElement("div", "menubar-mobile-drawer-backdrop", []);
     const drawer = createElement("div", "menubar-mobile-drawer", [
         createElement("div", "drawer-header", [
@@ -950,7 +950,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
         bar = createElement("div", "ui-menubar", []);
     }
     if (!bar) return null;
-    
+
     bar.innerHTML = "";
     if (!bar.classList.contains("ui-menubar")) {
         bar.classList.add("ui-menubar");
@@ -1092,7 +1092,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             } else {
                 const optChildren = [];
                 const leftPart = createElement("div", "menuOption-left", []);
-                
+
                 if (subItem.icon) {
                     leftPart.appendChild(createElement("span", "menuOption-icon", [subItem.icon]));
                 }
@@ -1118,7 +1118,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                     opt.classList.add("has-submenu");
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
-                    
+
                     const positionSub = () => {
                         nested.style.display = "flex";
                         nested.style.flexDirection = "column";
@@ -1212,9 +1212,9 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         }
                     };
                 } else {
-                    opt.onclick = (e) => { 
+                    opt.onclick = (e) => {
                         if (isDisabled) return;
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         if (subItem.screen) {
                             const d = (Desktop && typeof Desktop.openScreen === 'function') ? Desktop : (window.Desktop || Desktop);
                             if (d && typeof d.openScreen === 'function') {
@@ -1240,13 +1240,13 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             itemChildren.push(createElement("span", "menubar-item-icon", [menu.icon]));
         }
         itemChildren.push(createElement("span", "menubar-item-label", [menu.label || ""]));
-        
+
         const item = createElement("div", "menubar-item", itemChildren);
         if (menu.items && menu.items.length > 0) {
             const dropdown = buildMenu(menu.items);
             item.appendChild(dropdown);
         }
-        
+
         const activateItem = () => {
             bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
             item.classList.add("active");
@@ -1284,7 +1284,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
 
         bar.appendChild(item);
     });
-    
+
     document.addEventListener("mousedown", e => {
         if (!bar.contains(e.target)) {
             bar.querySelectorAll(".menubar-item").forEach(x => x.classList.remove("active"));
@@ -1327,14 +1327,14 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
             d.style.display = "none";
         });
     };
-    
+
     function buildMenu(items, isSub = false) {
         const container = isSub ? createElement("div", "dropdown sub-dropdown", []) : menuEl;
         if (isSub) {
             container.style.display = "none";
             container.style.flexDirection = "column";
         }
-        
+
         items.forEach(subItem => {
             if (subItem === "separator") {
                 container.appendChild(createElement("div", "menuSep", []));
@@ -1364,7 +1364,7 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                     opt.classList.add("has-submenu");
                     const nested = buildMenu(subItem.items, true);
                     opt.appendChild(nested);
-                    
+
                     const positionStartSub = () => {
                         nested.style.display = "flex";
                         nested.style.flexDirection = "column";
@@ -1428,7 +1428,7 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
                         }
                     };
                 } else {
-                    opt.onclick = (e) => { 
+                    opt.onclick = (e) => {
                         if (subItem.disabled) return;
                         e.stopPropagation();
                         if (subItem.screen) {
@@ -1479,8 +1479,8 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 
         const app = document.getElementById("app");
         const isMobile = (Desktop && typeof Desktop.isMobile === 'function' && Desktop.isMobile()) ||
-                         app?.classList.contains("mobile-mode") ||
-                         window.innerWidth <= 768;
+            app?.classList.contains("mobile-mode") ||
+            window.innerWidth <= 768;
         if (isMobile) {
             closeStartMenu();
             openMobileMenuDrawer({
@@ -1497,7 +1497,7 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
             const btnEl = e.currentTarget || e.target;
             const btnRect = btnEl ? btnEl.getBoundingClientRect() : null;
             const tbPos = app?.dataset?.taskbar || (Desktop && typeof Desktop.getTaskbarPosition === 'function' ? Desktop.getTaskbarPosition() : 'bottom');
-            
+
             // Limpa propriedades anteriores
             menuEl.style.removeProperty("top");
             menuEl.style.removeProperty("bottom");
@@ -1561,7 +1561,7 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
     };
     document.addEventListener("click", closeOnOutside, true);
     document.addEventListener("contextmenu", closeOnOutside, true);
-    
+
     return menuEl;
 }
 
@@ -1570,12 +1570,12 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 export function Select({ label, bind, instance, options = [], onChange }) {
     const wrap = createElement("div", "ui-field");
     if (label) wrap.appendChild(createElement("label", "", [label]));
-    
+
     const select = document.createElement("select");
     if (bind && instance) {
         select.dataset.bind = bind;
         const currentVal = instance.state[bind];
-        
+
         options.forEach(opt => {
             const option = document.createElement("option");
             option.value = opt.value;
@@ -1583,7 +1583,7 @@ export function Select({ label, bind, instance, options = [], onChange }) {
             if (currentVal === opt.value) option.selected = true;
             select.appendChild(option);
         });
-        
+
         select.addEventListener("change", (e) => {
             instance.state[bind] = e.target.value;
             if (typeof onChange === 'function') onChange(e.target.value, e);
@@ -1601,7 +1601,7 @@ export function Checkbox({ label, bind, instance }) {
     ]);
     const inp = wrap.querySelector("input");
     inp.type = "checkbox";
-    
+
     if (bind && instance) {
         inp.dataset.bind = bind;
         inp.checked = !!instance.state[bind];
@@ -1620,7 +1620,7 @@ export function Toggle({ label, bind, instance }) {
     ]);
     const inp = wrap.querySelector("input");
     inp.type = "checkbox";
-    
+
     if (bind && instance) {
         inp.dataset.bind = bind;
         inp.checked = !!instance.state[bind];
@@ -1683,14 +1683,14 @@ export function Modal({
         element: overlay,
         close: () => closeModal()
     };
-    
+
     if (title) {
         const headerChildren = [];
         if (icon) {
             headerChildren.push(createElement("span", "titleIcon windowIcon ui-modal-icon", [icon]));
         }
         headerChildren.push(createElement("span", "titleText windowTitle ui-modal-title", [title]));
-        
+
         if (hasCloseBtn) {
             const closeBtn = createElement("div", "winBtn close ui-modal-close", ["✕"]);
             closeBtn.title = "Fechar";
@@ -1701,22 +1701,22 @@ export function Modal({
             const btnGroup = createElement("div", "winButtons windowControls ui-modal-controls", [closeBtn]);
             headerChildren.push(btnGroup);
         }
-        
+
         const header = createElement("div", "titlebar windowTitleBar ui-modal-header", headerChildren);
         content.push(header);
     }
-    
+
     const resolvedChildren = typeof children === 'function' ? children(modalApi) : children;
     const body = createElement("div", "windowBody ui-modal-body", Array.isArray(resolvedChildren) ? resolvedChildren : [resolvedChildren]);
     content.push(body);
-    
+
     const dialog = createElement("div", "window ui-modal-dialog active", content);
     modalApi.dialog = dialog;
     if (width) dialog.style.width = typeof width === 'number' ? `${width}px` : width;
     if (height) dialog.style.height = typeof height === 'number' ? `${height}px` : height;
-    
+
     overlay.appendChild(dialog);
-    
+
     // Auto-close on escape (apenas se closable = true)
     const escListener = (e) => {
         if (e.key === 'Escape' && hasCloseBtn) {
@@ -1724,7 +1724,7 @@ export function Modal({
         }
     };
     document.addEventListener('keydown', escListener);
-    
+
     // Resolve Container: se global for true ou se não tiver instance nem targetContainer, assume Desktop (#app)
     let container = targetContainer;
     if (!container) {
@@ -1736,7 +1736,7 @@ export function Modal({
             container = document.getElementById("app") || document.body;
         }
     }
-    
+
     // Se o container não tem posição definida, forçar relativa
     if (getComputedStyle(container).position === "static") {
         container.style.position = "relative";
@@ -1744,7 +1744,7 @@ export function Modal({
 
     container.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("show"));
-    
+
     overlay.close = closeModal;
     overlay.modalApi = modalApi;
     return overlay;
@@ -1755,51 +1755,51 @@ export function Modal({
 export function WebView({ bindUrl, instance, height = "100%" }) {
     const wrap = createElement("div", "ui-webview-wrap", []);
     wrap.style.height = height;
-    
+
     const iframe = document.createElement("iframe");
     iframe.className = "ui-webview";
-    
+
     if (bindUrl && instance) {
         // Initial set
         if (instance.state[bindUrl]) {
             iframe.src = instance.state[bindUrl];
         }
-        
+
         // We do not intercept load events for security, we just drive it from state
         // When state changes, we re-render and it will get the new src naturally.
         // But since re-rendering an iframe reloads it, we might want to manually set src if it already exists.
         // The Proxy triggers full update anyway, so it re-creates the iframe. 
         // For a seamless webview, we'd want custom logic, but for standard usage full re-render is fine.
     }
-    
+
     wrap.appendChild(iframe);
     return wrap;
 }
 
 export function DraggableList({ bindItems, onReorder, instance }) {
     const wrap = createElement("div", "ui-draggable-list", []);
-    
+
     const items = instance.state[bindItems] || [];
     let draggedItemIdx = null;
-    
+
     items.forEach((item, index) => {
         const row = createElement("div", "ui-draggable-item", [
             createElement("span", "drag-handle", ["☰"]),
             createElement("span", "drag-text", [typeof item === 'string' ? item : item.label || JSON.stringify(item)])
         ]);
         row.draggable = true;
-        
+
         row.addEventListener('dragstart', (e) => {
             draggedItemIdx = index;
             row.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
         });
-        
+
         row.addEventListener('dragend', () => {
             row.classList.remove('dragging');
             draggedItemIdx = null;
         });
-        
+
         row.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
@@ -1815,11 +1815,11 @@ export function DraggableList({ bindItems, onReorder, instance }) {
                 }
             }
         });
-        
+
         row.addEventListener('dragleave', () => {
             row.classList.remove('drag-over-top', 'drag-over-bottom');
         });
-        
+
         row.addEventListener('drop', (e) => {
             e.preventDefault();
             row.classList.remove('drag-over-top', 'drag-over-bottom');
@@ -1827,25 +1827,25 @@ export function DraggableList({ bindItems, onReorder, instance }) {
                 const rect = row.getBoundingClientRect();
                 const mid = rect.top + rect.height / 2;
                 const dropIndex = e.clientY < mid ? index : index + 1;
-                
+
                 const newItems = [...items];
                 const [moved] = newItems.splice(draggedItemIdx, 1);
-                
+
                 const adjustedIndex = dropIndex > draggedItemIdx ? dropIndex - 1 : dropIndex;
                 newItems.splice(adjustedIndex, 0, moved);
-                
+
                 instance.state[bindItems] = newItems;
-                
+
                 if (onReorder && instance) {
                     if (typeof onReorder === 'string') instance.runAction(onReorder, newItems);
                     else onReorder(newItems);
                 }
             }
         });
-        
+
         wrap.appendChild(row);
     });
-    
+
     return wrap;
 }
 
@@ -1881,7 +1881,7 @@ export function DataGrid(options = {}) {
     }
 
     const thead = document.createElement("thead");
-    
+
     // Cabeçalho de Ordenação
     const trHead = document.createElement("tr");
     columns.forEach(c => {
@@ -1925,7 +1925,7 @@ export function DataGrid(options = {}) {
                 inp.value = gridState.filters[c.key] || "";
                 // Uso do bind falso para o core.js restaurar o foco após re-render
                 inp.dataset.bind = `_grid_${bindData}_${c.key}`;
-                
+
                 inp.oninput = (e) => {
                     gridState.filters[c.key] = e.target.value;
                     instance.update();
@@ -1976,7 +1976,7 @@ export function DataGrid(options = {}) {
     });
 
     const table = createElement("table", "ui-datagrid", [thead, tbody]);
-    
+
     // UI de Paginação
     const paginationWrapper = createElement("div", "ui-pagination", []);
     const info = createElement("div", "ui-pagination-info", [`Página ${gridState.currentPage} de ${totalPages}`]);
@@ -2067,15 +2067,15 @@ export function Toast({ message, type = "info", duration = 3000 }) {
 
 export function Accordion({ items = [], instance }) {
     const container = createElement("div", "ui-accordion");
-    
+
     items.forEach((item, index) => {
         const itemEl = createElement("div", "ui-accordion-item");
-        
+
         const header = createElement("div", "ui-accordion-header", [
             createElement("span", "ui-accordion-title", [item.title]),
             createElement("span", "ui-accordion-icon", ["▼"])
         ]);
-        
+
         const content = createElement("div", "ui-accordion-content");
         if (typeof item.content === 'string') {
             content.innerHTML = item.content;
@@ -2086,26 +2086,26 @@ export function Accordion({ items = [], instance }) {
             if (typeof res === 'string') content.innerHTML = res;
             else if (res instanceof Node) content.appendChild(res);
         }
-        
+
         header.onclick = () => {
             const isOpen = itemEl.classList.contains("open");
             // Fecha todos (opcional: comente as próximas 2 linhas para permitir múltiplos abertos)
             container.querySelectorAll('.ui-accordion-item').forEach(el => el.classList.remove("open"));
             if (!isOpen) itemEl.classList.add("open");
         };
-        
+
         itemEl.appendChild(header);
         itemEl.appendChild(content);
         container.appendChild(itemEl);
     });
-    
+
     return container;
 }
 
 export function Drawer({ bind, side = "right", content, instance, targetContainer }) {
     const overlay = createElement("div", "ui-drawer-overlay");
     const drawer = createElement("div", `ui-drawer ui-drawer-${side}`);
-    
+
     // Close function
     const closeDrawer = () => {
         if (bind && instance) {
@@ -2115,7 +2115,7 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
             setTimeout(() => overlay.remove(), 300);
         }
     };
-    
+
     overlay.onclick = (e) => {
         if (e.target === overlay) closeDrawer();
     };
@@ -2135,7 +2135,7 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
             container = document.getElementById("app") || document.body;
         }
     }
-    
+
     if (getComputedStyle(container).position === "static") {
         container.style.position = "relative";
     }
@@ -2144,21 +2144,21 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
     if (bind && instance) {
         const placeholder = createElement("div", "ui-drawer-placeholder", []);
         placeholder.style.display = "none";
-        
+
         const old = document.getElementById(`drawer_${bind}`);
-        
+
         if (instance.state[bind]) {
             if (old) old.remove();
-            
+
             overlay.id = `drawer_${bind}`;
             container.appendChild(overlay);
-            
+
             requestAnimationFrame(() => overlay.classList.add("show"));
         } else if (old) {
             old.classList.remove("show");
             setTimeout(() => old.remove(), 300);
         }
-        
+
         return placeholder;
     } else {
         container.appendChild(overlay);
@@ -2169,10 +2169,10 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
 
 export function Breadcrumbs({ items = [], separator = "/" }) {
     const nav = createElement("nav", "ui-breadcrumbs", []);
-    
+
     items.forEach((item, index) => {
         const isLast = index === items.length - 1;
-        
+
         if (isLast || !item.action) {
             const span = createElement("span", isLast ? "ui-breadcrumb-active" : "ui-breadcrumb-text", [item.label]);
             nav.appendChild(span);
@@ -2182,38 +2182,38 @@ export function Breadcrumbs({ items = [], separator = "/" }) {
             link.onclick = item.action;
             nav.appendChild(link);
         }
-        
+
         if (!isLast) {
             const sep = createElement("span", "ui-breadcrumb-separator", [separator]);
             nav.appendChild(sep);
         }
     });
-    
+
     return nav;
 }
 
 export function Stepper({ steps = [], currentStep = 0 }) {
     const container = createElement("div", "ui-stepper");
-    
+
     steps.forEach((step, index) => {
         const isCompleted = index < currentStep;
         const isActive = index === currentStep;
-        
+
         const stepEl = createElement("div", `ui-step ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`);
-        
+
         const circle = createElement("div", "ui-step-circle", [String(index + 1)]);
         const label = createElement("div", "ui-step-label", [step]);
-        
+
         stepEl.appendChild(circle);
         stepEl.appendChild(label);
         container.appendChild(stepEl);
-        
+
         if (index < steps.length - 1) {
             const line = createElement("div", `ui-step-line ${isCompleted ? 'completed' : ''}`);
             container.appendChild(line);
         }
     });
-    
+
     return container;
 }
 
@@ -2221,21 +2221,21 @@ export function Stepper({ steps = [], currentStep = 0 }) {
 
 export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) {
     const wrap = createElement("div", "ui-field ui-slider-wrap");
-    
+
     const topRow = createElement("div", "ui-slider-header", []);
     if (label) topRow.appendChild(createElement("label", "", [label]));
-    
+
     const valueDisplay = createElement("span", "ui-slider-value", []);
     topRow.appendChild(valueDisplay);
     wrap.appendChild(topRow);
-    
+
     const inp = document.createElement("input");
     inp.type = "range";
     inp.className = "ui-slider-input";
     inp.min = min;
     inp.max = max;
     inp.step = step;
-    
+
     const updateDisplay = (val) => {
         valueDisplay.textContent = val;
         // Calcula a porcentagem para preencher o background do track
@@ -2251,7 +2251,7 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
         inp.addEventListener("input", (e) => {
             updateDisplay(Number(e.target.value));
         });
-        
+
         inp.addEventListener("change", (e) => {
             instance.state[bind] = Number(e.target.value);
         });
@@ -2260,7 +2260,7 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
         updateDisplay(min);
         inp.addEventListener("input", (e) => updateDisplay(e.target.value));
     }
-    
+
     wrap.appendChild(inp);
     return wrap;
 }
@@ -2268,35 +2268,35 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
 export function RadioGroup({ label, name, bind, options = [], instance, layout = "vertical" }) {
     const wrap = createElement("div", "ui-field ui-radiogroup-wrap");
     if (label) wrap.appendChild(createElement("label", "ui-radiogroup-label", [label]));
-    
+
     const container = createElement("div", `ui-radiogroup ui-radiogroup-${layout}`);
     const groupName = name || `radio_${bind || Math.random().toString(36).substr(2, 5)}`;
-    
+
     options.forEach(opt => {
         const lbl = document.createElement("label");
         lbl.className = "ui-radio-label";
-        
+
         const inp = document.createElement("input");
         inp.type = "radio";
         inp.name = groupName;
         inp.value = opt.value;
-        
+
         if (bind && instance) {
             inp.dataset.bind = bind;
             if (instance.state[bind] === opt.value) inp.checked = true;
-            
+
             inp.addEventListener("change", (e) => {
                 if (e.target.checked) {
                     instance.state[bind] = opt.value;
                 }
             });
         }
-        
+
         lbl.appendChild(inp);
         lbl.appendChild(document.createTextNode(" " + opt.label));
         container.appendChild(lbl);
     });
-    
+
     wrap.appendChild(container);
     return wrap;
 }
@@ -2304,31 +2304,31 @@ export function RadioGroup({ label, name, bind, options = [], instance, layout =
 export function Autocomplete({ label, bind, options = [], instance, placeholder = "Digite para buscar...", multiple = false }) {
     const wrap = createElement("div", "ui-field ui-autocomplete-wrap");
     if (label) wrap.appendChild(createElement("label", "", [label]));
-    
+
     const listId = `dl_${bind || Math.random().toString(36).substr(2, 5)}`;
-    
+
     // Área onde os chips (tags) vão aparecer, se multiple = true
     const chipsContainer = createElement("div", "ui-autocomplete-chips");
-    
+
     const inp = document.createElement("input");
     inp.type = "text";
     inp.className = "ui-autocomplete-input";
     inp.placeholder = placeholder;
     inp.setAttribute("list", listId);
-    
+
     const datalist = document.createElement("datalist");
     datalist.id = listId;
-    
+
     options.forEach(opt => {
         const optionEl = document.createElement("option");
         optionEl.value = opt.value || opt;
         if (opt.label) optionEl.textContent = opt.label;
         datalist.appendChild(optionEl);
     });
-    
+
     if (bind && instance) {
         inp.dataset.bind = bind;
-        
+
         if (multiple) {
             const currentArr = Array.isArray(instance.state[bind]) ? instance.state[bind] : [];
             // Renderiza os chips iniciais
@@ -2341,7 +2341,7 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
                 chip.appendChild(closeBtn);
                 chipsContainer.appendChild(chip);
             });
-            
+
             // Quando seleciona do datalist
             inp.addEventListener("change", (e) => {
                 const val = e.target.value.trim();
@@ -2363,7 +2363,7 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
             });
         }
     }
-    
+
     if (multiple) wrap.appendChild(chipsContainer);
     wrap.appendChild(inp);
     wrap.appendChild(datalist);
@@ -2375,15 +2375,15 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
 export function Tooltip({ content, position = "top", children }) {
     // children: elemento que vai acionar o tooltip no hover
     const wrap = createElement("div", "ui-tooltip-wrap");
-    
+
     const tooltipText = createElement("span", `ui-tooltip-text ui-tooltip-${position}`, [content]);
-    
+
     if (typeof children === 'string') {
         wrap.appendChild(document.createTextNode(children));
     } else if (children instanceof Node) {
         wrap.appendChild(children);
     }
-    
+
     wrap.appendChild(tooltipText);
     return wrap;
 }
@@ -2396,7 +2396,7 @@ export function Avatar({ src, initials, size = 40, status }) {
 
     const img = document.createElement("img");
     img.className = "ui-avatar-img";
-    
+
     if (src) {
         img.src = src;
         img.onerror = () => {
@@ -2411,21 +2411,21 @@ export function Avatar({ src, initials, size = 40, status }) {
         const initEl = createElement("div", "ui-avatar-initials", [initials]);
         wrap.appendChild(initEl);
     }
-    
+
     if (status) {
         const statusBadge = createElement("span", `ui-avatar-status ui-status-${status}`, []);
         wrap.appendChild(statusBadge);
     }
-    
+
     return wrap;
 }
 
 export function Carousel({ items = [], height = "200px", prevControl, nextControl, controlsPosition = "side" }) {
     const wrap = createElement("div", `ui-carousel-wrap pos-${controlsPosition}`);
-    
+
     const track = createElement("div", "ui-carousel");
     track.style.height = height;
-    
+
     items.forEach(item => {
         const slide = createElement("div", "ui-carousel-slide");
         if (typeof item === 'string') {
@@ -2435,23 +2435,23 @@ export function Carousel({ items = [], height = "200px", prevControl, nextContro
         }
         track.appendChild(slide);
     });
-    
+
     if (prevControl && nextControl) {
         const btnPrev = createElement("div", "ui-carousel-control prev");
         if (typeof prevControl === 'string') btnPrev.innerHTML = prevControl;
         else if (prevControl instanceof Node) btnPrev.appendChild(prevControl);
-        
+
         const btnNext = createElement("div", "ui-carousel-control next");
         if (typeof nextControl === 'string') btnNext.innerHTML = nextControl;
         else if (nextControl instanceof Node) btnNext.appendChild(nextControl);
-        
+
         btnPrev.onclick = () => {
             track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
         };
         btnNext.onclick = () => {
             track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
         };
-        
+
         if (controlsPosition === "side") {
             wrap.appendChild(btnPrev);
             wrap.appendChild(track);
@@ -2460,7 +2460,7 @@ export function Carousel({ items = [], height = "200px", prevControl, nextContro
             const controlsRow = createElement("div", `ui-carousel-controls-row pos-${controlsPosition}`);
             controlsRow.appendChild(btnPrev);
             controlsRow.appendChild(btnNext);
-            
+
             if (controlsPosition.startsWith("top")) {
                 wrap.appendChild(controlsRow);
                 wrap.appendChild(track);
@@ -2472,7 +2472,7 @@ export function Carousel({ items = [], height = "200px", prevControl, nextContro
     } else {
         wrap.appendChild(track);
     }
-    
+
     return wrap;
 }
 
@@ -2509,11 +2509,11 @@ export function DockWidget({
 } = {}) {
     const isLocal = !!instance && !targetContainer;
     let target = targetContainer || (instance?.element) || document.getElementById("app") || document.body;
-    
+
     // Contêiner principal do Dock
     const dock = createElement("div", `ui-dock-widget pos-${position} ${isLocal ? 'is-local' : 'is-global'}`);
     dock.style.width = typeof width === 'number' ? `${width}px` : width;
-    
+
     let isExp = expanded;
     if (bindExpanded && instance?.state && instance.state[bindExpanded] !== undefined) {
         isExp = !!instance.state[bindExpanded];
@@ -2522,7 +2522,7 @@ export function DockWidget({
 
     // Header / Barra clicável
     const header = createElement("div", "ui-dock-header");
-    
+
     // Esquerda: Ícone + Título + Badge
     const headerLeft = createElement("div", "ui-dock-header-left");
     if (icon) {
@@ -2546,7 +2546,7 @@ export function DockWidget({
 
     // Direita: Ações customizadas + Botão de minimizar na Tray + Botão de chevron (Expand/Collapse)
     const headerRight = createElement("div", "ui-dock-header-right");
-    
+
     headerActions.forEach(act => {
         const actBtn = createElement("button", "ui-dock-action-btn");
         if (act.title) actBtn.title = act.title;
@@ -2568,7 +2568,7 @@ export function DockWidget({
     let trayBadgeEl = null;
 
     if (allowMinimizeToTray && !isLocal) {
-        minTrayBtn = createElement("button", "ui-dock-action-btn ui-dock-tray-btn", ["🗕"]);
+        minTrayBtn = createElement("button", "ui-dock-action-btn ui-dock-tray-btn", ["_"]);
         minTrayBtn.title = "Minimizar para a Barra de Tarefas";
         minTrayBtn.onclick = (e) => {
             e.stopPropagation();
@@ -2611,7 +2611,7 @@ export function DockWidget({
         dock.classList.toggle("expanded", next);
         chevronBtn.textContent = next ? "▼" : "▲";
         chevronBtn.title = next ? "Recolher" : "Expandir";
-        
+
         if (bindExpanded && instance?.state) {
             instance.state[bindExpanded] = next;
         }
@@ -2636,10 +2636,10 @@ export function DockWidget({
             // Localiza a taskbar ou contêiner da bandeja
             const taskbar = document.getElementById("taskbar");
             const clock = document.getElementById("clock");
-            
+
             trayIconBtn = createElement("button", `ui-dock-tray-icon badge-${badgeVariant}`);
             trayIconBtn.title = trayTooltip || `${title} (Minimizado)`;
-            
+
             const iconSpan = createElement("span", "ui-dock-tray-icon-symbol", [typeof icon === 'string' ? icon : '💬']);
             trayIconBtn.appendChild(iconSpan);
 
@@ -2775,19 +2775,19 @@ export function FloatButton({
     let target = targetContainer || (instance?.element) || document.getElementById("app") || document.body;
 
     const wrap = createElement("div", `ui-float-button-wrap pos-${position} ${isLocal ? 'is-local' : 'is-global'} ${draggable ? 'is-draggable' : ''}`);
-    
+
     // Contêiner de ações em cascata (Speed Dial)
     const dial = createElement("div", `ui-float-dial dial-${position.startsWith('top') ? 'down' : 'up'}`);
-    
+
     actions.forEach((act, idx) => {
         const item = createElement("div", `ui-float-dial-item variant-${act.variant || 'surface'}`);
         item.style.transitionDelay = `${idx * 0.04}s`;
-        
+
         if (act.label) {
             const lbl = createElement("span", "ui-float-dial-label", [act.label]);
             item.appendChild(lbl);
         }
-        
+
         const actionBtn = createElement("button", `ui-float-dial-btn variant-${act.variant || 'surface'}`);
         if (act.tooltip) actionBtn.title = act.tooltip;
         if (typeof act.icon === 'string') actionBtn.innerHTML = act.icon;
@@ -2814,7 +2814,7 @@ export function FloatButton({
 
     const iconSpan = createElement("span", "ui-float-btn-icon", [typeof icon === 'string' ? icon : '']);
     if (icon instanceof Node) iconSpan.appendChild(icon);
-    
+
     const activeIconSpan = createElement("span", "ui-float-btn-icon-active", [typeof activeIcon === 'string' ? activeIcon : '']);
     if (activeIcon instanceof Node) activeIconSpan.appendChild(activeIcon);
 
@@ -2831,10 +2831,10 @@ export function FloatButton({
             if (e.button !== undefined && e.button !== 0) return; // apenas clique primário
             isDragging = true;
             dragThresholdPassed = false;
-            
+
             const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
             const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-            
+
             startX = clientX;
             startY = clientY;
 
@@ -2846,7 +2846,7 @@ export function FloatButton({
                 if (!isDragging) return;
                 const curX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientX : 0);
                 const curY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientY : 0);
-                
+
                 const deltaX = curX - startX;
                 const deltaY = curY - startY;
 
@@ -2859,7 +2859,7 @@ export function FloatButton({
                 }
 
                 if (dragThresholdPassed) {
-                    const parentRect = target === document.body || target === document.getElementById("app") 
+                    const parentRect = target === document.body || target === document.getElementById("app")
                         ? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
                         : target.getBoundingClientRect();
 

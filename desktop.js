@@ -911,11 +911,15 @@ export const Desktop = {
             showLabel: true,
             tooltip: "Nimbus Vector Menu"
         },
-        'flatlaf-ide': {
+        'flatlaf-light': {
             icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 17V7h10v3H10v2h5v3h-5v2z"/></svg>`,
             label: "Studio",
-            showLabel: true,
-            tooltip: "Modern IDE Menu"
+            tooltip: "FlatLaf Studio Light Menu"
+        },
+        'flatlaf-dark': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 17V7h10v3H10v2h5v3h-5v2z"/></svg>`,
+            label: "Studio",
+            tooltip: "FlatLaf Studio Dark Menu"
         },
         'modena-soft': {
             icon: `🌿`,
@@ -1534,7 +1538,8 @@ export const Desktop = {
             { id: "steel-metal",     label: "Steel Metal (Classic Swing)",     category: "Java PlaF",          icon: "☕",  desc: "Clássico Swing com tons de aço e texturas de relevo" },
             { id: "ocean-metal",     label: "Ocean Metal (Steel Blue)",        category: "Java PlaF",          icon: "🌊",  desc: "Gradiente azul acetinado e contornos chanfrados" },
             { id: "nimbus-vector",   label: "Nimbus Vector (Vibrant)",         category: "Java PlaF",          icon: "✨",  desc: "Superfícies acetinadas, cantos 4px e foco dourado/laranja" },
-            { id: "flatlaf-ide",     label: "FlatLaf IDE (Studio Dark/Light)", category: "Java PlaF",          icon: "🎨",  desc: "Estilo IDE moderno, compacto, minimalista e profissional" },
+            { id: "flatlaf-light",   label: "FlatLaf Light (Studio)",          category: "Java PlaF",          icon: "💡",  desc: "Estilo IDE moderno, compacto, minimalista e profissional (Claro)" },
+            { id: "flatlaf-dark",    label: "FlatLaf Dark (Studio)",           category: "Java PlaF",          icon: "🌙",  desc: "Estilo IDE moderno, compacto, minimalista e profissional (Escuro)" },
             { id: "modena-soft",     label: "Modena Soft (Enterprise)",        category: "Java PlaF",          icon: "🌿",  desc: "Estética neutra cinza, limpa e moderna" },
             { id: "caspian-dark",    label: "Caspian Slate (Dark Blue)",       category: "Java PlaF",          icon: "🔷",  desc: "Vidro escuro azulado elegante" },
 
