@@ -1047,7 +1047,7 @@ select {
 
 [data-laf="adwaita-slate"] .ui-context-menu,
 [data-laf="breeze-plasma"] .ui-context-menu,
-[data-laf="flatlaf-ide"] .ui-context-menu {
+[data-laf="flatlaf-light"] .ui-context-menu, [data-laf="flatlaf-dark"] .ui-context-menu {
     background: var(--menu-bg) !important;
     color: var(--menu-text) !important;
     border: 1px solid var(--menu-border) !important;
@@ -1232,7 +1232,7 @@ select {
     box-shadow: var(--win-shadow);
     display: flex;
     flex-direction: column;
-    overflow: visible;
+    overflow: hidden;
     min-width: 280px;
     min-height: 180px;
     transition: transform 0.2s ease, opacity 0.2s ease;
@@ -2360,7 +2360,7 @@ h2 {
 }
 
 .ui-datagrid th {
-    background: #f8f9fa;
+    background: var(--input-bg);
     border-bottom: 2px solid #dee2e6;
     padding: 8px 12px;
     text-align: left;
@@ -2408,12 +2408,13 @@ h2 {
 /* --- Feedback e Notificações (Grupo 1) --- */
 
 .ui-alert {
+    color: var(--text-primary);
     padding: 12px 16px;
     border-radius: 6px;
     font-size: 13px;
     margin-bottom: 12px;
     border-left: 4px solid;
-    background: #f8f9fa;
+    background: var(--input-bg);
 }
 
 .ui-alert-info {
@@ -3174,7 +3175,7 @@ h2 {
 [data-laf="fluent-acrylic"],
 [data-laf="spatial-glass"],
 [data-laf="cupertino-touch"],
-[data-laf="flatlaf-ide"] {
+[data-laf="flatlaf-light"] {
     --text-primary: #111827;
     --text-secondary: #4b5563;
     --menu-text: #111827;
@@ -3184,6 +3185,16 @@ h2 {
 }
 
 /* 2. Definição de Tokens para LaFs com Superfície Escura */
+/* 1.5 Tokens de Ajuste para LaFs Mistos (Corpo Claro, Menu/Barra Escuros) */
+[data-laf="motif-panel"],
+[data-laf="adwaita-slate"],
+[data-laf="breeze-plasma"] {
+    --menu-bg: #2b303b;
+    --menu-text: #f8f9fa;
+    --menu-hover: #4f5b66;
+}
+
+[data-laf="flatlaf-dark"],
 [data-laf="cyberpunk-neon"],
 [data-laf="tactical-hud"],
 [data-laf="caspian-dark"],
@@ -3193,6 +3204,10 @@ h2 {
 [data-laf="turbo-tui"],
 [data-laf="cosmic-teal"] {
     --text-primary: #f1f5f9;
+    --bg-primary: #1e2430;
+    --bg-secondary: #141a22;
+    --menu-bg: #1e2430;
+    --menu-hover: #3a475a;
     --text-secondary: #94a3b8;
     --menu-text: #f1f5f9;
     --input-bg: rgba(20, 25, 35, 0.95);
@@ -4218,13 +4233,13 @@ select option {
 /* --------------------------------------------------------------------------
    6. JAVA ECOSYSTEM: Java FlatLaf (IDE IntelliJ / NetBeans)
    -------------------------------------------------------------------------- */
-[data-laf="flatlaf-ide"] .window {
+[data-laf="flatlaf-light"] .window, [data-laf="flatlaf-dark"] .window {
     border: 1px solid var(--win-border);
     border-radius: 4px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-[data-laf="flatlaf-ide"] .titlebar {
+[data-laf="flatlaf-light"] .titlebar, [data-laf="flatlaf-dark"] .titlebar {
     height: 30px;
     background: transparent;
     border-bottom: 1px solid var(--win-border);
@@ -4233,11 +4248,11 @@ select option {
     color: var(--text-primary);
 }
 
-[data-laf="flatlaf-ide"] .titleText {
+[data-laf="flatlaf-light"] .titleText, [data-laf="flatlaf-dark"] .titleText {
     color: var(--text-primary);
 }
 
-[data-laf="flatlaf-ide"] .winBtn {
+[data-laf="flatlaf-light"] .winBtn, [data-laf="flatlaf-dark"] .winBtn {
     width: 36px;
     height: 100%;
     font-size: 12px;
@@ -4249,35 +4264,35 @@ select option {
     transition: background 0.15s ease;
 }
 
-[data-laf="flatlaf-ide"] .winBtn:hover {
+[data-laf="flatlaf-light"] .winBtn:hover, [data-laf="flatlaf-dark"] .winBtn:hover {
     background: color-mix(in srgb, var(--text-primary) 12%, transparent);
 }
 
-[data-laf="flatlaf-ide"] .winBtn.close:hover {
+[data-laf="flatlaf-light"] .winBtn.close:hover, [data-laf="flatlaf-dark"] .winBtn.close:hover {
     background: #e81123 !important;
     color: #ffffff !important;
 }
 
-[data-laf="flatlaf-ide"] #menubar,
-[data-laf="flatlaf-ide"] .ui-menubar,
-[data-laf="flatlaf-ide"] #taskbar {
+[data-laf="flatlaf-light"] #menubar, [data-laf="flatlaf-dark"] #menubar,
+[data-laf="flatlaf-light"] .ui-menubar, [data-laf="flatlaf-dark"] .ui-menubar,
+[data-laf="flatlaf-light"] #taskbar, [data-laf="flatlaf-dark"] #taskbar {
     background: var(--bg-secondary) !important;
     border-color: var(--win-border) !important;
     color: var(--text-primary) !important;
 }
 
-[data-laf="flatlaf-ide"] .menubar-item,
-[data-laf="flatlaf-ide"] .taskButton,
-[data-laf="flatlaf-ide"] .taskStart,
-[data-laf="flatlaf-ide"] .clock {
+[data-laf="flatlaf-light"] .menubar-item, [data-laf="flatlaf-dark"] .menubar-item,
+[data-laf="flatlaf-light"] .taskButton, [data-laf="flatlaf-dark"] .taskButton,
+[data-laf="flatlaf-light"] .taskStart, [data-laf="flatlaf-dark"] .taskStart,
+[data-laf="flatlaf-light"] .clock, [data-laf="flatlaf-dark"] .clock {
     color: var(--text-primary) !important;
 }
 
-[data-laf="flatlaf-ide"] .taskButton {
+[data-laf="flatlaf-light"] .taskButton, [data-laf="flatlaf-dark"] .taskButton {
     border-radius: 3px;
 }
 
-[data-laf="flatlaf-ide"] .taskButton.active {
+[data-laf="flatlaf-light"] .taskButton.active, [data-laf="flatlaf-dark"] .taskButton.active {
     background: var(--btn-primary) !important;
     color: var(--btn-primary-text) !important;
 }
@@ -5883,6 +5898,8 @@ select option {
     letter-spacing: 1px;
 }
 
+[data-laf="cyberpunk-neon"] .taskStart,
+[data-laf="cyberpunk-neon"] .taskShowDesktop,
 [data-laf="cyberpunk-neon"] .taskButton {
     clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
     background: rgba(0, 255, 204, 0.1) !important;
@@ -5893,6 +5910,8 @@ select option {
     height: 30px;
 }
 
+[data-laf="cyberpunk-neon"] .taskStart.active,
+[data-laf="cyberpunk-neon"] .taskShowDesktop:active,
 [data-laf="cyberpunk-neon"] .taskButton.active {
     background: #00ffcc !important;
     color: #000000 !important;
@@ -6627,18 +6646,29 @@ select option {
     border-top: 2px solid #ff9900;
 }
 
+[data-laf="tactical-hud"] .taskStart,
+[data-laf="tactical-hud"] .taskShowDesktop,
 [data-laf="tactical-hud"] .taskButton {
-    background: rgba(255, 153, 0, 0.1);
-    border: 1px solid #ff9900;
-    color: #ffaa00;
+    background: rgba(255, 153, 0, 0.1) !important;
+    border: 1px solid #ff9900 !important;
+    color: #ffaa00 !important;
     font-family: monospace;
 }
 
+[data-laf="tactical-hud"] .taskStart:hover,
+[data-laf="tactical-hud"] .taskShowDesktop:hover,
+[data-laf="tactical-hud"] .taskButton:hover {
+    background: rgba(255, 153, 0, 0.25) !important;
+    color: #ffcc00 !important;
+}
+
+[data-laf="tactical-hud"] .taskStart.active,
+[data-laf="tactical-hud"] .taskShowDesktop:active,
 [data-laf="tactical-hud"] .taskButton.active {
-    background: #ff9900;
-    color: #000000;
+    background: #ff9900 !important;
+    color: #000000 !important;
     font-weight: bold;
-    box-shadow: 0 0 15px #ff9900;
+    box-shadow: 0 0 15px #ff9900 !important;
 }
 
 [data-laf="tactical-hud"] .clock {
@@ -7114,12 +7144,16 @@ select option {
     border-top: 2px solid #48b9c7;
 }
 
+[data-laf="cosmic-teal"] .taskStart,
+[data-laf="cosmic-teal"] .taskShowDesktop,
 [data-laf="cosmic-teal"] .taskButton {
     background: #333333;
     color: #f6f6f6;
     border-radius: 8px;
 }
 
+[data-laf="cosmic-teal"] .taskStart.active,
+[data-laf="cosmic-teal"] .taskShowDesktop:active,
 [data-laf="cosmic-teal"] .taskButton.active {
     background: #48b9c7;
     color: #000000;
@@ -7242,6 +7276,8 @@ select option {
     border-top: 1px solid #4c7899;
 }
 
+[data-laf="tiling-grid"] .taskStart,
+[data-laf="tiling-grid"] .taskShowDesktop,
 [data-laf="tiling-grid"] .taskButton {
     background: #222222;
     color: #888888;
@@ -7249,6 +7285,8 @@ select option {
     font-family: monospace;
 }
 
+[data-laf="tiling-grid"] .taskStart.active,
+[data-laf="tiling-grid"] .taskShowDesktop:active,
 [data-laf="tiling-grid"] .taskButton.active {
     background: #285577;
     color: #ffffff;
@@ -7506,6 +7544,8 @@ select option {
     border-top: 1px solid #ffb400;
 }
 
+[data-laf="e-fusion"] .taskStart,
+[data-laf="e-fusion"] .taskShowDesktop,
 [data-laf="e-fusion"] .taskButton {
     background: #242428;
     border: 1px solid rgba(255, 180, 0, 0.4);
@@ -7513,6 +7553,8 @@ select option {
     border-radius: 6px;
 }
 
+[data-laf="e-fusion"] .taskStart.active,
+[data-laf="e-fusion"] .taskShowDesktop:active,
 [data-laf="e-fusion"] .taskButton.active {
     background: #ffb400;
     color: #000000;
@@ -7532,8 +7574,8 @@ select option {
 }
 
 [data-laf="x11-box"] .windowBody {
-    background: #c0c0c0 !important;
-    color: #000000 !important;
+    background: #1a1a1a !important;
+    color: #e5e5e5 !important;
 }
 
 [data-laf="x11-box"] .windowBody label,
@@ -9459,3 +9501,45 @@ select option {
     color: var(--text-primary, #ffffff);
     border: 1px solid var(--win-border);
 }
+
+/* 1.6 Fixes para Consistencia de Menus (Neumorphism, Motif, Tiling) */
+[data-laf="neumorphism"] {
+    --menu-bg: #e0e5ec !important;
+    --menu-text: #31344b !important;
+}
+[data-laf="motif-panel"] {
+    --menu-bg: #d4d0c8 !important;
+    --menu-text: #000000 !important;
+}
+[data-laf="tiling-grid"] {
+    --menu-bg: #1e2430 !important;
+    --menu-text: #f1f5f9 !important;
+}
+/* 1.7 Fixes para Consistencia de Menus (Classicos & Retro 3D) */
+[data-laf="yellow-tab"] {
+    --menu-bg: #e8e8e8 !important;
+    --menu-text: #000000 !important;
+}
+[data-laf="retro-3d"] {
+    --menu-bg: #c0c0c0 !important;
+    --menu-text: #000000 !important;
+}
+[data-laf="luna-blue"] {
+    --menu-bg: #ffffff !important;
+    --menu-text: #000000 !important;
+}
+[data-laf="aero-glass"] {
+    --menu-bg: rgba(240, 248, 255, 0.95) !important;
+    --menu-text: #1e395b !important;
+}
+[data-laf="next-dark"] {
+    --menu-bg: #1e2430 !important;
+    --menu-text: #f1f5f9 !important;
+}
+[data-laf="workbench-boing"],
+[data-laf="platinum-classic"],
+[data-laf="warp-enterprise"] {
+    --menu-bg: #d4d0c8 !important;
+    --menu-text: #000000 !important;
+}
+
