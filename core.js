@@ -197,15 +197,26 @@ export const Framework = {
                 }
             },
             
-            setMenuBar(menus) {
+            setMenuBar(menus, position) {
                 const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
                 if (dm && typeof dm.setWindowMenuBar === 'function') {
-                    dm.setWindowMenuBar(this, menus);
+                    dm.setWindowMenuBar(this, menus, position);
                 }
             },
 
             getMenuBar() {
                 return this.windowEl ? this.windowEl.querySelector('.window-menubar') : null;
+            },
+
+            setActionToolbar(actions, position) {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                if (dm && typeof dm.setWindowActionToolbar === 'function') {
+                    dm.setWindowActionToolbar(this, actions, position);
+                }
+            },
+
+            getActionToolbar() {
+                return this.windowEl ? this.windowEl.querySelector('.window-action-toolbar') : null;
             },
 
             openDialog(childScreenOrId, initialProps = {}) {
@@ -246,6 +257,24 @@ export const Framework = {
                 if (dm && typeof dm.restoreWindow === 'function' && this.windowEl) {
                     dm.restoreWindow(this.windowEl);
                 }
+            },
+
+            toggleMaximize() {
+                if (this.isMaximized()) this.restore();
+                else this.maximize();
+            },
+
+            isMaximized() {
+                return !!(this.windowEl && this.windowEl.classList.contains("maximized"));
+            },
+
+            isMinimized() {
+                return !!(this.windowEl && this.windowEl.classList.contains("minimized"));
+            },
+
+            isFocused() {
+                const dm = desktopManager || (typeof window !== 'undefined' ? window.Desktop : null);
+                return !!(dm && dm.activeWindowId === this.id);
             },
 
             focus() {

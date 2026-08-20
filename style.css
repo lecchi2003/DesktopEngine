@@ -265,25 +265,110 @@ select {
     border-bottom: 1px solid var(--win-border);
 }
 
-/* --- Window Internal Component Ordering & Window MenuBar --- */
-.window>.titlebar {
-    order: 1 !important;
+/* --- Window Internal Component Ordering & Window MenuBar / Action Toolbar --- */
+.window {
+    display: grid !important;
+    grid-template-columns: auto auto 1fr auto auto;
+    grid-template-rows: auto auto auto 1fr auto auto auto;
 }
 
+.window>.titlebar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    order: unset !important;
+}
+
+/* Base Window MenuBar */
 .window>.window-menubar,
 .window>.ui-menubar.window-menubar,
 .window-menubar {
-    order: 2 !important;
+    background: var(--menu-bg, var(--bg-secondary));
+    color: var(--menu-text, var(--text-primary));
+    z-index: 500;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    position: relative;
+    overflow: visible;
+}
+
+/* Window MenuBar: Top (Padrão - Linha 2, mais externa no topo) */
+.window>.window-menubar:not([data-position]),
+.window>.window-menubar[data-position="top"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
     height: 28px !important;
     min-height: 28px !important;
     max-height: 28px !important;
-    flex: 0 0 28px !important;
-    background: var(--menu-bg, var(--bg-secondary));
-    border-bottom: 1px solid var(--win-border);
-    color: var(--menu-text, var(--text-primary));
-    padding: 0 4px;
-    z-index: 500;
     width: 100% !important;
+    border-bottom: 1px solid var(--win-border);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    flex-direction: row;
+    padding: 0 4px;
+}
+
+/* Window MenuBar: Bottom (Linha 6, mais externa no rodapé antes da statusbar) */
+.window>.window-menubar[data-position="bottom"] {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    width: 100% !important;
+    border-top: 1px solid var(--win-border);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    flex-direction: row;
+    padding: 0 4px;
+}
+
+/* Window MenuBar: Left (Coluna 1, mais externa na esquerda) */
+.window>.window-menubar[data-position="left"] {
+    grid-column: 1;
+    grid-row: 4;
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    height: 100% !important;
+    border-right: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 4px 2px;
+    gap: 2px;
+}
+
+/* Window MenuBar: Right (Coluna 5, mais externa na direita) */
+.window>.window-menubar[data-position="right"] {
+    grid-column: 5;
+    grid-row: 4;
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    height: 100% !important;
+    border-left: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 4px 2px;
+    gap: 2px;
+}
+
+/* Base Window Action Toolbar */
+.window>.window-action-toolbar,
+.window>.ui-action-toolbar.window-action-toolbar,
+.ui-action-toolbar {
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.03));
+    color: var(--text-primary);
+    z-index: 490;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -291,12 +376,162 @@ select {
     position: relative;
 }
 
+/* Action Toolbar: Top (Linha 3 - por dentro do MenuBar no Topo) */
+.window>.window-action-toolbar:not([data-position]),
+.window>.window-action-toolbar[data-position="top"] {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    width: 100% !important;
+    border-bottom: 1px solid var(--win-border);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    flex-direction: row;
+    padding: 2px 6px;
+    gap: 4px;
+}
+
+/* Action Toolbar: Bottom (Linha 5 - por dentro do MenuBar no Rodapé) */
+.window>.window-action-toolbar[data-position="bottom"] {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    width: 100% !important;
+    border-top: 1px solid var(--win-border);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    flex-direction: row;
+    padding: 2px 6px;
+    gap: 4px;
+}
+
+/* Action Toolbar: Left (Coluna 2 - por dentro do MenuBar na Esquerda) */
+.window>.window-action-toolbar[data-position="left"] {
+    grid-column: 2;
+    grid-row: 4;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 100% !important;
+    border-right: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 2px;
+    gap: 4px;
+}
+
+/* Action Toolbar: Right (Coluna 4 - por dentro do MenuBar na Direita) */
+.window>.window-action-toolbar[data-position="right"] {
+    grid-column: 4;
+    grid-row: 4;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 100% !important;
+    border-left: 1px solid var(--win-border);
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 2px;
+    gap: 4px;
+}
+
+/* Action Toolbar Buttons & Separators */
+.action-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 4px 8px;
+    height: 26px;
+    min-width: 26px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, transform 0.1s;
+    user-select: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.ui-action-toolbar[data-position="left"] .action-toolbar-btn,
+.ui-action-toolbar[data-position="right"] .action-toolbar-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+}
+
+.action-toolbar-btn:hover {
+    background: var(--menu-hover, rgba(0, 0, 0, 0.08));
+    border-color: var(--win-border, rgba(0, 0, 0, 0.15));
+}
+
+.action-toolbar-btn:active {
+    transform: scale(0.95);
+    background: var(--btn-hover, rgba(0, 0, 0, 0.12));
+}
+
+.action-toolbar-btn.active {
+    background: var(--btn-primary, #176cad);
+    color: var(--btn-primary-text, #ffffff) !important;
+    border-color: var(--btn-primary, #176cad);
+}
+
+.action-toolbar-btn.disabled,
+.action-toolbar-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.action-toolbar-icon {
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-toolbar-sep {
+    width: 1px;
+    height: 18px;
+    background: var(--win-border, rgba(0, 0, 0, 0.15));
+    margin: 0 4px;
+}
+
+.ui-action-toolbar[data-position="left"] .action-toolbar-sep,
+.ui-action-toolbar[data-position="right"] .action-toolbar-sep {
+    width: 24px;
+    height: 1px;
+    margin: 4px 0;
+}
+
 .window>.windowBody {
-    order: 3 !important;
+    grid-column: 3;
+    grid-row: 4;
+    order: unset !important;
+    width: 100%;
+    height: 100%;
 }
 
 .window>.statusbar {
-    order: 4 !important;
+    grid-column: 1 / -1;
+    grid-row: 7;
+    order: unset !important;
 }
 
 .window-menubar .menubar-item {
@@ -314,6 +549,14 @@ select {
     transition: background 0.1s ease;
 }
 
+.window-menubar[data-position="left"] .menubar-item,
+.window-menubar[data-position="right"] .menubar-item {
+    height: 28px;
+    min-height: 28px;
+    width: 100%;
+    padding: 0 8px;
+}
+
 .window-menubar .menubar-item:hover,
 .window-menubar .menubar-item.active {
     background: var(--menu-hover);
@@ -323,12 +566,9 @@ select {
     font-size: 13px;
 }
 
+/* Window MenuBar Dropdowns */
 .window-menubar .dropdown.menubar-dropdown {
     position: absolute !important;
-    top: 100% !important;
-    bottom: auto !important;
-    left: 0 !important;
-    right: auto !important;
     display: none;
     flex-direction: column;
     z-index: 100000 !important;
@@ -338,13 +578,49 @@ select {
     border: 1px solid var(--menu-border);
     box-shadow: var(--win-shadow);
     padding: 4px 0;
-    border-radius: 0 0 6px 6px;
     backdrop-filter: var(--win-blur);
     -webkit-backdrop-filter: var(--win-blur);
 }
 
-.window-menubar .menubar-item.active>.dropdown.menubar-dropdown {
+/* Top: abre para baixo */
+.window-menubar:not([data-position]) .menubar-item.active>.dropdown.menubar-dropdown,
+.window-menubar[data-position="top"] .menubar-item.active>.dropdown.menubar-dropdown {
     display: flex !important;
+    top: 100% !important;
+    bottom: auto !important;
+    left: 0 !important;
+    right: auto !important;
+    border-radius: 0 0 6px 6px;
+}
+
+/* Bottom: abre para cima */
+.window-menubar[data-position="bottom"] .menubar-item.active>.dropdown.menubar-dropdown {
+    display: flex !important;
+    bottom: 100% !important;
+    top: auto !important;
+    left: 0 !important;
+    right: auto !important;
+    border-radius: 6px 6px 0 0;
+}
+
+/* Left: abre para a direita */
+.window-menubar[data-position="left"] .menubar-item.active>.dropdown.menubar-dropdown {
+    display: flex !important;
+    top: 0 !important;
+    bottom: auto !important;
+    left: 100% !important;
+    right: auto !important;
+    border-radius: 0 6px 6px 0;
+}
+
+/* Right: abre para a esquerda */
+.window-menubar[data-position="right"] .menubar-item.active>.dropdown.menubar-dropdown {
+    display: flex !important;
+    top: 0 !important;
+    bottom: auto !important;
+    right: 100% !important;
+    left: auto !important;
+    border-radius: 6px 0 0 6px;
 }
 
 .window-menubar .dropdown.sub-dropdown {
@@ -2415,30 +2691,33 @@ h2 {
     margin-bottom: 12px;
     border-left: 4px solid;
     background: var(--input-bg);
+    border: 1px solid var(--win-border, rgba(0, 0, 0, 0.12));
+    border-left-width: 4px;
+    line-height: 1.5;
 }
 
 .ui-alert-info {
-    border-left-color: #17a2b8;
-    background: #e0f7fa;
-    color: #0c5460;
+    border-left-color: #0284c7;
+    background: rgba(2, 132, 199, 0.12);
+    color: var(--text-primary);
 }
 
 .ui-alert-success {
-    border-left-color: #28a745;
-    background: #d4edda;
-    color: #155724;
+    border-left-color: #16a34a;
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--text-primary);
 }
 
 .ui-alert-warning {
-    border-left-color: #ffc107;
-    background: #fff3cd;
-    color: #856404;
+    border-left-color: #d97706;
+    background: rgba(217, 119, 6, 0.12);
+    color: var(--text-primary);
 }
 
 .ui-alert-error {
-    border-left-color: #dc3545;
-    background: #f8d7da;
-    color: #721c24;
+    border-left-color: #dc2626;
+    background: rgba(220, 38, 38, 0.12);
+    color: var(--text-primary);
 }
 
 .ui-spinner {
@@ -3351,7 +3630,7 @@ select option {
     box-shadow: 0 0 10px rgba(0, 255, 204, 0.2) inset !important;
 }
 
-[data-laf="cyberpunk-neon"] .ui-dock-widget.is-local {
+[data-laf="cyberpunk-neon"] .ui-dock-widget {
     background: rgba(10, 14, 23, 0.98) !important;
     border: 1px solid #00ffcc !important;
     box-shadow: 0 0 18px rgba(0, 255, 204, 0.35) !important;
@@ -3359,18 +3638,24 @@ select option {
     font-family: 'Orbitron', monospace !important;
 }
 
-[data-laf="cyberpunk-neon"] .ui-dock-widget.is-local .ui-dock-header {
+[data-laf="cyberpunk-neon"] .ui-dock-widget .ui-dock-header {
     background: rgba(0, 255, 204, 0.15) !important;
     color: #00ffcc !important;
     border-bottom: 1px solid #00ffcc !important;
 }
 
-[data-laf="cyberpunk-neon"] .ui-dock-widget.is-local .ui-dock-body {
+[data-laf="cyberpunk-neon"] .ui-dock-widget .ui-dock-body {
     background: rgba(10, 14, 23, 0.95) !important;
     color: #00ffcc !important;
 }
 
-/* 4. Tactical HUD: statusbar e dock local em âmbar militar */
+[data-laf="cyberpunk-neon"] .ui-dock-widget .ui-dock-text-item {
+    background: rgba(0, 255, 204, 0.08) !important;
+    border-color: rgba(0, 255, 204, 0.3) !important;
+    color: #00ffcc !important;
+}
+
+/* 4. Tactical HUD: statusbar e dock em âmbar militar */
 [data-laf="tactical-hud"] .statusbar {
     background: rgba(18, 14, 8, 0.98) !important;
     border-top: 1px solid #ff9900 !important;
@@ -3378,46 +3663,59 @@ select option {
     font-family: 'Consolas', monospace !important;
 }
 
-[data-laf="tactical-hud"] .ui-dock-widget.is-local {
+[data-laf="tactical-hud"] .ui-dock-widget {
     background: rgba(18, 14, 8, 0.98) !important;
     border: 1px solid #ff9900 !important;
     box-shadow: 0 0 16px rgba(255, 153, 0, 0.25) !important;
     color: #ffaa00 !important;
 }
 
-[data-laf="tactical-hud"] .ui-dock-widget.is-local .ui-dock-header {
+[data-laf="tactical-hud"] .ui-dock-widget .ui-dock-header {
     background: rgba(255, 153, 0, 0.15) !important;
     color: #ffcc00 !important;
     border-bottom: 1px solid #ff9900 !important;
 }
 
-[data-laf="tactical-hud"] .ui-dock-widget.is-local .ui-dock-body {
+[data-laf="tactical-hud"] .ui-dock-widget .ui-dock-body {
     background: rgba(18, 14, 8, 0.95) !important;
     color: #ffaa00 !important;
 }
 
-/* 5. Neumorphism: statusbar e dock local integrados com relevo suave */
+[data-laf="tactical-hud"] .ui-dock-widget .ui-dock-text-item {
+    background: rgba(255, 153, 0, 0.08) !important;
+    border-color: rgba(255, 153, 0, 0.3) !important;
+    color: #ffaa00 !important;
+}
+
+/* 5. Neumorphism: statusbar e dock integrados com relevo suave */
 [data-laf="neumorphism"] .statusbar {
     background: #e0e5ec !important;
     border-top: 1px solid rgba(255, 255, 255, 0.7) !important;
     color: #31344b !important;
 }
 
-[data-laf="neumorphism"] .ui-dock-widget.is-local {
+[data-laf="neumorphism"] .ui-dock-widget {
     background: #e0e5ec !important;
     border: 1px solid rgba(255, 255, 255, 0.6) !important;
     box-shadow: 4px 4px 10px #b8b9be, -4px -4px 10px #ffffff !important;
     color: #31344b !important;
 }
 
-[data-laf="neumorphism"] .ui-dock-widget.is-local .ui-dock-header {
+[data-laf="neumorphism"] .ui-dock-widget .ui-dock-header {
     background: #e0e5ec !important;
     color: #31344b !important;
 }
 
-[data-laf="neumorphism"] .ui-dock-widget.is-local .ui-dock-body {
+[data-laf="neumorphism"] .ui-dock-widget .ui-dock-body {
     background: #e0e5ec !important;
     color: #31344b !important;
+}
+
+[data-laf="neumorphism"] .ui-dock-widget .ui-dock-text-item {
+    background: #e0e5ec !important;
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    color: #31344b !important;
+    box-shadow: inset 2px 2px 5px #b8b9be, inset -2px -2px 5px #ffffff !important;
 }
 
 /* 6. Turbo Vision (DOS TUI) */
@@ -3429,7 +3727,7 @@ select option {
     font-weight: bold !important;
 }
 
-[data-laf="turbo-tui"] .ui-dock-widget.is-local {
+[data-laf="turbo-tui"] .ui-dock-widget {
     background: #0000a8 !important;
     border: 2px solid #ffffff !important;
     box-shadow: 4px 4px 0px #000000 !important;
@@ -3437,10 +3735,16 @@ select option {
     font-family: 'Consolas', monospace !important;
 }
 
-[data-laf="turbo-tui"] .ui-dock-widget.is-local .ui-dock-header {
+[data-laf="turbo-tui"] .ui-dock-widget .ui-dock-header {
     background: #00aaaa !important;
     color: #000000 !important;
     font-weight: bold !important;
+}
+
+[data-laf="turbo-tui"] .ui-dock-widget .ui-dock-text-item {
+    background: #000080 !important;
+    border-color: #ffffff !important;
+    color: #ffff55 !important;
 }
 
 /* 7. Spatial Glass & Cupertino: translúcidos */
@@ -8087,8 +8391,9 @@ select option {
         border-radius: 12px !important;
         box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14) !important;
         margin: 0 0 8px 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
+        display: grid !important;
+        grid-template-columns: auto auto 1fr auto auto !important;
+        grid-template-rows: auto auto auto 1fr auto auto auto !important;
     }
 
     .window.is-contained-child,
@@ -8102,12 +8407,22 @@ select option {
     }
 
     .window.maximized {
-        position: relative !important;
+        position: absolute !important;
         left: 0 !important;
         top: 0 !important;
         width: 100% !important;
-        height: auto !important;
-        border-radius: 12px !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        z-index: 999 !important;
+        margin: 0 !important;
+    }
+
+    .window.maximized .windowBody {
+        overflow-y: auto !important;
+        height: 100% !important;
+        max-height: none !important;
     }
 
     .window .titlebar {
@@ -8120,13 +8435,29 @@ select option {
     }
 
     .window .winButtons .winBtn.maximize {
-        display: none !important;
+        display: inline-flex !important;
     }
 
     .window .winBtn {
         width: 28px !important;
         height: 28px !important;
         font-size: 15px !important;
+        outline: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    .window .winBtn:hover:not(:active),
+    .window .winBtn:focus {
+        background: transparent !important;
+    }
+
+    .window .winBtn:active {
+        background: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .window .winBtn.close:active {
+        background: #c82d2d !important;
+        color: #ffffff !important;
     }
 
     .window .resizeHandle {
@@ -8229,11 +8560,49 @@ select option {
         align-items: center !important;
         padding: 6px 10px !important;
         background: rgba(0, 0, 0, 0.03) !important;
-        border-bottom: 1px solid var(--border, #e2e8f0) !important;
-        height: auto !important;
-        min-height: 38px !important;
         box-sizing: border-box !important;
         overflow: visible !important;
+    }
+
+    .window-menubar:not([data-position]),
+    .window-menubar[data-position="top"] {
+        border-bottom: 1px solid var(--border, #e2e8f0) !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        height: auto !important;
+        min-height: 38px !important;
+    }
+
+    .window-menubar[data-position="bottom"] {
+        border-top: 1px solid var(--border, #e2e8f0) !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        height: auto !important;
+        min-height: 38px !important;
+    }
+
+    .window-menubar[data-position="left"] {
+        border-right: 1px solid var(--border, #e2e8f0) !important;
+        border-top: none !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        width: 110px !important;
+        min-width: 110px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .window-menubar[data-position="right"] {
+        border-left: 1px solid var(--border, #e2e8f0) !important;
+        border-top: none !important;
+        border-bottom: none !important;
+        border-right: none !important;
+        width: 110px !important;
+        min-width: 110px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
     }
 
     .window-menubar .menubar-item {
@@ -8243,6 +8612,7 @@ select option {
     .window-menubar .window-menubar-hamburger {
         display: inline-flex !important;
         align-items: center !important;
+        justify-content: center !important;
         gap: 6px !important;
         padding: 5px 12px !important;
         font-size: 13px !important;
@@ -8252,6 +8622,29 @@ select option {
         background: var(--surface, #ffffff) !important;
         color: var(--text-color, #1e293b) !important;
         cursor: pointer !important;
+    }
+
+    /* Action Toolbar no Mobile */
+    .ui-action-toolbar {
+        display: flex !important;
+        box-sizing: border-box !important;
+    }
+
+    .ui-action-toolbar[data-position="left"],
+    .ui-action-toolbar[data-position="right"] {
+        flex-direction: column !important;
+        width: 44px !important;
+        min-width: 44px !important;
+        align-items: center !important;
+    }
+
+    .ui-action-toolbar:not([data-position]),
+    .ui-action-toolbar[data-position="top"],
+    .ui-action-toolbar[data-position="bottom"] {
+        flex-direction: row !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        width: 100% !important;
     }
 
     /* Modal Dialog no Mobile */
@@ -8382,8 +8775,9 @@ select option {
     border-radius: 12px !important;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14) !important;
     margin: 0 0 8px 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
+    display: grid !important;
+    grid-template-columns: auto auto 1fr auto auto !important;
+    grid-template-rows: auto auto auto 1fr auto auto auto !important;
 }
 
 #app.mobile-mode .window.is-contained-child,
@@ -8397,12 +8791,22 @@ select option {
 }
 
 #app.mobile-mode .window.maximized {
-    position: relative !important;
+    position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
-    height: auto !important;
-    border-radius: 12px !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    z-index: 999 !important;
+    margin: 0 !important;
+}
+
+#app.mobile-mode .window.maximized .windowBody {
+    overflow-y: auto !important;
+    height: 100% !important;
+    max-height: none !important;
 }
 
 @keyframes mobileWindowHighlight {
@@ -8434,13 +8838,29 @@ select option {
 }
 
 #app.mobile-mode .window .winButtons .winBtn.maximize {
-    display: none !important;
+    display: inline-flex !important;
 }
 
 #app.mobile-mode .window .winBtn {
     width: 28px !important;
     height: 28px !important;
     font-size: 15px !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+#app.mobile-mode .window .winBtn:hover:not(:active),
+#app.mobile-mode .window .winBtn:focus {
+    background: transparent !important;
+}
+
+#app.mobile-mode .window .winBtn:active {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+#app.mobile-mode .window .winBtn.close:active {
+    background: #c82d2d !important;
+    color: #ffffff !important;
 }
 
 #app.mobile-mode .window .resizeHandle {
@@ -8454,9 +8874,6 @@ select option {
     padding: 12px !important;
     box-sizing: border-box !important;
     width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
 }
 
 #app.mobile-mode .window .statusbar {
@@ -8596,11 +9013,49 @@ select option {
     align-items: center !important;
     padding: 6px 10px !important;
     background: rgba(0, 0, 0, 0.03) !important;
-    border-bottom: 1px solid var(--border, #e2e8f0) !important;
-    height: auto !important;
-    min-height: 38px !important;
     box-sizing: border-box !important;
     overflow: visible !important;
+}
+
+#app.mobile-mode .window-menubar:not([data-position]),
+#app.mobile-mode .window-menubar[data-position="top"] {
+    border-bottom: 1px solid var(--border, #e2e8f0) !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    height: auto !important;
+    min-height: 38px !important;
+}
+
+#app.mobile-mode .window-menubar[data-position="bottom"] {
+    border-top: 1px solid var(--border, #e2e8f0) !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    height: auto !important;
+    min-height: 38px !important;
+}
+
+#app.mobile-mode .window-menubar[data-position="left"] {
+    border-right: 1px solid var(--border, #e2e8f0) !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    width: 110px !important;
+    min-width: 110px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+
+#app.mobile-mode .window-menubar[data-position="right"] {
+    border-left: 1px solid var(--border, #e2e8f0) !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-right: none !important;
+    width: 110px !important;
+    min-width: 110px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
 }
 
 #app.mobile-mode .window-menubar .menubar-item {
@@ -8610,6 +9065,7 @@ select option {
 #app.mobile-mode .window-menubar .window-menubar-hamburger {
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 6px !important;
     padding: 5px 12px !important;
     font-size: 13px !important;
@@ -8624,6 +9080,29 @@ select option {
 #app.mobile-mode .window-menubar .window-menubar-hamburger:active {
     background: var(--primary-light, rgba(59, 130, 246, 0.12)) !important;
     color: var(--primary, #2563eb) !important;
+}
+
+/* Action Toolbar no Mobile */
+#app.mobile-mode .ui-action-toolbar {
+    display: flex !important;
+    box-sizing: border-box !important;
+}
+
+#app.mobile-mode .ui-action-toolbar[data-position="left"],
+#app.mobile-mode .ui-action-toolbar[data-position="right"] {
+    flex-direction: column !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    align-items: center !important;
+}
+
+#app.mobile-mode .ui-action-toolbar:not([data-position]),
+#app.mobile-mode .ui-action-toolbar[data-position="top"],
+#app.mobile-mode .ui-action-toolbar[data-position="bottom"] {
+    flex-direction: row !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    width: 100% !important;
 }
 
 /* Modal Dialog no Mobile */
@@ -8853,14 +9332,14 @@ select option {
     z-index: 99999;
     display: flex;
     flex-direction: column;
-    background: var(--win-bg, rgba(30, 41, 59, 0.95));
-    border: 1px solid var(--win-border, rgba(255, 255, 255, 0.15));
-    box-shadow: var(--win-shadow, 0 12px 32px rgba(0, 0, 0, 0.35));
+    background: var(--win-bg, #ffffff);
+    border: 1px solid var(--win-border, rgba(0, 0, 0, 0.15));
+    box-shadow: var(--win-shadow, 0 12px 32px rgba(0, 0, 0, 0.25));
     backdrop-filter: var(--win-blur, blur(16px));
     -webkit-backdrop-filter: var(--win-blur, blur(16px));
     transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
     font-family: inherit;
-    color: var(--text-primary, #ffffff);
+    color: var(--text-primary, #111827);
     box-sizing: border-box;
 }
 
@@ -8997,15 +9476,16 @@ select option {
     padding: 8px 12px;
     min-height: 40px;
     cursor: pointer;
-    background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.05));
     user-select: none;
     border-radius: inherit;
     gap: 8px;
     border-bottom: 1px solid transparent;
+    color: var(--text-primary);
 }
 
 .ui-dock-widget.expanded .ui-dock-header {
-    border-bottom: 1px solid var(--win-border, rgba(255, 255, 255, 0.1));
+    border-bottom: 1px solid var(--win-border, rgba(0, 0, 0, 0.1));
 }
 
 .ui-dock-header-left {
@@ -9017,6 +9497,7 @@ select option {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: var(--text-primary);
 }
 
 .ui-dock-icon {
@@ -9068,7 +9549,7 @@ select option {
 .ui-dock-chevron-btn {
     background: transparent;
     border: none;
-    color: var(--text-secondary, #94a3b8);
+    color: var(--text-secondary, #64748b);
     font-size: 13px;
     padding: 4px 6px;
     border-radius: 4px;
@@ -9081,8 +9562,8 @@ select option {
 
 .ui-dock-action-btn:hover,
 .ui-dock-chevron-btn:hover {
-    background: var(--menu-hover, rgba(255, 255, 255, 0.1));
-    color: var(--text-primary, #ffffff);
+    background: var(--menu-hover, rgba(0, 0, 0, 0.08));
+    color: var(--text-primary);
 }
 
 /* Ícone de Bandeja na Barra de Tarefas (Minimizado no Canto do Relógio) */
@@ -9103,7 +9584,7 @@ select option {
     cursor: pointer;
     font-size: 14px;
     line-height: 1;
-    color: var(--text-primary, #ffffff);
+    color: var(--text-primary);
     transition: background 0.15s, border-color 0.15s, transform 0.15s;
     user-select: none;
     outline: none;
@@ -9112,8 +9593,8 @@ select option {
 }
 
 .ui-dock-tray-icon:hover {
-    background: var(--btn-hover, rgba(255, 255, 255, 0.12));
-    border-color: var(--win-border, rgba(255, 255, 255, 0.2));
+    background: var(--btn-hover, rgba(0, 0, 0, 0.08));
+    border-color: var(--win-border, rgba(0, 0, 0, 0.15));
 }
 
 .ui-dock-tray-icon:active {
@@ -9181,7 +9662,8 @@ select option {
     box-sizing: border-box;
     flex-direction: column;
     gap: 8px;
-    background: var(--win-bg, rgba(15, 23, 42, 0.85));
+    background: var(--win-bg, #ffffff);
+    color: var(--text-primary);
 }
 
 .ui-dock-widget.expanded .ui-dock-body {
@@ -9190,16 +9672,17 @@ select option {
 
 .ui-dock-text-item {
     padding: 8px 10px;
-    background: var(--surface, rgba(255, 255, 255, 0.04));
-    border: 1px solid var(--win-border, rgba(255, 255, 255, 0.08));
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.04));
+    border: 1px solid var(--win-border, rgba(0, 0, 0, 0.1));
     border-radius: 6px;
     font-size: 12.5px;
     line-height: 1.4;
+    color: var(--text-primary);
     transition: background 0.15s;
 }
 
 .ui-dock-text-item:hover {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+    background: var(--menu-hover, rgba(0, 0, 0, 0.08));
 }
 
 /* ==========================================================================

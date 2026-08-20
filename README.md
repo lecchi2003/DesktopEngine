@@ -916,6 +916,7 @@ export default {
     icon: "📝",
     width: 800,
     height: 500,
+    menubarPosition: "top", // "top" | "bottom" | "left" | "right" (Padrão: "top")
     state: { conteudo: "Texto inicial..." },
     menubar: [
         {
@@ -955,7 +956,7 @@ export default {
             icon: "✏️",
             items: [
                 {
-                    label: "Inserir Data e Hora",
+                    label: "Inserir Data/Hora",
                     icon: "🕒",
                     action: (instance) => {
                         instance.state.conteudo += `\n[${new Date().toLocaleString()}]`;
@@ -990,21 +991,34 @@ export default {
 ##### 2. Manipulação Dinâmica em Tempo de Execução via API da Instância
 ```javascript
 // Dentro de qualquer view() ou action:
-// 1. Atualizar com novos menus
+// 1. Atualizar com novos menus e/ou reposicionar ("top", "bottom", "left", "right")
 this.setMenuBar([
     {
         label: "Modo Foco",
         icon: "🎯",
         items: [
-            { label: "Restaurar Menus Padrão", action: (inst) => inst.setMenuBar(inst.config.menubar) }
+            { label: "Restaurar Menus Padrão", action: (inst) => inst.setMenuBar(inst.config.menubar, "top") }
         ]
     }
-]);
+], "top");
 
-// 2. Ocultar o MenuBar da janela
+// 2. Mudar apenas a posição mantendo os menus atuais
+this.setMenuBar(this.config.menubar, "bottom"); // ou "left", "right", "top"
+
+// 3. Controle e consulta de estado encapsulados da janela:
+this.toggleMaximize();   // Alterna entre maximizado e restaurado
+this.isMaximized();       // Retorna true se estiver maximizada
+this.isMinimized();       // Retorna true se estiver minimizada
+this.isFocused();         // Retorna true se a janela estiver ativa/com foco
+this.maximize();          // Maximiza a janela
+this.restore();           // Restaura a janela ao tamanho anterior
+this.minimize();          // Minimiza a janela
+this.close();             // Fecha a janela
+
+// 4. Ocultar o MenuBar da janela
 this.setMenuBar(null);
 
-// 3. Obter o elemento DOM do MenuBar da janela
+// 5. Obter o elemento DOM do MenuBar da janela
 const mbEl = this.getMenuBar();
 ```
 
@@ -1024,13 +1038,68 @@ const mbEl = this.getMenuBar();
 Toda instância de janela expõe métodos diretos e convenientes para controle:
 - `instance.openDialog(config, props)`: Abre uma janela modal filha acoplada e bloqueando a janela atual, retornando uma `Promise` com o resultado.
 - `instance.openChildWindow(config, props)`: Alias para `openDialog`.
-- `instance.setMenuBar(menus)`: Atualiza ou remove a barra de menus da janela.
+- `instance.setMenuBar(menus, position)`: Atualiza, reposiciona ou remove a barra de menus da janela.
 - `instance.getMenuBar()`: Retorna o elemento HTML da barra de menus da janela.
+- `instance.setActionToolbar(actions, position)`: Define ou atualiza a barra de ações rápidas da janela.
+- `instance.getActionToolbar()`: Retorna o elemento HTML da barra de ações da janela.
 - `instance.close(dados)`: Fecha a janela atual (e devolve `dados` para quem abriu via `openDialog`).
 - `instance.minimize()`: Minimiza a janela para a taskbar.
 - `instance.maximize()`: Alterna entre maximizada e restaurada.
 - `instance.restore()`: Restaura a janela se estiver minimizada.
+- `instance.toggleMaximize()`: Alterna entre maximizado e restaurado.
+- `instance.isMaximized()`: Retorna se a janela está maximizada.
+- `instance.isMinimized()`: Retorna se a janela está minimizada.
+- `instance.isFocused()`: Retorna se a janela está ativa/com foco.
 - `instance.focus()`: Traz a janela para o primeiro plano.
+
+---
+
+#### 📌 Barra de Ações Rápidas de Janela (Action Toolbar)
+O `DesktopEngine` suporta uma **Barra de Ações Rápidas (Action Toolbar)** embutida na moldura da janela. Ela aceita os 4 posicionamentos (`"top"`, `"bottom"`, `"left"`, `"right"`) e se posiciona inteligentemente **por dentro do MenuBar** caso ambos compartilhem a mesma borda.
+
+##### 1. Configuração Declarativa
+```javascript
+export default {
+    title: "Editor com Barra de Ações",
+    icon: "📝",
+    actionToolbarPosition: "top", // "top" | "bottom" | "left" | "right"
+    actionToolbar: [
+        { icon: "📄", hint: "Novo Documento (Ctrl+N)", action: (inst) => { inst.state.content = ""; } },
+        { icon: "💾", hint: "Salvar Arquivo", action: (inst) => Toast({ message: "Salvo!", type: "success" }) },
+        "separator",
+        { icon: "✨", hint: "Ação Mágica", variant: "primary", action: (inst) => { /* ação */ } },
+        { icon: "🗖", hint: "Maximizar / Restaurar", action: (inst) => inst.toggleMaximize() }
+    ],
+    view() {
+        return createElement("div", "p-4", ["Conteúdo..."]);
+    }
+};
+```
+
+##### 2. Manipulação Dinâmica via API
+```javascript
+// Atualizar ações e/ou mudar posição:
+this.setActionToolbar([
+    { icon: "⚡", hint: "Ação 1", action: (i) => console.log("1") }
+], "left"); // "top" | "bottom" | "left" | "right"
+
+// Ocultar a barra:
+this.setActionToolbar(null);
+
+// Obter elemento DOM:
+const tbEl = this.getActionToolbar();
+```
+
+##### 3. Propriedades dos Botões da Action Toolbar
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `icon` | `String` | Ícone ou emoji exibido no botão (ex: `"💾"`, `"📄"`). |
+| `label` | `String` (Opcional) | Texto opcional ao lado do ícone. |
+| `hint` / `tooltip` | `String` | Dica flutuante (hint/tooltip) exibida ao passar o mouse. |
+| `action` | `Function \| String` | Callback ao clicar: `(instance, event) => { ... }` ou nome de ação. |
+| `variant` | `String` | Estilo visual (ex: `"primary"`, `"danger"`, etc.). |
+| `active` | `Boolean` | Aplica o estado destacado/ativo ao botão se `true`. |
+| `disabled` | `Boolean \| Function` | Desabilita o botão se `true` ou `(instance) => boolean`. |
 
 ---
 
@@ -1090,6 +1159,61 @@ Você pode controlar se a janela filha deve se movimentar livremente pelo deskto
 - **Minimização Conjunta:** Minimizar ou restaurar a janela mãe minimiza e restaura automaticamente a janela filha modal.
 - **Fechamento em Cascata:** Fechar a janela mãe destrói automaticamente as janelas filhas vinculadas.
 - **Abertura via Screen Registry:** Também é possível abrir pelo ID registrado: `const dados = await this.openDialog("seletor_usuario", { role: "admin" });`
+
+---
+
+## 💾 Exportação e Importação de Configurações (JSON Backup & Restore)
+
+O **DesktopEngine** conta com um subsistema nativo para **exportar e importar todas as preferências do usuário e das janelas em JSON**. Isso permite salvar em banco de dados, em arquivos locais ou restaurar o layout completo exatamente como o usuário configurou.
+
+> **Estrutura Focada em `system` e `windows`**: O arquivo JSON contém os tokens globais do sistema operacional (Look and Feel, Posição da Taskbar, Modo e Posição do MenuBar Global e Modo Responsivo) e o estado/layout de cada janela aberta (posições de MenuBar, ActionToolbar, dimensões, posições e estados reativos).
+
+### 1. Estrutura do JSON de Configuração
+
+```json
+{
+  "version": "1.0",
+  "exportedAt": "2026-08-20T00:10:00.000Z",
+  "system": {
+    "lookAndFeel": "cyberpunk-neon",
+    "taskbarPosition": "bottom",
+    "globalMenuBarPosition": "top",
+    "globalMenuBarMode": "separate",
+    "responsiveMode": "auto"
+  },
+  "windows": {
+    "1": {
+      "id": "1",
+      "screenId": "editor_docs",
+      "title": "Editor de Documentos Pro",
+      "menubarPosition": "top",
+      "actionToolbarPosition": "left",
+      "isMaximized": false,
+      "isMinimized": false,
+      "isFocused": true,
+      "bounds": { "left": "120px", "top": "60px", "width": "850px", "height": "580px" },
+      "state": { "content": "..." }
+    }
+  }
+}
+```
+
+### 2. Métodos da API Global `Desktop`
+
+```javascript
+// 1. Exportar como Objeto JS ou String JSON
+const configObj = Desktop.exportConfig(); // Retorna Objeto
+const configJson = Desktop.exportConfig({ format: "json" }); // Retorna String JSON
+
+// 2. Importar e aplicar imediatamente (aceita objeto ou string JSON)
+Desktop.importConfig(configJson);
+
+// 3. Download direto do arquivo .json pelo navegador
+Desktop.downloadConfigFile("minhas-preferencias.json");
+
+// 4. Carregar arquivo .json via seletor nativo do navegador
+await Desktop.loadConfigFile();
+```
 
 ---
 

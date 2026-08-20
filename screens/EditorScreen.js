@@ -24,6 +24,62 @@ Este editor possui uma **Barra de Menus (MenuBar)** integrada na janela, logo ab
 
 Clique em qualquer menu acima para ver os submenus em cascata!`,
     },
+    menubarPosition: "top", // "top" | "bottom" | "left" | "right" (padrão: "top")
+    actionToolbarPosition: "top", // "top" | "bottom" | "left" | "right" (padrão: "top")
+    actionToolbar: [
+        {
+            icon: "📄",
+            hint: "Novo Documento (Ctrl+N)",
+            action: (inst) => {
+                inst.state.content = "# Novo Documento\n\nComece a digitar aqui...";
+                inst.setStatus("Novo documento criado.");
+                Toast({ message: "Novo documento iniciado!", type: "info" });
+            }
+        },
+        {
+            icon: "💾",
+            hint: "Salvar Arquivo",
+            action: (inst) => {
+                Toast({ message: "Documento salvo com sucesso!", type: "success" });
+            }
+        },
+        "separator",
+        {
+            icon: "📅",
+            hint: "Inserir Data e Hora",
+            action: (inst) => {
+                const now = new Date().toLocaleString();
+                inst.state.content += `\n\n📅 [Registro]: ${now}`;
+                inst.setStatus(`Data inserida: ${now}`);
+                Toast({ message: "Data inserida no final do texto.", type: "success" });
+            }
+        },
+        {
+            icon: "✨",
+            hint: "Gerar Texto Markdown",
+            action: (inst) => {
+                inst.state.content += "\n\n> 💡 *Dica do Framework*: Utilize componentes híbridos e ActionToolbar para produtividade máxima!";
+                Toast({ message: "Texto de exemplo adicionado!", type: "info" });
+            }
+        },
+        "separator",
+        {
+            icon: "🗑️",
+            hint: "Limpar Conteúdo",
+            action: (inst) => {
+                inst.state.content = "";
+                inst.setStatus("Documento limpo.");
+                Toast({ message: "Editor limpo.", type: "warning" });
+            }
+        },
+        {
+            icon: "🗖",
+            hint: "Maximizar / Restaurar Janela",
+            action: (inst) => {
+                inst.toggleMaximize();
+            }
+        }
+    ],
     menubar: [
         {
             label: "Arquivo",
@@ -143,19 +199,89 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
             icon: "👁️",
             items: [
                 {
+                    label: "Posição do MenuBar",
+                    icon: "🧭",
+                    items: [
+                        {
+                            label: "⬆️ Superior (Top)",
+                            action: (inst) => {
+                                inst.setMenuBar(inst.config.menubar, "top");
+                                Toast({ message: "MenuBar posicionado no Topo (Top).", type: "info" });
+                            }
+                        },
+                        {
+                            label: "⬇️ Inferior (Bottom)",
+                            action: (inst) => {
+                                inst.setMenuBar(inst.config.menubar, "bottom");
+                                Toast({ message: "MenuBar posicionado no Rodapé (Bottom).", type: "info" });
+                            }
+                        },
+                        {
+                            label: "⬅️ Lateral Esquerda (Left)",
+                            action: (inst) => {
+                                inst.setMenuBar(inst.config.menubar, "left");
+                                Toast({ message: "MenuBar posicionado à Esquerda (Left).", type: "info" });
+                            }
+                        },
+                        {
+                            label: "➡️ Lateral Direita (Right)",
+                            action: (inst) => {
+                                inst.setMenuBar(inst.config.menubar, "right");
+                                Toast({ message: "MenuBar posicionado à Direita (Right).", type: "info" });
+                            }
+                        }
+                    ]
+                },
+                {
+                    label: "Posição da Barra de Ações (Toolbar)",
+                    icon: "⚡",
+                    items: [
+                        {
+                            label: "⬆️ Superior (Top - por dentro do MenuBar)",
+                            action: (inst) => {
+                                inst.setActionToolbar(inst.config.actionToolbar, "top");
+                                Toast({ message: "Barra de Ações no Topo (Top).", type: "info" });
+                            }
+                        },
+                        {
+                            label: "⬇️ Inferior (Bottom - por dentro do MenuBar)",
+                            action: (inst) => {
+                                inst.setActionToolbar(inst.config.actionToolbar, "bottom");
+                                Toast({ message: "Barra de Ações no Rodapé (Bottom).", type: "info" });
+                            }
+                        },
+                        {
+                            label: "⬅️ Lateral Esquerda (Left - por dentro do MenuBar)",
+                            action: (inst) => {
+                                inst.setActionToolbar(inst.config.actionToolbar, "left");
+                                Toast({ message: "Barra de Ações à Esquerda (Left).", type: "info" });
+                            }
+                        },
+                        {
+                            label: "➡️ Lateral Direita (Right - por dentro do MenuBar)",
+                            action: (inst) => {
+                                inst.setActionToolbar(inst.config.actionToolbar, "right");
+                                Toast({ message: "Barra de Ações à Direita (Right).", type: "info" });
+                            }
+                        }
+                    ]
+                },
+                {
                     label: "Alternar Estilo de MenuBar",
                     icon: "🔄",
                     items: [
                         {
                             label: "MenuBar Completo",
                             action: (inst) => {
-                                inst.setMenuBar(inst.config.menubar);
+                                const currentPos = inst.getMenuBar()?.dataset.position || "top";
+                                inst.setMenuBar(inst.config.menubar, currentPos);
                                 Toast({ message: "MenuBar completo restaurado.", type: "info" });
                             }
                         },
                         {
                             label: "MenuBar Minimalista",
                             action: (inst) => {
+                                const currentPos = inst.getMenuBar()?.dataset.position || "top";
                                 inst.setMenuBar([
                                     {
                                         label: "Ações Rápidas",
@@ -164,10 +290,10 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
                                             { label: "Salvar", icon: "💾", action: (i) => Toast({ message: "Salvo!", type: "success" }) },
                                             { label: "Limpar", icon: "🗑️", action: (i) => { i.state.content = ""; } },
                                             "separator",
-                                            { label: "Restaurar Menu Completo", icon: "🔄", action: (i) => i.setMenuBar(i.config.menubar) }
+                                            { label: "Restaurar Menu Completo", icon: "🔄", action: (i) => i.setMenuBar(i.config.menubar, currentPos) }
                                         ]
                                     }
-                                ]);
+                                ], currentPos);
                                 Toast({ message: "MenuBar minimalista ativado.", type: "info" });
                             }
                         }
@@ -178,8 +304,7 @@ Clique em qualquer menu acima para ver os submenus em cascata!`,
                     label: "Maximizar / Restaurar",
                     icon: "🗖",
                     action: (inst) => {
-                        if (inst.windowEl && inst.windowEl.classList.contains("maximized")) inst.restore();
-                        else inst.maximize();
+                        inst.toggleMaximize();
                     }
                 }
             ]
