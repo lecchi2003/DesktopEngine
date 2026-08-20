@@ -1162,6 +1162,61 @@ Você pode controlar se a janela filha deve se movimentar livremente pelo deskto
 
 ---
 
+## 💾 Exportação e Importação de Configurações (JSON Backup & Restore)
+
+O **DesktopEngine** conta com um subsistema nativo para **exportar e importar todas as preferências do usuário e das janelas em JSON**. Isso permite salvar em banco de dados, em arquivos locais ou restaurar o layout completo exatamente como o usuário configurou.
+
+> **Estrutura Focada em `system` e `windows`**: O arquivo JSON contém os tokens globais do sistema operacional (Look and Feel, Posição da Taskbar, Modo e Posição do MenuBar Global e Modo Responsivo) e o estado/layout de cada janela aberta (posições de MenuBar, ActionToolbar, dimensões, posições e estados reativos).
+
+### 1. Estrutura do JSON de Configuração
+
+```json
+{
+  "version": "1.0",
+  "exportedAt": "2026-08-20T00:10:00.000Z",
+  "system": {
+    "lookAndFeel": "cyberpunk-neon",
+    "taskbarPosition": "bottom",
+    "globalMenuBarPosition": "top",
+    "globalMenuBarMode": "separate",
+    "responsiveMode": "auto"
+  },
+  "windows": {
+    "1": {
+      "id": "1",
+      "screenId": "editor_docs",
+      "title": "Editor de Documentos Pro",
+      "menubarPosition": "top",
+      "actionToolbarPosition": "left",
+      "isMaximized": false,
+      "isMinimized": false,
+      "isFocused": true,
+      "bounds": { "left": "120px", "top": "60px", "width": "850px", "height": "580px" },
+      "state": { "content": "..." }
+    }
+  }
+}
+```
+
+### 2. Métodos da API Global `Desktop`
+
+```javascript
+// 1. Exportar como Objeto JS ou String JSON
+const configObj = Desktop.exportConfig(); // Retorna Objeto
+const configJson = Desktop.exportConfig({ format: "json" }); // Retorna String JSON
+
+// 2. Importar e aplicar imediatamente (aceita objeto ou string JSON)
+Desktop.importConfig(configJson);
+
+// 3. Download direto do arquivo .json pelo navegador
+Desktop.downloadConfigFile("minhas-preferencias.json");
+
+// 4. Carregar arquivo .json via seletor nativo do navegador
+await Desktop.loadConfigFile();
+```
+
+---
+
 #### `ContextMenu` & `bindContextMenu`
 Adiciona menus de contexto flutuantes com suporte nativo a **submenus aninhados (`items: [...]`)**, ícones, atalhos, separadores e prevenção de colisão de tela. Permite configurar teclas de atalho/modificadoras (ex: `"alt"`, `"ctrl"`, `"shift"`, `"meta"`) para ignorar o menu customizado e exibir o menu nativo do navegador (a tecla `"shift"` já vem ativa por padrão em todo o framework).
 

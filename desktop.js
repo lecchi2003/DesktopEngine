@@ -1896,6 +1896,166 @@ export const Desktop = {
 
     createFloatButton(options = {}) {
         return FloatButton(options);
+    },
+
+    // --- Exportação e Importação de Configuração (System & Windows) ---
+    exportConfig({ format = "object" } = {}) {
+        // 1. Extrai configurações globais do sistema
+        const system = {
+            lookAndFeel: this.getLookAndFeel ? this.getLookAndFeel() : this.currentLaF,
+            taskbarPosition: this.getTaskbarPosition ? this.getTaskbarPosition() : (this.options?.taskbarPosition || "bottom"),
+            globalMenuBarPosition: this.getMenuBarPosition ? this.getMenuBarPosition() : (this.options?.menubarPosition || "top"),
+            globalMenuBarMode: this.getMenuBarMode ? this.getMenuBarMode() : "separate",
+            responsiveMode: this.options?.responsiveMode || "auto"
+        };
+
+        // 2. Extrai configurações e estados de cada janela ativa
+        const windows = {};
+        if (this.windows && typeof this.windows === 'object') {
+            for (const [id, inst] of Object.entries(this.windows)) {
+                if (!inst) continue;
+                const winEl = inst.windowEl;
+                const winData = {
+                    id: inst.id || id,
+                    screenId: inst.screenId || inst.config?.screenId || null,
+                    title: inst.config?.title || (winEl ? winEl.querySelector(".titleText")?.textContent : null),
+                    menubarPosition: inst.getMenuBar?.()?.dataset?.position || inst.config?.menubarPosition || "top",
+                    actionToolbarPosition: inst.getActionToolbar?.()?.dataset?.position || inst.config?.actionToolbarPosition || "top",
+                    isMaximized: inst.isMaximized ? inst.isMaximized() : false,
+                    isMinimized: inst.isMinimized ? inst.isMinimized() : false,
+                    isFocused: inst.isFocused ? inst.isFocused() : false,
+                    state: inst.state ? JSON.parse(JSON.stringify(inst.state)) : {}
+                };
+
+                if (winEl) {
+                    winData.bounds = {
+                        left: winEl.style.left || null,
+                        top: winEl.style.top || null,
+                        width: winEl.style.width || null,
+                        height: winEl.style.height || null
+                    };
+                }
+
+                windows[id] = winData;
+            }
+        }
+
+        const configData = {
+            version: "1.0",
+            exportedAt: new Date().toISOString(),
+            system,
+            windows
+        };
+
+        return format === "json" || format === "string" ? JSON.stringify(configData, null, 2) : configData;
+    },
+
+    importConfig(configData, { applyImmediately = true, persist = true } = {}) {
+        try {
+            const data = typeof configData === 'string' ? JSON.parse(configData) : configData;
+            if (!data || typeof data !== 'object') {
+                throw new Error("Formato de configuração JSON inválido.");
+            }
+
+            // 1. Aplica e restaura as configurações do Sistema (system)
+            if (data.system && typeof data.system === 'object') {
+                const sys = data.system;
+                if (sys.lookAndFeel) this.setLookAndFeel(sys.lookAndFeel, persist);
+                if (sys.taskbarPosition) this.setTaskbarPosition(sys.taskbarPosition, persist);
+                if (sys.globalMenuBarPosition) this.setMenuBarPosition(sys.globalMenuBarPosition, persist);
+                if (sys.globalMenuBarMode) this.setMenuBarMode(sys.globalMenuBarMode, persist);
+                if (sys.responsiveMode) this.setMobileMode(sys.responsiveMode, persist);
+            }
+
+            // 2. Aplica e restaura as configurações das Janelas (windows)
+            if (applyImmediately && data.windows && typeof data.windows === 'object') {
+                for (const [id, winConfig] of Object.entries(data.windows)) {
+                    // Tenta encontrar uma janela aberta pelo id ou pelo screenId
+                    let inst = this.windows[id] || Object.values(this.windows).find(w => w.screenId === winConfig.screenId);
+                    
+                    if (inst) {
+                        const winEl = inst.windowEl;
+
+                        // Restaura posições dos menus e toolbars
+                        if (winConfig.menubarPosition && typeof inst.setMenuBar === 'function') {
+                            inst.setMenuBar(inst.config?.menubar, winConfig.menubarPosition);
+                        }
+                        if (winConfig.actionToolbarPosition && typeof inst.setActionToolbar === 'function') {
+                            inst.setActionToolbar(inst.config?.actionToolbar, winConfig.actionToolbarPosition);
+                        }
+
+                        // Restaura estado reativo
+                        if (winConfig.state && inst.state && typeof inst.state === 'object') {
+                            Object.assign(inst.state, winConfig.state);
+                        }
+
+                        // Restaura coordenadas e dimensões
+                        if (winEl && winConfig.bounds) {
+                            if (winConfig.bounds.left) winEl.style.left = winConfig.bounds.left;
+                            if (winConfig.bounds.top) winEl.style.top = winConfig.bounds.top;
+                            if (winConfig.bounds.width) winEl.style.width = winConfig.bounds.width;
+                            if (winConfig.bounds.height) winEl.style.height = winConfig.bounds.height;
+                        }
+
+                        // Restaura estado de maximização / minimização
+                        if (winConfig.isMaximized) {
+                            inst.maximize();
+                        } else if (inst.isMaximized?.()) {
+                            inst.restore();
+                        }
+
+                        if (winConfig.isMinimized) {
+                            inst.minimize();
+                        }
+                    }
+                }
+            }
+
+            EventBus.emit("desktop:configimported", data);
+            return { success: true, data };
+        } catch (err) {
+            console.error("Erro ao importar configuração do desktop:", err);
+            return { success: false, error: err.message };
+        }
+    },
+
+    downloadConfigFile(filename = "desktop-config.json") {
+        const jsonStr = this.exportConfig({ format: "json" });
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+    },
+
+    loadConfigFile() {
+        return new Promise((resolve, reject) => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".json,application/json";
+            input.style.display = "none";
+            input.onchange = async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return resolve(null);
+                try {
+                    const text = await file.text();
+                    const result = this.importConfig(text);
+                    resolve(result);
+                } catch (err) {
+                    reject(err);
+                } finally {
+                    input.remove();
+                }
+            };
+            document.body.appendChild(input);
+            input.click();
+        });
     }
 };
 
