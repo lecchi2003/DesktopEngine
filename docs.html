@@ -2106,17 +2106,8 @@ Desktop.setMenuBarPosition("top");   // "top", "bottom", "left", "right" ou "non
                 aplicativos nativos (VS Code, Notepad, navegadores e suites de escritório).</p>
 
             <div class="alert alert-info">
-                <span class="alert-icon">✨</span>
-                <div>
-                    <strong>Recursos Avançados &amp; Smart Viewport Collision:</strong> Suporta ícones visuais (<code>icon</code>), atalhos de teclado
-                    alinhados à direita (<code>shortcut</code>), submenus aninhados multinível com <strong>inversão automática de lado (Smart Flip)</strong> para nunca transbordar a tela, <strong>ajuste vertical inteligente com rolagem automática</strong> para listas extensas, desabilitação condicional (<code>disabled</code>) e injeção automática do contexto da instância da
-                    janela <code>(instance, event)</code> nas ações.
-                </div>
-            </div>
-
             <h3>1. Declaração Declarativa na Configuração da Tela</h3>
-            <p>Basta declarar a propriedade <code>menubar</code> (ou <code>menus</code>) no objeto de configuração da
-                tela:</p>
+            <p>Basta declarar a propriedade <code>menubar</code> (ou <code>menus</code>) no objeto de configuração da tela. Você também pode definir a posição da barra com <code>menubarPosition</code> (<code>"top"</code>, <code>"bottom"</code>, <code>"left"</code> ou <code>"right"</code>):</p>
 
             <div class="code-box">
                 <pre><code>// screens/EditorScreen.js
@@ -2127,6 +2118,7 @@ export default {
     icon: "📝",
     width: 800,
     height: 500,
+    menubarPosition: "top", // "top" | "bottom" | "left" | "right" (Padrão: "top")
     state: { conteudo: "Texto inicial..." },
     menubar: [
         {
@@ -2166,7 +2158,7 @@ export default {
             icon: "✏️",
             items: [
                 {
-                    label: "Inserir Data e Hora",
+                    label: "Inserir Data/Hora",
                     icon: "🕒",
                     action: (instance) => {
                         instance.state.conteudo += `\n[${new Date().toLocaleString()}]`;
@@ -2199,25 +2191,38 @@ export default {
             </div>
 
             <h3>2. Manipulação Dinâmica em Tempo de Execução via API da Instância</h3>
-            <p>Você pode alterar ou remover a barra de menus da janela a qualquer momento durante a execução:</p>
+            <p>Você pode alterar os menus, reposicionar a barra ou interagir com o estado da janela de forma 100% encapsulada:</p>
 
             <div class="code-box">
                 <pre><code>// Dentro de qualquer view() ou action:
-// 1. Atualizar com novos menus
+// 1. Atualizar com novos menus e/ou reposicionar ("top", "bottom", "left", "right")
 this.setMenuBar([
     {
         label: "Modo Foco",
         icon: "🎯",
         items: [
-            { label: "Restaurar Menus Padrão", action: (inst) => inst.setMenuBar(inst.config.menubar) }
+            { label: "Restaurar Menus Padrão", action: (inst) => inst.setMenuBar(inst.config.menubar, "top") }
         ]
     }
-]);
+], "top");
 
-// 2. Ocultar o MenuBar da janela
+// 2. Mudar apenas a posição mantendo os menus atuais
+this.setMenuBar(this.config.menubar, "bottom"); // ou "left", "right", "top"
+
+// 3. Controle e consulta de estado encapsulados da janela:
+this.toggleMaximize();   // Alterna entre maximizado e restaurado
+this.isMaximized();       // Retorna true se estiver maximizada
+this.isMinimized();       // Retorna true se estiver minimizada
+this.isFocused();         // Retorna true se a janela estiver ativa/com foco
+this.maximize();          // Maximiza a janela
+this.restore();           // Restaura a janela ao tamanho anterior
+this.minimize();          // Minimiza a janela
+this.close();             // Fecha a janela
+
+// 4. Ocultar o MenuBar da janela
 this.setMenuBar(null);
 
-// 3. Obter o elemento DOM do MenuBar da janela
+// 5. Obter o elemento DOM do MenuBar da janela
 const mbEl = this.getMenuBar();</code></pre>
             </div>
 
@@ -2292,8 +2297,128 @@ const mbEl = this.getMenuBar();</code></pre>
                 <li><code>instance.minimize()</code>: Minimiza a janela para a taskbar.</li>
                 <li><code>instance.maximize()</code>: Alterna entre maximizada e restaurada.</li>
                 <li><code>instance.restore()</code>: Restaura a janela se estiver minimizada.</li>
+                <li><code>instance.toggleMaximize()</code>: Alterna entre maximizado e restaurado.</li>
+                <li><code>instance.isMaximized()</code>: Retorna se a janela está maximizada.</li>
+                <li><code>instance.isMinimized()</code>: Retorna se a janela está minimizada.</li>
+                <li><code>instance.isFocused()</code>: Retorna se a janela está ativa.</li>
                 <li><code>instance.focus()</code>: Traz a janela para o primeiro plano.</li>
+                <li><code>instance.setActionToolbar(actions, position)</code>: Define ou atualiza a barra de ações rápidas da janela.</li>
+                <li><code>instance.getActionToolbar()</code>: Retorna o elemento DOM da barra de ações.</li>
             </ul>
+
+            <!-- SEÇÃO: BARRA DE AÇÕES RÁPIDAS (ACTION TOOLBAR) -->
+            <h2 id="window-action-toolbar">Barra de Ações Rápidas de Janela (Action Toolbar)</h2>
+            <p>O <code>DesktopEngine</code> possui suporte nativo à <strong>Barra de Ações Rápidas (Action Toolbar)</strong> embutida diretamente na moldura da janela. Assim como o <code>MenuBar</code>, ela pode ser posicionada nos 4 lados da janela (<code>"top"</code>, <code>"bottom"</code>, <code>"left"</code>, <code>"right"</code>) e posiciona-se inteligentemente <strong>por dentro do MenuBar</strong> caso ambos compartilhem a mesma borda.</p>
+
+            <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Regra de Posicionamento Inteligente:</strong> Se o <code>MenuBar</code> e a <code>ActionToolbar</code> estiverem ambos no <code>"top"</code>, o MenuBar fica na borda externa superior e a ActionToolbar logo abaixo dele. Se ambos estiverem no <code>"bottom"</code>, a ActionToolbar fica acima do MenuBar. Caso estejam em posições diferentes (ex: MenuBar no <code>"top"</code> e ActionToolbar no <code>"left"</code>), cada componente se acomoda exatamente na sua respectiva lateral!
+                </div>
+            </div>
+
+            <h3>1. Configuração Declarativa na Tela</h3>
+            <div class="code-box">
+                <pre><code>export default {
+    title: "Editor com Barra de Ações",
+    icon: "📝",
+    width: 800,
+    height: 520,
+    actionToolbarPosition: "top", // "top" | "bottom" | "left" | "right"
+    actionToolbar: [
+        {
+            icon: "📄",
+            hint: "Novo Documento (Ctrl+N)",
+            action: (inst) => { inst.state.conteudo = ""; }
+        },
+        {
+            icon: "💾",
+            hint: "Salvar Arquivo",
+            action: (inst) => Toast({ message: "Salvo!", type: "success" })
+        },
+        "separator",
+        {
+            icon: "✨",
+            hint: "Ação Mágica",
+            variant: "primary",
+            action: (inst) => { /* executa ação */ }
+        },
+        {
+            icon: "🗖",
+            hint: "Maximizar / Restaurar",
+            action: (inst) => inst.toggleMaximize()
+        }
+    ],
+    view() {
+        return createElement("div", "p-4", ["Conteúdo da tela..."]);
+    }
+};</code></pre>
+            </div>
+
+            <h3>2. Manipulação Dinâmica em Tempo de Execução via API da Instância</h3>
+            <div class="code-box">
+                <pre><code>// 1. Atualizar ações e/ou mudar posição dinamicamente:
+this.setActionToolbar([
+    { icon: "⚡", hint: "Ação Rápida 1", action: (i) => console.log("Ação 1") },
+    { icon: "🔧", hint: "Ação Rápida 2", action: (i) => console.log("Ação 2") }
+], "left"); // "top" | "bottom" | "left" | "right"
+
+// 2. Ocultar a barra de ações:
+this.setActionToolbar(null);
+
+// 3. Obter o elemento DOM da barra:
+const tbEl = this.getActionToolbar();</code></pre>
+            </div>
+
+            <h3>3. Tabela de Propriedades dos Botões da Action Toolbar</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Propriedade</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>icon</code></td>
+                            <td>String</td>
+                            <td>Ícone ou emoji exibido no botão (ex: <code>"💾"</code>, <code>"📄"</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td>String (Opcional)</td>
+                            <td>Texto opcional ao lado do ícone.</td>
+                        </tr>
+                        <tr>
+                            <td><code>hint</code> / <code>tooltip</code></td>
+                            <td>String</td>
+                            <td>Dica flutuante (hint) exibida ao passar o mouse.</td>
+                        </tr>
+                        <tr>
+                            <td><code>action</code></td>
+                            <td>Function | String</td>
+                            <td>Callback executado ao clicar: <code>(instance, event) => { ... }</code> ou nome de ação declarada.</td>
+                        </tr>
+                        <tr>
+                            <td><code>variant</code></td>
+                            <td>String</td>
+                            <td>Estilo visual (ex: <code>"primary"</code>, <code>"danger"</code>, etc.).</td>
+                        </tr>
+                        <tr>
+                            <td><code>active</code></td>
+                            <td>Boolean</td>
+                            <td>Aplica o estado destacado/ativo ao botão se <code>true</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>disabled</code></td>
+                            <td>Boolean | Function</td>
+                            <td>Desabilita o botão se <code>true</code> ou <code>(instance) => boolean</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- SEÇÃO: JANELAS FILHAS (DIALOGS) -->
             <h2 id="janelas-filhas">Janelas Modais Filhas (Dialogs / Sub-Windows)</h2>

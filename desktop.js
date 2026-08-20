@@ -1,6 +1,6 @@
 // desktop.js
 import { EventBus, Framework } from './core.js';
-import { bindContextMenu, MenuBar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
+import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
 
 export const Desktop = {
     windowsEl: null,
@@ -378,6 +378,7 @@ export const Desktop = {
                 </div>
             </div>
             <div class="window-menubar ui-menubar" style="display: none;"></div>
+            <div class="window-action-toolbar ui-action-toolbar" style="display: none;"></div>
             <div class="windowBody"></div>
             <div class="statusbar"></div>
             ${resizable ? `
@@ -402,8 +403,10 @@ export const Desktop = {
         if (statusbarEl) statusbarEl.textContent = config.status || "Pronto";
 
         // --- Injeção de Métodos de Controle na Instância ---
-        instance.setMenuBar = (menus) => this.setWindowMenuBar(instance, menus);
+        instance.setMenuBar = (menus, position) => this.setWindowMenuBar(instance, menus, position);
         instance.getMenuBar = () => instance.windowEl ? instance.windowEl.querySelector(".window-menubar") : null;
+        instance.setActionToolbar = (actions, position) => this.setWindowActionToolbar(instance, actions, position);
+        instance.getActionToolbar = () => instance.windowEl ? instance.windowEl.querySelector(".window-action-toolbar") : null;
         instance.setContextMenu = (items) => {
             if (instance._contextMenuController?.destroy) instance._contextMenuController.destroy();
             instance._contextMenuController = bindContextMenu(w.querySelector(".windowBody") || w, items);
@@ -416,12 +419,24 @@ export const Desktop = {
         instance.minimize = () => this.minimizeWindow(w);
         instance.maximize = () => this.maximizeWindow(w);
         instance.restore = () => this.restoreWindow(w);
+        instance.toggleMaximize = () => instance.isMaximized() ? this.restoreWindow(w) : this.maximizeWindow(w);
+        instance.isMaximized = () => !!(w && w.classList.contains("maximized"));
+        instance.isMinimized = () => !!(w && w.classList.contains("minimized"));
+        instance.isFocused = () => this.activeWindowId === instance.id;
         instance.focus = () => this.focusWindow(w);
 
         // --- Inicializa Window MenuBar se configurado na tela ---
         const windowMenus = config.menubar || config.menus || config.menu;
         if (windowMenus && Array.isArray(windowMenus) && windowMenus.length > 0) {
-            this.setWindowMenuBar(instance, windowMenus);
+            const initialPos = config.menubarPosition || config.menuBarPosition || config.menuPosition || "top";
+            this.setWindowMenuBar(instance, windowMenus, initialPos);
+        }
+
+        // --- Inicializa Window Action Toolbar se configurado na tela ---
+        const windowActions = config.actionToolbar || config.toolbar || config.actionMenu || config.menuActions || (Array.isArray(config.actions) ? config.actions : null);
+        if (windowActions && Array.isArray(windowActions) && windowActions.length > 0) {
+            const initialActionPos = config.actionToolbarPosition || config.toolbarPosition || config.actionsPosition || "top";
+            this.setWindowActionToolbar(instance, windowActions, initialActionPos);
         }
 
         // --- Inicializa Window ContextMenu se configurado declarativamente na tela ---
@@ -516,7 +531,7 @@ export const Desktop = {
         return w;
     },
 
-    setWindowMenuBar(instance, menus) {
+    setWindowMenuBar(instance, menus, position = null) {
         if (!instance || !instance.windowEl) return;
         const mbEl = instance.windowEl.querySelector(".window-menubar");
         if (!mbEl) return;
@@ -527,9 +542,27 @@ export const Desktop = {
             return;
         }
 
+        const pos = position || mbEl.dataset.position || instance.config?.menubarPosition || instance.config?.menuBarPosition || "top";
         mbEl.innerHTML = "";
         mbEl.style.display = "flex";
-        MenuBar({ element: mbEl, menus, windowInstance: instance });
+        MenuBar({ element: mbEl, menus, position: pos, windowInstance: instance });
+    },
+
+    setWindowActionToolbar(instance, actions, position = null) {
+        if (!instance || !instance.windowEl) return;
+        const tbEl = instance.windowEl.querySelector(".window-action-toolbar");
+        if (!tbEl) return;
+
+        if (!actions || (Array.isArray(actions) && actions.length === 0)) {
+            tbEl.innerHTML = "";
+            tbEl.style.display = "none";
+            return;
+        }
+
+        const pos = position || tbEl.dataset.position || instance.config?.actionToolbarPosition || instance.config?.toolbarPosition || instance.config?.actionsPosition || "top";
+        tbEl.innerHTML = "";
+        tbEl.style.display = "flex";
+        ActionToolbar({ element: tbEl, actions, position: pos, windowInstance: instance });
     },
 
     focusWindow(w) {

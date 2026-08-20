@@ -1306,6 +1306,69 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
     return bar;
 }
 
+// --- ACTION TOOLBAR (BARRA DE AÇÕES RÁPIDAS DE JANELA / APP) ---
+export function ActionToolbar({ containerId, element, position = "top", actions = [], windowInstance = null } = {}) {
+    let bar;
+    if (element && (element.nodeType || element instanceof HTMLElement)) {
+        bar = element;
+    } else if (containerId) {
+        bar = document.getElementById(containerId);
+    } else {
+        bar = createElement("div", "ui-action-toolbar", []);
+    }
+    if (!bar) return null;
+
+    bar.innerHTML = "";
+    if (!bar.classList.contains("ui-action-toolbar")) {
+        bar.classList.add("ui-action-toolbar");
+    }
+
+    bar.dataset.position = position || "top";
+
+    actions.forEach(act => {
+        if (act === "separator") {
+            bar.appendChild(createElement("div", "action-toolbar-sep", []));
+            return;
+        }
+
+        const btnChildren = [];
+        if (act.icon) {
+            btnChildren.push(createElement("span", "action-toolbar-icon", [act.icon]));
+        }
+        if (act.label) {
+            btnChildren.push(createElement("span", "action-toolbar-label", [act.label]));
+        }
+
+        const btn = createElement("button", `action-toolbar-btn ${act.variant ? 'btn-' + act.variant : ''} ${act.active ? 'active' : ''}`, btnChildren);
+        
+        const hintText = act.hint || act.tooltip || act.title || act.label || "";
+        if (hintText) {
+            btn.title = hintText;
+            btn.setAttribute("aria-label", hintText);
+        }
+
+        const isDisabled = typeof act.disabled === 'function' ? act.disabled(windowInstance) : !!act.disabled;
+        if (isDisabled) {
+            btn.disabled = true;
+            btn.classList.add("disabled");
+        }
+
+        btn.onclick = (e) => {
+            if (btn.disabled) return;
+            e.stopPropagation();
+            if (typeof act.action === 'function') {
+                act.action(windowInstance, e);
+            } else if (typeof act.action === 'string' && windowInstance && typeof windowInstance.runAction === 'function') {
+                windowInstance.runAction(act.action, e);
+            }
+        };
+
+        bar.appendChild(btn);
+    });
+
+    return bar;
+}
+
 export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
     let btn = document.getElementById(buttonId);
 
