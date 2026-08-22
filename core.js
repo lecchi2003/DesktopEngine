@@ -1,5 +1,5 @@
 // core.js
-
+//Autor: Gildasio Lecchi Cravo
 // --- Event Bus (Pub/Sub com suporte a LocalStorage) ---
 export const EventBus = {
     listeners: {},
