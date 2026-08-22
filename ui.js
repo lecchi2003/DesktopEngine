@@ -1,4 +1,5 @@
 // ui.js
+//Autor: Gildasio Lecchi Cravo 
 import { Desktop } from './desktop.js';
 import { EventBus } from './core.js';
 
