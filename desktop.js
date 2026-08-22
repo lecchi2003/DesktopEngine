@@ -1,4 +1,5 @@
 // desktop.js
+//Autor: Gildasio Lecchi Cravo
 import { EventBus, Framework } from './core.js';
 import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
 
