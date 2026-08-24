@@ -934,7 +934,7 @@ export const Desktop = {
             icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>`,
             label: "",
             showLabel: false,
-            tooltip: "Iniciar (Windows 11)",
+            tooltip: "Iniciar (Modern Glass)",
             dockPosition: "bottom",
             dockMode: "center"
         },
@@ -942,7 +942,7 @@ export const Desktop = {
             icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>`,
             label: "",
             showLabel: false,
-            tooltip: "Iniciar (Win 11 2)",
+            tooltip: "Iniciar (Modern Glass 2)",
             dockPosition: "bottom",
             dockMode: "floating"
         },
@@ -1615,8 +1615,8 @@ export const Desktop = {
     getAvailableLookAndFeels() {
         return [
             // Modernos & Mobile Design Systems
-            { id: "win11",           label: "Windows 11 (Centro)",             category: "Sistemas Modernos",  icon: "🪟",  desc: "Dock centralizado estilo Windows 11" },
-            { id: "win11-2",         label: "Windows 11 2 (Glass)",            category: "Sistemas Modernos",  icon: "🪟",  desc: "Versão sofisticada e translúcida do Win 11" },
+            { id: "win11",           label: "Modern Glass (Centro)",             category: "Sistemas Modernos",  icon: "🪟",  desc: "Dock centralizado estilo Modern Glass" },
+            { id: "win11-2",         label: "Modern Glass 2 (Glass)",            category: "Sistemas Modernos",  icon: "🪟",  desc: "Versão sofisticada e translúcida do Modern Glass" },
             { id: "default",         label: "Padrão / Moderno",               category: "Modernos & Mobile",  icon: "✨",  desc: "Design padrão limpo e elegante do DesktopEngine" },
             { id: "aqua-frosted",    label: "Aqua Frosted (Vidro Fosco)",     category: "Modernos & Mobile",  icon: "🍎",  desc: "Traffic lights à esquerda, título centralizado e cantos de 12px" },
             { id: "fluent-acrylic",  label: "Fluent Acrylic (Acrílico)",      category: "Modernos & Mobile",  icon: "🪟",  desc: "Cantos de 8px, controles refinados e botão fechar com hover vermelho" },

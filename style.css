@@ -10164,6 +10164,12 @@ select option {
     justify-content: center !important;
     z-index: 9999;
 }
+[data-laf="brushed-metal-2"] .ui-dock-widget.pos-bottom-right,
+[data-laf="brushed-metal-2"] .ui-dock-widget.pos-bottom-left,
+[data-laf="brushed-metal-2"] .ui-dock-widget.pos-bottom-center,
+[data-laf="brushed-metal-2"] .ui-float-button-wrap.pos-bottom-right {
+    bottom: 85px !important;
+}
 [data-laf="brushed-metal-2"] .taskButton, [data-laf="brushed-metal-2"] .taskStart {
     background: transparent !important;
     border: none !important;
@@ -10190,8 +10196,20 @@ select option {
     border-radius: 12px;
 }
 [data-laf="win11-2"] .titlebar {
+    background: rgba(255, 255, 255, 0.4) !important;
+    color: #222222 !important;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+[data-laf="win11-2"] .winBtn {
+    color: #222222 !important;
     background: transparent !important;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+[data-laf="win11-2"] .winBtn:hover {
+    background: rgba(0,0,0,0.08) !important;
+}
+[data-laf="win11-2"] .winBtn.close:hover {
+    background: #e81123 !important;
+    color: #ffffff !important;
 }
 [data-laf="win11-2"] #taskbar {
     position: absolute !important;
@@ -10205,6 +10223,12 @@ select option {
     width: 95% !important;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     z-index: 9999;
+}
+[data-laf="win11-2"] .ui-dock-widget.pos-bottom-right,
+[data-laf="win11-2"] .ui-dock-widget.pos-bottom-left,
+[data-laf="win11-2"] .ui-dock-widget.pos-bottom-center,
+[data-laf="win11-2"] .ui-float-button-wrap.pos-bottom-right {
+    bottom: 75px !important;
 }
 [data-laf="win11-2"] .taskButton, [data-laf="win11-2"] .taskStart {
     border-radius: 10px;

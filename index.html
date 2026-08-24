@@ -61,8 +61,8 @@
                     label: "🕹️ Clássicos & Retro 3D",
                     items: [
                         { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
-                        { label: "🪟 Windows 11 (Centro)", action: () => Desktop.setLookAndFeel("win11") },
-                        { label: "🪟 Windows 11 2 (Glass)", action: () => Desktop.setLookAndFeel("win11-2") },
+                        { label: "🪟 Modern Glass (Centro)", action: () => Desktop.setLookAndFeel("win11") },
+                        { label: "🪟 Modern Glass 2 (Flutuante)", action: () => Desktop.setLookAndFeel("win11-2") },
                         { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
                         { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
                         { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
@@ -259,7 +259,7 @@
             showDesktopButton: true,
             clock: { format: "pt-BR", showSeconds: true },
             menuBar: globalSystemMenus,
-            startMenu: nativeStartMenus, 
+            startMenu: nativeStartMenus,
             contextMenu: {
                 items: desktopContextMenus,
                 allowNativeKey: "shift"
@@ -532,9 +532,9 @@
                                                     { label: "💠 Cupertino Touch (iOS Style)", value: "cupertino-touch" },
 
                                                     // ── Windows ─────────────────────────────────
-                                                    { label: "─── Windows ───", value: "default", disabled: true },
-                                                    { label: "🪟 Windows 11 (Centro)", value: "win11" },
-                                                    { label: "🪟 Windows 11 2 (Glass)", value: "win11-2" },
+                                                    { label: "─── Modern Glass ───", value: "default", disabled: true },
+                                                    { label: "🪟 Modern Glass (Centro)", value: "win11" },
+                                                    { label: "🪟 Modern Glass 2 (Flutuante)", value: "win11-2" },
                                                     { label: "🪟 Aero Glass (Translúcido)", value: "aero-glass" },
                                                     { label: "🌀 Fluent Acrylic (Acrílico Moderno)", value: "fluent-acrylic" },
                                                     { label: "🔵 Luna Classic (Azul & Verde)", value: "luna-blue" },
@@ -998,6 +998,8 @@
             position: "bottom-right",
             width: "320px",
             height: "300px",
+            startMinimized: true,
+            controls: { minimize: true, expand: false, close: false },
             headerActions: [
                 {
                     icon: "🧹",
