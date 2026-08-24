@@ -67,6 +67,7 @@
                         { label: "⬛ Dark Slate Cube (Workstation)", action: () => Desktop.setLookAndFeel("next-dark") },
                         { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
                         { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
+                        { label: "💿 Brushed Metal (Classic)", action: () => Desktop.setLookAndFeel("brushed-metal") },
                         { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
                     ]
                 },
@@ -251,11 +252,11 @@
         Desktop.init({
             windowsContainerId: "windows",
             taskbarContainerId: "taskWindows",
-            taskbarPosition: "left", // Pode ser 'top', 'bottom', 'left', 'right'
+            taskbarPosition: "bottom", // Pode ser 'top', 'bottom', 'left', 'right'
             showDesktopButton: true,
             clock: { format: "pt-BR", showSeconds: true },
             menuBar: globalSystemMenus,
-            startMenu: nativeStartMenus,
+            startMenu: nativeStartMenus, 
             contextMenu: {
                 items: desktopContextMenus,
                 allowNativeKey: "shift"
@@ -546,6 +547,7 @@
                                                     { label: "🔷 Caspian Slate (Dark Blue)", value: "caspian-dark" },
                                                     { label: "🟡 Yellow Tab (Media Style)", value: "yellow-tab" },
                                                     { label: "🍏 Platinum Classic (Monocromático)", value: "platinum-classic" },
+                                                    { label: "💿 Brushed Metal (Classic)", value: "brushed-metal" },
                                                     { label: "🟦 Warp Enterprise (Cobalt)", value: "warp-enterprise" },
 
                                                     // ── Modern UI ───────────────────────────────
@@ -875,11 +877,11 @@
                 }]
             },
             view() {
-                const msgList = createElement("div", "", 
+                const msgList = createElement("div", "",
                     this.state.receivedMessages.map(m => createElement("div", "", [m]))
                 );
                 msgList.style.cssText = "flex: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; font-family: monospace; font-size: 11px; height: 180px; border: 1px solid var(--win-border); display: flex; flex-direction: column; gap: 4px;";
-                
+
                 return createElement("div", "flex-col", [
                     createElement("div", "", ["Envie uma mensagem em tempo real para o Terminal Beta."]),
                     createElement("br", "", []),
@@ -930,11 +932,11 @@
                 }]
             },
             view() {
-                const msgList = createElement("div", "", 
+                const msgList = createElement("div", "",
                     this.state.receivedMessages.map(m => createElement("div", "", [m]))
                 );
                 msgList.style.cssText = "flex: 1; overflow-y: auto; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; font-family: monospace; font-size: 11px; height: 180px; border: 1px solid var(--win-border); display: flex; flex-direction: column; gap: 4px;";
-                
+
                 return createElement("div", "flex-col", [
                     createElement("div", "", ["Envie uma mensagem em tempo real para o Terminal Alfa."]),
                     createElement("br", "", []),
