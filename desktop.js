@@ -914,6 +914,12 @@ export const Desktop = {
             showLabel: true,
             tooltip: "Menu Sistema (Platinum Classic)"
         },
+        'brushed-metal': {
+            icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/></svg>`,
+            label: "Metal",
+            showLabel: true,
+            tooltip: "Menu Sistema (Brushed Metal)"
+        },
         'material-tonal': {
             icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="6" cy="6" r="2.5"/><circle cx="12" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="12" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/></svg>`,
             label: "Apps",
@@ -1073,6 +1079,14 @@ export const Desktop = {
             label: "Painel",
             showLabel: true,
             tooltip: "Painel Frontal (Motif)"
+        },
+        'platinum-classic': {
+            dockPosition: "bottom",
+            dockMode: "full"
+        },
+        'brushed-metal': {
+            dockPosition: "top",
+            dockMode: "full"
         },
         'turbo-tui': {
             icon: `≡`,
@@ -1608,6 +1622,7 @@ export const Desktop = {
             { id: "next-dark",       label: "Next Dark (Step Style)",          category: "Retrô & Clássicos",  icon: "⬛",  desc: "Tons de cinza puro e preto com relevos chanfrados profundos" },
             { id: "workbench-boing", label: "Workbench Boing (Retro Cores)",   category: "Retrô & Clássicos",  icon: "💾",  desc: "Azul royal, listras pinstripe e acentos âmbar retrô" },
             { id: "platinum-classic",label: "Platinum Classic (Monocromático)",category: "Retrô & Clássicos",  icon: "🍏",  desc: "Pinstripes horizontais, botão fechar quadrado à esquerda" },
+            { id: "brushed-metal",label: "Brushed Metal (Classic)",category: "Retrô & Clássicos",  icon: "💿",  desc: "Estilo Metal escovado clássico e iTunes" },
             { id: "warp-enterprise", label: "Warp Enterprise (Cobalt)",        category: "Retrô & Clássicos",  icon: "🟦",  desc: "Estética corporativa azul-acinzentada com chanfros sólidos" },
 
             // Desktops Abertos & Compositors

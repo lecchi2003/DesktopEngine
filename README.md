@@ -1525,6 +1525,7 @@ EventBus.on("laf:change", (lafName) => {
 | **Retrô & Clássicos 3D** | `"next-dark"` | Dark Slate Cube | Estética monocromática em tons de cinza puro e preto com relevos 3D profundos. |
 | **Retrô & Clássicos 3D** | `"workbench-boing"` | Workbench Retro | Paleta retrô de alto contraste (Azul Royal, Âmbar e Preto) com pinstripes. |
 | **Retrô & Clássicos 3D** | `"platinum-classic"` | Platinum Classic | Pinstripes horizontais na barra, botão de fechar quadrado à esquerda. |
+| **Retrô & Clássicos 3D** | `"brushed-metal"` | Brushed Metal (Classic) | Estilo Metal escovado clássico e iTunes. |
 | **Retrô & Clássicos 3D** | `"warp-enterprise"` | Warp Enterprise | Visual corporativo azul-acinzentado com moldura chanfrada sólida. |
 | **Desktops Unix & Abertos** | `"aubergine-orange"` | Aubergine Orange | Barra berinjela/grafite com acentos em Laranja e botões circulares de alto contraste. |
 | **Desktops Unix & Abertos** | `"pantheon-pure"` | Pantheon Pure | Fechar à esquerda, maximizar à direita, título centralizado e cantos de 10px. |
