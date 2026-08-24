@@ -9494,10 +9494,15 @@ select option {
     gap: 8px;
     font-weight: 600;
     font-size: 13.5px;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+}
+
+.ui-dock-title {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--text-primary);
 }
 
 .ui-dock-icon {
@@ -9516,6 +9521,7 @@ select option {
     border-radius: 9px;
     color: #ffffff;
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .ui-dock-badge.badge-danger {
