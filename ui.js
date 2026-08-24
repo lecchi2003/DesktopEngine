@@ -1136,13 +1136,25 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         nested.style.removeProperty("max-width");
                         nested.style.removeProperty("overflow-y");
 
-                        const vw = window.innerWidth || document.documentElement.clientWidth;
-                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        let rightBound = window.innerWidth || document.documentElement.clientWidth;
+                        let bottomBound = window.innerHeight || document.documentElement.clientHeight;
+                        let leftBound = 0;
+                        let topBound = 0;
+                        
+                        if (windowInstance && (windowInstance.element || windowInstance.windowEl)) {
+                            const el = windowInstance.element || windowInstance.windowEl;
+                            const winRect = el.getBoundingClientRect();
+                            rightBound = winRect.right;
+                            bottomBound = winRect.bottom;
+                            leftBound = winRect.left;
+                            topBound = winRect.top;
+                        }
+
                         const pad = 10;
                         const rect = nested.getBoundingClientRect();
 
                         // 1. Inversão Horizontal Inteligente (se ultrapassar a borda direita)
-                        if (rect.right > vw - pad) {
+                        if (rect.right > rightBound - pad) {
                             nested.classList.add("open-left");
                             nested.style.setProperty("left", "auto", "important");
                             nested.style.setProperty("right", "100%", "important");
@@ -1150,20 +1162,20 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                             nested.style.setProperty("margin-right", "-4px", "important");
 
                             const rectLeft = nested.getBoundingClientRect();
-                            if (rectLeft.left < pad) {
+                            if (rectLeft.left < leftBound + pad) {
                                 nested.classList.remove("open-left");
                                 nested.style.setProperty("left", "auto", "important");
                                 nested.style.setProperty("right", "0", "important");
-                                nested.style.setProperty("max-width", `${vw - 2 * pad}px`, "important");
+                                nested.style.setProperty("max-width", `${rightBound - leftBound - 2 * pad}px`, "important");
                             }
                         }
 
                         // 2. Ajuste Vertical Inteligente (se ultrapassar a borda inferior)
                         const curRect = nested.getBoundingClientRect();
-                        if (curRect.bottom > vh - pad) {
+                        if (curRect.bottom > bottomBound - pad) {
                             const optRect = opt.getBoundingClientRect();
-                            const spaceAbove = optRect.top - pad;
-                            const spaceBelow = vh - optRect.bottom - pad;
+                            const spaceAbove = optRect.top - topBound - pad;
+                            const spaceBelow = bottomBound - optRect.bottom - pad;
 
                             if (spaceAbove > spaceBelow && spaceAbove >= curRect.height) {
                                 nested.classList.add("open-top");
@@ -1172,11 +1184,11 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                                 nested.style.setProperty("margin-top", "0", "important");
                                 nested.style.setProperty("margin-bottom", "-4px", "important");
                             } else {
-                                const overflow = curRect.bottom - (vh - pad);
-                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - pad));
+                                const overflow = curRect.bottom - (bottomBound - pad);
+                                const shiftY = Math.min(overflow + 4, Math.max(0, optRect.top - topBound - pad));
                                 nested.style.setProperty("top", `${-shiftY}px`, "important");
-                                if (curRect.height > vh - 2 * pad) {
-                                    nested.style.setProperty("max-height", `${vh - 2 * pad}px`, "important");
+                                if (curRect.height > bottomBound - topBound - 2 * pad) {
+                                    nested.style.setProperty("max-height", `${bottomBound - topBound - 2 * pad}px`, "important");
                                     nested.style.setProperty("overflow-y", "auto", "important");
                                     nested.style.setProperty("overflow-x", "hidden", "important");
                                 }
@@ -1257,8 +1269,14 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             if (dropdown) {
                 dropdown.classList.remove("align-right");
                 const rect = dropdown.getBoundingClientRect();
-                const vw = window.innerWidth || document.documentElement.clientWidth;
-                if (rect.right > vw - 10) {
+                
+                let rightBound = window.innerWidth || document.documentElement.clientWidth;
+                if (windowInstance && (windowInstance.element || windowInstance.windowEl)) {
+                    const el = windowInstance.element || windowInstance.windowEl;
+                    rightBound = el.getBoundingClientRect().right;
+                }
+                
+                if (rect.right > rightBound - 10) {
                     dropdown.classList.add("align-right");
                 }
             }
