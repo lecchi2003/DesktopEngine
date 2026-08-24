@@ -10098,3 +10098,96 @@ select option {
     text-shadow: none !important;
 }
 
+/* ====================================================
+   Brushed Metal 2 (Sophisticated)
+   ==================================================== */
+[data-laf="brushed-metal-2"] {
+    --window-bg: #ececec;
+    --titlebar-bg: #d0d0d0;
+}
+[data-laf="brushed-metal-2"] .window,
+[data-laf="brushed-metal-2"] #menubar,
+[data-laf="brushed-metal-2"] .ui-start-menu,
+[data-laf="brushed-metal-2"] .dropdown {
+    background: repeating-linear-gradient(90deg, #d8d8d8, #d8d8d8 1px, #c4c4c4 1px, #c4c4c4 2px) !important;
+    color: #222;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    border: 1px solid #777;
+    border-radius: 6px;
+}
+[data-laf="brushed-metal-2"] .titlebar {
+    background: linear-gradient(180deg, #ffffff, #c0c0c0) !important;
+    color: #222 !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+    border-bottom: 1px solid #777;
+    border-radius: 6px 6px 0 0;
+}
+[data-laf="brushed-metal-2"] .winBtn {
+    border-radius: 50% !important;
+    width: 14px !important;
+    height: 14px !important;
+    margin-top: 6px !important;
+    margin-right: 6px !important;
+    color: transparent !important;
+    border: 1px solid rgba(0,0,0,0.3) !important;
+    box-shadow: inset 0 1px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.4) !important;
+}
+[data-laf="brushed-metal-2"] .winBtn.close { background: radial-gradient(circle at 30% 30%, #ff5f56, #d90000) !important; }
+[data-laf="brushed-metal-2"] .winBtn.minimize { background: radial-gradient(circle at 30% 30%, #ffbd2e, #d99a00) !important; }
+[data-laf="brushed-metal-2"] .winBtn.maximize { background: radial-gradient(circle at 30% 30%, #27c93f, #009a00) !important; }
+
+[data-laf="brushed-metal-2"] #taskbar {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(255,255,255,0.8);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    padding: 0 10px;
+}
+[data-laf="brushed-metal-2"] .taskButton, [data-laf="brushed-metal-2"] .taskStart {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+[data-laf="brushed-metal-2"] .taskButton:hover, [data-laf="brushed-metal-2"] .taskStart:hover {
+    background: rgba(255,255,255,0.4) !important;
+}
+
+/* ====================================================
+   Windows 11 2 (Glass)
+   ==================================================== */
+[data-laf="win11-2"] {
+    --window-bg: rgba(255, 255, 255, 0.7);
+    --titlebar-bg: transparent;
+    --border-color: rgba(0,0,0,0.1);
+}
+[data-laf="win11-2"] .window {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border-radius: 12px;
+}
+[data-laf="win11-2"] .titlebar {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+[data-laf="win11-2"] #taskbar {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 20px;
+    margin: 10px auto !important;
+    width: 95% !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+[data-laf="win11-2"] .taskButton, [data-laf="win11-2"] .taskStart {
+    border-radius: 10px;
+    background: transparent !important;
+    border: none !important;
+}
+[data-laf="win11-2"] .taskButton:hover, [data-laf="win11-2"] .taskStart:hover {
+    background: rgba(255,255,255,0.8) !important;
+}
+
