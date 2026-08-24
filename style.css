@@ -10033,6 +10033,7 @@ select option {
 }
 
 /* --- Classic Brushed Metal --- */
+/* --- Classic Brushed Metal --- */
 [data-laf="brushed-metal"] {
     --win-bg: #b5b5b5;
     --menu-bg: #cdcdcd;
