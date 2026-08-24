@@ -774,7 +774,8 @@ const dock = DockWidget({
     position: "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
     width: "320px",
     height: "300px",
-    allowMinimizeToTray: true, // Habilita o botão para minimizar para o cantinho da Taskbar
+    startMinimized: true,
+    controls: { minimize: true, expand: false, close: false }, // Configuração de controles da janela
     headerActions: [
         {
             icon: "🧹",

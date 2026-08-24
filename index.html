@@ -61,6 +61,8 @@
                     label: "🕹️ Clássicos & Retro 3D",
                     items: [
                         { label: "🟡 Yellow Tab (Media OS)", action: () => Desktop.setLookAndFeel("yellow-tab") },
+                        { label: "🪟 Modern Glass (Centro)", action: () => Desktop.setLookAndFeel("win11") },
+                        { label: "🪟 Modern Glass 2 (Flutuante)", action: () => Desktop.setLookAndFeel("win11-2") },
                         { label: "🕹️ Retro 3D (Chanfrado)", action: () => Desktop.setLookAndFeel("retro-3d") },
                         { label: "🔵 Luna Classic (Azul & Verde)", action: () => Desktop.setLookAndFeel("luna-blue") },
                         { label: "🪟 Aero Glass (Translúcido)", action: () => Desktop.setLookAndFeel("aero-glass") },
@@ -68,6 +70,7 @@
                         { label: "💾 Workbench Retro (Topaz)", action: () => Desktop.setLookAndFeel("workbench-boing") },
                         { label: "🍏 Platinum Classic (Monocromático)", action: () => Desktop.setLookAndFeel("platinum-classic") },
                         { label: "💿 Brushed Metal (Classic)", action: () => Desktop.setLookAndFeel("brushed-metal") },
+                        { label: "💿 Brushed Metal 2 (Sophisticated)", action: () => Desktop.setLookAndFeel("brushed-metal-2") },
                         { label: "🟦 Warp Enterprise (Cobalt)", action: () => Desktop.setLookAndFeel("warp-enterprise") }
                     ]
                 },
@@ -256,7 +259,7 @@
             showDesktopButton: true,
             clock: { format: "pt-BR", showSeconds: true },
             menuBar: globalSystemMenus,
-            startMenu: nativeStartMenus, 
+            startMenu: nativeStartMenus,
             contextMenu: {
                 items: desktopContextMenus,
                 allowNativeKey: "shift"
@@ -529,7 +532,9 @@
                                                     { label: "💠 Cupertino Touch (iOS Style)", value: "cupertino-touch" },
 
                                                     // ── Windows ─────────────────────────────────
-                                                    { label: "─── Windows ───", value: "default", disabled: true },
+                                                    { label: "─── Modern Glass ───", value: "default", disabled: true },
+                                                    { label: "🪟 Modern Glass (Centro)", value: "win11" },
+                                                    { label: "🪟 Modern Glass 2 (Flutuante)", value: "win11-2" },
                                                     { label: "🪟 Aero Glass (Translúcido)", value: "aero-glass" },
                                                     { label: "🌀 Fluent Acrylic (Acrílico Moderno)", value: "fluent-acrylic" },
                                                     { label: "🔵 Luna Classic (Azul & Verde)", value: "luna-blue" },
@@ -548,6 +553,7 @@
                                                     { label: "🟡 Yellow Tab (Media Style)", value: "yellow-tab" },
                                                     { label: "🍏 Platinum Classic (Monocromático)", value: "platinum-classic" },
                                                     { label: "💿 Brushed Metal (Classic)", value: "brushed-metal" },
+                                                    { label: "💿 Brushed Metal 2 (Sophisticated)", value: "brushed-metal-2" },
                                                     { label: "🟦 Warp Enterprise (Cobalt)", value: "warp-enterprise" },
 
                                                     // ── Modern UI ───────────────────────────────
@@ -992,6 +998,8 @@
             position: "bottom-right",
             width: "320px",
             height: "300px",
+            startMinimized: true,
+            controls: { minimize: true, expand: false, close: false },
             headerActions: [
                 {
                     icon: "🧹",

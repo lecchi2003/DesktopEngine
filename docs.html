@@ -1879,10 +1879,16 @@ Tooltip({
                         <td>Botões de ação no cabeçalho: <code>[{ icon, title, action: (dockApi, event) => {} }]</code>.</td>
                     </tr>
                     <tr>
-                        <td><code>allowMinimizeToTray</code></td>
+                        <td><code>startMinimized</code></td>
                         <td><code>Boolean</code></td>
-                        <td><code>true</code></td>
-                        <td>Habilita o botão para minimizar para a barra de tarefas (ao lado do relógio).</td>
+                        <td><code>false</code></td>
+                        <td>Se <code>true</code>, o componente inicia diretamente na barra de tarefas (minimizado).</td>
+                    </tr>
+                    <tr>
+                        <td><code>controls</code></td>
+                        <td><code>Object</code></td>
+                        <td><code>{ minimize: true, expand: true, close: false }</code></td>
+                        <td>Habilita ou desabilita botões específicos do cabeçalho (minimizar para tray, setinha de expandir/recolher e fechar).</td>
                     </tr>
                     <tr>
                         <td><code>trayTooltip</code></td>
@@ -1915,7 +1921,8 @@ const dock = DockWidget({
     badge: 2,
     badgeVariant: "danger",
     position: "bottom-right",
-    allowMinimizeToTray: true, // Adiciona o botão de minimizar para a barra de tarefas
+    startMinimized: true, // Inicia minimizado na barra de tarefas
+    controls: { minimize: true, expand: false, close: false }, // Esconde botão expandir para comportamento estilo menu
     headerActions: [
         {
             icon: "🧹",
@@ -1944,7 +1951,8 @@ dock.setBadge(dock.getBadge() + 1); // Define ou incrementa badge
 dock.addItem("📩 Novo e-mail recebido!", true); // true = insere no topo
 dock.clear();            // Limpa o histórico de mensagens
 dock.minimizeToTray();   // Minimiza para o canto do relógio na taskbar
-dock.restoreFromTray();  // Restaura e abre o dock</code></pre>
+dock.restoreFromTray();  // Restaura e abre o dock
+dock.close();            // Destrói o widget e remove do DOM</code></pre>
             </div>
 
             <!-- SEÇÃO: FLOAT BUTTON -->

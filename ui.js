@@ -2573,6 +2573,7 @@ export function DockWidget({
     bindBadge = null,
     badgeVariant = "danger",
     expanded = false,
+    startMinimized = false,
     bindExpanded = null,
     position = "bottom-right", // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
     width = "320px",
@@ -2581,7 +2582,8 @@ export function DockWidget({
     content = [],       // Array de elementos, nós DOM ou função () => []
     instance = null,
     targetContainer = null,
-    allowMinimizeToTray = true, // Permite minimizar para a bandeja/taskbar (estilo Windows tray)
+    allowMinimizeToTray = true, // Mantido para retrocompatibilidade. Use controls.minimize preferencialmente.
+    controls = { minimize: true, expand: true, close: false },
     trayTooltip = null,
     onToggle = null,
     onExpand = null,
@@ -2649,7 +2651,10 @@ export function DockWidget({
     let trayIconBtn = null;
     let trayBadgeEl = null;
 
-    if (allowMinimizeToTray && !isLocal) {
+    // Resolve se deve mostrar o minimize (fallback para allowMinimizeToTray se nulo)
+    const showMinimize = controls.minimize !== undefined ? controls.minimize : allowMinimizeToTray;
+
+    if (showMinimize && !isLocal) {
         minTrayBtn = createElement("button", "ui-dock-action-btn ui-dock-tray-btn", ["_"]);
         minTrayBtn.title = "Minimizar para a Barra de Tarefas";
         minTrayBtn.onclick = (e) => {
@@ -2659,9 +2664,25 @@ export function DockWidget({
         headerRight.appendChild(minTrayBtn);
     }
 
-    const chevronBtn = createElement("button", "ui-dock-chevron-btn", [isExp ? "▼" : "▲"]);
-    chevronBtn.title = isExp ? "Recolher" : "Expandir";
-    headerRight.appendChild(chevronBtn);
+    if (controls.expand !== false) {
+        const chevronBtn = createElement("button", "ui-dock-chevron-btn", [isExp ? "▼" : "▲"]);
+        chevronBtn.title = isExp ? "Recolher" : "Expandir";
+        chevronBtn.onclick = (e) => {
+            e.stopPropagation();
+            dockApi.toggle();
+        };
+        headerRight.appendChild(chevronBtn);
+    }
+
+    if (controls.close) {
+        const closeBtn = createElement("button", "ui-dock-action-btn ui-dock-close-btn", ["✕"]);
+        closeBtn.title = "Fechar";
+        closeBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (dockApi.close) dockApi.close();
+        };
+        headerRight.appendChild(closeBtn);
+    }
 
     header.appendChild(headerLeft);
     header.appendChild(headerRight);
@@ -2691,8 +2712,12 @@ export function DockWidget({
     const toggle = (forceState) => {
         const next = typeof forceState === 'boolean' ? forceState : !dock.classList.contains("expanded");
         dock.classList.toggle("expanded", next);
-        chevronBtn.textContent = next ? "▼" : "▲";
-        chevronBtn.title = next ? "Recolher" : "Expandir";
+        
+        const chevronBtn = dock.querySelector(".ui-dock-chevron-btn");
+        if (chevronBtn) {
+            chevronBtn.textContent = next ? "▼" : "▲";
+            chevronBtn.title = next ? "Recolher" : "Expandir";
+        }
 
         if (bindExpanded && instance?.state) {
             instance.state[bindExpanded] = next;
@@ -2707,7 +2732,9 @@ export function DockWidget({
         }
     };
 
-    header.onclick = () => toggle();
+    if (controls.expand !== false) {
+        header.onclick = () => toggle();
+    }
 
     // Minimizar / Restaurar da Tray (Bandeja do Sistema / Taskbar)
     const minimizeToTray = () => {
@@ -2731,7 +2758,9 @@ export function DockWidget({
 
             trayIconBtn.onclick = (e) => {
                 e.stopPropagation();
-                restoreFromTray();
+                // Se expand está oculto, sempre forçamos o andExpand ao restaurar (para ele abrir a lista inteira de uma vez)
+                const forceExpand = controls.expand === false ? true : undefined;
+                restoreFromTray(forceExpand);
             };
 
             if (taskbar && clock) {
@@ -2763,6 +2792,7 @@ export function DockWidget({
     // API pública do componente
     const dockApi = {
         element: dock,
+        trayElement: trayIconBtn,
         toggle: (state) => toggle(state),
         expand: () => toggle(true),
         collapse: () => toggle(false),
@@ -2773,6 +2803,10 @@ export function DockWidget({
         getBadge: () => currentBadge || 0,
         getTitle: () => title,
         getContent: () => content,
+        close: () => {
+            if (trayIconBtn) trayIconBtn.remove();
+            dock.remove();
+        },
         setBadge(val, variant) {
             currentBadge = val;
             if (val === null || val === undefined || val === 0 || val === "") {
@@ -2835,8 +2869,12 @@ export function DockWidget({
     if (!instance || targetContainer) {
         target.appendChild(dock);
     }
+    
+    if (startMinimized) {
+        minimizeToTray();
+    }
 
-    return dock;
+    return dockApi;
 }
 
 export function FloatButton({
