@@ -360,6 +360,11 @@ export const Desktop = {
         w.style.top = (35 + ((this.nextId * 19) % 100)) + "px";
         w.style.zIndex = ++this.zCounter;
 
+        const animation = config.animation || "";
+        if (animation && animation !== 'none') {
+            w.classList.add(`anim-open-${animation}`);
+        }
+
         if (config.width) w.style.width = config.width + "px";
         if (config.height) w.style.height = config.height + "px";
 
@@ -719,7 +724,17 @@ export const Desktop = {
             if (this.activeWindowId === instance.id) this.activeWindowId = null;
             delete this.windows[instance.id];
         }
-        if (w) w.remove();
+        
+        if (w) {
+            const animClose = instance?.config?.closeAnimation || instance?.config?.animation || "";
+            if (animClose && animClose !== 'none') {
+                w.classList.add(`anim-close-${animClose}`);
+                w.addEventListener('animationend', () => w.remove(), {once: true});
+            } else {
+                w.remove();
+            }
+        }
+        
         if (task) task.remove();
         return true;
     },
