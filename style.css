@@ -10239,3 +10239,58 @@ select option {
     background: rgba(255,255,255,0.8) !important;
 }
 
+/* Animations for Windows and Modals */
+@keyframes anim-open-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes anim-close-fade { from { opacity: 1; } to { opacity: 0; } }
+
+@keyframes anim-open-slide-right { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes anim-close-slide-right { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(50px); } }
+
+@keyframes anim-open-slide-left { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes anim-close-slide-left { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-50px); } }
+
+@keyframes anim-open-slide-up { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes anim-close-slide-up { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(50px); } }
+
+@keyframes anim-open-slide-down { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes anim-close-slide-down { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-50px); } }
+
+@keyframes anim-open-zoom { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes anim-close-zoom { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+
+@keyframes anim-open-pop { 0% { opacity: 0; transform: scale(0.8); } 70% { opacity: 1; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes anim-close-pop { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.8); } }
+
+@keyframes anim-open-flip-3d { from { opacity: 0; transform: perspective(400px) rotateY(-90deg); } to { opacity: 1; transform: perspective(400px) rotateY(0deg); } }
+@keyframes anim-close-flip-3d { from { opacity: 1; transform: perspective(400px) rotateY(0deg); } to { opacity: 0; transform: perspective(400px) rotateY(90deg); } }
+
+@keyframes anim-open-hinge { 0% { opacity: 0; transform: rotate(80deg); transform-origin: top left; } 100% { opacity: 1; transform: rotate(0deg); transform-origin: top left; } }
+@keyframes anim-close-hinge { 0% { opacity: 1; transform-origin: top left; } 100% { opacity: 0; transform: rotate(80deg); transform-origin: top left; } }
+
+.anim-open-fade { animation: anim-open-fade 0.25s ease-out forwards; }
+.anim-close-fade { animation: anim-close-fade 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-slide-right { animation: anim-open-slide-right 0.25s ease-out forwards; }
+.anim-close-slide-right { animation: anim-close-slide-right 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-slide-left { animation: anim-open-slide-left 0.25s ease-out forwards; }
+.anim-close-slide-left { animation: anim-close-slide-left 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-slide-up { animation: anim-open-slide-up 0.25s ease-out forwards; }
+.anim-close-slide-up { animation: anim-close-slide-up 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-slide-down { animation: anim-open-slide-down 0.25s ease-out forwards; }
+.anim-close-slide-down { animation: anim-close-slide-down 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-zoom { animation: anim-open-zoom 0.25s ease-out forwards; }
+.anim-close-zoom { animation: anim-close-zoom 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-pop { animation: anim-open-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.anim-close-pop { animation: anim-close-pop 0.2s ease-in forwards; pointer-events: none; }
+
+.anim-open-flip-3d { animation: anim-open-flip-3d 0.4s ease-out forwards; }
+.anim-close-flip-3d { animation: anim-close-flip-3d 0.3s ease-in forwards; pointer-events: none; }
+
+.anim-open-hinge { animation: anim-open-hinge 0.5s ease-out forwards; }
+.anim-close-hinge { animation: anim-close-hinge 0.5s ease-in forwards; pointer-events: none; }
+

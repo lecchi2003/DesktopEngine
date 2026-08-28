@@ -695,6 +695,8 @@ const localModal = this.openModal({
     title: "Confirmar Exclusão",
     icon: "🗑️",
     closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
+    animation: "pop", // Animação de entrada (fade, pop, zoom, slide-right, flip-3d, etc.)
+    closeAnimation: "fade", // Animação de saída
     children: (modal) => [
         createElement("p", "", ["Deseja realmente excluir este registro?"]),
         Button({ text: "Sim, Excluir", variant: "danger", onClick: () => {

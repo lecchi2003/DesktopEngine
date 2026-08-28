@@ -504,6 +504,18 @@ Desktop.notify("Olá mundo!", "success"); // Dispara um toast global ("success",
                         <td>Menu de contexto exclusivo do corpo da janela (vinculado automaticamente).</td>
                     </tr>
                     <tr>
+                        <td><code>animation</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code></td>
+                        <td>Animação CSS de entrada (ex: <code>fade</code>, <code>zoom</code>, <code>pop</code>, <code>slide-right</code>, <code>flip-3d</code>, <code>hinge</code>).</td>
+                    </tr>
+                    <tr>
+                        <td><code>closeAnimation</code></td>
+                        <td><code>String</code></td>
+                        <td><code>""</code> (herda <code>animation</code>)</td>
+                        <td>Animação CSS de saída (desmontagem).</td>
+                    </tr>
+                    <tr>
                         <td><code>menubar</code> / <code>menus</code></td>
                         <td><code>Array</code></td>
                         <td><code>null</code></td>
@@ -1690,6 +1702,8 @@ const localModal = this.openModal({
     title: "Confirmar Exclusão",
     icon: "🗑️",
     closable: true, // Padrão: true. Se false, oculta o botão de fechar da barra
+    animation: "pop", // Animação de entrada (fade, pop, zoom, slide-right, flip-3d, etc.)
+    closeAnimation: "fade", // Animação de saída
     children: (modal) => [
         createElement("p", "", ["Deseja realmente excluir este registro?"]),
         Button({ text: "Sim, Excluir", variant: "danger", onClick: () => {

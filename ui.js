@@ -1737,7 +1737,9 @@ export function Modal({
     targetContainer = null,
     global = false,
     width,
-    height
+    height,
+    animation = "",
+    closeAnimation = ""
 } = {}) {
     const overlay = createElement("div", "ui-modal-overlay", []);
     const content = [];
@@ -1754,10 +1756,17 @@ export function Modal({
         }
         if (onClose && instance) instance.runAction(onClose);
         else if (typeof onClose === 'function') onClose();
-        overlay.classList.remove("show");
-        setTimeout(() => {
-            overlay.remove();
-        }, 150);
+
+        const animClose = closeAnimation || animation;
+        if (animClose && animClose !== 'none') {
+            overlay.classList.add(`anim-close-${animClose}`);
+            overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        } else {
+            overlay.classList.remove("show");
+            setTimeout(() => {
+                overlay.remove();
+            }, 150);
+        }
         document.removeEventListener('keydown', escListener);
     };
 
@@ -1822,6 +1831,10 @@ export function Modal({
     // Se o container não tem posição definida, forçar relativa
     if (getComputedStyle(container).position === "static") {
         container.style.position = "relative";
+    }
+
+    if (animation && animation !== 'none') {
+        overlay.classList.add(`anim-open-${animation}`);
     }
 
     container.appendChild(overlay);

@@ -133,6 +133,7 @@
                     { label: "Formulários e Cadastros", screen: "forms" },
                     { label: "Gerenciador de Tarefas", screen: "tasks" },
                     { label: "Showcase de Componentes", screen: "showcase" },
+                    { label: "✨ Showcase de Animações", screen: "animation_showcase" },
                     "separator",
                     { label: "📟 Terminal Alfa (P2P EventBus)", screen: "terminal_alfa" },
                     { label: "📟 Terminal Beta (P2P EventBus)", screen: "terminal_beta" }
@@ -958,6 +959,72 @@
             }
         };
 
+        const AnimationShowcaseScreen = {
+            title: "Showcase de Animações",
+            icon: "✨",
+            width: 500,
+            height: 520,
+            singleInstance: true,
+            state: { lastAnim: "Nenhuma" },
+            view() {
+                const anims = [
+                    { label: "Fade (Esmaecer)", val: "fade" },
+                    { label: "Pop (Mola)", val: "pop" },
+                    { label: "Zoom", val: "zoom" },
+                    { label: "Slide Right", val: "slide-right" },
+                    { label: "Slide Left", val: "slide-left" },
+                    { label: "Slide Up", val: "slide-up" },
+                    { label: "Slide Down", val: "slide-down" },
+                    { label: "Flip 3D", val: "flip-3d" },
+                    { label: "Hinge (Dobradiça)", val: "hinge" },
+                    { label: "None (Sem animação)", val: "none" }
+                ];
+
+                const createBtns = (isModal) => {
+                    return anims.map(a => Button({
+                        text: `${a.label}`,
+                        variant: isModal ? "primary" : "secondary",
+                        onClick: () => {
+                            this.state.lastAnim = a.label;
+                            if (isModal) {
+                                this.openModal({
+                                    title: `Modal: ${a.label}`,
+                                    animation: a.val,
+                                    closeAnimation: a.val,
+                                    width: 300,
+                                    height: 200,
+                                    children: [ createElement("p", "", [`Animação ${a.val} em ação!`]) ]
+                                });
+                            } else {
+                                Desktop.open(Framework.createWindow({
+                                    title: `Janela: ${a.label}`,
+                                    width: 350, height: 250,
+                                    animation: a.val,
+                                    closeAnimation: a.val,
+                                    view: () => createElement("p", "p-4", [`Animação ${a.val} na Janela!`])
+                                }, `win_anim_${Date.now()}`, Desktop));
+                            }
+                        }
+                    }));
+                };
+
+                return createElement("div", "flex-col", [
+                    createElement("div", "flex-col gap-3 p-2", [
+                        createElement("h3", "", ["Testar Animações em Modais"]),
+                        createElement("div", "flex-row flex-wrap gap-2", createBtns(true)),
+                        createElement("hr", "my-2", []),
+                        createElement("h3", "", ["Testar Animações em Janelas"]),
+                        createElement("div", "flex-row flex-wrap gap-2", createBtns(false)),
+                        createElement("hr", "my-2", []),
+                        createElement("p", "", [
+                            "Última animação testada: ",
+                            createElement("b", "", [this.state.lastAnim || "Nenhuma"])
+                        ])
+                    ])
+                ]);
+            }
+        };
+
         // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
         Desktop.registerScreens({
             // Hub de Arquiteturas
@@ -978,6 +1045,7 @@
             "tasks": () => TaskScreen,
             "forms": () => FormsScreen,
             "showcase": () => ComponentShowcaseScreen,
+            "animation_showcase": () => AnimationShowcaseScreen,
             "terminal_alfa": () => TerminalAlfaScreen,
             "terminal_beta": () => TerminalBetaScreen
         });
