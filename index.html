@@ -20,7 +20,8 @@
             Grid, Card, Row, Col, Badge, ProgressBar, Table, createElement, printElement,
             Alert, Spinner, Toast, Accordion, Drawer, Breadcrumbs, Stepper,
             Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton,
-            DockWidget, FloatButton
+            DockWidget, FloatButton,
+            ShortcutContainer, Shortcut
         } from './ui.js';
 
         const lookAndFeelsItensVar = {
@@ -1037,6 +1038,147 @@
             }
         };
 
+        // ============================================================
+        //  ShortcutShowcaseScreen — Demonstração de Shortcut & ShortcutContainer
+        // ============================================================
+        const ShortcutShowcaseScreen = {
+            title: "🗂️ Showcase: Shortcut & ShortcutContainer",
+            icon: "🗂️",
+            width: 860,
+            height: 620,
+            singleInstance: true,
+            status: "Atalhos no Desktop e em Janelas",
+            state: { log: [] },
+            view() {
+                const self = this;
+                function log(msg) {
+                    self.state.log.unshift(`[${new Date().toLocaleTimeString('pt-BR')}] ${msg}`);
+                    if (self.state.log.length > 8) self.state.log.pop();
+                    self.update();
+                }
+
+                // ---- Container dinâmico (programático) ----
+                const dynamicContainer = ShortcutContainer({
+                    shortcutSize: '90px',
+                    gap: '10px',
+                    width: '100%',
+                    height: '220px',
+                    scroll: true,
+                    border: true,
+                    sort: 'asc',
+                    contextMenu: [
+                        { label: "Atualizar Container", icon: "🔄", action: () => log('Container atualizado via Menu de Contexto!') },
+                        { label: "Propriedades", icon: "⚙️", action: () => log('Abrindo propriedades do container...') }
+                    ],
+                    shortcuts: [
+                        Shortcut({
+                            label: 'Calculadora',
+                            icon: '🧮',
+                            type: 'app',
+                            action: () => log('Calculadora aberta!'),
+                            contextMenu: [
+                                { label: "Abrir em Nova Janela", icon: "🪟", action: () => log('Calculadora: Abrir em nova janela') },
+                                { label: "Desinstalar", icon: "🗑️", action: () => log('Calculadora: Desinstalar clicado') }
+                            ]
+                        }),
+                        Shortcut({ label: 'Notas', icon: '📝', type: 'app', action: () => log('Notas abertas!') }),
+                        Shortcut({ label: 'Calendário', icon: '📅', type: 'app', action: () => log('Calendário aberto!') }),
+                        Shortcut({ label: 'Galeria', icon: '🖼️', type: 'folder', action: () => log('Galeria aberta!') }),
+                        Shortcut({ label: 'Downloads', icon: '📥', type: 'folder', action: () => log('Downloads aberto!') }),
+                        Shortcut({ label: 'Música', icon: '🎵', type: 'folder', action: () => log('Música aberta!') }),
+                        Shortcut({ label: 'Configurações', icon: '⚙️', type: 'app', action: () => log('Configurações abertas!') }),
+                        Shortcut({ label: 'Link Externo', icon: '🔗', type: 'link', action: () => log('Link externo clicado!') }),
+                        Shortcut({ label: 'Desabilitado', icon: '🚫', type: 'app', disabled: true })
+                    ]
+                });
+
+                // ---- Atalhos de tamanhos diferentes ----
+                const bigContainer = ShortcutContainer({
+                    shortcutSize: '110px',
+                    gap: '12px',
+                    height: '160px',
+                    scroll: false,
+                    alignH: 'center',
+                    shortcuts: [
+                        Shortcut({ label: 'App Premium', icon: '💎', type: 'app', fontSize: '12px', iconSize: '56px', action: () => log('App Premium clicado!') }),
+                        Shortcut({ label: 'Financeiro', icon: '💰', type: 'app', fontSize: '12px', iconSize: '56px', action: () => log('Financeiro clicado!') }),
+                        Shortcut({ label: 'Segurança', icon: '🔐', type: 'app', fontSize: '12px', iconSize: '56px', action: () => log('Segurança clicada!') }),
+                    ]
+                });
+
+                return createElement("div", "shortcut-showcase-root", [
+                    // Header
+                    createElement("div", "shortcut-showcase-header", [
+                        createElement("h3", "shortcut-showcase-title", ["🗂️ Shortcut & ShortcutContainer"]),
+                        createElement("p", "text-secondary", ["Atalhos clicáveis organizados em grade — use no Desktop ou dentro de Janelas."])
+                    ]),
+
+                    // Seção 1: Container com grade dinâmica e sort
+                    createElement("div", "shortcut-section", [
+                        createElement("div", "shortcut-section__header", [
+                            createElement("span", "shortcut-section__badge", ["Grade Dinâmica"]),
+                            createElement("span", "text-secondary", [" — Ordenação: A→Z, scroll e borda ativados"])
+                        ]),
+                        dynamicContainer,
+                        Row({
+                            style: "gap:8px; margin-top:8px; flex-wrap:wrap;",
+                            children: [
+                                Button({ text: "➕ Adicionar Atalho", variant: "primary", onClick: () => {
+                                    const names = ['Terminal','Monitor','Relógio','Câmera','Scanner','Backup'];
+                                    const icons = ['💻','📺','⏰','📸','🔍','💾'];
+                                    const i = Math.floor(Math.random() * names.length);
+                                    dynamicContainer.addShortcut(
+                                        Shortcut({ label: names[i], icon: icons[i], type: 'app', action: () => log(`${names[i]} clicado!`) })
+                                    );
+                                    log(`Atalho "${names[i]}" adicionado dinamicamente.`);
+                                }}),
+                                Button({ text: "🧹 Limpar Tudo", variant: "danger", onClick: () => { dynamicContainer.clear(); log('Container limpo.'); } }),
+                                Button({ text: "🔤 Ordenar A→Z", onClick: () => { dynamicContainer.sort('asc'); log('Ordenado: A→Z'); } }),
+                                Button({ text: "🔡 Ordenar Z→A", onClick: () => { dynamicContainer.sort('desc'); log('Ordenado: Z→A'); } }),
+                                Button({ text: "📁 Por Tipo", onClick: () => { dynamicContainer.sort('type'); log('Ordenado: por tipo'); } }),
+                                Button({ text: "📐 Tamanho 72px", onClick: () => { dynamicContainer.setShortcutSize(72); log('Tamanho: 72px'); } }),
+                                Button({ text: "📐 Tamanho 100px", onClick: () => { dynamicContainer.setShortcutSize(100); log('Tamanho: 100px'); } }),
+                                Button({ text: "🖥️ Add ao Desktop Real", variant: "primary", onClick: () => {
+                                    if (Desktop.shortcutArea) {
+                                        Desktop.shortcutArea.addShortcut(
+                                            Shortcut({ 
+                                                label: 'Novo Atalho Dinâmico', 
+                                                icon: '🌟', 
+                                                type: 'app', 
+                                                action: () => alert('Fui criado por uma Janela!') 
+                                            })
+                                        );
+                                        log('🌟 Atalho adicionado na Área de Trabalho principal!');
+                                    } else {
+                                        log('Erro: Container do Desktop não encontrado.');
+                                    }
+                                }})
+                            ]
+                        })
+                    ]),
+
+                    // Seção 2: Atalhos grandes centralizados
+                    createElement("div", "shortcut-section", [
+                        createElement("div", "shortcut-section__header", [
+                            createElement("span", "shortcut-section__badge shortcut-section__badge--purple", ["Atalhos Grandes"]),
+                            createElement("span", "text-secondary", [" — Alinhamento centralizado, tamanho 110px"])
+                        ]),
+                        bigContainer
+                    ]),
+
+                    // Log de eventos
+                    createElement("div", "shortcut-log-panel", [
+                        createElement("div", "shortcut-log-panel__title", ["📋 Log de Interações"]),
+                        createElement("div", "shortcut-log-panel__body", [
+                            ...(this.state.log.length
+                                ? this.state.log.map(l => createElement("div", "shortcut-log-entry", [l]))
+                                : [createElement("div", "text-secondary", ["Clique em um atalho para ver o evento aqui..."])])
+                        ])
+                    ])
+                ]);
+            }
+        };
+
         // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
         Desktop.registerScreens({
             // Hub de Arquiteturas
@@ -1060,8 +1202,63 @@
             "showcase": () => ComponentShowcaseScreen,
             "animation_showcase": () => AnimationShowcaseScreen,
             "terminal_alfa": () => TerminalAlfaScreen,
-            "terminal_beta": () => TerminalBetaScreen
+            "terminal_beta": () => TerminalBetaScreen,
+            "shortcut_showcase": () => ShortcutShowcaseScreen
         });
+
+        // ---- Atalhos de Desktop (declarativo) ----
+        // container: injeta direto no elemento de janelas do Desktop
+        // passthroughPointer: cliques passam pelo overlay, janelas funcionam normalmente
+        // Salvamos em Desktop.shortcutArea para que qualquer janela possa injetar atalhos lá
+        Desktop.shortcutArea = ShortcutContainer({
+            container: document.getElementById('windows'),
+            full: true,
+            scroll: false,
+            alignH: 'left',
+            alignV: 'top',
+            shortcutSize: '80px',
+            gap: '6px',
+            passthroughPointer: true,
+            shortcuts: [
+                Shortcut({
+                    label: 'Hub de Arquiteturas',
+                    icon: '📐',
+                    type: 'app',
+                    action: () => Desktop.openScreen('hub_arquiteturas')
+                }),
+                Shortcut({
+                    label: 'Showcase de Componentes',
+                    icon: '✨',
+                    type: 'app',
+                    action: () => Desktop.openScreen('showcase')
+                }),
+                Shortcut({
+                    label: 'Atalhos & Containers',
+                    icon: '🗂️',
+                    type: 'app',
+                    action: () => Desktop.openScreen('shortcut_showcase')
+                }),
+                Shortcut({
+                    label: 'Terminal Alfa',
+                    icon: '⌨️',
+                    type: 'app',
+                    action: () => Desktop.openScreen('terminal_alfa')
+                }),
+                Shortcut({
+                    label: 'Relatórios',
+                    icon: '📊',
+                    type: 'app',
+                    action: () => Desktop.openScreen('background_reports')
+                }),
+                Shortcut({
+                    label: 'Animações',
+                    icon: '🎬',
+                    type: 'app',
+                    action: () => Desktop.openScreen('animation_showcase')
+                })
+            ]
+        });
+
 
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
@@ -1131,6 +1328,12 @@
                     label: "Showcase Completo",
                     variant: "primary",
                     action: () => Desktop.openScreen("showcase")
+                },
+                {
+                    icon: "🗂️",
+                    label: "Showcase de Atalhos",
+                    variant: "secondary",
+                    action: () => Desktop.openScreen("shortcut_showcase")
                 },
                 {
                     icon: "📊",
