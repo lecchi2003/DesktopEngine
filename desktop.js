@@ -130,10 +130,12 @@ export const Desktop = {
         // Garante e monta o shell do Desktop automaticamente se necessário
         this._ensureShell(this.options);
 
-        // Carrega Look and Feel persistido ou padrão
+        // Carrega Look and Feel persistido, por URL ou padrão
         try {
-            const savedLaF = localStorage.getItem("desktop_engine_laf") || this.options.defaultLaF;
-            this.setLookAndFeel(savedLaF, false);
+            const urlParams = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search) : null;
+            const urlLaF = urlParams ? urlParams.get("laf") : null;
+            const savedLaF = urlLaF || localStorage.getItem("desktop_engine_laf") || this.options.defaultLaF;
+            this.setLookAndFeel(savedLaF, !urlLaF);
         } catch (e) {
             this.setLookAndFeel(this.options.defaultLaF, false);
         }
@@ -400,7 +402,11 @@ export const Desktop = {
         `;
 
         const titleIconEl = w.querySelector(".titleIcon");
-        if (titleIconEl) titleIconEl.textContent = config.icon || "🗔";
+        if (titleIconEl) {
+            const iconVal = config.icon !== undefined ? config.icon : "🗔";
+            titleIconEl.textContent = iconVal || "";
+            if (!iconVal) titleIconEl.style.display = "none";
+        }
 
         const titleTextEl = w.querySelector(".titleText");
         if (titleTextEl) titleTextEl.textContent = config.title || "Window";
@@ -1137,6 +1143,12 @@ export const Desktop = {
             label: "SYS.NET",
             showLabel: true,
             tooltip: "Interface Neural (Cyberdeck)"
+        },
+        'comic-doodle': {
+            icon: `✏️`,
+            label: "Doodle",
+            showLabel: true,
+            tooltip: "Menu Principal (Comic Doodle)"
         }
     },
 
@@ -1205,6 +1217,11 @@ export const Desktop = {
             icon: `<span style="font-size:10px;font-weight:900;letter-spacing:1px;">[GRID]</span>`,
             label: "",
             tooltip: "Minimizar / Matriz"
+        },
+        'comic-doodle': {
+            icon: `📐`,
+            label: "",
+            tooltip: "Mostrar Área de Trabalho (Comic Doodle)"
         }
     },
 
@@ -1680,7 +1697,10 @@ export const Desktop = {
 
             // TUI & Sci-Fi
             { id: "turbo-tui",       label: "Turbo TUI (DOS Console)",         category: "TUI & Sci-Fi",       icon: "📟",  desc: "Visual de modo texto azul DOS com bordas em caracteres duplos" },
-            { id: "cyberpunk-neon",  label: "Cyberpunk Neon (Matrix HUD)",     category: "TUI & Sci-Fi",       icon: "⚡",  desc: "Bordas chanfradas 45º, linhas de grade e acentos neon" }
+            { id: "cyberpunk-neon",  label: "Cyberpunk Neon (Matrix HUD)",     category: "TUI & Sci-Fi",       icon: "⚡",  desc: "Bordas chanfradas 45º, linhas de grade e acentos neon" },
+
+            // Ilustração & Doodles
+            { id: "comic-doodle",    label: "Comic Doodle (Pastel Sketch)",    category: "Ilustração & Cartoon",icon: "✏️",  desc: "Design doodle com traços pretos marcantes, tons pastéis suaves e botões tipo pílula" }
         ];
     },
 

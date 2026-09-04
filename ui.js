@@ -434,7 +434,9 @@ export function ContextMenu({ x, y, items = [] }) {
         : (window.innerWidth <= 768 || !!document.getElementById("app")?.classList.contains("mobile-mode"));
 
     if (isMobileMode) {
-        // --- Modo Mobile: Bottom Sheet com suporte a submenus / Accordions ---
+        const currentLaf = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.getLookAndFeel === 'function')
+            ? window.Desktop.getLookAndFeel()
+            : (document.documentElement.getAttribute('data-laf') || 'default');
         const backdrop = createElement("div", "ui-bottom-sheet-backdrop", []);
         const sheet = createElement("div", "ui-bottom-sheet", [
             createElement("div", "bottom-sheet-handle-bar", [
@@ -442,6 +444,10 @@ export function ContextMenu({ x, y, items = [] }) {
             ]),
             createElement("div", "bottom-sheet-content", [])
         ]);
+        if (currentLaf && currentLaf !== 'default') {
+            backdrop.setAttribute('data-laf', currentLaf);
+            sheet.setAttribute('data-laf', currentLaf);
+        }
 
         const contentEl = sheet.querySelector(".bottom-sheet-content");
 
@@ -854,16 +860,21 @@ function buildMobileItems(items, closeFn, windowInstance = null) {
 
 // --- Mobile Hamburger & Drawer Engine Compartilhado ---
 export function openMobileMenuDrawer({ menus = [], title = "📱 Menu Principal", icon = "📱", windowInstance = null } = {}) {
-    document.querySelectorAll(".menubar-mobile-drawer-backdrop").forEach(d => d.remove());
-
+    const currentLaf = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.getLookAndFeel === 'function')
+        ? window.Desktop.getLookAndFeel()
+        : (document.documentElement.getAttribute('data-laf') || 'default');
     const backdrop = createElement("div", "menubar-mobile-drawer-backdrop", []);
     const drawer = createElement("div", "menubar-mobile-drawer", [
         createElement("div", "drawer-header", [
-            createElement("div", "drawer-title", [`${icon} ${title}`]),
+            createElement("div", "drawer-title", [icon && !title.includes(icon) ? `${icon} ${title}` : title]),
             createElement("button", "drawer-close-btn", ["✕"])
         ]),
         createElement("div", "drawer-content", [])
     ]);
+    if (currentLaf && currentLaf !== 'default') {
+        backdrop.setAttribute('data-laf', currentLaf);
+        drawer.setAttribute('data-laf', currentLaf);
+    }
 
     const closeDrawer = () => {
         drawer.classList.remove("open");
@@ -1018,6 +1029,9 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
         const openWindowMobileSheet = () => {
             document.querySelectorAll(".ui-bottom-sheet-backdrop").forEach(d => d.remove());
 
+            const currentLaf = (typeof window !== 'undefined' && window.Desktop && typeof window.Desktop.getLookAndFeel === 'function')
+                ? window.Desktop.getLookAndFeel()
+                : (document.documentElement.getAttribute('data-laf') || 'default');
             const backdrop = createElement("div", "ui-bottom-sheet-backdrop", []);
             const sheet = createElement("div", "ui-bottom-sheet", [
                 createElement("div", "bottom-sheet-handle-bar", [
@@ -1029,6 +1043,10 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                 ]),
                 createElement("div", "bottom-sheet-content", [])
             ]);
+            if (currentLaf && currentLaf !== 'default') {
+                backdrop.setAttribute('data-laf', currentLaf);
+                sheet.setAttribute('data-laf', currentLaf);
+            }
 
             const closeSheet = () => {
                 sheet.classList.remove("show");

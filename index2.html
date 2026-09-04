@@ -196,6 +196,12 @@
                                                 { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
                                                 { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
                                             ]
+                                        },
+                                        {
+                                            label: "🎨 Ilustração & Cartoon",
+                                            items: [
+                                                { label: "✏️ Comic Doodle (Pastel Sketch)", action: () => Desktop.setLookAndFeel("comic-doodle") }
+                                            ]
                                         }
                                     ]
                                 },
@@ -500,7 +506,8 @@
                                                     { label: "🐧 Adwaita Slate (Clean Flat)", value: "adwaita-slate" },
                                                     { label: "⚙️ Breeze Plasma (Glass Glow)", value: "breeze-plasma" },
                                                     { label: "📟 Turbo TUI (DOS Console)", value: "turbo-tui" },
-                                                    { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" }
+                                                    { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" },
+                                                    { label: "✏️ Comic Doodle (Pastel Sketch)", value: "comic-doodle" }
                                                 ]
                                             }),
                                             Grid({
@@ -744,6 +751,7 @@
             "dashboard": () => import('./screens/DashboardScreen.js'),
             "datagrid": () => import('./screens/DataGridScreen.js'),
             "sobre": () => import('./screens/SobreScreen.js'),
+            "amazon_comic": () => import('./screens/ComicDoodleShowcaseScreen.js'),
 
             // 2. Telas Registradas Diretamente (Objetos ou inline)
             "tasks": () => TaskScreen,
