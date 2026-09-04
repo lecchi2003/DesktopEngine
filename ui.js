@@ -1,7 +1,11 @@
 // ui.js
 //Autor: Gildasio Lecchi Cravo 
-import { Desktop } from './desktop.js';
-import { EventBus } from './core.js';
+import { Desktop } from './desktop.js?v=2';
+import { EventBus, UIContext } from './core.js?v=2';
+
+export function resolveInstance(inst) {
+    return inst || UIContext.getCurrent() || null;
+}
 
 export function createElement(tag, arg2, arg3) {
     const el = document.createElement(tag);
@@ -263,6 +267,7 @@ export function Form({ fields = [], actions = [] }) {
 }
 
 export function Input({ label, bind, instance, type = "text", placeholder = "", width = "100%", style = "" }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-field");
     if (width !== "100%") wrap.style.width = width;
     if (style) wrap.style.cssText += style;
@@ -272,14 +277,14 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
     const inp = document.createElement("input");
     inp.type = type;
     inp.placeholder = placeholder;
-    if (bind && instance) {
+    if (bind && inst) {
         inp.dataset.bind = bind;
-        inp.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
+        inp.value = inst.state[bind] !== undefined ? inst.state[bind] : "";
         inp.addEventListener("input", (e) => {
-            if (typeof instance._setSilentState === 'function') {
-                instance._setSilentState(bind, e.target.value);
+            if (typeof inst._setSilentState === 'function') {
+                inst._setSilentState(bind, e.target.value);
             } else {
-                instance.state[bind] = e.target.value;
+                inst.state[bind] = e.target.value;
             }
         });
     }
@@ -288,6 +293,7 @@ export function Input({ label, bind, instance, type = "text", placeholder = "", 
 }
 
 export function Textarea({ label, bind, instance, placeholder = "", rows = 4, width = "100%", style = "", inputStyle = "" }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-field");
     if (width !== "100%") wrap.style.width = width;
     if (style) wrap.style.cssText += style;
@@ -299,14 +305,14 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
     txt.rows = rows;
     txt.placeholder = placeholder;
     if (inputStyle) txt.style.cssText += inputStyle;
-    if (bind && instance) {
+    if (bind && inst) {
         txt.dataset.bind = bind;
-        txt.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
+        txt.value = inst.state[bind] !== undefined ? inst.state[bind] : "";
         txt.addEventListener("input", (e) => {
-            if (typeof instance._setSilentState === 'function') {
-                instance._setSilentState(bind, e.target.value);
+            if (typeof inst._setSilentState === 'function') {
+                inst._setSilentState(bind, e.target.value);
             } else {
-                instance.state[bind] = e.target.value;
+                inst.state[bind] = e.target.value;
             }
         });
     }
@@ -315,12 +321,15 @@ export function Textarea({ label, bind, instance, placeholder = "", rows = 4, wi
 }
 
 export function Button(options = {}) {
-    const { text, onClick, instance, variant = "primary" } = options;
+    const { text, onClick, variant = "primary" } = options;
+    const inst = resolveInstance(options.instance);
     const btn = createElement("button", `ui-btn ui-btn-${variant}`, [text]);
-    if (onClick && instance) {
-        btn.addEventListener("click", () => instance.runAction(onClick));
-    } else if (typeof onClick === "function") {
-        btn.addEventListener("click", onClick);
+    if (onClick) {
+        if (typeof onClick === "function") {
+            btn.addEventListener("click", (e) => onClick(e, inst));
+        } else if (typeof onClick === "string" && inst && typeof inst.runAction === "function") {
+            btn.addEventListener("click", () => inst.runAction(onClick));
+        }
     }
     return applyCommonProps(btn, options);
 }
@@ -349,6 +358,7 @@ export function Table(options = {}) {
 }
 
 export function Tabs({ tabs = [], instance, activeTabBind }) {
+    const inst = resolveInstance(instance);
     const tabContainer = document.createElement("div");
     tabContainer.className = "ui-tabs";
     const tabHeaders = document.createElement("div");
@@ -356,16 +366,20 @@ export function Tabs({ tabs = [], instance, activeTabBind }) {
     const tabContent = document.createElement("div");
     tabContent.className = "ui-tab-content";
 
-    const currentTabId = instance.state[activeTabBind] || tabs[0].id;
+    const currentTabId = (inst && inst.state && activeTabBind && inst.state[activeTabBind]) ? inst.state[activeTabBind] : (tabs[0] ? tabs[0].id : null);
 
     tabs.forEach(tab => {
         const header = document.createElement("div");
         header.className = `ui-tab-header ${currentTabId === tab.id ? 'active' : ''}`;
         header.textContent = tab.label;
-        header.onclick = () => { instance.state[activeTabBind] = tab.id; };
+        header.onclick = () => {
+            if (inst && activeTabBind) inst.state[activeTabBind] = tab.id;
+        };
         tabHeaders.appendChild(header);
 
-        if (currentTabId === tab.id) tabContent.appendChild(tab.view.call(instance));
+        if (currentTabId === tab.id && typeof tab.view === 'function') {
+            tabContent.appendChild(tab.view.call(inst || window));
+        }
     });
 
     tabContainer.appendChild(tabHeaders);
@@ -374,6 +388,7 @@ export function Tabs({ tabs = [], instance, activeTabBind }) {
 }
 
 export function TreeView({ data = [], onSelect, instance }) {
+    const inst = resolveInstance(instance);
     const createNode = (nodeData) => {
         const wrap = document.createElement("div");
         wrap.className = "ui-tree-node";
@@ -385,35 +400,34 @@ export function TreeView({ data = [], onSelect, instance }) {
         label.className = "ui-tree-label";
         label.textContent = nodeData.label;
 
+        const hasChildren = nodeData.children && nodeData.children.length > 0;
+        icon.textContent = hasChildren ? "▶ " : "• ";
+
         row.appendChild(icon);
         row.appendChild(label);
         wrap.appendChild(row);
 
-        if (nodeData.children && nodeData.children.length > 0) {
-            icon.textContent = "▶";
-            const childrenWrap = document.createElement("div");
+        let childrenWrap = null;
+        if (hasChildren) {
+            childrenWrap = document.createElement("div");
             childrenWrap.className = "ui-tree-children";
             childrenWrap.style.display = "none";
             nodeData.children.forEach(child => childrenWrap.appendChild(createNode(child)));
             wrap.appendChild(childrenWrap);
-
-            icon.onclick = (e) => {
-                e.stopPropagation();
-                const isHidden = childrenWrap.style.display === "none";
-                childrenWrap.style.display = isHidden ? "block" : "none";
-                icon.textContent = isHidden ? "▼" : "▶";
-            };
-        } else {
-            icon.textContent = "📄";
         }
 
-        row.onclick = () => {
-            document.querySelectorAll('.ui-tree-row').forEach(r => r.classList.remove('selected'));
-            row.classList.add('selected');
-            if (onSelect) {
-                if (typeof onSelect === 'string' && instance) instance.runAction(onSelect, nodeData);
-                else if (typeof onSelect === 'function') onSelect(nodeData);
+        row.onclick = (e) => {
+            e.stopPropagation();
+            if (hasChildren) {
+                const isOpen = childrenWrap.style.display === "block";
+                childrenWrap.style.display = isOpen ? "none" : "block";
+                icon.textContent = isOpen ? "▶ " : "▼ ";
             }
+            wrap.closest('.ui-treeview')?.querySelectorAll('.ui-tree-row').forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+
+            if (typeof onSelect === 'function') onSelect(nodeData);
+            if (typeof onSelect === 'string' && inst) inst.runAction(onSelect, nodeData);
         };
         return wrap;
     };
@@ -1158,7 +1172,7 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
                         let bottomBound = window.innerHeight || document.documentElement.clientHeight;
                         let leftBound = 0;
                         let topBound = 0;
-                        
+
                         if (windowInstance && (windowInstance.element || windowInstance.windowEl)) {
                             const el = windowInstance.element || windowInstance.windowEl;
                             const winRect = el.getBoundingClientRect();
@@ -1287,13 +1301,13 @@ export function MenuBar({ containerId, element, position, menus = [], windowInst
             if (dropdown) {
                 dropdown.classList.remove("align-right");
                 const rect = dropdown.getBoundingClientRect();
-                
+
                 let rightBound = window.innerWidth || document.documentElement.clientWidth;
                 if (windowInstance && (windowInstance.element || windowInstance.windowEl)) {
                     const el = windowInstance.element || windowInstance.windowEl;
                     rightBound = el.getBoundingClientRect().right;
                 }
-                
+
                 if (rect.right > rightBound - 10) {
                     dropdown.classList.add("align-right");
                 }
@@ -1377,7 +1391,7 @@ export function ActionToolbar({ containerId, element, position = "top", actions 
         }
 
         const btn = createElement("button", `action-toolbar-btn ${act.variant ? 'btn-' + act.variant : ''} ${act.active ? 'active' : ''}`, btnChildren);
-        
+
         const hintText = act.hint || act.tooltip || act.title || act.label || "";
         if (hintText) {
             btn.title = hintText;
@@ -1668,33 +1682,37 @@ export function StartMenu({ buttonId = "startBtn", menus = [] } = {}) {
 // --- MAIS COMPONENTES CORPORATIVOS ---
 
 export function Select({ label, bind, instance, options = [], onChange }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-field");
     if (label) wrap.appendChild(createElement("label", "", [label]));
 
     const select = document.createElement("select");
-    if (bind && instance) {
+    const currentVal = (bind && inst && inst.state) ? inst.state[bind] : undefined;
+
+    options.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt.value !== undefined ? opt.value : opt;
+        option.textContent = opt.label !== undefined ? opt.label : opt;
+        if (currentVal !== undefined && currentVal === option.value) option.selected = true;
+        select.appendChild(option);
+    });
+
+    if (bind && inst) {
         select.dataset.bind = bind;
-        const currentVal = instance.state[bind];
-
-        options.forEach(opt => {
-            const option = document.createElement("option");
-            option.value = opt.value;
-            option.textContent = opt.label;
-            if (currentVal === opt.value) option.selected = true;
-            select.appendChild(option);
-        });
-
         select.addEventListener("change", (e) => {
-            instance.state[bind] = e.target.value;
+            if (inst.state) inst.state[bind] = e.target.value;
             if (typeof onChange === 'function') onChange(e.target.value, e);
-            else if (typeof onChange === 'string' && typeof instance.runAction === 'function') instance.runAction(onChange, e);
+            else if (typeof onChange === 'string' && typeof inst.runAction === 'function') inst.runAction(onChange, e);
         });
+    } else if (typeof onChange === 'function') {
+        select.addEventListener("change", (e) => onChange(e.target.value, e));
     }
     wrap.appendChild(select);
     return wrap;
 }
 
 export function Checkbox({ label, bind, instance }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("label", "ui-checkbox-wrap", [
         createElement("input", "ui-checkbox", []),
         createElement("span", "ui-checkbox-label", [label])
@@ -1702,17 +1720,18 @@ export function Checkbox({ label, bind, instance }) {
     const inp = wrap.querySelector("input");
     inp.type = "checkbox";
 
-    if (bind && instance) {
+    if (bind && inst) {
         inp.dataset.bind = bind;
-        inp.checked = !!instance.state[bind];
+        inp.checked = !!(inst.state && inst.state[bind]);
         inp.addEventListener("change", (e) => {
-            instance.state[bind] = e.target.checked;
+            if (inst.state) inst.state[bind] = e.target.checked;
         });
     }
     return wrap;
 }
 
 export function Toggle({ label, bind, instance }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("label", "ui-toggle-wrap", [
         createElement("input", "ui-toggle-input", []),
         createElement("span", "ui-toggle-slider", []),
@@ -1721,11 +1740,11 @@ export function Toggle({ label, bind, instance }) {
     const inp = wrap.querySelector("input");
     inp.type = "checkbox";
 
-    if (bind && instance) {
+    if (bind && inst) {
         inp.dataset.bind = bind;
-        inp.checked = !!instance.state[bind];
+        inp.checked = !!(inst.state && inst.state[bind]);
         inp.addEventListener("change", (e) => {
-            instance.state[bind] = e.target.checked;
+            if (inst.state) inst.state[bind] = e.target.checked;
         });
     }
     return wrap;
@@ -1778,7 +1797,7 @@ export function Modal({
         const animClose = closeAnimation || animation;
         if (animClose && animClose !== 'none') {
             overlay.classList.add(`anim-close-${animClose}`);
-            overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+            overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
         } else {
             overlay.classList.remove("show");
             setTimeout(() => {
@@ -1866,23 +1885,17 @@ export function Modal({
 // --- V0.3 NOVOS COMPONENTES ---
 
 export function WebView({ bindUrl, instance, height = "100%" }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-webview-wrap", []);
     wrap.style.height = height;
 
     const iframe = document.createElement("iframe");
     iframe.className = "ui-webview";
 
-    if (bindUrl && instance) {
-        // Initial set
-        if (instance.state[bindUrl]) {
-            iframe.src = instance.state[bindUrl];
+    if (bindUrl && inst && inst.state) {
+        if (inst.state[bindUrl]) {
+            iframe.src = inst.state[bindUrl];
         }
-
-        // We do not intercept load events for security, we just drive it from state
-        // When state changes, we re-render and it will get the new src naturally.
-        // But since re-rendering an iframe reloads it, we might want to manually set src if it already exists.
-        // The Proxy triggers full update anyway, so it re-creates the iframe. 
-        // For a seamless webview, we'd want custom logic, but for standard usage full re-render is fine.
     }
 
     wrap.appendChild(iframe);
@@ -1890,9 +1903,10 @@ export function WebView({ bindUrl, instance, height = "100%" }) {
 }
 
 export function DraggableList({ bindItems, onReorder, instance }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-draggable-list", []);
 
-    const items = instance.state[bindItems] || [];
+    const items = (inst && inst.state && bindItems && inst.state[bindItems]) ? inst.state[bindItems] : [];
     let draggedItemIdx = null;
 
     items.forEach((item, index) => {
@@ -1947,11 +1961,16 @@ export function DraggableList({ bindItems, onReorder, instance }) {
                 const adjustedIndex = dropIndex > draggedItemIdx ? dropIndex - 1 : dropIndex;
                 newItems.splice(adjustedIndex, 0, moved);
 
-                instance.state[bindItems] = newItems;
+                if (inst && inst.state && bindItems) {
+                    inst.state[bindItems] = newItems;
+                }
 
-                if (onReorder && instance) {
-                    if (typeof onReorder === 'string') instance.runAction(onReorder, newItems);
-                    else onReorder(newItems);
+                if (onReorder) {
+                    if (typeof onReorder === 'string' && inst && typeof inst.runAction === 'function') {
+                        inst.runAction(onReorder, newItems);
+                    } else if (typeof onReorder === 'function') {
+                        onReorder(newItems);
+                    }
                 }
             }
         });
@@ -2179,6 +2198,7 @@ export function Toast({ message, type = "info", duration = 3000 }) {
 // --- NAVEGAÇÃO E LAYOUT (GRUPO 2) ---
 
 export function Accordion({ items = [], instance }) {
+    const inst = resolveInstance(instance);
     const container = createElement("div", "ui-accordion");
 
     items.forEach((item, index) => {
@@ -2194,15 +2214,14 @@ export function Accordion({ items = [], instance }) {
             content.innerHTML = item.content;
         } else if (item.content instanceof Node) {
             content.appendChild(item.content);
-        } else if (typeof item.content === 'function' && instance) {
-            const res = item.content.call(instance);
+        } else if (typeof item.content === 'function') {
+            const res = item.content.call(inst || window);
             if (typeof res === 'string') content.innerHTML = res;
             else if (res instanceof Node) content.appendChild(res);
         }
 
         header.onclick = () => {
             const isOpen = itemEl.classList.contains("open");
-            // Fecha todos (opcional: comente as próximas 2 linhas para permitir múltiplos abertos)
             container.querySelectorAll('.ui-accordion-item').forEach(el => el.classList.remove("open"));
             if (!isOpen) itemEl.classList.add("open");
         };
@@ -2216,13 +2235,14 @@ export function Accordion({ items = [], instance }) {
 }
 
 export function Drawer({ bind, side = "right", content, instance, targetContainer }) {
+    const inst = resolveInstance(instance);
     const overlay = createElement("div", "ui-drawer-overlay");
     const drawer = createElement("div", `ui-drawer ui-drawer-${side}`);
 
     // Close function
     const closeDrawer = () => {
-        if (bind && instance) {
-            instance.state[bind] = false;
+        if (bind && inst && inst.state) {
+            inst.state[bind] = false;
         } else {
             overlay.classList.remove("show");
             setTimeout(() => overlay.remove(), 300);
@@ -2242,8 +2262,8 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
     // Resolve Container
     let container = targetContainer;
     if (!container) {
-        if (instance && instance.windowEl) {
-            container = instance.windowEl;
+        if (inst && inst.windowEl) {
+            container = inst.windowEl;
         } else {
             container = document.getElementById("app") || document.body;
         }
@@ -2254,13 +2274,13 @@ export function Drawer({ bind, side = "right", content, instance, targetContaine
     }
 
     // Controle pelo state
-    if (bind && instance) {
+    if (bind && inst) {
         const placeholder = createElement("div", "ui-drawer-placeholder", []);
         placeholder.style.display = "none";
 
         const old = document.getElementById(`drawer_${bind}`);
 
-        if (instance.state[bind]) {
+        if (inst.state && inst.state[bind]) {
             if (old) old.remove();
 
             overlay.id = `drawer_${bind}`;
@@ -2333,6 +2353,7 @@ export function Stepper({ steps = [], currentStep = 0 }) {
 // --- FORMULÁRIOS AVANÇADOS (GRUPO 3) ---
 
 export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-field ui-slider-wrap");
 
     const topRow = createElement("div", "ui-slider-header", []);
@@ -2351,14 +2372,13 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
 
     const updateDisplay = (val) => {
         valueDisplay.textContent = val;
-        // Calcula a porcentagem para preencher o background do track
         const percent = ((val - min) / (max - min)) * 100;
         inp.style.backgroundSize = `${percent}% 100%`;
     };
 
-    if (bind && instance) {
+    if (bind && inst) {
         inp.dataset.bind = bind;
-        let currentVal = instance.state[bind] !== undefined ? instance.state[bind] : min;
+        let currentVal = (inst.state && inst.state[bind] !== undefined) ? inst.state[bind] : min;
         inp.value = currentVal;
         updateDisplay(currentVal);
         inp.addEventListener("input", (e) => {
@@ -2366,7 +2386,7 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
         });
 
         inp.addEventListener("change", (e) => {
-            instance.state[bind] = Number(e.target.value);
+            if (inst.state) inst.state[bind] = Number(e.target.value);
         });
     } else {
         inp.value = min;
@@ -2379,6 +2399,7 @@ export function Slider({ label, bind, min = 0, max = 100, step = 1, instance }) 
 }
 
 export function RadioGroup({ label, name, bind, options = [], instance, layout = "vertical" }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-field ui-radiogroup-wrap");
     if (label) wrap.appendChild(createElement("label", "ui-radiogroup-label", [label]));
 
@@ -2392,21 +2413,21 @@ export function RadioGroup({ label, name, bind, options = [], instance, layout =
         const inp = document.createElement("input");
         inp.type = "radio";
         inp.name = groupName;
-        inp.value = opt.value;
+        inp.value = opt.value !== undefined ? opt.value : opt;
 
-        if (bind && instance) {
+        if (bind && inst) {
             inp.dataset.bind = bind;
-            if (instance.state[bind] === opt.value) inp.checked = true;
+            if (inst.state && inst.state[bind] === inp.value) inp.checked = true;
 
             inp.addEventListener("change", (e) => {
-                if (e.target.checked) {
-                    instance.state[bind] = opt.value;
+                if (e.target.checked && inst.state) {
+                    inst.state[bind] = inp.value;
                 }
             });
         }
 
         lbl.appendChild(inp);
-        lbl.appendChild(document.createTextNode(" " + opt.label));
+        lbl.appendChild(document.createTextNode(" " + (opt.label !== undefined ? opt.label : opt)));
         container.appendChild(lbl);
     });
 
@@ -2415,12 +2436,12 @@ export function RadioGroup({ label, name, bind, options = [], instance, layout =
 }
 
 export function Autocomplete({ label, bind, options = [], instance, placeholder = "Digite para buscar...", multiple = false }) {
+    const inst = resolveInstance(instance);
     const wrap = createElement("div", "ui-field ui-autocomplete-wrap");
     if (label) wrap.appendChild(createElement("label", "", [label]));
 
     const listId = `dl_${bind || Math.random().toString(36).substr(2, 5)}`;
 
-    // Área onde os chips (tags) vão aparecer, se multiple = true
     const chipsContainer = createElement("div", "ui-autocomplete-chips");
 
     const inp = document.createElement("input");
@@ -2439,39 +2460,38 @@ export function Autocomplete({ label, bind, options = [], instance, placeholder 
         datalist.appendChild(optionEl);
     });
 
-    if (bind && instance) {
+    if (bind && inst) {
         inp.dataset.bind = bind;
 
         if (multiple) {
-            const currentArr = Array.isArray(instance.state[bind]) ? instance.state[bind] : [];
-            // Renderiza os chips iniciais
+            const currentArr = Array.isArray(inst.state && inst.state[bind]) ? inst.state[bind] : [];
             currentArr.forEach(val => {
                 const chip = createElement("span", "ui-chip", [val]);
                 const closeBtn = createElement("span", "ui-chip-close", ["×"]);
                 closeBtn.onclick = () => {
-                    instance.state[bind] = instance.state[bind].filter(item => item !== val);
+                    if (inst.state) inst.state[bind] = inst.state[bind].filter(item => item !== val);
                 };
                 chip.appendChild(closeBtn);
                 chipsContainer.appendChild(chip);
             });
 
-            // Quando seleciona do datalist
             inp.addEventListener("change", (e) => {
                 const val = e.target.value.trim();
-                if (val && (!instance.state[bind] || !instance.state[bind].includes(val))) {
-                    const newArr = Array.isArray(instance.state[bind]) ? [...instance.state[bind]] : [];
-                    newArr.push(val);
-                    instance.state[bind] = newArr;
+                if (val && inst.state) {
+                    const current = Array.isArray(inst.state[bind]) ? inst.state[bind] : [];
+                    if (!current.includes(val)) {
+                        inst.state[bind] = [...current, val];
+                    }
                 }
-                e.target.value = ""; // limpa o input após selecionar
+                e.target.value = "";
             });
         } else {
-            inp.value = instance.state[bind] !== undefined ? instance.state[bind] : "";
+            inp.value = (inst.state && inst.state[bind] !== undefined) ? inst.state[bind] : "";
             inp.addEventListener("input", (e) => {
-                if (typeof instance._setSilentState === 'function') {
-                    instance._setSilentState(bind, e.target.value);
-                } else {
-                    instance.state[bind] = e.target.value;
+                if (typeof inst._setSilentState === 'function') {
+                    inst._setSilentState(bind, e.target.value);
+                } else if (inst.state) {
+                    inst.state[bind] = e.target.value;
                 }
             });
         }
@@ -2743,7 +2763,7 @@ export function DockWidget({
     const toggle = (forceState) => {
         const next = typeof forceState === 'boolean' ? forceState : !dock.classList.contains("expanded");
         dock.classList.toggle("expanded", next);
-        
+
         const chevronBtn = dock.querySelector(".ui-dock-chevron-btn");
         if (chevronBtn) {
             chevronBtn.textContent = next ? "▼" : "▲";
@@ -2900,7 +2920,7 @@ export function DockWidget({
     if (!instance || targetContainer) {
         target.appendChild(dock);
     }
-    
+
     if (startMinimized) {
         minimizeToTray();
     }
@@ -3139,25 +3159,25 @@ export function FloatButton({
  */
 export function ShortcutContainer(options = {}) {
     const {
-        container    = null,
-        shortcuts    = [],
-        alignH       = 'left',
-        alignV       = 'top',
+        container = null,
+        shortcuts = [],
+        alignH = 'left',
+        alignV = 'top',
         shortcutSize = '80px',
-        gap          = '8px',
-        width        = '100%',
-        height       = '100%',
-        full         = false,
-        scroll       = true,
-        autoResize   = false,
-        border       = false,
-        visible      = true,
-        sort             = 'none',
+        gap = '8px',
+        width = '100%',
+        height = '100%',
+        full = false,
+        scroll = true,
+        autoResize = false,
+        border = false,
+        visible = true,
+        sort = 'none',
         passthroughPointer = false,
         id,
-        className    = '',
-        style        = '',
-        contextMenu  = null
+        className = '',
+        style = '',
+        contextMenu = null
     } = options;
 
     // ---- Mapeamento de alinhamentos para CSS ----
@@ -3170,29 +3190,29 @@ export function ShortcutContainer(options = {}) {
 
     // ---- Layout base ----
     const shortcutSizePx = typeof shortcutSize === 'number' ? `${shortcutSize}px` : shortcutSize;
-    const gapPx          = typeof gap === 'number' ? `${gap}px` : gap;
-    const widthPx        = typeof width === 'number' ? `${width}px` : width;
-    const heightPx       = typeof height === 'number' ? `${height}px` : height;
+    const gapPx = typeof gap === 'number' ? `${gap}px` : gap;
+    const widthPx = typeof width === 'number' ? `${width}px` : width;
+    const heightPx = typeof height === 'number' ? `${height}px` : height;
 
-    el.style.display        = 'flex';
-    el.style.flexWrap       = 'wrap';
+    el.style.display = 'flex';
+    el.style.flexWrap = 'wrap';
     el.style.justifyContent = hMap[alignH] || 'flex-start';
-    el.style.alignContent   = vMap[alignV]  || 'flex-start';
-    el.style.alignItems     = vMap[alignV]  || 'flex-start';
-    el.style.gap            = gapPx;
-    el.style.padding        = gapPx;
-    el.style.boxSizing      = 'border-box';
-    el.style.width          = widthPx;
-    el.style.height         = heightPx;
-    el.style.overflow       = scroll ? 'auto' : 'hidden';
-    el.style.overflowX      = scroll ? 'auto' : 'hidden';
+    el.style.alignContent = vMap[alignV] || 'flex-start';
+    el.style.alignItems = vMap[alignV] || 'flex-start';
+    el.style.gap = gapPx;
+    el.style.padding = gapPx;
+    el.style.boxSizing = 'border-box';
+    el.style.width = widthPx;
+    el.style.height = heightPx;
+    el.style.overflow = scroll ? 'auto' : 'hidden';
+    el.style.overflowX = scroll ? 'auto' : 'hidden';
     el.dataset.shortcutSize = shortcutSizePx;
 
     if (full) {
         el.style.position = 'absolute';
-        el.style.inset    = '0';
-        el.style.width    = '100%';
-        el.style.height   = '100%';
+        el.style.inset = '0';
+        el.style.width = '100%';
+        el.style.height = '100%';
     }
 
     if (border) el.classList.add('ui-shortcut-container--border');
@@ -3243,7 +3263,7 @@ export function ShortcutContainer(options = {}) {
         const cols = Math.max(1, Math.floor(containerW / minCell));
         const cell = Math.floor((containerW - (cols + 1) * 8) / cols);
         el.querySelectorAll('.ui-shortcut').forEach(sc => {
-            sc.style.width  = `${cell}px`;
+            sc.style.width = `${cell}px`;
             sc.style.height = `${cell}px`;
         });
     }
@@ -3256,7 +3276,7 @@ export function ShortcutContainer(options = {}) {
     // ---- Adicionar atalhos ----
     function _addShortcut(scEl) {
         if (!scEl) return;
-        scEl.style.width  = shortcutSizePx;
+        scEl.style.width = shortcutSizePx;
         scEl.style.height = shortcutSizePx;
         // Garante clicabilidade individual quando o container está em modo passthrough
         if (passthroughPointer) scEl.style.pointerEvents = 'auto';
@@ -3389,21 +3409,21 @@ export function ShortcutContainer(options = {}) {
  */
 export function Shortcut(options = {}) {
     const {
-        label       = '',
-        image       = '',
-        icon        = '',
-        action      = null,
-        instance    = null,
-        type        = 'app',
-        iconSize    = '48px',
-        fontSize    = '11px',
-        active      = false,
-        disabled    = false,
-        visible     = true,
-        tooltip     = '',
+        label = '',
+        image = '',
+        icon = '',
+        action = null,
+        instance = null,
+        type = 'app',
+        iconSize = '48px',
+        fontSize = '11px',
+        active = false,
+        disabled = false,
+        visible = true,
+        tooltip = '',
         id,
-        className   = '',
-        style       = '',
+        className = '',
+        style = '',
         contextMenu = null
     } = options;
 
@@ -3416,7 +3436,7 @@ export function Shortcut(options = {}) {
 
     // Datasets para busca/ordenação
     el.dataset.shortcutLabel = label;
-    el.dataset.shortcutType  = type;
+    el.dataset.shortcutType = type;
 
     // ---- Imagem / Ícone ----
     const imgEl = document.createElement('div');
@@ -3431,22 +3451,22 @@ export function Shortcut(options = {}) {
             const img = document.createElement('img');
             img.src = visual;
             img.alt = label || '';
-            img.style.width     = iconSizePx;
-            img.style.height    = iconSizePx;
+            img.style.width = iconSizePx;
+            img.style.height = iconSizePx;
             img.style.objectFit = 'contain';
-            img.draggable       = false;
+            img.draggable = false;
             imgEl.appendChild(img);
         } else {
             // Emoji ou texto
-            imgEl.textContent      = visual;
-            imgEl.style.fontSize   = iconSizePx;
+            imgEl.textContent = visual;
+            imgEl.style.fontSize = iconSizePx;
             imgEl.style.lineHeight = '1';
         }
     } else {
         // Ícone padrão genérico por tipo
         const defaults = { folder: '📁', file: '📄', link: '🔗', app: '⬜' };
-        imgEl.textContent      = defaults[type] || '⬜';
-        imgEl.style.fontSize   = iconSizePx;
+        imgEl.textContent = defaults[type] || '⬜';
+        imgEl.style.fontSize = iconSizePx;
         imgEl.style.lineHeight = '1';
     }
 
@@ -3455,14 +3475,14 @@ export function Shortcut(options = {}) {
     // ---- Label ----
     if (label) {
         const lbl = document.createElement('span');
-        lbl.className  = 'ui-shortcut__label';
+        lbl.className = 'ui-shortcut__label';
         lbl.textContent = label;
         lbl.style.fontSize = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
         el.appendChild(lbl);
     }
 
     // ---- Estado inicial ----
-    if (active)   el.classList.add('active');
+    if (active) el.classList.add('active');
     if (disabled) el.classList.add('disabled');
     if (!visible) el.style.display = 'none';
 
@@ -3480,11 +3500,12 @@ export function Shortcut(options = {}) {
         if (parent) parent.querySelectorAll('.ui-shortcut.active').forEach(sc => sc.classList.remove('active'));
         el.classList.add('active');
 
+        const inst = resolveInstance(instance);
         if (typeof action === 'function') {
             action(e, shortcutApi);
         } else if (typeof action === 'string') {
-            if (instance && typeof instance.runAction === 'function') {
-                instance.runAction(action);
+            if (inst && typeof inst.runAction === 'function') {
+                inst.runAction(action);
             } else if (typeof window.Desktop !== 'undefined' && typeof window.Desktop.openScreen === 'function') {
                 window.Desktop.openScreen(action);
             }

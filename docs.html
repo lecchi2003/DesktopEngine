@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Documentação Completa - DesktopEngine V1.0</title>
+    <title>Documentação Completa - DesktopEngine V1.5</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -284,7 +284,7 @@
 <body>
 
     <div class="navbar">
-        <div>DesktopEngine V1.0</div>
+        <div>DesktopEngine V1.5</div>
         <div class="badge">Documentação de Referência Completa</div>
     </div>
 
@@ -296,6 +296,9 @@
             <a href="#executando">Executando o Projeto</a>
             <a href="#init">Inicialização do Desktop</a>
             <a href="#telas">Criando Telas (Windows)</a>
+            <a href="#element-builder">Abordagem Híbrida &amp; ElementBuilder</a>
+            <a href="#contexto-reativo">Reatividade Implícita (Sem instance: this)</a>
+            <a href="#extensibilidade">Extensibilidade (BaseComponent &amp; Plugins)</a>
             <a href="#arquitetura-telas">Modularização &amp; Lazy Loading</a>
             <a href="#estado-reativo">Reatividade com Proxies</a>
             <a href="#middlewares">Middlewares &amp; Actions</a>
@@ -351,7 +354,7 @@
 
         <!-- Main Content -->
         <main class="content">
-            <h1 id="intro">DesktopEngine V1.0 - Manual de Referência</h1>
+            <h1 id="intro">DesktopEngine V1.5 - Manual de Referência</h1>
             <p class="lead">O <strong>DesktopEngine</strong> é um micro-framework em Vanilla JavaScript voltado para
                 criar interfaces do tipo "Desktop in Browser" (janelas flutuantes, arrastáveis e redimensionáveis).
                 Totalmente sem passos de compilação (zero Webpack, zero Node em runtime) e alimentado por reatividade
@@ -614,6 +617,130 @@ const MinhaJanela = {
 
 // Abre a janela no Desktop
 Desktop.open(Framework.createWindow(MinhaJanela, "JANELA_USUARIO", Desktop));</code></pre>
+            </div>
+
+            <!-- SEÇÃO: ABORDAGEM HÍBRIDA & ELEMENTBUILDER -->
+            <h2 id="element-builder">⚡ Abordagem Híbrida &amp; ElementBuilder (Fluent API)</h2>
+            <p>O <strong>DesktopEngine</strong> promove o desenvolvimento híbrido (declarativo + programático fluente) através do módulo <code>ElementBuilder.js</code> e da fachada <code>UI</code>. Esta abordagem elimina a necessidade de manipulação direta de nós DOM via <code>document.createElement</code>, strings de HTML cruas ou chamadas a <code>document.getElementById</code>:</p>
+
+            <div class="alert alert-tip">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Vantagens da Fluent API:</strong>
+                    <ul style="margin: 4px 0 0 0; padding-left: 18px;">
+                        <li><strong>Zero DOM Bruto:</strong> Construção estruturada por métodos encadeáveis (<code>.class()</code>, <code>.style()</code>, <code>.text()</code>, <code>.children()</code>, <code>.click()</code>).</li>
+                        <li><strong>Integração Nativa com o UI Kit:</strong> Acesso imediato a todos os componentes do framework (<code>UI.card()</code>, <code>UI.grid()</code>, <code>UI.input()</code>, <code>UI.button()</code>, <code>UI.badge()</code>, etc.).</li>
+                        <li><strong>Encapsulamento de Eventos e Ações:</strong> Disparo direto de actions da janela passando apenas o nome da ação (<code>.click("salvar")</code> ou <code>UI.button("Salvar", "salvar")</code>).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-box">
+                <pre><code>import { UI, ElementBuilder } from './ElementBuilder.js';
+
+// Exemplo 1: Construção Fluente Programática
+const meuCard = UI.card("Resumo do Sistema")
+    .class("meu-card-customizado")
+    .children([
+        UI.p("Visão geral em tempo real com construção fluente."),
+        UI.row([
+            UI.badge("Ativo", "success"),
+            UI.badge("Seguro", "primary")
+        ]),
+        UI.button("Atualizar Dados").primary().click("recarregar")
+    ])
+    .build();
+
+// Exemplo 2: View de Janela utilizando UI Fluente
+const TelaFluente = {
+    title: "Painel Fluente",
+    icon: "⚡",
+    state: { usuario: "Maria", nivel: "Admin" },
+    actions: {
+        salvar: [async (ctx) => Desktop.notify(`Usuário ${ctx.state.usuario} salvo!`, "success")]
+    },
+    view() {
+        return UI.div().class("p-3 flex-col gap-2").children([
+            UI.input("Nome de Usuário", "usuario"),
+            UI.button("Salvar Registro", "salvar").primary()
+        ]).build();
+    }
+};</code></pre>
+            </div>
+
+            <!-- SEÇÃO: CONTEXTO REATIVO IMPLÍCITO -->
+            <h2 id="contexto-reativo">🧬 Contexto Reativo Implícito (Zero-instance: this)</h2>
+            <p>Nas versões anteriores do framework, para que os componentes vinculassem seu estado reativo (<code>bind: "nome"</code>) ou disparassem actions da janela, o desenvolvedor precisava repassar explicitamente o parâmetro <code>{ instance: this }</code> para cada elemento.</p>
+
+            <p>A partir desta versão, o <strong>DesktopEngine</strong> introduz o <code>UIContext</code> no core:</p>
+            <ul>
+                <li>Durante as fases de <code>render()</code>, <code>update()</code>, <code>runAction()</code> e hooks de ciclo de vida (<code>onMount</code>, etc.), a instância da janela é registrada em um contexto implícito de execução.</li>
+                <li>Todos os componentes (<code>Input</code>, <code>Select</code>, <code>Checkbox</code>, <code>Toggle</code>, <code>Textarea</code>, <code>Slider</code>, <code>Autocomplete</code>, <code>RadioGroup</code>, <code>Button</code>, etc.) resolvem a janela ativa de forma automática.</li>
+                <li><strong>Compatibilidade Retroativa Total:</strong> Códigos legados que ainda passem <code>{ instance: this }</code> continuam funcionando 100% sem alterações.</li>
+            </ul>
+
+            <div class="code-box">
+                <pre><code>// ✅ Abordagem Moderna Recomendada (Sem instance: this):
+view() {
+    return UI.div().children([
+        UI.input("Nome", "nome"),                          // Automaticamente vinculado ao state.nome
+        UI.select({ label: "Perfil", bind: "perfil" }),    // Automaticamente vinculado ao state.perfil
+        UI.button("Salvar", "salvarAction")                // Dispara a action 'salvarAction' da janela
+    ]).build();
+}
+
+// ⚠️ Abordagem Legada (Ainda suportada para retrocompatibilidade):
+view() {
+    return createElement("div", "", [
+        Input({ label: "Nome", bind: "nome", instance: this }),
+        Button({ text: "Salvar", onClick: "salvarAction", instance: this })
+    ]);
+}</code></pre>
+            </div>
+
+            <!-- SEÇÃO: EXTENSIBILIDADE -->
+            <h2 id="extensibilidade">🧩 Extensibilidade do Framework (BaseComponent, defineComponent &amp; Plugins)</h2>
+            <p>O DesktopEngine foi arquitetado para permitir que desenvolvedores terceiros estendam o framework criando seus próprios componentes reutilizáveis ou injetando plugins globais sem precisar conhecer dados internos da engine:</p>
+
+            <h3>1. Criando Componentes com <code>BaseComponent</code></h3>
+            <p>A classe base <code>BaseComponent</code> fornece ciclo de vida próprio (<code>onMount</code>, <code>onUpdate</code>, <code>onDestroy</code>), estado reativo encapsulado (<code>this.state</code>, <code>this.setState()</code>) e sistema de eventos (<code>this.on()</code>, <code>this.emit()</code>):</p>
+
+            <div class="code-box">
+                <pre><code>import { BaseComponent, Framework } from './core.js';
+import { UI } from './ElementBuilder.js';
+
+export class ContadorWidget extends BaseComponent {
+    constructor(props = {}) {
+        super(props);
+        this.state = { valor: props.inicial || 0 };
+    }
+
+    render() {
+        return UI.div().class("card-contador").children([
+            UI.span(`Valor atual: ${this.state.valor}`),
+            UI.button("+1", () => this.setState(s => ({ valor: s.valor + 1 })))
+        ]).build();
+    }
+}
+
+// 2. Registrando o Componente no Framework:
+Framework.defineComponent("Contador", ContadorWidget);
+
+// Agora o componente pode ser usado diretamente na API fluente:
+// UI.Contador({ inicial: 10 }) ou UI.custom("Contador", { inicial: 10 })</code></pre>
+            </div>
+
+            <h3>2. Sistema de Plugins Globais (<code>Framework.use</code>)</h3>
+            <p>Permite interceptar ou injetar capacidades no framework:</p>
+
+            <div class="code-box">
+                <pre><code>import { Framework } from './core.js';
+
+const LoggerPlugin = (engine, options) => {
+    console.log("Plugin Logger instalado:", options);
+};
+
+Framework.use(LoggerPlugin, { verbose: true });</code></pre>
             </div>
 
             <!-- SEÇÃO NOVO: ARQUITETURA MODULAR & SCREEN REGISTRY -->
@@ -2716,7 +2843,7 @@ if (usuarioSelecionado) {
             <h3>1. Estrutura do JSON de Configuração</h3>
             <div class="code-box">
                 <pre><code>{
-  "version": "1.0",
+  "version": "1.5",
   "exportedAt": "2026-08-20T00:10:00.000Z",
   "system": {
     "lookAndFeel": "cyberpunk-neon",
@@ -3425,7 +3552,7 @@ Desktop.toggleMobileMode();      // Alterna entre Desktop e Mobile instantaneame
             </div>
 
             <br><br>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V1.0 &copy; 2026 -
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">DesktopEngine V1.5 &copy; 2026 -
                 O micro-framework corporativo definitivo em Vanilla JS.</p>
         </main>
     </div>

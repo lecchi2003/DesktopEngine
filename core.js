@@ -51,8 +51,134 @@ export const EventBus = {
 // Inicializa o EventBus
 EventBus.init();
 
+// --- Contexto Reativo Implícito ---
+// Permite que componentes UI acessem a janela atual sem exigir 'instance: this' do desenvolvedor
+export const UIContext = {
+    _current: null,
+    _stack: [],
+
+    getCurrent() {
+        return this._current;
+    },
+
+    setCurrent(instance) {
+        this._current = instance;
+    },
+
+    runWith(instance, fn) {
+        this._stack.push(this._current);
+        this._current = instance;
+        try {
+            return fn();
+        } finally {
+            this._current = this._stack.pop() || null;
+        }
+    }
+};
+
+// --- Classe Base para Extensão de Componentes por Desenvolvedores ---
+export class BaseComponent {
+    constructor(props = {}) {
+        this.props = { ...props };
+        this.state = {};
+        this.el = null;
+        this._listeners = {};
+    }
+
+    setState(partialOrFn) {
+        const next = typeof partialOrFn === 'function' ? partialOrFn(this.state) : partialOrFn;
+        this.state = { ...this.state, ...next };
+        this.update();
+    }
+
+    on(event, handler) {
+        if (!this._listeners[event]) this._listeners[event] = [];
+        this._listeners[event].push(handler);
+        return () => this.off(event, handler);
+    }
+
+    off(event, handler) {
+        if (!this._listeners[event]) return;
+        this._listeners[event] = this._listeners[event].filter(h => h !== handler);
+    }
+
+    emit(event, payload) {
+        if (this._listeners[event]) {
+            this._listeners[event].forEach(h => {
+                try { h(payload); } catch (e) { console.error(`Erro no listener de ${event}:`, e); }
+            });
+        }
+    }
+
+    mount(parent) {
+        this.el = this.render();
+        if (parent && this.el) {
+            if (parent instanceof Node) parent.appendChild(this.el);
+            else if (typeof parent.appendChild === 'function') parent.appendChild(this.el);
+        }
+        if (typeof this.onMount === 'function') {
+            try { this.onMount(); } catch (e) { console.error("Erro no hook onMount de BaseComponent:", e); }
+        }
+        return this.el;
+    }
+
+    update() {
+        if (!this.el || !this.el.parentNode) return;
+        const oldEl = this.el;
+        const newEl = this.render();
+        if (oldEl && newEl && oldEl.parentNode) {
+            oldEl.parentNode.replaceChild(newEl, oldEl);
+            this.el = newEl;
+            if (typeof this.onUpdate === 'function') {
+                try { this.onUpdate(); } catch (e) { console.error("Erro no hook onUpdate de BaseComponent:", e); }
+            }
+        }
+    }
+
+    destroy() {
+        if (typeof this.onDestroy === 'function') {
+            try { this.onDestroy(); } catch (e) { console.error("Erro no hook onDestroy de BaseComponent:", e); }
+        }
+        if (this.el && this.el.parentNode) {
+            this.el.parentNode.removeChild(this.el);
+        }
+        this._listeners = {};
+        this.el = null;
+    }
+
+    render() {
+        throw new Error("Componente deve implementar o método render() retornando um elemento DOM.");
+    }
+}
+
 // --- Core Engine ---
 export const Framework = {
+    _components: {},
+    _plugins: [],
+
+    /** Registra um novo componente no framework para uso declarativo e programático */
+    defineComponent(name, componentDef) {
+        if (!name || !componentDef) throw new Error("Nome e definição do componente são obrigatórios.");
+        this._components[name] = componentDef;
+        return this;
+    },
+
+    /** Retorna um componente previamente registrado */
+    getComponent(name) {
+        return this._components[name];
+    },
+
+    /** Registra e executa um plugin que estende o framework */
+    use(plugin, options = {}) {
+        if (!plugin) return this;
+        if (typeof plugin === 'function') {
+            plugin(this, options);
+        } else if (typeof plugin.install === 'function') {
+            plugin.install(this, options);
+        }
+        this._plugins.push({ plugin, options });
+        return this;
+    },
     createWindow(config, instanceId, desktopManager) {
         let isSilentStateUpdate = false;
 
@@ -107,7 +233,9 @@ export const Framework = {
                 
                 const next = async () => {
                     if (index < steps.length) {
-                        await steps[index++](context, next);
+                        await UIContext.runWith(this, async () => {
+                            await steps[index++](context, next);
+                        });
                     }
                 };
                 
@@ -124,58 +252,62 @@ export const Framework = {
             },
 
             render() {
-                if (typeof config.view === 'function') {
-                    const node = config.view.call(this);
-                    this.el = node;
-                    return node;
-                }
-                // Fallback para conteúdo estático
-                const div = document.createElement('div');
-                div.innerHTML = config.view || '';
-                this.el = div;
-                return div;
+                return UIContext.runWith(this, () => {
+                    if (typeof config.view === 'function') {
+                        const node = config.view.call(this);
+                        this.el = node;
+                        return node;
+                    }
+                    // Fallback para conteúdo estático
+                    const div = document.createElement('div');
+                    div.innerHTML = config.view || '';
+                    this.el = div;
+                    return div;
+                });
             },
 
             update(prop = null, newValue = null, oldValue = null) {
-                if (typeof this.beforeUpdate === 'function') {
-                    try { this.beforeUpdate(prop, newValue, oldValue); } catch (e) { console.error("Erro no hook beforeUpdate:", e); }
-                }
-
-                if (this.el && this.el.parentNode) {
-                    // Salvar o foco atual e posições de seleção/cursor
-                    const activeElement = document.activeElement;
-                    let focusedBind = null;
-                    let selStart = null;
-                    let selEnd = null;
-
-                    if (activeElement && activeElement.dataset && activeElement.dataset.bind) {
-                        focusedBind = activeElement.dataset.bind;
-                        if (typeof activeElement.selectionStart === "number") {
-                            selStart = activeElement.selectionStart;
-                            selEnd = activeElement.selectionEnd;
-                        }
+                UIContext.runWith(this, () => {
+                    if (typeof this.beforeUpdate === 'function') {
+                        try { this.beforeUpdate(prop, newValue, oldValue); } catch (e) { console.error("Erro no hook beforeUpdate:", e); }
                     }
-                    
-                    const oldEl = this.el;
-                    const newEl = this.render();
-                    oldEl.parentNode.replaceChild(newEl, oldEl);
-                    this.el = newEl;
-                    
-                    // Restaurar foco e cursor sem perder a posição de digitação
-                    if (focusedBind) {
-                        const elToFocus = newEl.querySelector(`[data-bind="${focusedBind}"]`);
-                        if (elToFocus) {
-                            elToFocus.focus();
-                            if (selStart !== null && typeof elToFocus.setSelectionRange === "function") {
-                                elToFocus.setSelectionRange(selStart, selEnd);
+
+                    if (this.el && this.el.parentNode) {
+                        // Salvar o foco atual e posições de seleção/cursor
+                        const activeElement = document.activeElement;
+                        let focusedBind = null;
+                        let selStart = null;
+                        let selEnd = null;
+
+                        if (activeElement && activeElement.dataset && activeElement.dataset.bind) {
+                            focusedBind = activeElement.dataset.bind;
+                            if (typeof activeElement.selectionStart === "number") {
+                                selStart = activeElement.selectionStart;
+                                selEnd = activeElement.selectionEnd;
                             }
                         }
-                    }
+                        
+                        const oldEl = this.el;
+                        const newEl = this.render();
+                        oldEl.parentNode.replaceChild(newEl, oldEl);
+                        this.el = newEl;
+                        
+                        // Restaurar foco e cursor sem perder a posição de digitação
+                        if (focusedBind) {
+                            const elToFocus = newEl.querySelector(`[data-bind="${focusedBind}"]`);
+                            if (elToFocus) {
+                                elToFocus.focus();
+                                if (selStart !== null && typeof elToFocus.setSelectionRange === "function") {
+                                    elToFocus.setSelectionRange(selStart, selEnd);
+                                }
+                            }
+                        }
 
-                    if (typeof this.onUpdate === 'function') {
-                        try { this.onUpdate(); } catch (e) { console.error("Erro no hook onUpdate:", e); }
+                        if (typeof this.onUpdate === 'function') {
+                            try { this.onUpdate(); } catch (e) { console.error("Erro no hook onUpdate:", e); }
+                        }
                     }
-                }
+                });
             },
             
             setStatus(msg) {
@@ -287,80 +419,80 @@ export const Framework = {
             // --- Lifecycle Hooks (Ciclo de Vida da Janela) ---
             beforeMount() {
                 if (typeof config.beforeMount === 'function') {
-                    config.beforeMount.call(this);
+                    UIContext.runWith(this, () => config.beforeMount.call(this));
                 }
             },
 
             onMount() {
                 if (typeof config.onMount === 'function') {
-                    config.onMount.call(this);
+                    UIContext.runWith(this, () => config.onMount.call(this));
                 }
             },
 
             beforeUpdate(prop, newValue, oldValue) {
                 if (typeof config.beforeUpdate === 'function') {
-                    config.beforeUpdate.call(this, prop, newValue, oldValue);
+                    UIContext.runWith(this, () => config.beforeUpdate.call(this, prop, newValue, oldValue));
                 }
             },
 
             onUpdate() {
                 if (typeof config.onUpdate === 'function') {
-                    config.onUpdate.call(this);
+                    UIContext.runWith(this, () => config.onUpdate.call(this));
                 }
             },
 
             onFocus() {
                 if (typeof config.onFocus === 'function') {
-                    config.onFocus.call(this);
+                    UIContext.runWith(this, () => config.onFocus.call(this));
                 }
             },
 
             onBlur() {
                 if (typeof config.onBlur === 'function') {
-                    config.onBlur.call(this);
+                    UIContext.runWith(this, () => config.onBlur.call(this));
                 }
             },
 
             onMinimize() {
                 if (typeof config.onMinimize === 'function') {
-                    config.onMinimize.call(this);
+                    UIContext.runWith(this, () => config.onMinimize.call(this));
                 }
             },
 
             onRestore() {
                 if (typeof config.onRestore === 'function') {
-                    config.onRestore.call(this);
+                    UIContext.runWith(this, () => config.onRestore.call(this));
                 }
             },
 
             onMaximize(isMaximized) {
                 if (typeof config.onMaximize === 'function') {
-                    config.onMaximize.call(this, isMaximized);
+                    UIContext.runWith(this, () => config.onMaximize.call(this, isMaximized));
                 }
             },
 
             onResize(width, height) {
                 if (typeof config.onResize === 'function') {
-                    config.onResize.call(this, width, height);
+                    UIContext.runWith(this, () => config.onResize.call(this, width, height));
                 }
             },
 
             onMove(x, y) {
                 if (typeof config.onMove === 'function') {
-                    config.onMove.call(this, x, y);
+                    UIContext.runWith(this, () => config.onMove.call(this, x, y));
                 }
             },
 
             async beforeClose() {
                 if (typeof config.beforeClose === 'function') {
-                    return await config.beforeClose.call(this);
+                    return await UIContext.runWith(this, async () => await config.beforeClose.call(this));
                 }
                 return true;
             },
             
             onDestroy() {
                 if (typeof config.onDestroy === 'function') {
-                    config.onDestroy.call(this);
+                    UIContext.runWith(this, () => config.onDestroy.call(this));
                 }
             }
         };

@@ -13,7 +13,7 @@ export default {
     state: {},
     view() {
         return createElement("div", "p-3", [
-            createElement("h2", "", ["Desktop Engine V1.0"]),
+            createElement("h2", "", ["Desktop Engine V1.5"]),
             createElement("p", "", ["Esta janela foi carregada dinamicamente via Lazy Loading nativo (import dinâmico)."]),
             createElement("p", "", ["Tente abrir esta tela novamente e veja a janela original piscar (Efeito Blink) preservando instância única."])
         ]);

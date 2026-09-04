@@ -1,0 +1,465 @@
+// ElementBuilder.js
+// Autor: Gildasio Lecchi Cravo
+import { UIContext, Framework } from './core.js?v=2';
+import * as UIComponents from './ui.js?v=2';
+
+/**
+ * ElementBuilder: Construtor fluente e programático para elementos DOM e componentes de UI.
+ * Permite criar e encadear estilizações, eventos, atributos e filhos de forma limpa.
+ */
+export class ElementBuilder {
+    constructor(tagOrElement, options = {}) {
+        if (typeof tagOrElement === 'string') {
+            this.el = document.createElement(tagOrElement);
+        } else if (tagOrElement instanceof Node) {
+            this.el = tagOrElement;
+        } else {
+            this.el = document.createElement('div');
+        }
+
+        if (options.className) this.class(options.className);
+        if (options.text) this.text(options.text);
+        if (options.html) this.html(options.html);
+        if (options.style) this.style(options.style);
+        if (options.children) this.children(options.children);
+    }
+
+    /** Adiciona uma ou mais classes CSS */
+    class(...classNames) {
+        const flat = classNames.flat().filter(Boolean);
+        flat.forEach(c => {
+            c.split(' ').forEach(cls => {
+                if (cls) this.el.classList.add(cls);
+            });
+        });
+        return this;
+    }
+
+    /** Alias para class */
+    addClass(...classNames) {
+        return this.class(...classNames);
+    }
+
+    /** Remove classes CSS */
+    removeClass(...classNames) {
+        const flat = classNames.flat().filter(Boolean);
+        flat.forEach(c => {
+            c.split(' ').forEach(cls => {
+                if (cls) this.el.classList.remove(cls);
+            });
+        });
+        return this;
+    }
+
+    /** Alterna classe CSS */
+    toggleClass(className, force) {
+        this.el.classList.toggle(className, force);
+        return this;
+    }
+
+    /** Define o ID do elemento */
+    id(value) {
+        this.el.id = value;
+        return this;
+    }
+
+    /** Define estilos inline (objeto ou chave-valor ou string cssText) */
+    style(keyOrObj, value) {
+        if (typeof keyOrObj === 'string') {
+            if (value !== undefined) {
+                this.el.style[keyOrObj] = value;
+            } else {
+                this.el.style.cssText += ';' + keyOrObj;
+            }
+        } else if (keyOrObj && typeof keyOrObj === 'object') {
+            Object.assign(this.el.style, keyOrObj);
+        }
+        return this;
+    }
+
+    /** Define largura */
+    width(val) {
+        this.el.style.width = typeof val === 'number' ? `${val}px` : val;
+        return this;
+    }
+
+    /** Define altura */
+    height(val) {
+        this.el.style.height = typeof val === 'number' ? `${val}px` : val;
+        return this;
+    }
+
+    /** Define atributo HTML */
+    attr(name, val) {
+        if (val === null || val === undefined || val === false) {
+            this.el.removeAttribute(name);
+        } else {
+            this.el.setAttribute(name, val === true ? '' : val);
+        }
+        return this;
+    }
+
+    /** Define dataset attribute */
+    data(key, val) {
+        this.el.dataset[key] = val;
+        return this;
+    }
+
+    /** Define o texto do elemento */
+    text(txt) {
+        this.el.textContent = txt !== undefined && txt !== null ? String(txt) : '';
+        return this;
+    }
+
+    /** Define o HTML interno */
+    html(markup) {
+        this.el.innerHTML = markup !== undefined && markup !== null ? String(markup) : '';
+        return this;
+    }
+
+    /** Adiciona um listener de evento */
+    on(event, handler, options) {
+        this.el.addEventListener(event, handler, options);
+        return this;
+    }
+
+    /** Atalho para evento click ou action da janela atual */
+    click(handlerOrActionName) {
+        if (typeof handlerOrActionName === 'function') {
+            this.el.addEventListener('click', (e) => handlerOrActionName(e, UIContext.getCurrent()));
+        } else if (typeof handlerOrActionName === 'string') {
+            this.el.addEventListener('click', () => {
+                const inst = UIContext.getCurrent();
+                if (inst && typeof inst.runAction === 'function') {
+                    inst.runAction(handlerOrActionName);
+                }
+            });
+        }
+        return this;
+    }
+
+    /** Atalho para evento change */
+    change(handler) {
+        this.el.addEventListener('change', (e) => handler(e, UIContext.getCurrent()));
+        return this;
+    }
+
+    /** Atalho para evento input */
+    input(handler) {
+        this.el.addEventListener('input', (e) => handler(e, UIContext.getCurrent()));
+        return this;
+    }
+
+    /** Liga o valor do elemento ao state da janela (Two-Way Data Binding) */
+    bind(stateKey) {
+        this.data('bind', stateKey);
+        const inst = UIContext.getCurrent();
+        if (inst && inst.state) {
+            const currentVal = inst.state[stateKey];
+            if (this.el.type === 'checkbox') {
+                this.el.checked = !!currentVal;
+                this.el.addEventListener('change', (e) => {
+                    inst.state[stateKey] = e.target.checked;
+                });
+            } else if ('value' in this.el) {
+                if (currentVal !== undefined) this.el.value = currentVal;
+                this.el.addEventListener('input', (e) => {
+                    if (typeof inst._setSilentState === 'function') {
+                        inst._setSilentState(stateKey, e.target.value);
+                    } else {
+                        inst.state[stateKey] = e.target.value;
+                    }
+                });
+            }
+        }
+        return this;
+    }
+
+    /** Conecta menu de contexto ao elemento */
+    contextMenu(items) {
+        if (typeof this.el.setContextMenu === 'function') {
+            this.el.setContextMenu(items);
+        } else {
+            UIComponents.bindContextMenu(this.el, Array.isArray(items) ? items : items.items, {});
+        }
+        return this;
+    }
+
+    /** Anexa nós filhos (aceita Strings, Números, HTMLElement, ElementBuilder, Arrays ou falsy) */
+    children(...children) {
+        const flat = children.flat(Infinity);
+        flat.forEach(child => {
+            if (child === null || child === undefined || child === false) return;
+
+            if (child instanceof ElementBuilder) {
+                this.el.appendChild(child.build());
+            } else if (child instanceof Node) {
+                this.el.appendChild(child);
+            } else if (typeof child === 'string' || typeof child === 'number') {
+                this.el.appendChild(document.createTextNode(String(child)));
+            } else if (typeof child === 'function') {
+                const res = child(this);
+                if (res) this.children(res);
+            }
+        });
+        return this;
+    }
+
+    /** Alias para children */
+    add(...children) {
+        return this.children(...children);
+    }
+
+    /** Retorna o elemento DOM nativo */
+    build() {
+        return this.el;
+    }
+
+    /** Getter conveniente para acessar o DOM nativo */
+    get node() {
+        return this.el;
+    }
+}
+
+/**
+ * Função utilitária para normalizar qualquer argumento de nó (ElementBuilder, Node, etc.)
+ */
+function toNode(item) {
+    if (item instanceof ElementBuilder) return item.build();
+    return item;
+}
+
+/**
+ * Fachada UI: Catálogo programático fluente para construir interfaces ricas no DesktopEngine.
+ */
+export const UI = {
+    /** Cria um ElementBuilder para uma tag HTML qualquer */
+    create(tag, ...children) {
+        const b = new ElementBuilder(tag);
+        if (children.length) b.children(...children);
+        return b;
+    },
+
+    // --- Elementos HTML Base ---
+    div(...children) { return UI.create('div', ...children); },
+    span(...children) { return UI.create('span', ...children); },
+    p(...children) { return UI.create('p', ...children); },
+    h1(txt) { return UI.create('h1').text(txt); },
+    h2(txt) { return UI.create('h2').text(txt); },
+    h3(txt) { return UI.create('h3').text(txt); },
+    h4(txt) { return UI.create('h4').text(txt); },
+    label(txt) { return UI.create('label').text(txt); },
+    hr() { return UI.create('hr'); },
+
+    icon(symbolOrClass) {
+        const b = UI.create('span').class('ui-icon');
+        if (symbolOrClass.startsWith('fa-') || symbolOrClass.startsWith('icon-')) {
+            b.class(symbolOrClass);
+        } else {
+            b.text(symbolOrClass);
+        }
+        return b;
+    },
+
+    // --- Componentes Estruturais de Layout ---
+    row(...children) {
+        const nodes = children.flat().map(toNode);
+        return new ElementBuilder(UIComponents.Row({ children: nodes }));
+    },
+
+    col(...children) {
+        const nodes = children.flat().map(toNode);
+        return new ElementBuilder(UIComponents.Col({ children: nodes }));
+    },
+
+    grid(optionsOrColumns, ...children) {
+        let options = {};
+        if (typeof optionsOrColumns === 'number') {
+            options = { columns: optionsOrColumns, children: children.flat().map(toNode) };
+        } else if (optionsOrColumns && typeof optionsOrColumns === 'object') {
+            options = { ...optionsOrColumns };
+            if (children.length) options.children = children.flat().map(toNode);
+            else if (options.children) options.children = options.children.map(toNode);
+        }
+        return new ElementBuilder(UIComponents.Grid(options));
+    },
+
+    card(titleOrProps, ...children) {
+        let props = {};
+        if (typeof titleOrProps === 'string') {
+            props = { title: titleOrProps, children: children.flat().map(toNode) };
+        } else if (titleOrProps && typeof titleOrProps === 'object') {
+            props = { ...titleOrProps };
+            if (children.length) props.children = children.flat().map(toNode);
+            else if (props.children) props.children = props.children.map(toNode);
+        }
+        return new ElementBuilder(UIComponents.Card(props));
+    },
+
+    // --- Controles de Formulário e Entrada ---
+    button(textOrOptions, onClick) {
+        let opts = {};
+        if (typeof textOrOptions === 'string') {
+            opts = { text: textOrOptions, onClick };
+        } else if (textOrOptions && typeof textOrOptions === 'object') {
+            opts = { ...textOrOptions };
+        }
+        return new ElementBuilder(UIComponents.Button(opts));
+    },
+
+    input(labelOrProps, bind) {
+        let props = {};
+        if (typeof labelOrProps === 'string') {
+            props = { label: labelOrProps, bind };
+        } else if (labelOrProps && typeof labelOrProps === 'object') {
+            props = { ...labelOrProps };
+        }
+        return new ElementBuilder(UIComponents.Input(props));
+    },
+
+    textarea(labelOrProps, bind) {
+        let props = {};
+        if (typeof labelOrProps === 'string') {
+            props = { label: labelOrProps, bind };
+        } else if (labelOrProps && typeof labelOrProps === 'object') {
+            props = { ...labelOrProps };
+        }
+        return new ElementBuilder(UIComponents.Textarea(props));
+    },
+
+    select(props) {
+        return new ElementBuilder(UIComponents.Select(props));
+    },
+
+    checkbox(labelOrProps, bind) {
+        let props = {};
+        if (typeof labelOrProps === 'string') {
+            props = { label: labelOrProps, bind };
+        } else if (labelOrProps && typeof labelOrProps === 'object') {
+            props = { ...labelOrProps };
+        }
+        return new ElementBuilder(UIComponents.Checkbox(props));
+    },
+
+    toggle(labelOrProps, bind) {
+        let props = {};
+        if (typeof labelOrProps === 'string') {
+            props = { label: labelOrProps, bind };
+        } else if (labelOrProps && typeof labelOrProps === 'object') {
+            props = { ...labelOrProps };
+        }
+        return new ElementBuilder(UIComponents.Toggle(props));
+    },
+
+    slider(props) {
+        return new ElementBuilder(UIComponents.Slider(props));
+    },
+
+    radioGroup(props) {
+        return new ElementBuilder(UIComponents.RadioGroup(props));
+    },
+
+    autocomplete(props) {
+        return new ElementBuilder(UIComponents.Autocomplete(props));
+    },
+
+    // --- Componentes de Dados e Exibição ---
+    badge(text, variant = 'primary') {
+        return new ElementBuilder(UIComponents.Badge({ text, variant }));
+    },
+
+    progressBar(value = 0, max = 100) {
+        return new ElementBuilder(UIComponents.ProgressBar({ value, max }));
+    },
+
+    table(options) {
+        return new ElementBuilder(UIComponents.Table(options));
+    },
+
+    tabs(tabs, activeTabBind) {
+        const opts = Array.isArray(tabs) ? { tabs, activeTabBind } : tabs;
+        return new ElementBuilder(UIComponents.Tabs(opts));
+    },
+
+    treeView(options) {
+        return new ElementBuilder(UIComponents.TreeView(options));
+    },
+
+    dataGrid(options) {
+        return new ElementBuilder(UIComponents.DataGrid(options));
+    },
+
+    alert(text, variant = 'info') {
+        return new ElementBuilder(UIComponents.Alert({ text, variant }));
+    },
+
+    spinner(size = '24px', color = 'currentColor') {
+        return new ElementBuilder(UIComponents.Spinner({ size, color }));
+    },
+
+    accordion(items) {
+        const opts = Array.isArray(items) ? { items } : items;
+        return new ElementBuilder(UIComponents.Accordion(opts));
+    },
+
+    drawer(options) {
+        return new ElementBuilder(UIComponents.Drawer(options));
+    },
+
+    tooltip(content, position = 'top', children) {
+        return new ElementBuilder(UIComponents.Tooltip({ content, position, children }));
+    },
+
+    avatar(props) {
+        return new ElementBuilder(UIComponents.Avatar(props));
+    },
+
+    shortcut(options) {
+        return new ElementBuilder(UIComponents.Shortcut(options));
+    },
+
+    shortcutContainer(options) {
+        return new ElementBuilder(UIComponents.ShortcutContainer(options));
+    },
+
+    dockWidget(options) {
+        return new ElementBuilder(UIComponents.DockWidget(options));
+    },
+
+    floatButton(options) {
+        return new ElementBuilder(UIComponents.FloatButton(options));
+    },
+
+    modal(options) {
+        return UIComponents.Modal(options);
+    },
+
+    /** Instancia um componente customizado registrado via Framework.defineComponent */
+    custom(name, props = {}) {
+        const compDef = Framework.getComponent(name);
+        if (!compDef) {
+            throw new Error(`Componente customizado '${name}' não está registrado.`);
+        }
+        if (typeof compDef === 'function') {
+            // Pode ser classe derivada de BaseComponent ou função construtora
+            if (compDef.prototype && compDef.prototype.render) {
+                const instance = new compDef(props);
+                const el = instance.mount();
+                return new ElementBuilder(el);
+            } else {
+                const el = compDef(props);
+                return new ElementBuilder(el);
+            }
+        }
+        throw new Error(`Definição inválida para o componente '${name}'.`);
+    }
+};
+
+// Integração automática: Quando novos componentes forem definidos no Framework,
+// disponibiliza atalho direto em UI[name]
+const originalDefine = Framework.defineComponent;
+Framework.defineComponent = function(name, compDef) {
+    originalDefine.call(Framework, name, compDef);
+    UI[name] = (props) => UI.custom(name, props);
+    return Framework;
+};

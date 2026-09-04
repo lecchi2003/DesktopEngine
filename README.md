@@ -1,4 +1,4 @@
-# Desktop Engine V1.0 - Documentação Oficial
+# Desktop Engine V1.5 - Documentação Oficial
 
 O **Desktop Engine** é um micro-framework focado no desenvolvimento ágil de sistemas corporativos baseados no conceito de **Desktop in Browser** (Janelas flutuantes, arrastáveis e redimensionáveis). Construído exclusivamente com Vanilla JavaScript puro e ES Modules nativos, **sem nenhuma dependência externa ou passos de compilação/build** (sem Webpack, sem Vite, sem Node em runtime).
 
@@ -163,6 +163,127 @@ const MinhaJanela = {
 
 // Abrindo no Desktop:
 Desktop.open(Framework.createWindow(MinhaJanela, "ID_UNICO_JANELA", Desktop));
+```
+
+---
+
+## ⚡ Abordagem Híbrida & ElementBuilder (Fluent API)
+
+O **DesktopEngine** promove o desenvolvimento híbrido (declarativo + programático fluente) através do módulo [`ElementBuilder.js`](file:///c:/Users/lecch/Desktop/Projetos/DesktopEngine/ElementBuilder.js) e da fachada `UI`. Esta abordagem elimina a necessidade de manipulação direta de nós DOM via `document.createElement`, strings de HTML cruas ou chamadas a `document.getElementById`:
+
+### Vantagens da Fluent API:
+1. **Zero DOM Bruto**: Construção estruturada por métodos encadeáveis (`.class()`, `.style()`, `.text()`, `.children()`, `.click()`).
+2. **Integração Nativa com o UI Kit**: Acesso imediato a todos os componentes do framework (`UI.card()`, `UI.grid()`, `UI.input()`, `UI.button()`, `UI.badge()`, etc.).
+3. **Encapsulamento de Eventos e Ações**: Disparo direto de actions da janela passando apenas o nome da ação (`.click("salvar")` ou `UI.button("Salvar", "salvar")`).
+
+```javascript
+import { UI, ElementBuilder } from './ElementBuilder.js';
+
+// Exemplo 1: Construção Fluente Programática
+const meuCard = UI.card("Resumo do Sistema")
+    .class("meu-card-customizado")
+    .children([
+        UI.p("Visão geral em tempo real com construção fluente."),
+        UI.row([
+            UI.badge("Ativo", "success"),
+            UI.badge("Seguro", "primary")
+        ]),
+        UI.button("Atualizar Dados").primary().click("recarregar")
+    ])
+    .build();
+
+// Exemplo 2: View de Janela utilizando UI Fluente
+const TelaFluente = {
+    title: "Painel Fluente",
+    icon: "⚡",
+    state: { usuario: "Maria", nivel: "Admin" },
+    actions: {
+        salvar: [async (ctx) => Desktop.notify(`Usuário ${ctx.state.usuario} salvo!`, "success")]
+    },
+    view() {
+        return UI.div().class("p-3 flex-col gap-2").children([
+            UI.input("Nome de Usuário", "usuario"),
+            UI.button("Salvar Registro", "salvar").primary()
+        ]).build();
+    }
+};
+```
+
+---
+
+## 🧬 Contexto Reativo Implícito (Zero-instance: this)
+
+Nas versões anteriores do framework, para que os componentes vinculassem seu estado reativo (`bind: "nome"`) ou disparassem actions da janela, o desenvolvedor precisava repassar explicitamente o parâmetro `{ instance: this }` para cada elemento.
+
+A partir desta versão, o **DesktopEngine** introduz o `UIContext` no core:
+- Durante as fases de `render()`, `update()`, `runAction()` e hooks de ciclo de vida (`onMount`, etc.), a instância da janela é registrada em um contexto implícito de execução.
+- Todos os componentes (`Input`, `Select`, `Checkbox`, `Toggle`, `Textarea`, `Slider`, `Autocomplete`, `RadioGroup`, `Button`, etc.) resolvem a janela ativa de forma automática.
+- **Compatibilidade Retroativa Total:** Códigos legados que ainda passem `{ instance: this }` continuam funcionando 100% sem alterações.
+
+```javascript
+// ✅ Abordagem Moderna Recomendada (Sem instance: this):
+view() {
+    return UI.div().children([
+        UI.input("Nome", "nome"),                          // Automaticamente vinculado ao state.nome
+        UI.select({ label: "Perfil", bind: "perfil" }),    // Automaticamente vinculado ao state.perfil
+        UI.button("Salvar", "salvarAction")                // Dispara a action 'salvarAction' da janela
+    ]).build();
+}
+
+// ⚠️ Abordagem Legada (Ainda suportada para retrocompatibilidade):
+view() {
+    return createElement("div", "", [
+        Input({ label: "Nome", bind: "nome", instance: this }),
+        Button({ text: "Salvar", onClick: "salvarAction", instance: this })
+    ]);
+}
+```
+
+---
+
+## 🧩 Extensibilidade do Framework (BaseComponent, defineComponent & Plugins)
+
+O DesktopEngine foi arquitetado para permitir que desenvolvedores terceiros estendam o framework criando seus próprios componentes reutilizáveis ou injetando plugins globais sem precisar conhecer dados internos da engine:
+
+### 1. Criando Componentes com `BaseComponent`
+A classe base `BaseComponent` fornece ciclo de vida próprio (`onMount`, `onUpdate`, `onDestroy`), estado reativo encapsulado (`this.state`, `this.setState()`) e sistema de eventos (`this.on()`, `this.emit()`):
+
+```javascript
+import { BaseComponent, Framework } from './core.js';
+import { UI } from './ElementBuilder.js';
+
+export class ContadorWidget extends BaseComponent {
+    constructor(props = {}) {
+        super(props);
+        this.state = { valor: props.inicial || 0 };
+    }
+
+    render() {
+        return UI.div().class("card-contador").children([
+            UI.span(`Valor atual: ${this.state.valor}`),
+            UI.button("+1", () => this.setState(s => ({ valor: s.valor + 1 })))
+        ]).build();
+    }
+}
+
+// 2. Registrando o Componente no Framework:
+Framework.defineComponent("Contador", ContadorWidget);
+
+// Agora o componente pode ser usado diretamente na API fluente:
+// UI.Contador({ inicial: 10 }) ou UI.custom("Contador", { inicial: 10 })
+```
+
+### 2. Sistema de Plugins Globais (`Framework.use`)
+Permite interceptar ou injetar capacidades no framework:
+
+```javascript
+import { Framework } from './core.js';
+
+const LoggerPlugin = (engine, options) => {
+    console.log("Plugin Logger instalado:", options);
+};
+
+Framework.use(LoggerPlugin, { verbose: true });
 ```
 
 ---
@@ -789,7 +910,7 @@ const dock = DockWidget({
         }
     ],
     content: [
-        "✨ DesktopEngine V1.0 ativo.",
+        "✨ DesktopEngine V1.5 ativo.",
         "📡 EventBus conectado."
     ],
     onExpand: (dockApi) => {
@@ -1304,7 +1425,7 @@ O **DesktopEngine** conta com um subsistema nativo para **exportar e importar to
 
 ```json
 {
-  "version": "1.0",
+  "version": "1.5",
   "exportedAt": "2026-08-20T00:10:00.000Z",
   "system": {
     "lookAndFeel": "cyberpunk-neon",

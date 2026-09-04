@@ -1,7 +1,7 @@
 // desktop.js
 //Autor: Gildasio Lecchi Cravo
-import { EventBus, Framework } from './core.js';
-import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js';
+import { EventBus, Framework } from './core.js?v=2';
+import { bindContextMenu, MenuBar, ActionToolbar, StartMenu, ContextMenu, Modal, DockWidget, FloatButton } from './ui.js?v=2';
 
 export const Desktop = {
     windowsEl: null,
@@ -2018,7 +2018,7 @@ export const Desktop = {
         }
 
         const configData = {
-            version: "1.0",
+            version: "1.5",
             exportedAt: new Date().toISOString(),
             system,
             windows

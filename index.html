@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <title>Desktop Engine V1.0 - Ultimate Showcase</title>
+    <title>Desktop Engine V1.5 - Ultimate Showcase</title>
     <link rel="stylesheet" href="./style.css?v=21">
 </head>
 
@@ -12,8 +12,8 @@
     <div id="app"></div>
 
     <script type="module">
-        import { Framework, EventBus } from './core.js';
-        import { Desktop } from './desktop.js';
+        import { Framework, EventBus } from './core.js?v=2';
+        import { Desktop } from './desktop.js?v=2';
         import {
             MenuBar, StartMenu, ContextMenu, bindContextMenu, TreeView, Tabs, Modal, WebView, DraggableList, DataGrid,
             Form, Input, Textarea, Select, Checkbox, Toggle, Button,
@@ -22,7 +22,8 @@
             Slider, RadioGroup, Autocomplete, Tooltip, Avatar, Carousel, Skeleton,
             DockWidget, FloatButton,
             ShortcutContainer, Shortcut
-        } from './ui.js';
+        } from './ui.js?v=2';
+        import { UI, ElementBuilder } from './ElementBuilder.js?v=2';
 
         const lookAndFeelsItensVar = {
             label: "Look and Feel (Skins de Interface)",
@@ -129,6 +130,7 @@
             {
                 label: "Módulos",
                 items: [
+                    { label: "⚡ Framework Híbrido & Fluent UI", screen: "modern_hybrid" },
                     { label: "Hub de Arquiteturas", screen: "hub_arquiteturas" },
                     "separator",
                     { label: "📊 Relatórios em Background (Workers)", screen: "background_reports" },
@@ -1006,7 +1008,7 @@
                                     closeAnimation: a.val,
                                     width: 300,
                                     height: 200,
-                                    children: [ createElement("p", "", [`Animação ${a.val} em ação!`]) ]
+                                    children: [createElement("p", "", [`Animação ${a.val} em ação!`])]
                                 });
                             } else {
                                 Desktop.open(Framework.createWindow({
@@ -1123,36 +1125,40 @@
                         Row({
                             style: "gap:8px; margin-top:8px; flex-wrap:wrap;",
                             children: [
-                                Button({ text: "➕ Adicionar Atalho", variant: "primary", onClick: () => {
-                                    const names = ['Terminal','Monitor','Relógio','Câmera','Scanner','Backup'];
-                                    const icons = ['💻','📺','⏰','📸','🔍','💾'];
-                                    const i = Math.floor(Math.random() * names.length);
-                                    dynamicContainer.addShortcut(
-                                        Shortcut({ label: names[i], icon: icons[i], type: 'app', action: () => log(`${names[i]} clicado!`) })
-                                    );
-                                    log(`Atalho "${names[i]}" adicionado dinamicamente.`);
-                                }}),
+                                Button({
+                                    text: "➕ Adicionar Atalho", variant: "primary", onClick: () => {
+                                        const names = ['Terminal', 'Monitor', 'Relógio', 'Câmera', 'Scanner', 'Backup'];
+                                        const icons = ['💻', '📺', '⏰', '📸', '🔍', '💾'];
+                                        const i = Math.floor(Math.random() * names.length);
+                                        dynamicContainer.addShortcut(
+                                            Shortcut({ label: names[i], icon: icons[i], type: 'app', action: () => log(`${names[i]} clicado!`) })
+                                        );
+                                        log(`Atalho "${names[i]}" adicionado dinamicamente.`);
+                                    }
+                                }),
                                 Button({ text: "🧹 Limpar Tudo", variant: "danger", onClick: () => { dynamicContainer.clear(); log('Container limpo.'); } }),
                                 Button({ text: "🔤 Ordenar A→Z", onClick: () => { dynamicContainer.sort('asc'); log('Ordenado: A→Z'); } }),
                                 Button({ text: "🔡 Ordenar Z→A", onClick: () => { dynamicContainer.sort('desc'); log('Ordenado: Z→A'); } }),
                                 Button({ text: "📁 Por Tipo", onClick: () => { dynamicContainer.sort('type'); log('Ordenado: por tipo'); } }),
                                 Button({ text: "📐 Tamanho 72px", onClick: () => { dynamicContainer.setShortcutSize(72); log('Tamanho: 72px'); } }),
                                 Button({ text: "📐 Tamanho 100px", onClick: () => { dynamicContainer.setShortcutSize(100); log('Tamanho: 100px'); } }),
-                                Button({ text: "🖥️ Add ao Desktop Real", variant: "primary", onClick: () => {
-                                    if (Desktop.shortcutArea) {
-                                        Desktop.shortcutArea.addShortcut(
-                                            Shortcut({ 
-                                                label: 'Novo Atalho Dinâmico', 
-                                                icon: '🌟', 
-                                                type: 'app', 
-                                                action: () => alert('Fui criado por uma Janela!') 
-                                            })
-                                        );
-                                        log('🌟 Atalho adicionado na Área de Trabalho principal!');
-                                    } else {
-                                        log('Erro: Container do Desktop não encontrado.');
+                                Button({
+                                    text: "🖥️ Add ao Desktop Real", variant: "primary", onClick: () => {
+                                        if (Desktop.shortcutArea) {
+                                            Desktop.shortcutArea.addShortcut(
+                                                Shortcut({
+                                                    label: 'Novo Atalho Dinâmico',
+                                                    icon: '🌟',
+                                                    type: 'app',
+                                                    action: () => alert('Fui criado por uma Janela!')
+                                                })
+                                            );
+                                            log('🌟 Atalho adicionado na Área de Trabalho principal!');
+                                        } else {
+                                            log('Erro: Container do Desktop não encontrado.');
+                                        }
                                     }
-                                }})
+                                })
                             ]
                         })
                     ]),
@@ -1181,6 +1187,9 @@
 
         // --- REGISTRO DE TELAS (Screen Registry & Lazy Loading) ---
         Desktop.registerScreens({
+            // Framework Híbrido & ElementBuilder Showcase
+            "modern_hybrid": () => import('./screens/ModernHybridShowcaseScreen.js'),
+
             // Hub de Arquiteturas
             "hub_arquiteturas": () => HubArquiteturasScreen,
 
@@ -1220,6 +1229,12 @@
             gap: '6px',
             passthroughPointer: true,
             shortcuts: [
+                Shortcut({
+                    label: 'Framework Híbrido',
+                    icon: '⚡',
+                    type: 'app',
+                    action: () => Desktop.openScreen('modern_hybrid')
+                }),
                 Shortcut({
                     label: 'Hub de Arquiteturas',
                     icon: '📐',
@@ -1305,7 +1320,7 @@
                 }
             ],
             content: [
-                "✨ Desktop Engine V1.0 inicializado com sucesso.",
+                "✨ Desktop Engine V1.5 inicializado com sucesso.",
                 "📡 Conexão com EventBus estabelecida.",
                 "🔔 Sistema pronto para receber eventos em tempo real."
             ],
@@ -1323,6 +1338,12 @@
             variant: "primary",
             draggable: true,
             actions: [
+                {
+                    icon: "⚡",
+                    label: "Framework Híbrido",
+                    variant: "primary",
+                    action: () => Desktop.openScreen("modern_hybrid")
+                },
                 {
                     icon: "✨",
                     label: "Showcase Completo",
