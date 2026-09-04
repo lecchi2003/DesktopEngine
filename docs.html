@@ -335,8 +335,10 @@
             <a href="#avatar-tooltip">Avatar &amp; Tooltip</a>
             <a href="#dock-widget">DockWidget (Collapsible Tray &amp; Messenger)</a>
             <a href="#float-button">FloatButton (FAB &amp; Speed Dial)</a>
+            <a href="#shortcut-container">ShortcutContainer (Grade de Atalhos)</a>
+            <a href="#shortcut">Shortcut (Atalho Clicável)</a>
 
-            <div class="nav-header">Sistema Global & Arquitetura</div>
+            <div class="nav-header">Sistema Global &amp; Arquitetura</div>
             <a href="#background-tasks">Tarefas em Segundo Plano &amp; Web Workers</a>
             <a href="#janelas-filhas">Janelas Modais Filhas (Dialogs)</a>
             <a href="#window-menubar">MenuBar em Janelas (Window MenuBar)</a>
@@ -2059,6 +2061,182 @@ fab.toggle(); // Alterna a abertura do menu speed dial
 fab.open();   // Abre o menu speed dial
 fab.close();  // Fecha o menu speed dial
 fab.isOpen(); // Retorna booleano indicando se o menu está aberto</code></pre>
+            </div>
+
+            <hr>
+
+            <!-- SEÇÃO: SHORTCUTCONTAINER -->
+            <h2 id="shortcut-container">ShortcutContainer (Grade de Atalhos)</h2>
+            <p>Cria um contêiner em grade flexível para organizar atalhos clicáveis — compatível tanto com o Desktop quanto com o corpo de qualquer Janela. Funciona como a área de trabalho do Windows: popula automaticamente com <code>Shortcut()</code>s, suporta ordenação, alinhamento, scroll e redimensionamento automático.</p>
+
+            <h3>Propriedades</h3>
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>container</code></td><td>HTMLElement | string</td><td>null</td><td>Elemento pai ou ID onde o contêiner será montado.</td></tr>
+                    <tr><td><code>shortcuts</code></td><td>Shortcut[]</td><td>[]</td><td>Array de elementos <code>Shortcut()</code> iniciais.</td></tr>
+                    <tr><td><code>alignH</code></td><td>string</td><td>'left'</td><td>Alinhamento horizontal: <code>'left'</code> | <code>'center'</code> | <code>'right'</code> | <code>'justify'</code>.</td></tr>
+                    <tr><td><code>alignV</code></td><td>string</td><td>'top'</td><td>Alinhamento vertical: <code>'top'</code> | <code>'center'</code> | <code>'bottom'</code> | <code>'stretch'</code>.</td></tr>
+                    <tr><td><code>shortcutSize</code></td><td>string | number</td><td>'80px'</td><td>Tamanho-célula (largura e altura) de cada atalho na grade.</td></tr>
+                    <tr><td><code>gap</code></td><td>string | number</td><td>'8px'</td><td>Espaçamento entre atalhos.</td></tr>
+                    <tr><td><code>width</code></td><td>string | number</td><td>'100%'</td><td>Largura do contêiner.</td></tr>
+                    <tr><td><code>height</code></td><td>string | number</td><td>'100%'</td><td>Altura do contêiner.</td></tr>
+                    <tr><td><code>full</code></td><td>boolean</td><td>false</td><td>Se <code>true</code>, expande com <code>position:absolute; inset:0</code> para preencher todo o pai.</td></tr>
+                    <tr><td><code>scroll</code></td><td>boolean</td><td>true</td><td>Exibe scrollbars quando o conteúdo excede a área disponível.</td></tr>
+                    <tr><td><code>autoResize</code></td><td>boolean</td><td>false</td><td>Ajusta <code>shortcutSize</code> automaticamente para caber o máximo de colunas na área disponível (usa <code>ResizeObserver</code>).</td></tr>
+                    <tr><td><code>border</code></td><td>boolean</td><td>false</td><td>Exibe borda ao redor do contêiner.</td></tr>
+                    <tr><td><code>visible</code></td><td>boolean</td><td>true</td><td>Visibilidade inicial.</td></tr>
+                    <tr><td><code>sort</code></td><td>string</td><td>'none'</td><td>Ordenação inicial: <code>'none'</code> | <code>'asc'</code> | <code>'desc'</code> | <code>'type'</code>.</td></tr>
+                    <tr><td><code>passthroughPointer</code></td><td>boolean</td><td>false</td><td>Se <code>true</code>, o contêiner não intercepta eventos de mouse (ideal para overlay sobre o Desktop). Cada atalho individual mantém clicabilidade.</td></tr>
+                    <tr><td><code>id</code></td><td>string</td><td>—</td><td>ID do elemento.</td></tr>
+                    <tr><td><code>className</code></td><td>string</td><td>''</td><td>Classes CSS extras.</td></tr>
+                    <tr><td><code>style</code></td><td>string | object</td><td>''</td><td>Estilos inline extras.</td></tr>
+                    <tr><td><code>contextMenu</code></td><td>object</td><td>null</td><td>Menu de contexto do contêiner (mesmo formato do <code>ContextMenu</code>).</td></tr>
+                </tbody>
+            </table>
+
+            <h3>API (métodos no elemento retornado)</h3>
+            <table>
+                <thead><tr><th>Método</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>addShortcut(scEl)</code></td><td>Adiciona um <code>Shortcut()</code> ao contêiner, respeitando a ordenação atual.</td></tr>
+                    <tr><td><code>removeShortcut(target)</code></td><td>Remove por elemento HTML, ID ou label.</td></tr>
+                    <tr><td><code>sort(mode)</code></td><td>Reordena: <code>'asc'</code> | <code>'desc'</code> | <code>'type'</code> | <code>'none'</code>.</td></tr>
+                    <tr><td><code>clear()</code></td><td>Remove todos os atalhos.</td></tr>
+                    <tr><td><code>setAlignH(h)</code></td><td>Altera o alinhamento horizontal em tempo real.</td></tr>
+                    <tr><td><code>setAlignV(v)</code></td><td>Altera o alinhamento vertical em tempo real.</td></tr>
+                    <tr><td><code>setShortcutSize(size)</code></td><td>Altera o tamanho-célula de todos os atalhos existentes e futuros.</td></tr>
+                    <tr><td><code>setVisible(bool)</code></td><td>Mostra ou oculta o contêiner.</td></tr>
+                    <tr><td><code>setBorder(bool)</code></td><td>Ativa/desativa a borda.</td></tr>
+                    <tr><td><code>getShortcuts()</code></td><td>Retorna array com todos os elementos <code>.ui-shortcut</code> filhos.</td></tr>
+                    <tr><td><code>destroy()</code></td><td>Remove o contêiner do DOM e desconecta o <code>ResizeObserver</code>.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+                <pre><code>import { ShortcutContainer, Shortcut } from './ui.js';
+
+// Declarativo: cria e popula no Desktop
+const desktop = ShortcutContainer({
+    container: document.querySelector('.desktop-area'), // ou ID
+    full: true,       // preenche toda a área do desktop
+    scroll: false,
+    shortcutSize: '80px',
+    gap: '8px',
+    sort: 'asc',
+    shortcuts: [
+        Shortcut({ label: 'Meu App',    icon: '🚀', action: () => Desktop.openScreen('meu_app') }),
+        Shortcut({ label: 'Documentos', icon: '📁', type: 'folder', action: () => Desktop.openScreen('docs') }),
+        Shortcut({ label: 'Lixeira',    icon: '🗑️', type: 'folder', action: () => alert('Lixeira!') }),
+    ]
+});
+
+// Programático: adicionar/remover em tempo real
+desktop.addShortcut(
+    Shortcut({ label: 'Terminal', icon: '💻', action: () => Desktop.openScreen('terminal') })
+);
+desktop.removeShortcut('Documentos'); // por label
+desktop.sort('type');                  // reordena por tipo
+desktop.setShortcutSize(100);          // muda o tamanho
+desktop.clear();                       // remove tudo
+
+// Dentro de uma Janela (corpo da view)
+return ShortcutContainer({
+    width: '100%',
+    height: '100%',
+    shortcutSize: '72px',
+    border: true,
+    shortcuts: [
+        Shortcut({ label: 'Relatório', icon: '📊', action: () => self.runAction('openReport') }),
+        Shortcut({ label: 'Exportar',  icon: '📤', action: () => self.runAction('exportData') }),
+    ]
+});</code></pre>
+            </div>
+
+            <hr>
+
+            <!-- SEÇÃO: SHORTCUT -->
+            <h2 id="shortcut">Shortcut (Atalho Clicável)</h2>
+            <p>Cria um atalho clicável individual, destinado a ser inserido em um <code>ShortcutContainer</code> ou qualquer outro contêiner. Exibe um ícone/imagem e um label, e executa uma ação ao ser clicado (simples ou duplo). Comporta-se como os ícones de área de trabalho de sistemas operacionais.</p>
+
+            <h3>Propriedades</h3>
+            <table>
+                <thead><tr><th>Propriedade</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>label</code></td><td>string</td><td>''</td><td>Texto exibido abaixo do atalho.</td></tr>
+                    <tr><td><code>image</code></td><td>string</td><td>''</td><td>URL de imagem (<code>.png</code>, <code>.svg</code>, etc.) para o atalho. Tem prioridade sobre <code>icon</code>.</td></tr>
+                    <tr><td><code>icon</code></td><td>string</td><td>''</td><td>Emoji ou texto para usar como ícone. Fallback de <code>image</code>.</td></tr>
+                    <tr><td><code>action</code></td><td>function | string</td><td>null</td><td>Função executada ao clicar, ou nome de uma Screen/Action para delegar ao Desktop/Screen.</td></tr>
+                    <tr><td><code>instance</code></td><td>object</td><td>null</td><td>Instância de Screen para usar com <code>action</code> como string (chama <code>instance.runAction(action)</code>).</td></tr>
+                    <tr><td><code>type</code></td><td>string</td><td>'app'</td><td>Tipo semântico para ordenação: <code>'app'</code> | <code>'folder'</code> | <code>'file'</code> | <code>'link'</code>.</td></tr>
+                    <tr><td><code>iconSize</code></td><td>string | number</td><td>'48px'</td><td>Tamanho do ícone/imagem.</td></tr>
+                    <tr><td><code>fontSize</code></td><td>string | number</td><td>'11px'</td><td>Tamanho da fonte do label.</td></tr>
+                    <tr><td><code>active</code></td><td>boolean</td><td>false</td><td>Estado inicial selecionado/ativo.</td></tr>
+                    <tr><td><code>disabled</code></td><td>boolean</td><td>false</td><td>Desabilita o atalho (não clicável, aparência esmaecida).</td></tr>
+                    <tr><td><code>visible</code></td><td>boolean</td><td>true</td><td>Visibilidade inicial.</td></tr>
+                    <tr><td><code>tooltip</code></td><td>string</td><td>''</td><td>Texto do tooltip (<code>title</code> nativo).</td></tr>
+                    <tr><td><code>id</code></td><td>string</td><td>—</td><td>ID do elemento.</td></tr>
+                    <tr><td><code>className</code></td><td>string</td><td>''</td><td>Classes CSS extras.</td></tr>
+                    <tr><td><code>style</code></td><td>string | object</td><td>''</td><td>Estilos inline extras.</td></tr>
+                    <tr><td><code>contextMenu</code></td><td>object</td><td>null</td><td>Menu de contexto do atalho.</td></tr>
+                </tbody>
+            </table>
+
+            <h3>API (métodos no elemento retornado)</h3>
+            <table>
+                <thead><tr><th>Método</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    <tr><td><code>setActive(bool)</code></td><td>Ativa ou desativa o estado "selecionado" visualmente.</td></tr>
+                    <tr><td><code>setDisabled(bool)</code></td><td>Habilita ou desabilita o atalho.</td></tr>
+                    <tr><td><code>setVisible(bool)</code></td><td>Mostra ou oculta o atalho.</td></tr>
+                    <tr><td><code>setLabel(text)</code></td><td>Atualiza o texto do label.</td></tr>
+                    <tr><td><code>setImage(src)</code></td><td>Atualiza o ícone/imagem (URL ou emoji).</td></tr>
+                    <tr><td><code>destroy()</code></td><td>Remove o atalho do DOM.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+                <pre><code>import { Shortcut, ShortcutContainer } from './ui.js';
+
+// Criação básica (emoji como ícone)
+const sc = Shortcut({
+    label: 'Meu App',
+    icon: '🚀',
+    type: 'app',
+    action: () => Desktop.openScreen('meu_app')
+});
+
+// Com imagem real
+const scImg = Shortcut({
+    label: 'Configurações',
+    image: './assets/settings.png',
+    iconSize: '48px',
+    fontSize: '12px',
+    tooltip: 'Abre as configurações do sistema',
+    contextMenu: [
+        { label: '⚙️ Abrir',       action: () => Desktop.openScreen('settings') },
+        { label: '📌 Fixar na Barra', action: () => alert('Fixado!') }
+    ]
+});
+
+// Com ação de Screen (string)
+const scScreen = Shortcut({
+    label: 'Relatórios',
+    icon: '📊',
+    action: 'openReports',   // chama instance.runAction('openReports')
+    instance: this           // a Screen atual
+});
+
+// Manipulação pela API
+sc.setActive(true);
+sc.setLabel('App Atualizado!');
+sc.setImage('🎉');
+sc.setDisabled(true);
+
+// Adicionando ao container
+const container = ShortcutContainer({ width: '100%', height: '200px' });
+container.addShortcut(sc);
+container.addShortcut(scImg);</code></pre>
             </div>
 
             <hr>

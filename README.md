@@ -847,7 +847,136 @@ fab.isOpen(); // Retorna booleano indicando se o menu está aberto
 
 ---
 
+#### `ShortcutContainer` (Grade de Atalhos)
+Cria um contêiner em grade flexível para organizar atalhos clicáveis — compatível com o Desktop ou o corpo de qualquer Janela. Funciona como a área de trabalho do Windows: popula com `Shortcut()`s, suporta ordenação, alinhamento, scroll e redimensionamento automático.
+
+| Propriedade | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `container` | `HTMLElement\|string` | `null` | Elemento pai ou ID onde o contêiner será montado. |
+| `shortcuts` | `Shortcut[]` | `[]` | Array de elementos `Shortcut()` iniciais. |
+| `alignH` | `string` | `'left'` | Alinhamento horizontal: `'left'`\|`'center'`\|`'right'`\|`'justify'`. |
+| `alignV` | `string` | `'top'` | Alinhamento vertical: `'top'`\|`'center'`\|`'bottom'`\|`'stretch'`. |
+| `shortcutSize` | `string\|number` | `'80px'` | Tamanho-célula (largura e altura) de cada atalho na grade. |
+| `gap` | `string\|number` | `'8px'` | Espaçamento entre atalhos. |
+| `width` | `string\|number` | `'100%'` | Largura do contêiner. |
+| `height` | `string\|number` | `'100%'` | Altura do contêiner. |
+| `full` | `boolean` | `false` | Se `true`, expande com `position:absolute; inset:0` para preencher todo o pai. |
+| `scroll` | `boolean` | `true` | Exibe scrollbars quando o conteúdo excede a área disponível. |
+| `autoResize` | `boolean` | `false` | Ajusta `shortcutSize` automaticamente usando `ResizeObserver`. |
+| `border` | `boolean` | `false` | Exibe borda ao redor do contêiner. |
+| `visible` | `boolean` | `true` | Visibilidade inicial. |
+| `sort` | `string` | `'none'` | Ordenação: `'none'`\|`'asc'`\|`'desc'`\|`'type'`. |
+| `passthroughPointer` | `boolean` | `false` | Se `true`, o contêiner não intercepta mouse (overlay sobre o Desktop). Cada atalho mantém clicabilidade. Combina com `full: true` e `container`. |
+| `id` | `string` | — | ID do elemento. |
+| `className` | `string` | `''` | Classes CSS extras. |
+| `style` | `string\|object` | `''` | Estilos inline extras. |
+| `contextMenu` | `object` | `null` | Menu de contexto do contêiner. |
+
+**API pública** (métodos no elemento retornado):
+- `addShortcut(scEl)` — Adiciona um `Shortcut()` ao contêiner.
+- `removeShortcut(target)` — Remove por elemento HTML, ID ou label.
+- `sort(mode)` — Reordena: `'asc'`|`'desc'`|`'type'`|`'none'`.
+- `clear()` — Remove todos os atalhos.
+- `setAlignH(h)` / `setAlignV(v)` — Altera o alinhamento em tempo real.
+- `setShortcutSize(size)` — Altera o tamanho-célula de todos os atalhos.
+- `setVisible(bool)` / `setBorder(bool)` — Controle de visibilidade e borda.
+- `getShortcuts()` — Retorna array com todos os atalhos.
+- `destroy()` — Remove do DOM e desconecta o `ResizeObserver`.
+
+```javascript
+import { ShortcutContainer, Shortcut } from './ui.js';
+
+// Declarativo: no Desktop
+const desktop = ShortcutContainer({
+    full: true,
+    scroll: false,
+    shortcutSize: '80px',
+    sort: 'asc',
+    shortcuts: [
+        Shortcut({ label: 'Meu App',    icon: '🚀', action: () => Desktop.openScreen('meu_app') }),
+        Shortcut({ label: 'Documentos', icon: '📁', type: 'folder' }),
+        Shortcut({ label: 'Lixeira',    icon: '🗑️', type: 'folder' }),
+    ]
+});
+
+// Programático: adicionar/remover/ordenar em tempo real
+desktop.addShortcut(Shortcut({ label: 'Terminal', icon: '💻' }));
+desktop.removeShortcut('Documentos');
+desktop.sort('type');
+desktop.setShortcutSize(100);
+desktop.clear();
+
+// Dentro de uma Janela (corpo da view)
+return ShortcutContainer({
+    width: '100%', height: '100%',
+    shortcutSize: '72px', border: true,
+    shortcuts: [
+        Shortcut({ label: 'Relatório', icon: '📊', action: () => self.runAction('openReport') }),
+        Shortcut({ label: 'Exportar',  icon: '📤', action: () => self.runAction('exportData') }),
+    ]
+});
+```
+
+---
+
+#### `Shortcut` (Atalho Clicável)
+Cria um atalho clicável individual para uso em `ShortcutContainer` ou qualquer outro contêiner. Exibe um ícone/imagem e um label, executando uma ação ao ser clicado.
+
+| Propriedade | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `label` | `string` | `''` | Texto exibido abaixo do atalho. |
+| `image` | `string` | `''` | URL de imagem (`.png`, `.svg`, etc.). Tem prioridade sobre `icon`. |
+| `icon` | `string` | `''` | Emoji ou texto como ícone. Fallback de `image`. |
+| `action` | `function\|string` | `null` | Função a executar ou nome de Screen/Action para delegar. |
+| `instance` | `object` | `null` | Instância de Screen para `action` como string. |
+| `type` | `string` | `'app'` | Tipo semântico: `'app'`\|`'folder'`\|`'file'`\|`'link'`. |
+| `iconSize` | `string\|number` | `'48px'` | Tamanho do ícone/imagem. |
+| `fontSize` | `string\|number` | `'11px'` | Tamanho da fonte do label. |
+| `active` | `boolean` | `false` | Estado inicial selecionado/ativo. |
+| `disabled` | `boolean` | `false` | Desabilita o atalho (não clicável, aparência esmaecida). |
+| `visible` | `boolean` | `true` | Visibilidade inicial. |
+| `tooltip` | `string` | `''` | Texto do tooltip (`title` nativo). |
+| `id` | `string` | — | ID do elemento. |
+| `className` | `string` | `''` | Classes CSS extras. |
+| `style` | `string\|object` | `''` | Estilos inline extras. |
+| `contextMenu` | `object` | `null` | Menu de contexto do atalho. |
+
+**API pública:** `setActive(bool)`, `setDisabled(bool)`, `setVisible(bool)`, `setLabel(text)`, `setImage(src)`, `destroy()`.
+
+```javascript
+import { Shortcut, ShortcutContainer } from './ui.js';
+
+// Básico com emoji
+const sc = Shortcut({
+    label: 'Meu App',
+    icon: '🚀',
+    type: 'app',
+    action: () => Desktop.openScreen('meu_app')
+});
+
+// Com imagem real e menu de contexto
+const scImg = Shortcut({
+    label: 'Configurações',
+    image: './assets/settings.png',
+    iconSize: '48px',
+    tooltip: 'Abre as configurações do sistema',
+    contextMenu: [
+        { label: '⚙️ Abrir', action: () => Desktop.openScreen('settings') },
+        { label: '📌 Fixar', action: () => alert('Fixado!') }
+    ]
+});
+
+// Manipulação pela API
+sc.setActive(true);
+sc.setLabel('App Atualizado!');
+sc.setImage('🎉');
+sc.setDisabled(true);
+```
+
+---
+
 ### 6. Menus Globais e ContextMenu
+
 
 #### `MenuBar` & `StartMenu` (Menus Globais)
 O framework suporta os dois paradigmas clássicos de sistemas operacionais, com total integração e acoplamento dinâmico:

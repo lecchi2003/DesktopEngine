@@ -3108,3 +3108,459 @@ export function FloatButton({
 
     return wrap;
 }
+
+// ============================================================
+//  ShortcutContainer — Grade de Atalhos (Desktop / Janela)
+// ============================================================
+/**
+ * Cria um contêiner de grade de atalhos, compatível com o Desktop ou o corpo de uma Janela.
+ *
+ * @param {object} options
+ * @param {HTMLElement|string} [options.container]           - Elemento‑pai ou ID do contêiner‑pai.
+ * @param {Shortcut[]}         [options.shortcuts=[]]        - Array de elementos Shortcut() iniciais.
+ * @param {string}             [options.alignH='left']       - Alinhamento horizontal: 'left'|'center'|'right'|'justify'.
+ * @param {string}             [options.alignV='top']        - Alinhamento vertical: 'top'|'center'|'bottom'|'stretch'.
+ * @param {string|number}      [options.shortcutSize='80px'] - Tamanho-célula dos atalhos na grade.
+ * @param {string}             [options.gap='8px']           - Espaço entre atalhos.
+ * @param {string|number}      [options.width='100%']        - Largura do contêiner.
+ * @param {string|number}      [options.height='100%']       - Altura do contêiner.
+ * @param {boolean}            [options.full=false]          - Preenche todo o pai (position:absolute inset:0).
+ * @param {boolean}            [options.scroll=true]         - Exibe scrollbars quando necessário.
+ * @param {boolean}            [options.autoResize=false]    - Ajusta shortcutSize para caber na área disponível.
+ * @param {boolean}            [options.border=false]        - Exibe borda ao redor do contêiner.
+ * @param {boolean}            [options.visible=true]        - Visibilidade inicial.
+ * @param {string}             [options.sort='none']         - Ordenação: 'none'|'asc'|'desc'|'type'.
+ * @param {string}             [options.id]                  - ID do elemento.
+ * @param {string}             [options.className]           - Classes CSS extras.
+ * @param {string}             [options.style]               - Estilos inline extras.
+ * @param {boolean}            [options.passthroughPointer=false] - Se true, o container passa os eventos de mouse para os elementos abaixo (ideal para overlay no Desktop). Os atalhos individuais mantêm clicabilidade.
+ * @param {object}             [options.contextMenu]         - Menu de contexto do contêiner.
+ * @returns {HTMLElement}  O elemento do contêiner (com API: addShortcut, removeShortcut, sort, clear, setVisible…)
+ */
+export function ShortcutContainer(options = {}) {
+    const {
+        container    = null,
+        shortcuts    = [],
+        alignH       = 'left',
+        alignV       = 'top',
+        shortcutSize = '80px',
+        gap          = '8px',
+        width        = '100%',
+        height       = '100%',
+        full         = false,
+        scroll       = true,
+        autoResize   = false,
+        border       = false,
+        visible      = true,
+        sort             = 'none',
+        passthroughPointer = false,
+        id,
+        className    = '',
+        style        = '',
+        contextMenu  = null
+    } = options;
+
+    // ---- Mapeamento de alinhamentos para CSS ----
+    const hMap = { left: 'flex-start', center: 'center', right: 'flex-end', justify: 'space-evenly' };
+    const vMap = { top: 'flex-start', center: 'center', bottom: 'flex-end', stretch: 'stretch' };
+
+    const el = document.createElement('div');
+    el.className = `ui-shortcut-container ${className}`.trim();
+    if (id) el.id = id;
+
+    // ---- Layout base ----
+    const shortcutSizePx = typeof shortcutSize === 'number' ? `${shortcutSize}px` : shortcutSize;
+    const gapPx          = typeof gap === 'number' ? `${gap}px` : gap;
+    const widthPx        = typeof width === 'number' ? `${width}px` : width;
+    const heightPx       = typeof height === 'number' ? `${height}px` : height;
+
+    el.style.display        = 'flex';
+    el.style.flexWrap       = 'wrap';
+    el.style.justifyContent = hMap[alignH] || 'flex-start';
+    el.style.alignContent   = vMap[alignV]  || 'flex-start';
+    el.style.alignItems     = vMap[alignV]  || 'flex-start';
+    el.style.gap            = gapPx;
+    el.style.padding        = gapPx;
+    el.style.boxSizing      = 'border-box';
+    el.style.width          = widthPx;
+    el.style.height         = heightPx;
+    el.style.overflow       = scroll ? 'auto' : 'hidden';
+    el.style.overflowX      = scroll ? 'auto' : 'hidden';
+    el.dataset.shortcutSize = shortcutSizePx;
+
+    if (full) {
+        el.style.position = 'absolute';
+        el.style.inset    = '0';
+        el.style.width    = '100%';
+        el.style.height   = '100%';
+    }
+
+    if (border) el.classList.add('ui-shortcut-container--border');
+    if (!visible) el.style.display = 'none';
+
+    // ---- Passthrough de pointer (overlay transparente no desktop) ----
+    if (passthroughPointer) {
+        el.style.pointerEvents = 'none';
+    }
+
+    // Nota: o contextMenu do container é vinculado ao próprio elemento.
+    // Quando passthroughPointer=true, o contextmenu chega pelo atalho abaixo
+    // (que tem pointer-events:auto). O contextMenu do container é útil no modo sem passthrough.
+
+    if (style) {
+        if (typeof style === 'string') {
+            el.style.cssText += ';' + style;
+        } else {
+            Object.assign(el.style, style);
+        }
+    }
+
+    // ---- Função interna de ordenação ----
+    function _sortShortcuts(mode) {
+        const children = Array.from(el.querySelectorAll('.ui-shortcut'));
+        if (!children.length || mode === 'none') return;
+        children.sort((a, b) => {
+            const la = (a.dataset.shortcutLabel || '').toLowerCase();
+            const lb = (b.dataset.shortcutLabel || '').toLowerCase();
+            const ta = a.dataset.shortcutType || '';
+            const tb = b.dataset.shortcutType || '';
+            if (mode === 'type') {
+                if (ta !== tb) return ta.localeCompare(tb);
+                return la.localeCompare(lb);
+            }
+            const cmp = la.localeCompare(lb);
+            return mode === 'desc' ? -cmp : cmp;
+        });
+        children.forEach(c => el.appendChild(c));
+    }
+
+    // ---- Auto-resize: observa mudanças de tamanho ----
+    let _resizeObserver = null;
+    function _applyAutoResize() {
+        if (!autoResize) return;
+        const containerW = el.clientWidth || 300;
+        const minCell = 56;
+        const cols = Math.max(1, Math.floor(containerW / minCell));
+        const cell = Math.floor((containerW - (cols + 1) * 8) / cols);
+        el.querySelectorAll('.ui-shortcut').forEach(sc => {
+            sc.style.width  = `${cell}px`;
+            sc.style.height = `${cell}px`;
+        });
+    }
+
+    if (autoResize && typeof ResizeObserver !== 'undefined') {
+        _resizeObserver = new ResizeObserver(_applyAutoResize);
+        _resizeObserver.observe(el);
+    }
+
+    // ---- Adicionar atalhos ----
+    function _addShortcut(scEl) {
+        if (!scEl) return;
+        scEl.style.width  = shortcutSizePx;
+        scEl.style.height = shortcutSizePx;
+        // Garante clicabilidade individual quando o container está em modo passthrough
+        if (passthroughPointer) scEl.style.pointerEvents = 'auto';
+        el.appendChild(scEl);
+    }
+
+    shortcuts.forEach(sc => _addShortcut(sc));
+    if (sort !== 'none') _sortShortcuts(sort);
+
+    // ---- Contexto ----
+    if (contextMenu) {
+        el.setContextMenu = el.setContextMenu || ((items) => {
+            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+                el._contextMenuController.destroy();
+            }
+            el._contextMenuController = bindContextMenu(el, Array.isArray(items) ? items : items.items, {});
+        });
+        el.setContextMenu(contextMenu);
+    }
+
+    // ---- API pública ----
+    const api = {
+        element: el,
+
+        /** Adiciona um atalho (resultado de Shortcut()) ao contêiner. */
+        addShortcut(scEl) {
+            _addShortcut(scEl);
+            if (sort !== 'none') _sortShortcuts(sort);
+            if (autoResize) _applyAutoResize();
+            return this;
+        },
+
+        /** Remove um atalho pelo seu elemento ou por id/label. */
+        removeShortcut(target) {
+            if (target instanceof HTMLElement) {
+                if (el.contains(target)) el.removeChild(target);
+            } else if (typeof target === 'string') {
+                const found = el.querySelector(`[data-shortcut-label="${target}"], #${target}`);
+                if (found) el.removeChild(found);
+            }
+            return this;
+        },
+
+        /** Reordena os atalhos. Modos: 'asc'|'desc'|'type'|'none' */
+        sort(mode) { _sortShortcuts(mode); return this; },
+
+        /** Remove todos os atalhos. */
+        clear() { el.querySelectorAll('.ui-shortcut').forEach(sc => sc.remove()); return this; },
+
+        /** Altera alinhamento horizontal. */
+        setAlignH(h) { el.style.justifyContent = hMap[h] || h; return this; },
+
+        /** Altera alinhamento vertical. */
+        setAlignV(v) { el.style.alignContent = el.style.alignItems = vMap[v] || v; return this; },
+
+        /** Altera o tamanho-célula dos atalhos. */
+        setShortcutSize(size) {
+            const s = typeof size === 'number' ? `${size}px` : size;
+            el.dataset.shortcutSize = s;
+            el.querySelectorAll('.ui-shortcut').forEach(sc => { sc.style.width = s; sc.style.height = s; });
+            return this;
+        },
+
+        /** Mostra/oculta o contêiner. */
+        setVisible(v) { el.style.display = v ? 'flex' : 'none'; return this; },
+
+        /** Ativa/desativa borda. */
+        setBorder(v) { el.classList.toggle('ui-shortcut-container--border', v); return this; },
+
+        /** Altera ou define o menu de contexto do container em tempo real. */
+        setContextMenu(items) {
+            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+                el._contextMenuController.destroy();
+            }
+            el._contextMenuController = bindContextMenu(el, Array.isArray(items) ? items : items.items, {});
+            return this;
+        },
+
+        /** Retorna todos os atalhos atuais. */
+        getShortcuts() { return Array.from(el.querySelectorAll('.ui-shortcut')); },
+
+        /** Destrói o componente e o observer. */
+        destroy() {
+            if (_resizeObserver) _resizeObserver.disconnect();
+            el.remove();
+        }
+    };
+
+    Object.assign(el, api);
+
+    // ---- Montar no pai, se informado ----
+    if (container) {
+        const parent = typeof container === 'string' ? document.getElementById(container) : container;
+        if (parent) {
+            // Se full=true, garante que o pai tem position para o overlay funcionar
+            if (full && getComputedStyle(parent).position === 'static') {
+                parent.style.position = 'relative';
+            }
+            parent.appendChild(el);
+        }
+    }
+
+    return el;
+}
+
+// ============================================================
+//  Shortcut — Atalho Clicável (para uso em ShortcutContainer ou avulso)
+// ============================================================
+/**
+ * Cria um atalho clicável para uso em ShortcutContainer ou qualquer outro contêiner.
+ *
+ * @param {object} options
+ * @param {string}          [options.label]            - Texto exibido abaixo do atalho.
+ * @param {string}          [options.image]            - URL de imagem ou emoji/SVG para o atalho.
+ * @param {string}          [options.icon]             - Alias de image (emoji, texto ou URL).
+ * @param {function|string} [options.action]           - Função a executar ou screen/ação da Screen.
+ * @param {object}          [options.instance]         - Instância de Screen (para runAction por nome).
+ * @param {string}          [options.type='app']       - Tipo: 'app'|'folder'|'file'|'link' (para ordenação).
+ * @param {number|string}   [options.iconSize='48px']  - Tamanho do ícone/imagem.
+ * @param {number|string}   [options.fontSize='11px']  - Tamanho da fonte do label.
+ * @param {boolean}         [options.active=false]     - Estado ativo inicial (selecionado).
+ * @param {boolean}         [options.disabled=false]   - Desativado (não clicável, aparência faded).
+ * @param {boolean}         [options.visible=true]     - Visibilidade.
+ * @param {string}          [options.tooltip]          - Texto do tooltip (title).
+ * @param {string}          [options.id]               - ID do elemento.
+ * @param {string}          [options.className]        - Classes extras.
+ * @param {string}          [options.style]            - Estilos inline extras.
+ * @param {object}          [options.contextMenu]      - Menu de contexto do atalho.
+ * @returns {HTMLElement}  O elemento do atalho (com API: setActive, setDisabled, setVisible, setLabel, setImage…)
+ */
+export function Shortcut(options = {}) {
+    const {
+        label       = '',
+        image       = '',
+        icon        = '',
+        action      = null,
+        instance    = null,
+        type        = 'app',
+        iconSize    = '48px',
+        fontSize    = '11px',
+        active      = false,
+        disabled    = false,
+        visible     = true,
+        tooltip     = '',
+        id,
+        className   = '',
+        style       = '',
+        contextMenu = null
+    } = options;
+
+    const visual = image || icon;  // Preferência: image, fallback icon
+
+    const el = document.createElement('div');
+    el.className = `ui-shortcut ${className}`.trim();
+    if (id) el.id = id;
+    if (tooltip || label) el.title = tooltip || label;
+
+    // Datasets para busca/ordenação
+    el.dataset.shortcutLabel = label;
+    el.dataset.shortcutType  = type;
+
+    // ---- Imagem / Ícone ----
+    const imgEl = document.createElement('div');
+    imgEl.className = 'ui-shortcut__image';
+
+    const iconSizePx = typeof iconSize === 'number' ? `${iconSize}px` : iconSize;
+
+    if (visual) {
+        // Detecta se é URL (http/data/blob/caminho com extensão)
+        const isUrl = /^(https?:|data:|blob:|\.\/|\.\.\/|\/[^/]|[^:]+\.(png|jpg|jpeg|gif|svg|webp|ico))/.test(visual);
+        if (isUrl) {
+            const img = document.createElement('img');
+            img.src = visual;
+            img.alt = label || '';
+            img.style.width     = iconSizePx;
+            img.style.height    = iconSizePx;
+            img.style.objectFit = 'contain';
+            img.draggable       = false;
+            imgEl.appendChild(img);
+        } else {
+            // Emoji ou texto
+            imgEl.textContent      = visual;
+            imgEl.style.fontSize   = iconSizePx;
+            imgEl.style.lineHeight = '1';
+        }
+    } else {
+        // Ícone padrão genérico por tipo
+        const defaults = { folder: '📁', file: '📄', link: '🔗', app: '⬜' };
+        imgEl.textContent      = defaults[type] || '⬜';
+        imgEl.style.fontSize   = iconSizePx;
+        imgEl.style.lineHeight = '1';
+    }
+
+    el.appendChild(imgEl);
+
+    // ---- Label ----
+    if (label) {
+        const lbl = document.createElement('span');
+        lbl.className  = 'ui-shortcut__label';
+        lbl.textContent = label;
+        lbl.style.fontSize = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
+        el.appendChild(lbl);
+    }
+
+    // ---- Estado inicial ----
+    if (active)   el.classList.add('active');
+    if (disabled) el.classList.add('disabled');
+    if (!visible) el.style.display = 'none';
+
+    if (style) {
+        if (typeof style === 'string') el.style.cssText += ';' + style;
+        else Object.assign(el.style, style);
+    }
+
+    // ---- Clique ----
+    el.addEventListener('click', (e) => {
+        if (el.classList.contains('disabled')) return;
+
+        // Seleciona apenas este atalho no contêiner
+        const parent = el.parentElement;
+        if (parent) parent.querySelectorAll('.ui-shortcut.active').forEach(sc => sc.classList.remove('active'));
+        el.classList.add('active');
+
+        if (typeof action === 'function') {
+            action(e, shortcutApi);
+        } else if (typeof action === 'string') {
+            if (instance && typeof instance.runAction === 'function') {
+                instance.runAction(action);
+            } else if (typeof window.Desktop !== 'undefined' && typeof window.Desktop.openScreen === 'function') {
+                window.Desktop.openScreen(action);
+            }
+        }
+    });
+
+    // Duplo-clique também executa a ação
+    el.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        el.click();
+    });
+
+    // ---- Contexto ----
+    if (contextMenu) {
+        el.setContextMenu = (items) => {
+            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+                el._contextMenuController.destroy();
+            }
+            el._contextMenuController = bindContextMenu(el, Array.isArray(items) ? items : items.items, {});
+        };
+        el.setContextMenu(contextMenu);
+    }
+
+    // ---- API pública ----
+    const shortcutApi = {
+        element: el,
+
+        /** Ativa ou desativa o estado "selecionado". */
+        setActive(v) { el.classList.toggle('active', !!v); return this; },
+
+        /** Ativa ou desativa o estado "desabilitado". */
+        setDisabled(v) { el.classList.toggle('disabled', !!v); return this; },
+
+        /** Mostra ou oculta o atalho. */
+        setVisible(v) { el.style.display = v ? '' : 'none'; return this; },
+
+        /** Altera o texto do label. */
+        setLabel(text) {
+            el.dataset.shortcutLabel = text;
+            const lbl = el.querySelector('.ui-shortcut__label');
+            if (lbl) lbl.textContent = text;
+            return this;
+        },
+
+        /** Altera a imagem/emoji do atalho. */
+        setImage(src) {
+            const imgEl = el.querySelector('.ui-shortcut__image');
+            if (!imgEl) return this;
+            imgEl.innerHTML = '';
+            const isUrl = /^(https?:|data:|blob:|\.\/|\.\.\/|\/[^/]|[^:]+\.(png|jpg|jpeg|gif|svg|webp|ico))/.test(src);
+            if (isUrl) {
+                const img = document.createElement('img');
+                img.src = src;
+                img.style.width = img.style.height = iconSizePx;
+                img.style.objectFit = 'contain';
+                imgEl.appendChild(img);
+            } else {
+                imgEl.textContent = src;
+            }
+            return this;
+        },
+
+        /** Altera ou define o menu de contexto do atalho em tempo real. */
+        setContextMenu(items) {
+            if (el._contextMenuController && typeof el._contextMenuController.destroy === 'function') {
+                el._contextMenuController.destroy();
+            }
+            el._contextMenuController = bindContextMenu(el, Array.isArray(items) ? items : items.items, {});
+            return this;
+        },
+
+        /** Remove o atalho do DOM. */
+        destroy() { el.remove(); }
+    };
+
+    Object.assign(el, shortcutApi);
+
+    return el;
+}
