@@ -95,6 +95,12 @@
                         { label: "📟 DOS TUI (Text Console)", action: () => Desktop.setLookAndFeel("turbo-tui") },
                         { label: "⚡ Cyber Neon (Matrix HUD)", action: () => Desktop.setLookAndFeel("cyberpunk-neon") }
                     ]
+                },
+                {
+                    label: "🎨 Ilustração & Cartoon",
+                    items: [
+                        { label: "✏️ Comic Doodle (Pastel Sketch)", action: () => Desktop.setLookAndFeel("comic-doodle") }
+                    ]
                 }
             ]
         };
@@ -111,6 +117,8 @@
                     { label: "📄 5. Templates HTML Puro", action: () => window.location.href = 'index-template.html' },
                     "separator",
                     { label: "Hub de Arquiteturas de Telas", screen: "hub_arquiteturas" },
+                    "separator",
+                    { label: "📦 Amazon.com (Showcase Comic Doodle)", screen: "amazon_comic" },
                     "separator",
                     { label: "🖥️ Layout macOS (index.html) [Atual]", action: () => Desktop.openScreen("hub_arquiteturas") },
                     { label: "🪟 Layout Windows (index2.html)", action: () => window.location.href = 'index2.html' },
@@ -227,6 +235,7 @@
                     { label: "📊 Painel de Controle (Lazy)", screen: "dashboard" },
                     { label: "📝 Editor de Documentos", screen: "editor" },
                     { label: "🛍️ CRUD de Produtos", screen: "crud_api" },
+                    { label: "📦 Amazon.com (Comic Showcase)", screen: "amazon_comic" },
                     { label: "Showcase de Componentes UI", screen: "showcase" }
                 ]
             }
@@ -242,6 +251,8 @@
             { label: "🛍️ CRUD de Produtos (API Python)", screen: "crud_api" },
             { label: "Abrir Editor com MenuBar (Lazy)", screen: "editor" },
             { label: "Nova Anotação Rápida", action: () => abrirAnotacao() },
+            "separator",
+            { label: "📦 Abrir Amazon.com (Showcase Comic)", screen: "amazon_comic" },
             "separator",
             { label: "Abrir Painel (Lazy)", screen: "dashboard" },
             { label: "Abrir DataGrid (Lazy)", screen: "datagrid" },
@@ -579,10 +590,11 @@
                                                     { label: "🐧 Adwaita Slate (GNOME Clean)", value: "adwaita-slate" },
                                                     { label: "⚙️ Breeze Plasma (KDE Plasma)", value: "breeze-plasma" },
 
-                                                    // ── Especial / Terminal ──────────────────────
-                                                    { label: "─── Especial / Terminal ───", value: "default", disabled: true },
+                                                    // ── Especial / Terminal / Ilustração ─────────
+                                                    { label: "─── Especial / Ilustração ───", value: "default", disabled: true },
                                                     { label: "📟 Turbo TUI (DOS Console)", value: "turbo-tui" },
-                                                    { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" }
+                                                    { label: "⚡ Cyberpunk Neon (Matrix HUD)", value: "cyberpunk-neon" },
+                                                    { label: "✏️ Comic Doodle (Pastel Sketch)", value: "comic-doodle" }
                                                 ]
                                             }),
                                             Grid({
@@ -1040,6 +1052,7 @@
             "dashboard": () => import('./screens/DashboardScreen.js'),
             "datagrid": () => import('./screens/DataGridScreen.js'),
             "sobre": () => import('./screens/SobreScreen.js'),
+            "amazon_comic": () => import('./screens/ComicDoodleShowcaseScreen.js'),
 
             // 2. Telas Registradas Diretamente (Objetos ou inline)
             "tasks": () => TaskScreen,
@@ -1052,9 +1065,15 @@
 
         // Abre telas iniciais demonstrativas via Screen Registry
         setTimeout(() => {
-            Desktop.openScreen("hub_arquiteturas");
-            setTimeout(() => Desktop.openScreen("terminal_alfa"), 150);
-            setTimeout(() => Desktop.openScreen("terminal_beta"), 300);
+            const urlParams = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search) : null;
+            const screenParam = urlParams ? urlParams.get("screen") : null;
+            if (screenParam) {
+                Desktop.openScreen(screenParam);
+            } else {
+                Desktop.openScreen("hub_arquiteturas");
+                setTimeout(() => Desktop.openScreen("terminal_alfa"), 150);
+                setTimeout(() => Desktop.openScreen("terminal_beta"), 300);
+            }
         }, 100);
 
         // --- 1. DOCK WIDGET GLOBAL (ESTILO LINKEDIN MESSENGER / LOG DE EVENTOS) ---

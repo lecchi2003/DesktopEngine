@@ -1542,6 +1542,7 @@ EventBus.on("laf:change", (lafName) => {
 | **Desktops Unix & Abertos** | `"breeze-plasma"` | Breeze Plasma | Linhas nítidas, acentos vetoriais azuis e cantos de 4px. |
 | **Console & Sci-Fi** | `"turbo-tui"` | DOS TUI Console | Visual de modo texto azul DOS com bordas em caracteres duplos e monospace. |
 | **Console & Sci-Fi** | `"cyberpunk-neon"` | Cyber Neon HUD | Bordas chanfradas em 45º, linhas de grade futuristas e acentos neon. |
+| **Ilustração & Cartoon** | `"comic-doodle"` | Comic Doodle (Pastel Sketch) | Design doodle com traços pretos expressivos (2.5px), tipografia Comic Neue, tons pastéis suaves (azul periwinkle, rosa, pêssego e menta) e botões arredondados com sombra sólida neo-brutalista. |
 
 ### 9. Comunicação Inter-telas Peer-to-Peer (EventBus)
 
